@@ -13,7 +13,9 @@ typedef struct mpi_variables {
 /* Functions */
 int MPIRank1D             (int,int*,int*);
 int MPIRanknD             (int,int,int*,int*);
-int MPIPartition1D        (int,int*,int*,int*,int*);
+int MPIPartition1D        (int,int,int);
+int MPIPartitionArray1D   (void*,int,int,double*,double*,int,int,int,int); 
+int MPIPartitionArraynD   (void*,double*,double*,int*,int*,int,int,int,int); 
 int MPIMax_integer        (int*,int*,int);
 int MPIMax_double         (double*,double*,int);
 int MPIBroadcast_double   (double*,int,int);

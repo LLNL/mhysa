@@ -61,6 +61,7 @@ AC_PROG_INSTALL
 AC_CONFIG_FILES([
  Makefile
  src/Makefile
+ src/ArrayFunctions/Makefile
  src/HyParFunctions/Makefile
  src/MPIFunctions/Makefile
 ])

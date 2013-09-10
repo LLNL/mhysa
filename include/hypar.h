@@ -1,4 +1,4 @@
-#define _MAX_STRING_SIZE_ 500
+#include <basic.h>
 
 typedef struct solver_parameters {
 
@@ -16,21 +16,22 @@ typedef struct solver_parameters {
   double  dt;                         /* time step size                                   */
 
   /* Data arrays */
-  double *x;                              /* coordinate vector */
-  double *u;                              /* state vector      */
+  int    *index;                          /* ndims-dimensional variable index             */
+  double *x;                              /* coordinate vector                            */
+  double *u;                              /* state vector                                 */
 
   /* I/O parameters */
-  int screen_op_iter;                     /* frequency of screen output */
-  int file_op_iter;                       /* frequency of file output   */
-  char op_file_format[_MAX_STRING_SIZE_]; /* output file format         */
-  char op_overwrite[_MAX_STRING_SIZE_];   /* overwrite output file?     */
+  int screen_op_iter;                     /* frequency of screen output                   */
+  int file_op_iter;                       /* frequency of file output                     */
+  char op_file_format[_MAX_STRING_SIZE_]; /* output file format                           */
+  char op_overwrite[_MAX_STRING_SIZE_];   /* overwrite output file?                       */
 
 } HyPar;
 
 /* Functions */
 int ReadInputs            (void*,void*);
 int Initialize            (void*,void*);
-//int InitialSolution       (void*,void*);
+int InitialSolution       (void*,void*);
 //int InitializeBoundaries  (void*,void*);
 //int InitializeSolvers     (void*,void*);
 //int Solve                 (void*,void*);

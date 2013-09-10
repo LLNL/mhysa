@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <basic.h>
 #include <mpivars.h>
 #include <hypar.h>
 
@@ -10,15 +11,15 @@ int Initialize(void *s, void *m)
   int           ierr    = 0,i;
 
   /* communicating basic information to all processes */
-  ierr = MPIBroadcast_integer(&solver->ndims,1,0); if (ierr) return(ierr);
-  ierr = MPIBroadcast_integer(&solver->nvars,1,0); if (ierr) return(ierr);
+  ierr = MPIBroadcast_integer(&solver->ndims,1,0); CHECKERR(ierr);
+  ierr = MPIBroadcast_integer(&solver->nvars,1,0); CHECKERR(ierr);
   if (!mpi->rank) {
     solver->dim_global = (int*) calloc (solver->ndims,sizeof(int));
     mpi->iproc         = (int*) calloc (solver->ndims,sizeof(int));
   }
   mpi->ip = (int*) calloc (solver->ndims,sizeof(int));
-  ierr = MPIBroadcast_integer(&solver->dim_global[0],solver->ndims,0); if (ierr) return(ierr);
-  ierr = MPIBroadcast_integer(&mpi->iproc[0]        ,solver->ndims,0); if (ierr) return(ierr);
+  ierr = MPIBroadcast_integer(&solver->dim_global[0],solver->ndims,0); CHECKERR(ierr);
+  ierr = MPIBroadcast_integer(&mpi->iproc[0]        ,solver->ndims,0); CHECKERR(ierr);
 
   solver->npoints_global = 1;
   for (i=0; i<solver->ndims; i++) solver->npoints_global *= solver->dim_global[i];
@@ -47,7 +48,7 @@ int Initialize(void *s, void *m)
     buffer[5] = solver->screen_op_iter;
     buffer[6] = solver->file_op_iter;
   }
-  ierr = MPIBroadcast_integer(buffer,buffer_size,0); if (ierr) return(ierr);
+  ierr = MPIBroadcast_integer(buffer,buffer_size,0); CHECKERR(ierr);
   solver->ghosts            = buffer[0];
   solver->n_iter            = buffer[1];
   solver->hyp_space_scheme  = buffer[2];
@@ -57,20 +58,20 @@ int Initialize(void *s, void *m)
   solver->file_op_iter      = buffer[6];
   free(buffer);
 
-  ierr = MPIBroadcast_double(&solver->dt,1,0);                               if (ierr) return(ierr);
-  ierr = MPIBroadcast_character(solver->op_file_format,_MAX_STRING_SIZE_,0); if (ierr) return(ierr);
-  ierr = MPIBroadcast_character(solver->op_overwrite  ,_MAX_STRING_SIZE_,0); if (ierr) return(ierr);
+  ierr = MPIBroadcast_double(&solver->dt,1,0);                               CHECKERR(ierr);
+  ierr = MPIBroadcast_character(solver->op_file_format,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
+  ierr = MPIBroadcast_character(solver->op_overwrite  ,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
 
   /* calculate ndims-D rank of each process (ip[]) from rank in MPI_COMM_WORLD */
-  ierr = MPIRanknD(solver->ndims,mpi->rank,mpi->iproc,mpi->ip); if (ierr) return(ierr);
+  ierr = MPIRanknD(solver->ndims,mpi->rank,mpi->iproc,mpi->ip); CHECKERR(ierr);
 
-  /* calculate local domain dimensions */
-  ierr = MPIPartition1D(solver->ndims,solver->dim_global,mpi->iproc,mpi->ip,solver->dim_local);
-  if (ierr) return(ierr);
+  /* calculate local domain sizes along each dimension */
+  for (i=0; i<solver->ndims; i++) 
+    solver->dim_local[i] = MPIPartition1D(solver->dim_global[i],mpi->iproc[i],mpi->ip[i]);
 
   /* calculate local domain limits in terms of global domain */
   ierr = MPILocalDomainLimits(solver->ndims,mpi->rank,mpi,solver->dim_global,mpi->is,mpi->ie);
-  if (ierr) return(ierr);
+  CHECKERR(ierr);
 
 #else
 
@@ -87,6 +88,7 @@ int Initialize(void *s, void *m)
 
   /* Allocations */
   if (!mpi->rank) printf("Allocating data arrays.\n");
+  solver->index = (int*) calloc (solver->ndims,sizeof(int));
   int size;
   /* state variable */
   size = 1;

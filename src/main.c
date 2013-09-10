@@ -37,7 +37,7 @@ int main(int argc,char **argv)
     return(ierr);
   }
   /* read and set grid & initial solution */
-//  ierr = InitialSolution(&solver,&mpi);
+  ierr = InitialSolution(&solver,&mpi);
   if (ierr) {
     printf("Error: InitialSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
