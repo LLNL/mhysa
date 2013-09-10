@@ -1,1 +1,18 @@
 HyPar - Hyperbolic-Parabolic Partial Differential Equations Solver
+
+A finite-difference algorithm to solve hyperbolic-parabolic equations 
+of the following form:
+
+    du        d [f_i(u)]         d^2 [g_i(u)]
+   ----   +  ------------   =  ----------------  ;   0 < i <= ndims
+    dt           dx_i             d (x_i)^2          (implied summation)
+
+where
+  u     -> state vector of size nvar
+  f     -> hyperbolic flux function
+  g     -> parabolic  function
+  ndims -> number of space dimensions
+  (^ denotes superscript and _ denotes subscript)
+
+The domain, x1_i < x_i < x2_i (where x1_i and x2_i are the upper and 
+lower bounds of x_i) is discretized with a Cartesian grid.
