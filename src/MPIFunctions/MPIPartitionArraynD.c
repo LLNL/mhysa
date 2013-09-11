@@ -19,7 +19,8 @@ int MPIPartitionArraynD(void *m,double *xg,double *x,int *dim_global,int *dim_lo
 
   /* xg should be non-null only on root */
   if (mpi->rank && xg) {
-    fprintf(stderr,"Error in MPIPartitionArraynD(): global array exists on non-root processors.\n");
+    fprintf(stderr,"Error in MPIPartitionArraynD(): global array exists on non-root processors (rank %d).\n",
+            mpi->rank);
     ierr = 1;
   }
   if ((!mpi->rank) && (!xg)) {

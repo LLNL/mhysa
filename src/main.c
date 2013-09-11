@@ -73,7 +73,7 @@ int main(int argc,char **argv)
   }
 
   /* Cleaning up */
-//  ierr = CleanUp(&solver);
+  ierr = Cleanup(&solver,&mpi);
   if (ierr) {
     printf("Error: CleanUp() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);

@@ -57,15 +57,14 @@ int InitialSolution(void *s, void *m)
     xg = NULL;
   }
 
-  ierr = MPIPartitionArraynD(mpi,ug,solver->u,solver->dim_global,solver->dim_local,
+  ierr = MPIPartitionArraynD(mpi,(mpi->rank?NULL:ug),solver->u,solver->dim_global,solver->dim_local,
                              solver->ndims,0,solver->ghosts,solver->nvars); CHECKERR(ierr);
 
   int offset_global, offset_local;
   offset_global = offset_local = 0;
   for (d=0; d<solver->ndims; d++) {
-    ierr = MPIPartitionArray1D(mpi,mpi->iproc[d],mpi->ip[d],&xg[offset_global],&solver->x[offset_local],
-                               solver->dim_global[d],solver->dim_local[d],0,0);
-    CHECKERR(ierr);
+    ierr = MPIPartitionArray1D(mpi,(mpi->rank?NULL:&xg[offset_global]),&solver->x[offset_local],
+                                    mpi->is[d],mpi->ie[d],solver->dim_local[d],0,0); CHECKERR(ierr);
     offset_global += solver->dim_global[d];
     offset_local  += solver->dim_local [d];
   }

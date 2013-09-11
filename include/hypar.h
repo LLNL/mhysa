@@ -8,6 +8,7 @@ typedef struct solver_parameters {
   int     *dim_global;                /* global dimensions                                */
   int     *dim_local;                 /* local dimensions                                 */
   int     npoints_global;             /* total number of points (= product of dim_global) */
+  int     npoints_local;              /* total number of points (= product of dim_local ) */
   int     ghosts;                     /* number of ghost points                           */
   int     n_iter;                     /* number of time iterations                        */
   int     hyp_space_scheme;           /* spatial discretization term for hyperbolic term  */
@@ -36,4 +37,4 @@ int InitialSolution       (void*,void*);
 //int InitializeSolvers     (void*,void*);
 //int Solve                 (void*,void*);
 //int OutputSolution        (void*,void*);
-//int CleanUp               (void*);
+int Cleanup               (void*,void*);

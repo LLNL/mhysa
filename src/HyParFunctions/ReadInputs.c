@@ -27,28 +27,31 @@ int ReadInputs(void *s,void *m)
       if (!strcmp(word, "begin")){
 		    while (strcmp(word, "end")){
 			    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
-
           if (!strcmp(word, "ndims")) {
             ierr = fscanf(in,"%d",&solver->ndims); if (ierr != 1) return(1);
             solver->dim_global = (int*) calloc (solver->ndims,sizeof(int));
             mpi->iproc         = (int*) calloc (solver->ndims,sizeof(int));
           }	else if (!strcmp(word, "nvars"))			      ierr = fscanf(in,"%d",&solver->nvars);
-    			else if   (!strcmp(word, "dimensions")) {
+    			else if   (!strcmp(word, "size")) {
             int i;
             if (!solver->dim_global) {
               fprintf(stderr,"Error in ReadInputs(): dim_global not allocated.\n");
               fprintf(stderr,"Please specify ndims before dimensions.\n"         );
               return(1);
-            } else for (i=0; i<solver->ndims; i++) ierr = fscanf(in,"%d",&solver->dim_global[i]);
-#ifndef serial
+            } else {
+              for (i=0; i<solver->ndims; i++) ierr = fscanf(in,"%d",&solver->dim_global[i]);
+              if (ierr != 1) return(1);
+            }
           } else if (!strcmp(word, "iproc")) {
             int i;
             if (!mpi->iproc) {
               fprintf(stderr,"Error in ReadInputs(): iproc not allocated.\n");
               fprintf(stderr,"Please specify ndims before iproc.\n"         );
               return(1);
-            } else for (i=0; i<solver->ndims; i++) ierr = fscanf(in,"%d",&mpi->iproc[i]);
-#endif
+            } else {
+              for (i=0; i<solver->ndims; i++) ierr = fscanf(in,"%d",&mpi->iproc[i]);
+              if (ierr != 1) return(1);
+            }
     			} else if (!strcmp(word, "ghost"))		        ierr = fscanf(in,"%d",&solver->ghosts);
 		    	else if   (!strcmp(word, "n_iter"))		        ierr = fscanf(in,"%d",&solver->n_iter);
 		    	else if   (!strcmp(word, "hyp_space_order"))	ierr = fscanf(in,"%d",&solver->hyp_space_scheme);
@@ -96,5 +99,5 @@ int ReadInputs(void *s,void *m)
     }
     fclose(in);
   }
-
+  return(0);
 }

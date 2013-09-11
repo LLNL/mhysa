@@ -7,7 +7,7 @@ int MPIRanknD(int ndims,int rank,int* iproc,int *ip)
   for (i=ndims-1; i>=0; i--) {
     term /= iproc[i];
     ip[i] = rank/term;
-    rank -= term;
+    rank -= ip[i]*term;
   }
   return(0);
 }

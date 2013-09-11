@@ -13,26 +13,30 @@ int Initialize(void *s, void *m)
   /* communicating basic information to all processes */
   ierr = MPIBroadcast_integer(&solver->ndims,1,0); CHECKERR(ierr);
   ierr = MPIBroadcast_integer(&solver->nvars,1,0); CHECKERR(ierr);
-  if (!mpi->rank) {
+  if (mpi->rank) {
     solver->dim_global = (int*) calloc (solver->ndims,sizeof(int));
     mpi->iproc         = (int*) calloc (solver->ndims,sizeof(int));
   }
-  mpi->ip = (int*) calloc (solver->ndims,sizeof(int));
   ierr = MPIBroadcast_integer(&solver->dim_global[0],solver->ndims,0); CHECKERR(ierr);
   ierr = MPIBroadcast_integer(&mpi->iproc[0]        ,solver->ndims,0); CHECKERR(ierr);
 
-  solver->npoints_global = 1;
-  for (i=0; i<solver->ndims; i++) solver->npoints_global *= solver->dim_global[i];
+  /* allocations */
+  mpi->ip           = (int*) calloc (solver->ndims,sizeof(int));
+  mpi->is           = (int*) calloc (solver->ndims,sizeof(int));
+  mpi->ie           = (int*) calloc (solver->ndims,sizeof(int));
+  solver->dim_local = (int*) calloc (solver->ndims,sizeof(int));
 
 #ifndef serial
 
   /* Domain partitioning */
   if (!mpi->rank) printf("Partitioning domain.\n");
-  double total_proc = 1;
+  int total_proc = 1;
   for (i=0; i<solver->ndims; i++) total_proc *= mpi->iproc[i];
   if (mpi->nproc != total_proc) {
     fprintf(stderr,"Error on rank %d: total number of processes is not consistent ", mpi->rank);
     fprintf(stderr,"with number of processes along each dimension.\n");
+    fprintf(stderr,"mpiexec was called with %d processes, ",mpi->nproc);
+    fprintf(stderr,"total number of processes from \"solver.inp\" is %d.\n", total_proc);
     return(1);
   }
 
@@ -78,13 +82,16 @@ int Initialize(void *s, void *m)
   for (i=0; i<solver->ndims; i++) {
     mpi->ip[i]            = 0;
     solver->dim_local[i]  = solver->dim_global[i];
-    mpi->ip[i]            = 0;
     mpi->iproc[i]         = 1;
     mpi->is[i]            = 0;
     mpi->ie[i]            = solver->dim_local[i];
   }
 
 #endif
+
+  solver->npoints_global = solver->npoints_local = 1;
+  for (i=0; i<solver->ndims; i++) solver->npoints_global *= solver->dim_global[i];
+  for (i=0; i<solver->ndims; i++) solver->npoints_local  *= solver->dim_local [i];
 
   /* Allocations */
   if (!mpi->rank) printf("Allocating data arrays.\n");
