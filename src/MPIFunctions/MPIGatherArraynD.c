@@ -66,7 +66,7 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
           int p1 = ArrayIndex1D(ndims,bounds    ,index,NULL,0);
           int p2 = ArrayIndex1D(ndims,dim_global,index,is  ,0);
           int v; for (v=0; v<nvars; v++) xg[nvars*p2+v] = buffer[nvars*p1+v];
-          done = ArrayIncrementIndex(ndims,dim_local,index);
+          done = ArrayIncrementIndex(ndims,bounds,index);
         }
       }
     }

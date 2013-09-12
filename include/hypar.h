@@ -21,6 +21,10 @@ typedef struct solver_parameters {
   double *x;                              /* coordinate vector                            */
   double *u;                              /* state vector                                 */
 
+  /* Boundary conditions */
+  int   nBoundaryZones;               /* number of boundary zones                         */
+  void  *boundary;                    /* pointer to boundary zones                        */    
+
   /* I/O parameters */
   int screen_op_iter;                     /* frequency of screen output                   */
   int file_op_iter;                       /* frequency of file output                     */

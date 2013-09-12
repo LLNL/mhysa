@@ -62,7 +62,9 @@ AC_CONFIG_FILES([
  Makefile
  src/Makefile
  src/ArrayFunctions/Makefile
+ src/BoundaryConditions/Makefile
  src/HyParFunctions/Makefile
+ src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
 ])
 

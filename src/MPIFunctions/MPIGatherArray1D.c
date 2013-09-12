@@ -27,7 +27,9 @@ int MPIGatherArray1D(void *m,double *xg,double *x,int istart,int iend,
   for (i=0; i<N_local; i++) buffer[i] = x[i+ghosts];
 
   if (!mpi->rank) {
+#ifndef serial
     MPI_Status status;
+#endif
     int proc;
     for (proc = 0; proc < mpi->nproc; proc++) {
       /* Find out the domain limits for each process */

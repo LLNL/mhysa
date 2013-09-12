@@ -38,16 +38,15 @@ int InitialSolution(void *s, void *m)
     }
 
     /* read solution */
-    int done = 0;
-    int *index = solver->index;
-    ierr = ArraySetValue_int(index,solver->ndims,0); CHECKERR(ierr);
-    while (!done) {
-      int p = ArrayIndex1D(solver->ndims,solver->dim_global,index,NULL,0);
-      for (i = 0; i < solver->nvars; i++) {
+    for (i = 0; i < solver->nvars; i++) {
+      int *index = solver->index;
+      int done = 0; ierr = ArraySetValue_int(index,solver->ndims,0); CHECKERR(ierr);
+      while (!done) {
+        int p = ArrayIndex1D(solver->ndims,solver->dim_global,index,NULL,0);
         ierr = fscanf(in,"%lf",&ug[p*solver->nvars+i]);
         if (ierr != 1) return(1);
+        done = ArrayIncrementIndex(solver->ndims,solver->dim_global,index);
       }
-      done = ArrayIncrementIndex(solver->ndims,solver->dim_global,index);
     }
 
     fclose(in);

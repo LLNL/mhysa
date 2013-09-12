@@ -23,9 +23,9 @@ int WriteText(int ndims,int nvars,int *dim,double *x,double *u,char *f,int *inde
     for (i=0; i<ndims; i++) fprintf(out,"%4d ",index[i]);
     for (i=0; i<ndims; i++) {
       int j,offset = 0; for (j=0; j<i; j++) offset += dim[j];
-      fprintf(out,"%E ",x[offset+index[i]]);
+      fprintf(out,"%+E ",x[offset+index[i]]);
     }
-    for (i=0; i<nvars; i++) fprintf(out,"%E ",u[nvars*p+i]);
+    for (i=0; i<nvars; i++) fprintf(out,"%+E ",u[nvars*p+i]);
     fprintf(out,"\n");
     done = ArrayIncrementIndex(ndims,dim,index);
   }

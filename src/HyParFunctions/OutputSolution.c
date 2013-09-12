@@ -22,17 +22,22 @@ int OutputSolution(void *s, void *m)
   double *ug, *xg;
   if (!mpi->rank) {
     int size_global;
+
     size_global = 1;
     for (d=0; d<solver->ndims; d++) size_global *= solver->dim_global[d];
-    ug = (double*) calloc (size_global,sizeof(double));
-    ierr = ArraySetValue_double(ug,size_global,0.0); CHECKERR(ierr);
+    ug = (double*) calloc (size_global*solver->nvars,sizeof(double));
+    ierr = ArraySetValue_double(ug,size_global*solver->nvars,0.0); CHECKERR(ierr);
+
     size_global = 0;
     for (d=0; d<solver->ndims; d++) size_global += solver->dim_global[d];
     xg = (double*) calloc (size_global,sizeof(double));
     ierr = ArraySetValue_double(xg,size_global,0.0); CHECKERR(ierr);
+
   } else {
+
     /* null pointers on non-root processes */
     ug = xg = NULL;
+
   }
 
   /* Assemble the local output arrays into the global output arrays */

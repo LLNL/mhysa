@@ -43,7 +43,7 @@ int main(int argc,char **argv)
     return(ierr);
   }
   /* Initialize domain boundaries */
-//  ierr = InitializeBoundaries(&solver,&mpi);
+  ierr = InitializeBoundaries(&solver,&mpi);
   if (ierr) {
     printf("Error: InitializeBoundaries() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
