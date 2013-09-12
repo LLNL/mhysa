@@ -13,7 +13,7 @@ int main(int argc,char **argv)
 
 #ifdef serial
   mpi.rank  = 0;
-  mpi.nproc = 0;
+  mpi.nproc = 1;
   printf("HyPar - Serial Version\n");
 #else
   MPI_Init(&argc,&argv);
@@ -49,7 +49,7 @@ int main(int argc,char **argv)
     return(ierr);
   }
   /* Initialize solvers */
-//  ierr = InitializeSolvers(&solver,&mpi);
+  ierr = InitializeSolvers(&solver,&mpi);
   if (ierr) {
     printf("Error: InitializeSolvers() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
@@ -66,7 +66,7 @@ int main(int argc,char **argv)
   }
 
   /* Write output */
-//  ierr = OutputSolution(&solver,&mpi);
+  ierr = OutputSolution(&solver,&mpi);
   if (ierr) {
     printf("Error: OutputSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);

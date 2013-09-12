@@ -89,7 +89,7 @@ int ReadInputs(void *s,void *m)
 	    printf("\tNo. of ghosts pts                          : %d\n",solver->ghosts);
 	    printf("\tNo. of iter.                               : %d\n",solver->n_iter);
       printf("\tSpatial reconstruction scheme (hyperbolic) : %d\n",solver->hyp_space_scheme);
-      printf("\tSpatial reconstruction scheme (paravolic ) : %d\n",solver->par_space_scheme);
+      printf("\tSpatial reconstruction scheme (parabolic ) : %d\n",solver->par_space_scheme);
       printf("\tTime integration scheme                    : %d\n",solver->time_scheme);
     	printf("\tTime Step                                  : %E\n",solver->dt);
       printf("\tScreen output iterations                   : %d\n",solver->screen_op_iter);

@@ -4,8 +4,8 @@
 #include <arrayfunctions.h>
 #include <mpivars.h>
 
-int MPIPartitionArraynD(void *m,double *xg,double *x,int *dim_global,int *dim_local,
-                        int ndims,int ghosts_global,int ghosts_local,int nvars)
+int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int *dim_local,
+                        int ghosts,int nvars)
 {
   MPIVariables *mpi = (MPIVariables*) m;
   int          ierr = 0;
@@ -42,24 +42,20 @@ int MPIPartitionArraynD(void *m,double *xg,double *x,int *dim_global,int *dim_lo
       buffer = (double*) calloc (size*nvars,sizeof(double));
       done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
       while (!done) {
-        int p1 = ArrayIndex1D(ndims,dim_global,index,is  ,ghosts_global);
-        int p2 = ArrayIndex1D(ndims,bounds    ,index,NULL,0            );
+        int p1 = ArrayIndex1D(ndims,dim_global,index,is  ,0);
+        int p2 = ArrayIndex1D(ndims,bounds    ,index,NULL,0);
         int v; for (v=0; v<nvars; v++) buffer[nvars*p2+v] = xg[nvars*p1+v];
         done = ArrayIncrementIndex(ndims,bounds,index);
       }
       if (proc) {
 #ifndef serial
         MPI_Send(buffer,size*nvars,MPI_DOUBLE,proc,1538,MPI_COMM_WORLD);
-#else
-        fprintf(stderr,"Error in MPIPartitionArray3D(): This is a serial run; number of processes ");
-        fprintf(stderr,"should be 1. Instead it is %d.\n",mpi->nproc);
-        return(1);
 #endif
       } else {
         done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
         while (!done) {
-          int p1 = ArrayIndex1D(ndims,dim_local,index,NULL,ghosts_local);
-          int p2 = ArrayIndex1D(ndims,dim_local,index,NULL,0           );
+          int p1 = ArrayIndex1D(ndims,dim_local,index,NULL,ghosts);
+          int p2 = ArrayIndex1D(ndims,dim_local,index,NULL,0     );
           int v; for (v=0; v<nvars; v++) x[nvars*p1+v] = buffer[nvars*p2+v];
           done = ArrayIncrementIndex(ndims,dim_local,index);
         }
@@ -68,11 +64,7 @@ int MPIPartitionArraynD(void *m,double *xg,double *x,int *dim_global,int *dim_lo
     }
 
   } else {
-#ifdef serial
-    fprintf(stderr,"Error in MPIPartitionArray3D(): This is a serial run; process rank ");
-    fprintf(stderr,"should be 0. Instead it is %d.\n",mpi->rank);
-    return(1);
-#else
+#ifndef serial
     /* Meanwhile, on other processes */
     MPI_Status  status;
     int d, done, size;
@@ -81,8 +73,8 @@ int MPIPartitionArraynD(void *m,double *xg,double *x,int *dim_global,int *dim_lo
     MPI_Recv(buffer,size*nvars,MPI_DOUBLE,0,1538,MPI_COMM_WORLD,&status);
     done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
     while (!done) {
-      int p1 = ArrayIndex1D(ndims,dim_local,index,NULL,ghosts_local);
-      int p2 = ArrayIndex1D(ndims,dim_local,index,NULL,0           );
+      int p1 = ArrayIndex1D(ndims,dim_local,index,NULL,ghosts);
+      int p2 = ArrayIndex1D(ndims,dim_local,index,NULL,0     );
       int v; for (v=0; v<nvars; v++) x[nvars*p1+v] = buffer[nvars*p2+v];
       done = ArrayIncrementIndex(ndims,dim_local,index);
     }
