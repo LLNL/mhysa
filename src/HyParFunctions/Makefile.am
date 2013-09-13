@@ -1,5 +1,6 @@
 noinst_LIBRARIES = libHyParFunctions.a
 libHyParFunctions_a_SOURCES = \
+  ApplyBoundaryConditions.c \
   Cleanup.c \
   Initialize.c \
   InitialSolution.c \
