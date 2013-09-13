@@ -104,14 +104,14 @@ int CalculateLocalExtent(void *s,void *m)
         int offset = 0;
         for (d=0; d<solver->ndims; d++) {
           if (d == dim) {
-            boundary[n].is[dim] = -solver->ghosts;
-            boundary[n].ie[dim] = 0;
+            boundary[n].is[d] = -solver->ghosts;
+            boundary[n].ie[d] = 0;
           } else {
             int is, ie;
             FindInterval(boundary[n].xmin[d],boundary[n].xmax[d],&solver->x[offset],
                          solver->dim_local[d],&is,&ie);
-            boundary[n].is[dim] = is;
-            boundary[n].ie[dim] = ie;
+            boundary[n].is[d] = is;
+            boundary[n].ie[d] = ie;
             if ((ie-is) <= 0) boundary[n].on_this_proc = 0;
           }
           offset += solver->dim_local[d];
@@ -125,14 +125,14 @@ int CalculateLocalExtent(void *s,void *m)
         int offset = 0;
         for (d=0; d<solver->ndims; d++) {
           if (d == dim) {
-            boundary[n].is[dim] = solver->dim_local[dim];
-            boundary[n].ie[dim] = solver->dim_local[dim] + solver->ghosts;
+            boundary[n].is[d] = solver->dim_local[dim];
+            boundary[n].ie[d] = solver->dim_local[dim] + solver->ghosts;
           } else {
             int is, ie;
             FindInterval(boundary[n].xmin[d],boundary[n].xmax[d],&solver->x[offset],
                          solver->dim_local[d],&is,&ie);
-            boundary[n].is[dim] = is;
-            boundary[n].ie[dim] = ie;
+            boundary[n].is[d] = is;
+            boundary[n].ie[d] = ie;
             if ((ie-is) <= 0) boundary[n].on_this_proc = 0;
           }
           offset += solver->dim_local[d];
@@ -141,6 +141,6 @@ int CalculateLocalExtent(void *s,void *m)
     }
 
   }
-
+  
   return(0);
 }

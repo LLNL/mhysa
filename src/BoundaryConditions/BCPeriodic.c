@@ -36,11 +36,11 @@ int BCPeriodic(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       dest  [dim] = 0;
       for (d=0; d<ndims; d++) {
         if (d == dim) {
-          limits[2*d]   = size[dim]-ghosts;
-          limits[2*d+1] = size[dim];
+          limits[2*d]   = size[d]-ghosts;
+          limits[2*d+1] = size[d];
         } else {
           limits[2*d]   = 0;
-          limits[2*d+1] = size[dim];
+          limits[2*d+1] = size[d];
         }
       }
     } else if (face == -1) {
@@ -52,7 +52,7 @@ int BCPeriodic(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
           limits[2*d+1] = ghosts;
         } else {
           limits[2*d]   = 0;
-          limits[2*d+1] = size[dim];
+          limits[2*d+1] = size[d];
         }
       }
     }
