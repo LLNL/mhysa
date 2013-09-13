@@ -5,4 +5,5 @@ libTimeIntegration_a_SOURCES = \
   TimePreStep.c \
   TimePostStep.c \
   TimePrintStep.c \
-  TimeStep.c
+  TimeStep.c \
+  TimeForwardEuler.c

@@ -14,6 +14,7 @@ int TimeCleanup(void *ts)
   if (!mpi->rank) if (solver->write_residual) fclose((FILE*)TS->ResidualFile);
 
   /* deallocate arrays */
-  free(TS->u);
+  free(TS->u  );
+  free(TS->rhs);
   return(0);
 }

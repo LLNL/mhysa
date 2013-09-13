@@ -1,6 +1,7 @@
 noinst_LIBRARIES = libMPIFunctions.a
 libMPIFunctions_a_SOURCES = \
   MPIBroadcast.c \
+  MPIExchangeBoundaries.c \
   MPIGatherArray1D.c \
   MPIGatherArraynD.c \
   MPIGetArrayDatanD.c \

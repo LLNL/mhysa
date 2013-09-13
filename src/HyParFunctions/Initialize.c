@@ -100,7 +100,9 @@ int Initialize(void *s, void *m)
   /* state variable */
   size = 1;
   for (i=0; i<solver->ndims; i++) size *= (solver->dim_local[i]+2*solver->ghosts);
-  solver->u = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->u   = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->hyp = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->par = (double*) calloc (solver->nvars*size,sizeof(double));
   /* grid */
   size = 0;
   for (i=0; i<solver->ndims; i++) size += solver->dim_local[i];

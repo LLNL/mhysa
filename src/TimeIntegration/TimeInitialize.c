@@ -25,8 +25,10 @@ int TimeInitialize(void *s,void *m,void *ts)
 
   int size = 1;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d] + 2*solver->ghosts);
-  TS->u = (double*) calloc (size*solver->nvars,sizeof(double));
-  ierr = ArraySetValue_double(TS->u,size*solver->nvars,0.0); CHECKERR(ierr);
+  TS->u   = (double*) calloc (size*solver->nvars,sizeof(double));
+  TS->rhs = (double*) calloc (size*solver->nvars,sizeof(double));
+  ierr = ArraySetValue_double(TS->u  ,size*solver->nvars,0.0); CHECKERR(ierr);
+  ierr = ArraySetValue_double(TS->rhs,size*solver->nvars,0.0); CHECKERR(ierr);
 
   /* open files for writing */
   if (!mpi->rank) {

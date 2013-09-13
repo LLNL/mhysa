@@ -3,17 +3,32 @@
 #include <string.h>
 #include <mpivars.h>
 #include <hypar.h>
+#include <timeintegration.h>
 
-/* Output functions */
-int WriteText  (int,int,int*,double*,double*,char*,int*);
+/* Function declarations */
+int WriteText               (int,int,int*,double*,double*,char*,int*);
+int ApplyBoundaryConditions (void*,void*,double*);
+int HyperbolicFunction      (void*,void*);
+int ParabolicFunction       (void*,void*);
 
 int InitializeSolvers(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-//  int           ierr    = 0;
 
   if (!mpi->rank) printf("Initializing solvers.\n");
+
+  solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
+  solver->HyperbolicFunction      = HyperbolicFunction;
+  solver->ParabolicFunction       = ParabolicFunction;
+
+  /* Time integration */
+  if (solver->time_scheme == _FORWARD_EULER_) solver->TimeIntegrate = TimeForwardEuler;
+  else {
+    fprintf(stderr,"Error: %d is a not a supported time-integration scheme.\n",
+            solver->time_scheme);
+    return(1);
+  }
 
   /* Solution output function */
   if (!strcmp(solver->op_file_format,"text")) {
@@ -23,7 +38,7 @@ int InitializeSolvers(void *s, void *m)
   } else if (!strcmp(solver->op_file_format,"none")) {
     solver->WriteOutput = NULL;
   } else {
-    fprintf(stderr,"Error: %s is not an unsupported file format.\n",solver->op_file_format);
+    fprintf(stderr,"Error: %s is not a supported file format.\n",solver->op_file_format);
     return(1);
   }
 

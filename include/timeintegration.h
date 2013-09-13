@@ -1,3 +1,6 @@
+/* definitions */
+#define _FORWARD_EULER_ 1
+
 typedef struct time_integration_variables {
   int     iter;     /* iteration number           */
   int     n_iter;   /* Total number of iterations */
@@ -9,6 +12,8 @@ typedef struct time_integration_variables {
   void    *solver;  /* solver object              */
   void    *mpi;     /* mpi    object              */
   double  *u;       /* array to store solution    */
+
+  double  *rhs;     /* right-hand side array      */ 
 
   void*   *ResidualFile;
   int (*TimeIntegrate)(void*);/* time integration */
@@ -23,4 +28,4 @@ int TimePostStep   (void*);
 int TimePrintStep  (void*);
 
 /* Time Integration Functions */
-// int ForwardEuler  (void*,void*,void*);
+int TimeForwardEuler  (void*);

@@ -17,9 +17,11 @@ typedef struct solver_parameters {
   double  dt;                         /* time step size                                   */
 
   /* Data arrays */
-  int    *index;                          /* ndims-dimensional variable index             */
-  double *x;                              /* coordinate vector                            */
-  double *u;                              /* state vector                                 */
+  int    *index;                      /* ndims-dimensional variable index                 */
+  double *x;                          /* coordinate vector                                */
+  double *u;                          /* state vector                                     */
+  double *hyp;                        /* array to hold the hyperbolic terms               */
+  double *par;                        /* array to hold the parabolic terms                */
 
   /* Boundary conditions */
   int   nBoundaryZones;               /* number of boundary zones                         */
@@ -34,8 +36,11 @@ typedef struct solver_parameters {
   char op_filename   [_MAX_STRING_SIZE_]; /* output filename                              */
 
   /* Functions */
-  int (*WriteOutput)  (int,int,int*,double*,double*,char*,int*);  /* write data to file    */
-  int (*TimeIntegrate)(void*);                                    /* time integration      */
+  int (*WriteOutput)              (int,int,int*,double*,double*,char*,int*);  
+  int (*ApplyBoundaryConditions)  (void*,void*,double*);                     
+  int (*HyperbolicFunction)       (void*,void*);
+  int (*ParabolicFunction)        (void*,void*);
+  int (*TimeIntegrate)            (void*);                                  
 
   /* Physics  */
   void *physics;                          /* object containing the physics of the case    */
@@ -44,11 +49,11 @@ typedef struct solver_parameters {
 } HyPar;
 
 /* Functions */
-int ReadInputs            (void*,void*);
-int Initialize            (void*,void*);
-int InitialSolution       (void*,void*);
-int InitializeBoundaries  (void*,void*);
-int InitializeSolvers     (void*,void*);
-int Solve                 (void*,void*);
-int OutputSolution        (void*,void*);
-int Cleanup               (void*,void*);
+int Cleanup                 (void*,void*);
+int Initialize              (void*,void*);
+int InitializeBoundaries    (void*,void*);
+int InitializeSolvers       (void*,void*);
+int InitialSolution         (void*,void*);
+int OutputSolution          (void*,void*);
+int ReadInputs              (void*,void*);
+int Solve                   (void*,void*);

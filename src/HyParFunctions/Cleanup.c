@@ -24,6 +24,8 @@ int Cleanup(void *s,void *m)
   free(solver->dim_local);
   free(solver->index);
   free(solver->u);
+  free(solver->hyp);
+  free(solver->par);
   free(solver->x);
   free(mpi->iproc);
   free(mpi->ip);
