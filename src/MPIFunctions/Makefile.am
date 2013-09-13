@@ -10,4 +10,5 @@ libMPIFunctions_a_SOURCES = \
   MPIPartitionArray1D.c \
   MPIPartitionArraynD.c \
   MPIRank1D.c \
-  MPIRanknD.c
+  MPIRanknD.c \
+  MPISum.c

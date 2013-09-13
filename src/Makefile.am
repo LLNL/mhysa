@@ -3,12 +3,14 @@ SUBDIRS = \
   BoundaryConditions\
   HyParFunctions \
   MathFunctions \
-  MPIFunctions
+  MPIFunctions \
+  TimeIntegration
 
 bin_PROGRAMS = HyPar
 HyPar_SOURCES = main.c
 HyPar_LDADD = \
   HyParFunctions/libHyParFunctions.a \
+  TimeIntegration/libTimeIntegration.a \
   BoundaryConditions/libBoundaryConditions.a \
   MPIFunctions/libMPIFunctions.a \
   ArrayFunctions/libArrayFunctions.a \

@@ -54,7 +54,7 @@ fi
 CFLAGS="$CFLAGS -I/opt/local/include -I$includedir"
 CXXFLAGS=$CFLAGS
 LDFLAGS="$LDFLAGS -L/opt/local/lib"
-LIBS="$LIBS"
+LIBS="$LIBS -lm"
 
 AC_PROG_RANLIB
 AC_PROG_INSTALL
@@ -66,6 +66,7 @@ AC_CONFIG_FILES([
  src/HyParFunctions/Makefile
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
+ src/TimeIntegration/Makefile
 ])
 
 AC_OUTPUT

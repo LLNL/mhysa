@@ -58,7 +58,7 @@ int main(int argc,char **argv)
 
   /* Run the solver */
   gettimeofday(&solve_start,NULL);
-//  ierr = Solve(&solver,&mpi);
+  ierr = Solve(&solver,&mpi);
   gettimeofday(&solve_end,NULL);
   if (ierr) {
     printf("Error: Solve() returned with status %d on process %d.\n",ierr,mpi.rank);

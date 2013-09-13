@@ -28,12 +28,17 @@ typedef struct solver_parameters {
   /* I/O parameters */
   int screen_op_iter;                     /* frequency of screen output                   */
   int file_op_iter;                       /* frequency of file output                     */
+  int write_residual;                     /* write residual to file                       */
   char op_file_format[_MAX_STRING_SIZE_]; /* output file format                           */
   char op_overwrite  [_MAX_STRING_SIZE_]; /* overwrite output file?                       */
   char op_filename   [_MAX_STRING_SIZE_]; /* output filename                              */
 
   /* Functions */
-  int (*WriteOutput)(int,int,int*,double*,double*,char*,int*);  /* write data to file     */
+  int (*WriteOutput)  (int,int,int*,double*,double*,char*,int*);  /* write data to file    */
+  int (*TimeIntegrate)(void*);                                    /* time integration      */
+
+  /* Physics  */
+  void *physics;                          /* object containing the physics of the case    */
 
 
 } HyPar;
@@ -44,6 +49,6 @@ int Initialize            (void*,void*);
 int InitialSolution       (void*,void*);
 int InitializeBoundaries  (void*,void*);
 int InitializeSolvers     (void*,void*);
-//int Solve                 (void*,void*);
+int Solve                 (void*,void*);
 int OutputSolution        (void*,void*);
 int Cleanup               (void*,void*);

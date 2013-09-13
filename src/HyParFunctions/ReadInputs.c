@@ -13,6 +13,21 @@ int ReadInputs(void *s,void *m)
 
   /* Only root process reads in the input files */
   if (!mpi->rank) {
+    /* set some default values for optional inputs */
+    solver->ndims           = 1;
+    solver->nvars           = 1;
+    solver->dim_global      = NULL;
+    solver->dim_local       = NULL;
+    mpi->iproc              = NULL;
+    solver->hyp_space_scheme= 1;
+    solver->par_space_scheme= 1;
+    solver->time_scheme     = 1;
+    solver->dt              = 0.0;
+    solver->screen_op_iter  = 1;
+    solver->file_op_iter    = 1000;
+    solver->write_residual  = 0;
+    strcpy(solver->op_file_format,"text");
+    strcpy(solver->op_overwrite,"no");
     /* reading solver inputs */
     FILE *in;
     printf("Reading solver inputs from file \"solver.inp\".\n");
@@ -60,6 +75,7 @@ int ReadInputs(void *s,void *m)
     			else if   (!strcmp(word, "dt"))			          ierr = fscanf(in,"%lf",&solver->dt);
     			else if   (!strcmp(word, "screen_op_iter"))   ierr = fscanf(in,"%d",&solver->screen_op_iter);
     			else if   (!strcmp(word, "file_op_iter"))		  ierr = fscanf(in,"%d",&solver->file_op_iter);
+    			else if   (!strcmp(word, "write_residual"))	  ierr = fscanf(in,"%d",&solver->file_op_iter);
     			else if   (!strcmp(word, "op_file_format"))   ierr = fscanf(in,"%s",solver->op_file_format);
     			else if   (!strcmp(word, "op_overwrite"))     ierr = fscanf(in,"%s",solver->op_overwrite);
           else if   ( strcmp(word, "end")) {

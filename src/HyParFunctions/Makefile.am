@@ -8,4 +8,5 @@ libHyParFunctions_a_SOURCES = \
   InitializeSolvers.c \
   OutputSolution.c \
   ReadInputs.c \
+  Solve.c \
   WriteText.c
