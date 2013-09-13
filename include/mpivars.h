@@ -23,3 +23,4 @@ int MPIMax_double         (double*,double*,int);
 int MPIBroadcast_double   (double*,int,int);
 int MPIBroadcast_integer  (int*,int,int);
 int MPIBroadcast_character(char*,int,int);
+int MPIGetArrayDatanD     (double*,double*,int*,int*,int*,int*,int,int,int,void*);
