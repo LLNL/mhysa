@@ -1,5 +1,6 @@
 noinst_LIBRARIES = libArrayFunctions.a
 libArrayFunctions_a_SOURCES = \
+  ArrayAdd1D.c \
   ArrayCopy1D.c \
   ArrayCopynD.c \
   ArrayIncrementIndex.c \

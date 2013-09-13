@@ -8,7 +8,7 @@ int BCPeriodic(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   MPIVariables   *mpi      = (MPIVariables*)   m;
-  int            ierr     = 0, d;
+  int            ierr      = 0, d;
 
   int dim   = boundary->dim;
   int face  = boundary->face;
@@ -73,6 +73,8 @@ int BCPeriodic(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       phi[nvars*p1+var] = buf[nvars*p2+var];
       done = ArrayIncrementIndex(ndims,bounds,index);
     }
+    free(bounds);
+    free(index);
   }
   free(buf);
   return(0);

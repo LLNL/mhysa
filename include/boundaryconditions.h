@@ -23,5 +23,5 @@ typedef struct domain_boundaries {
 int BCInitialize(void*);
 int BCCleanUp   (void*);
 
-int BCPeriodic    (void*,void*,int,int,int*,int,double*);    /* Periodic boundary conditions */
-//int BCExtrapolate ();    /* Extrapolative boundary conditions */
+int BCPeriodic    (void*,void*,int,int,int*,int,double*);    /* Periodic boundary conditions    */
+int BCExtrapolate (void*,void*,int,int,int*,int,double*);    /* extrapolate boundary conditions */

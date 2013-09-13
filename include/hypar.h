@@ -42,8 +42,8 @@ typedef struct solver_parameters {
 int ReadInputs            (void*,void*);
 int Initialize            (void*,void*);
 int InitialSolution       (void*,void*);
-//int InitializeBoundaries  (void*,void*);
-//int InitializeSolvers     (void*,void*);
+int InitializeBoundaries  (void*,void*);
+int InitializeSolvers     (void*,void*);
 //int Solve                 (void*,void*);
 int OutputSolution        (void*,void*);
 int Cleanup               (void*,void*);
