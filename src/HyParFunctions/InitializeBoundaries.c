@@ -43,9 +43,8 @@ int InitializeBoundaries(void *s,void *m)
         ierr = fscanf(in,"%lf %lf", &boundary[n].xmin[d], &boundary[n].xmax[d]);
         if (ierr != 2) return(1);
       }
-      printf("  Boundary %20s:  Variable %2d, along dimension %2d and face %+1d\n",
+      printf("  Boundary %10s:  Variable %2d, along dimension %2d and face %+1d\n",
                 boundary[n].bctype,boundary[n].var,boundary[n].dim,boundary[n].face);
-      printf("\n");
     }
     fclose(in);
     printf("%d boundary condition(s) read.\n",solver->nBoundaryZones);
