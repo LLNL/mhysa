@@ -1,6 +1,6 @@
 #include <basic.h>
 
-typedef struct solver_parameters {
+typedef struct main_parameters {
 
   /* Solver parameters */
   int     ndims;                      /* number of dimensions                             */
@@ -11,8 +11,6 @@ typedef struct solver_parameters {
   int     npoints_local;              /* total number of points (= product of dim_local ) */
   int     ghosts;                     /* number of ghost points                           */
   int     n_iter;                     /* number of time iterations                        */
-  int     hyp_space_scheme;           /* spatial discretization term for hyperbolic term  */
-  int     par_space_scheme;           /* spatial discretization term for parabolic term   */
   int     time_scheme;                /* time-integration scheme                          */
   double  dt;                         /* time step size                                   */
 
@@ -43,8 +41,7 @@ typedef struct solver_parameters {
   int (*TimeIntegrate)            (void*);                                  
 
   /* Physics  */
-  void *physics;                          /* object containing the physics of the case    */
-
+  void *physics;                          /* object containing the physics                */
 
 } HyPar;
 

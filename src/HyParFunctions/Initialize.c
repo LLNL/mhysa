@@ -40,26 +40,22 @@ int Initialize(void *s, void *m)
     return(1);
   }
 
-  int buffer_size = 7;
+  int buffer_size = 5;
   int *buffer;
   buffer = (int*) calloc(buffer_size,sizeof(int));
   if (!mpi->rank) {
     buffer[0] = solver->ghosts;
     buffer[1] = solver->n_iter;
-    buffer[2] = solver->hyp_space_scheme;
-    buffer[3] = solver->par_space_scheme;
-    buffer[4] = solver->time_scheme;
-    buffer[5] = solver->screen_op_iter;
-    buffer[6] = solver->file_op_iter;
+    buffer[2] = solver->time_scheme;
+    buffer[3] = solver->screen_op_iter;
+    buffer[4] = solver->file_op_iter;
   }
   ierr = MPIBroadcast_integer(buffer,buffer_size,0); CHECKERR(ierr);
   solver->ghosts            = buffer[0];
   solver->n_iter            = buffer[1];
-  solver->hyp_space_scheme  = buffer[2];
-  solver->par_space_scheme  = buffer[3];
-  solver->time_scheme       = buffer[4];
-  solver->screen_op_iter    = buffer[5];
-  solver->file_op_iter      = buffer[6];
+  solver->time_scheme       = buffer[2];
+  solver->screen_op_iter    = buffer[3];
+  solver->file_op_iter      = buffer[4];
   free(buffer);
 
   ierr = MPIBroadcast_double(&solver->dt,1,0);                               CHECKERR(ierr);

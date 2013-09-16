@@ -19,8 +19,6 @@ int ReadInputs(void *s,void *m)
     solver->dim_global      = NULL;
     solver->dim_local       = NULL;
     mpi->iproc              = NULL;
-    solver->hyp_space_scheme= 1;
-    solver->par_space_scheme= 1;
     solver->time_scheme     = 1;
     solver->dt              = 0.0;
     solver->screen_op_iter  = 1;
@@ -69,8 +67,6 @@ int ReadInputs(void *s,void *m)
             }
     			} else if (!strcmp(word, "ghost"))		        ierr = fscanf(in,"%d",&solver->ghosts);
 		    	else if   (!strcmp(word, "n_iter"))		        ierr = fscanf(in,"%d",&solver->n_iter);
-		    	else if   (!strcmp(word, "hyp_space_order"))	ierr = fscanf(in,"%d",&solver->hyp_space_scheme);
-		    	else if   (!strcmp(word, "par_space_order"))	ierr = fscanf(in,"%d",&solver->par_space_scheme);
     			else if   (!strcmp(word, "time_order" ))	    ierr = fscanf(in,"%d",&solver->time_scheme);
     			else if   (!strcmp(word, "dt"))			          ierr = fscanf(in,"%lf",&solver->dt);
     			else if   (!strcmp(word, "screen_op_iter"))   ierr = fscanf(in,"%d",&solver->screen_op_iter);
@@ -104,8 +100,6 @@ int ReadInputs(void *s,void *m)
 #endif
 	    printf("\tNo. of ghosts pts                          : %d\n",solver->ghosts);
 	    printf("\tNo. of iter.                               : %d\n",solver->n_iter);
-      printf("\tSpatial reconstruction scheme (hyperbolic) : %d\n",solver->hyp_space_scheme);
-      printf("\tSpatial reconstruction scheme (parabolic ) : %d\n",solver->par_space_scheme);
       printf("\tTime integration scheme                    : %d\n",solver->time_scheme);
     	printf("\tTime Step                                  : %E\n",solver->dt);
       printf("\tScreen output iterations                   : %d\n",solver->screen_op_iter);
