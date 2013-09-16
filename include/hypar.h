@@ -12,6 +12,8 @@ typedef struct main_parameters {
   int     ghosts;                     /* number of ghost points                           */
   int     n_iter;                     /* number of time iterations                        */
   int     time_scheme;                /* time-integration scheme                          */
+  int     spatial_scheme_hyp;         /* spatial discretization scheme for hyperbolic term*/
+  int     spatial_scheme_par;         /* spatial discretization scheme for parabolic  term*/
   double  dt;                         /* time step size                                   */
 
   /* Data arrays */

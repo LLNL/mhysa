@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <basic.h>
 #include <mpivars.h>
@@ -13,6 +14,13 @@ int InitializePhysics(void *s,void *m)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0;
+
+  /* Initialize all physics-model related function pointers to NULL */
+  solver->ComputeCFL          = NULL;
+  solver->ComputeDiffNumber   = NULL;
+  solver->HyperbolicFunction  = NULL;
+  solver->ParabolicFunction   = NULL;
+  solver->SourceFunction      = NULL; 
 
   if (!mpi->rank) printf("Initializing physics.\n");
 

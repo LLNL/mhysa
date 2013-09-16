@@ -23,11 +23,13 @@ int Cleanup(void *s,void *m)
   for (i = 0; i < solver->nBoundaryZones; i++) {
     ierr = BCCleanup(&boundary[i]); CHECKERR(ierr);
   }
+  free(solver->boundary);
 
   /* Clean up any allocations in physical model */
   if (!strcmp,(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
     ierr = LinearADRCleanup(solver,mpi); CHECKERR(ierr);
   }
+  free(solver->physics);
 
   /* These variables are allocated in Initialize.c */
   free(solver->dim_global);
