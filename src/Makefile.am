@@ -1,4 +1,5 @@
 SUBDIRS = \
+  AdvectionDiffusionReaction \
   ArrayFunctions \
   BoundaryConditions\
   HyParFunctions \
@@ -11,6 +12,7 @@ HyPar_SOURCES = main.c
 HyPar_LDADD = \
   HyParFunctions/libHyParFunctions.a \
   TimeIntegration/libTimeIntegration.a \
+  AdvectionDiffusionReaction/libAdvectionDiffusionReaction.a \
   BoundaryConditions/libBoundaryConditions.a \
   MPIFunctions/libMPIFunctions.a \
   ArrayFunctions/libArrayFunctions.a \

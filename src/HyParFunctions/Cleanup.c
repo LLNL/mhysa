@@ -1,22 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <basic.h>
 #include <mpivars.h>
 #include <boundaryconditions.h>
 #include <hypar.h>
+#include <physics.h>
+
+/* include header files for each physical model */
+#include <advectiondiffusionreaction.h>
 
 int Cleanup(void *s,void *m)
 {
   HyPar           *solver   = (HyPar*)          s;
   MPIVariables    *mpi      = (MPIVariables*)   m;
   DomainBoundary  *boundary = (DomainBoundary*) solver->boundary;
-  int           ierr    = 0,i;
+  int             ierr    = 0,i;
 
   if (!mpi->rank) printf("Deallocating arrays.\n");
 
   /* Clean up boundary zones */
   for (i = 0; i < solver->nBoundaryZones; i++) {
     ierr = BCCleanup(&boundary[i]); CHECKERR(ierr);
+  }
+
+  /* Clean up any allocations in physical model */
+  if (!strcmp,(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
+    ierr = LinearADRCleanup(solver,mpi); CHECKERR(ierr);
   }
 
   /* These variables are allocated in Initialize.c */
@@ -26,6 +36,7 @@ int Cleanup(void *s,void *m)
   free(solver->u);
   free(solver->hyp);
   free(solver->par);
+  free(solver->source);
   free(solver->x);
   free(mpi->iproc);
   free(mpi->ip);

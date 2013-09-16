@@ -54,6 +54,12 @@ int main(int argc,char **argv)
     printf("Error: InitializeSolvers() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
   }
+  /* Initialize physics */
+  ierr = InitializePhysics(&solver,&mpi);
+  if (ierr) {
+    printf("Error: InitializePhysics() returned with status %d on process %d.\n",ierr,mpi.rank);
+    return(ierr);
+  }
   /* Initializations complete */
 
   /* Run the solver */

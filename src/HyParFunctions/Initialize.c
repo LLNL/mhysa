@@ -61,6 +61,7 @@ int Initialize(void *s, void *m)
   ierr = MPIBroadcast_double(&solver->dt,1,0);                               CHECKERR(ierr);
   ierr = MPIBroadcast_character(solver->op_file_format,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
   ierr = MPIBroadcast_character(solver->op_overwrite  ,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
+  ierr = MPIBroadcast_character(solver->model         ,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
 
   /* calculate ndims-D rank of each process (ip[]) from rank in MPI_COMM_WORLD */
   ierr = MPIRanknD(solver->ndims,mpi->rank,mpi->iproc,mpi->ip); CHECKERR(ierr);
@@ -96,9 +97,10 @@ int Initialize(void *s, void *m)
   /* state variable */
   size = 1;
   for (i=0; i<solver->ndims; i++) size *= (solver->dim_local[i]+2*solver->ghosts);
-  solver->u   = (double*) calloc (solver->nvars*size,sizeof(double));
-  solver->hyp = (double*) calloc (solver->nvars*size,sizeof(double));
-  solver->par = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->u       = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->hyp     = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->par     = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->source  = (double*) calloc (solver->nvars*size,sizeof(double));
   /* grid */
   size = 0;
   for (i=0; i<solver->ndims; i++) size += solver->dim_local[i];

@@ -20,6 +20,7 @@ typedef struct main_parameters {
   double *u;                          /* state vector                                     */
   double *hyp;                        /* array to hold the hyperbolic terms               */
   double *par;                        /* array to hold the parabolic terms                */
+  double *source;                     /* array to hold the source    terms                */
 
   /* Boundary conditions */
   int   nBoundaryZones;               /* number of boundary zones                         */
@@ -36,11 +37,17 @@ typedef struct main_parameters {
   /* Functions */
   int (*WriteOutput)              (int,int,int*,double*,double*,char*,int*);  
   int (*ApplyBoundaryConditions)  (void*,void*,double*);                     
-  int (*HyperbolicFunction)       (void*,void*);
-  int (*ParabolicFunction)        (void*,void*);
   int (*TimeIntegrate)            (void*);                                  
 
+  /* Physical model specific functions */
+  double (*ComputeCFL)         (void*,void*,double);
+  double (*ComputeDiffNumber)  (void*,void*,double);
+  int    (*HyperbolicFunction) (void*,void*);
+  int    (*ParabolicFunction)  (void*,void*);
+  int    (*SourceFunction)     (void*,void*);
+
   /* Physics  */
+  char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
   void *physics;                          /* object containing the physics                */
 
 } HyPar;
@@ -49,6 +56,7 @@ typedef struct main_parameters {
 int Cleanup                 (void*,void*);
 int Initialize              (void*,void*);
 int InitializeBoundaries    (void*,void*);
+int InitializePhysics       (void*,void*);
 int InitializeSolvers       (void*,void*);
 int InitialSolution         (void*,void*);
 int OutputSolution          (void*,void*);

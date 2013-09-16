@@ -8,8 +8,6 @@
 /* Function declarations */
 int WriteText               (int,int,int*,double*,double*,char*,int*);
 int ApplyBoundaryConditions (void*,void*,double*);
-int HyperbolicFunction      (void*,void*);
-int ParabolicFunction       (void*,void*);
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -19,8 +17,6 @@ int InitializeSolvers(void *s, void *m)
   if (!mpi->rank) printf("Initializing solvers.\n");
 
   solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
-  solver->HyperbolicFunction      = HyperbolicFunction;
-  solver->ParabolicFunction       = ParabolicFunction;
 
   /* Time integration */
   if (solver->time_scheme == _FORWARD_EULER_) solver->TimeIntegrate = TimeForwardEuler;

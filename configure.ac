@@ -64,6 +64,7 @@ AC_CONFIG_FILES([
  src/ArrayFunctions/Makefile
  src/BoundaryConditions/Makefile
  src/HyParFunctions/Makefile
+ src/AdvectionDiffusionReaction/Makefile
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
  src/TimeIntegration/Makefile

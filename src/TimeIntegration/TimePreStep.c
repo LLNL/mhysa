@@ -1,6 +1,5 @@
 #include <basic.h>
 #include <mpivars.h>
-#include <physics.h>
 #include <hypar.h>
 #include <timeintegration.h>
 
@@ -9,7 +8,6 @@ int TimePreStep(void *ts)
   TimeIntegration *TS      = (TimeIntegration*) ts;
   HyPar           *solver  = (HyPar*)           TS->solver;
   MPIVariables    *mpi     = (MPIVariables*)    TS->mpi;
-  SolverPhysics   *physics = (SolverPhysics*)   solver->physics;
   int             ierr     = 0;
 
 
@@ -20,7 +18,7 @@ int TimePreStep(void *ts)
 
   /* compute max CFL over the domain */
   double local_max_cfl = -1.0;
-//  if (physics->ComputeCFL) local_max_cfl = physics->ComputeCFL(solver,mpi,TS->dt);
+  if (solver->ComputeCFL) local_max_cfl = solver->ComputeCFL(solver,mpi,TS->dt);
   ierr = MPIMax_double(&TS->max_cfl,&local_max_cfl,1); CHECKERR(ierr);
 
   return(0);
