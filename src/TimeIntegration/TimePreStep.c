@@ -1,4 +1,5 @@
 #include <basic.h>
+#include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 #include <timeintegration.h>
@@ -9,7 +10,6 @@ int TimePreStep(void *ts)
   HyPar           *solver  = (HyPar*)           TS->solver;
   MPIVariables    *mpi     = (MPIVariables*)    TS->mpi;
   int             ierr     = 0;
-
 
   /* copy current solution for norm computation later */
   int size = 1,d;

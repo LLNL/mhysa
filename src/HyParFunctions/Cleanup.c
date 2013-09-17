@@ -26,8 +26,8 @@ int Cleanup(void *s,void *m)
   free(solver->boundary);
 
   /* Clean up any allocations in physical model */
-  if (!strcmp,(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
-    ierr = LinearADRCleanup(solver,mpi); CHECKERR(ierr);
+  if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
+    ierr = LinearADRCleanup(solver->physics); CHECKERR(ierr);
   }
   free(solver->physics);
 
@@ -40,6 +40,7 @@ int Cleanup(void *s,void *m)
   free(solver->par);
   free(solver->source);
   free(solver->x);
+  free(solver->dxinv);
   free(mpi->iproc);
   free(mpi->ip);
   free(mpi->is);

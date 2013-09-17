@@ -19,6 +19,7 @@ typedef struct main_parameters {
   /* Data arrays */
   int    *index;                      /* ndims-dimensional variable index                 */
   double *x;                          /* coordinate vector                                */
+  double *dxinv;                      /* 1/dx                                             */
   double *u;                          /* state vector                                     */
   double *hyp;                        /* array to hold the hyperbolic terms               */
   double *par;                        /* array to hold the parabolic terms                */
@@ -40,17 +41,27 @@ typedef struct main_parameters {
   int (*WriteOutput)              (int,int,int*,double*,double*,char*,int*);  
   int (*ApplyBoundaryConditions)  (void*,void*,double*);                     
   int (*TimeIntegrate)            (void*);                                  
-
-  /* Physical model specific functions */
-  double (*ComputeCFL)         (void*,void*,double);
-  double (*ComputeDiffNumber)  (void*,void*,double);
-  int    (*HyperbolicFunction) (void*,void*);
-  int    (*ParabolicFunction)  (void*,void*);
-  int    (*SourceFunction)     (void*,void*);
+  int (*InterpolateInterfacesHyp) (double*,double*,int,int,void*,void*);
+  int (*InterpolateInterfacesPar) ();
+  int (*HyperbolicFunction)       (void*,void*);
+  int (*ParabolicFunction)        (void*,void*);
+  int (*SourceFunction)           (void*,void*);
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
   void *physics;                          /* object containing the physics                */
+  /* Physical model specific functions                                                    */
+  /* These functions are mandatory; if not required in a particular model, 
+      they should be set to NULL                                                          */
+  double (*ComputeCFL)         (void*,void*,double);
+  double (*ComputeDiffNumber)  (void*,void*,double);
+  int    (*FFunction)          (double*,int,void*);
+  int    (*GFunction)          ();
+  int    (*SFunction)          ();
+  int    (*Upwind)             (double*,double*,double*,int,void*);
+
+  /* Other parameters */
+  void *interp;                         /* Interpolation-related parameters */
 
 } HyPar;
 

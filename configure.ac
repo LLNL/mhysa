@@ -61,10 +61,11 @@ AC_PROG_INSTALL
 AC_CONFIG_FILES([
  Makefile
  src/Makefile
+ src/AdvectionDiffusionReaction/Makefile
  src/ArrayFunctions/Makefile
  src/BoundaryConditions/Makefile
  src/HyParFunctions/Makefile
- src/AdvectionDiffusionReaction/Makefile
+ src/InterpolationFunctions/Makefile
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
  src/TimeIntegration/Makefile

@@ -4,10 +4,14 @@
 #include <mpivars.h>
 #include <hypar.h>
 #include <timeintegration.h>
+#include <interpolation.h>
 
 /* Function declarations */
 int WriteText               (int,int,int*,double*,double*,char*,int*);
 int ApplyBoundaryConditions (void*,void*,double*);
+int HyperbolicFunction      (void*,void*);
+int ParabolicFunction       (void*,void*);
+int SourceFunction          (void*,void*);
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -17,12 +21,24 @@ int InitializeSolvers(void *s, void *m)
   if (!mpi->rank) printf("Initializing solvers.\n");
 
   solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
+  solver->HyperbolicFunction      = HyperbolicFunction;
+  solver->ParabolicFunction       = ParabolicFunction;
+  solver->SourceFunction          = SourceFunction;
 
   /* Time integration */
   if (solver->time_scheme == _FORWARD_EULER_) solver->TimeIntegrate = TimeForwardEuler;
   else {
     fprintf(stderr,"Error: %d is a not a supported time-integration scheme.\n",
             solver->time_scheme);
+    return(1);
+  }
+
+  /* Spatial interpolation */
+  if (solver->spatial_scheme_hyp == _FIRST_ORDER_UPWIND_) 
+    solver->InterpolateInterfacesHyp = FirstOrderUpwind;
+  else {
+    fprintf(stderr,"Error: %d is a not a supported spatial interpolation scheme.\n",
+            solver->spatial_scheme_hyp);
     return(1);
   }
 

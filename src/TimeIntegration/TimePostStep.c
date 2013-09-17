@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <basic.h>
+#include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 #include <timeintegration.h>
@@ -20,7 +21,8 @@ int TimePostStep(void *ts)
 
     /* Calculate norm for this time step */
     ierr = ArrayAXPY(solver->u,-1.0,TS->u,size*solver->nvars); CHECKERR(ierr);
-    double sum = ArraySumSquarenD(solver->ndims,solver->dim_local,solver->ghosts,solver->index,TS->u);
+    double sum = ArraySumSquarenD(solver->nvars,solver->ndims,solver->dim_local,
+                                  solver->ghosts,solver->index,TS->u);
     double global_sum = 0; MPISum_double(&global_sum,&sum,1);
     TS->norm = sqrt((global_sum/(double)solver->npoints_global));
 

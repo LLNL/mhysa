@@ -6,4 +6,5 @@ libAdvectionDiffusionReaction_a_SOURCES = \
   LinearADRComputeDiffNumber.c \
   LinearADRAdvection.c \
   LinearADRDiffusion.c \
-  LinearADRReaction.c
+  LinearADRReaction.c \
+  LinearADRUpwind.c

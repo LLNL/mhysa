@@ -1,14 +1,9 @@
 #include <stdlib.h>
 #include <advectiondiffusionreaction.h>
-#include <mpivars.h>
-#include <hypar.h>
 
-int LinearADRCleanup(void *s,void *m)
+int LinearADRCleanup(void *s)
 {
-  HyPar         *solver = (HyPar*)        s;
-  MPIVariables  *mpi    = (MPIVariables*) m;
- 
-  LinearADR *physics = solver->physics;
+  LinearADR *physics = (LinearADR*) s;
   if (physics->a) free(physics->a);
 
   return(0);

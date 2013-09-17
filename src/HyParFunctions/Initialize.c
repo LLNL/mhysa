@@ -40,7 +40,7 @@ int Initialize(void *s, void *m)
     return(1);
   }
 
-  int buffer_size = 5;
+  int buffer_size = 7;
   int *buffer;
   buffer = (int*) calloc(buffer_size,sizeof(int));
   if (!mpi->rank) {
@@ -49,13 +49,17 @@ int Initialize(void *s, void *m)
     buffer[2] = solver->time_scheme;
     buffer[3] = solver->screen_op_iter;
     buffer[4] = solver->file_op_iter;
+    buffer[5] = solver->spatial_scheme_hyp;
+    buffer[6] = solver->spatial_scheme_par;
   }
   ierr = MPIBroadcast_integer(buffer,buffer_size,0); CHECKERR(ierr);
-  solver->ghosts            = buffer[0];
-  solver->n_iter            = buffer[1];
-  solver->time_scheme       = buffer[2];
-  solver->screen_op_iter    = buffer[3];
-  solver->file_op_iter      = buffer[4];
+  solver->ghosts             = buffer[0];
+  solver->n_iter             = buffer[1];
+  solver->time_scheme        = buffer[2];
+  solver->screen_op_iter     = buffer[3];
+  solver->file_op_iter       = buffer[4];
+  solver->spatial_scheme_hyp = buffer[5];
+  solver->spatial_scheme_par = buffer[6];
   free(buffer);
 
   ierr = MPIBroadcast_double(&solver->dt,1,0);                               CHECKERR(ierr);
@@ -104,7 +108,8 @@ int Initialize(void *s, void *m)
   /* grid */
   size = 0;
   for (i=0; i<solver->ndims; i++) size += solver->dim_local[i];
-  solver->x = (double*) calloc (size,sizeof(double));
+  solver->x     = (double*) calloc (size,sizeof(double));
+  solver->dxinv = (double*) calloc (size,sizeof(double));
 
   return(0);
 }

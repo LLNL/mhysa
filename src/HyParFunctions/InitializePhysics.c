@@ -15,22 +15,11 @@ int InitializePhysics(void *s,void *m)
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0;
 
-  /* Initialize all physics-model related function pointers to NULL */
-  solver->ComputeCFL          = NULL;
-  solver->ComputeDiffNumber   = NULL;
-  solver->HyperbolicFunction  = NULL;
-  solver->ParabolicFunction   = NULL;
-  solver->SourceFunction      = NULL; 
-
   if (!mpi->rank) printf("Initializing physics.\n");
 
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
+    solver->physics = (LinearADR*) calloc (1,sizeof(LinearADR));
     ierr = LinearADRInitialize(solver,mpi); CHECKERR(ierr);
-    solver->ComputeCFL          = LinearADRComputeCFL;
-    solver->ComputeDiffNumber   = LinearADRComputeDiffNumber;
-    solver->HyperbolicFunction  = LinearADRAdvection;
-    solver->ParabolicFunction   = LinearADRDiffusion;
-    solver->SourceFunction      = LinearADRReaction;
   } else {
     fprintf(stderr,"Error: %s is not a supported physical model.\n",solver->model);
     fprintf(stderr,"See header file \"physics.h\" for a list of supported models.\n");
