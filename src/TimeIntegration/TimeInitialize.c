@@ -6,6 +6,8 @@
 #include <hypar.h>
 #include <timeintegration.h>
 
+int TimeRHSFunctionExplicit(double*,double*,void*,void*);
+
 int TimeInitialize(void *s,void *m,void *ts)
 {
   TimeIntegration *TS     = (TimeIntegration*) ts;
@@ -42,6 +44,9 @@ int TimeInitialize(void *s,void *m,void *ts)
       TS->Udot[i] = (double*) calloc (size*solver->nvars,sizeof(double));
     }
   } else TS->U = TS->Udot = NULL;
+
+  /* set right-hand side function pointer */
+  TS->RHSFunction = TimeRHSFunctionExplicit;
 
   /* open files for writing */
   if (!mpi->rank) {

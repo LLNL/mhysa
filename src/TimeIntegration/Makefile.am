@@ -7,6 +7,7 @@ libTimeIntegration_a_SOURCES = \
   TimePreStep.c \
   TimePostStep.c \
   TimePrintStep.c \
+  TimeRHSFunctionExplicit.c \
   TimeStep.c \
   TimeForwardEuler.c \
   TimeRK.c

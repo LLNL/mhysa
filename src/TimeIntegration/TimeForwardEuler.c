@@ -19,24 +19,9 @@ int TimeForwardEuler(void *ts)
   ierr = MPIExchangeBoundaries  (solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,solver->u);             CHECKERR(ierr);
 
-  /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
-  double *rhs = TS->rhs;
-  ierr = ArraySetValue_double(rhs,size*solver->nvars,0.0);                  CHECKERR(ierr);
-  if (solver->HyperbolicFunction) {
-    ierr = solver->HyperbolicFunction(solver->hyp,solver->u,solver,mpi);    CHECKERR(ierr);
-    ierr = ArrayAXPY(solver->hyp    ,-1.0,rhs,size*solver->nvars);          CHECKERR(ierr);
-  }
-  if (solver->ParabolicFunction) {
-    ierr = solver->ParabolicFunction (solver->par,solver->u,solver,mpi);    CHECKERR(ierr);
-    ierr = ArrayAXPY(solver->par    , 1.0,rhs,size*solver->nvars);          CHECKERR(ierr);
-  }
-  if (solver->SourceFunction) {
-    ierr = solver->SourceFunction    (solver->source,solver->u,solver,mpi); CHECKERR(ierr);
-    ierr = ArrayAXPY(solver->source , 1.0,rhs,size*solver->nvars);          CHECKERR(ierr);
-  }
-
-  /* Update solution */
-  ierr = ArrayAXPY(rhs,solver->dt,solver->u,size*solver->nvars);            CHECKERR(ierr);
+  /* Evaluate right-hand side and update solution */
+  ierr = TS->RHSFunction(TS->rhs,solver->u,solver,mpi);                     CHECKERR(ierr);
+  ierr = ArrayAXPY(TS->rhs,solver->dt,solver->u,size*solver->nvars);        CHECKERR(ierr);
 
   return(0);
 }
