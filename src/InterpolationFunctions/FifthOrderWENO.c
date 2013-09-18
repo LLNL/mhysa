@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
+#include <mathfunctions.h>
 #include <arrayfunctions.h>
 #include <interpolation.h>
 #include <mpivars.h>
