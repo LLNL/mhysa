@@ -66,9 +66,13 @@ typedef struct main_parameters {
   void *interp;                         /* Interpolation-related parameters         */
   void *msti;                           /* Multi-stage time-integration parameters  */
 
+  /* Errors */
+  double error[3];                      /* L1,L2,Linf errors, if calculated         */
+
 } HyPar;
 
 /* Functions */
+int CalculateError          (void*,void*);
 int Cleanup                 (void*,void*);
 int Initialize              (void*,void*);
 int InitializeBoundaries    (void*,void*);

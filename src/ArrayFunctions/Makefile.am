@@ -6,6 +6,8 @@ libArrayFunctions_a_SOURCES = \
   ArrayCopynD.c \
   ArrayIncrementIndex.c \
   ArrayIndex1D.c \
+  ArrayMaxnD.c \
   ArraySetValue.c \
   ArraySubtract1D.c \
+  ArraySumAbsnD.c \
   ArraySumSquarenD.c 

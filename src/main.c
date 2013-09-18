@@ -7,7 +7,7 @@ int main(int argc,char **argv)
 {
   MPIVariables    mpi;
   HyPar           solver;
-  int             ierr = 0;
+  int             ierr = 0,d;
   struct timeval  main_start, solve_start;
   struct timeval  main_end  , solve_end  ;
 
@@ -78,13 +78,12 @@ int main(int argc,char **argv)
     return(ierr);
   }
 
-  /* Cleaning up */
-  ierr = Cleanup(&solver,&mpi);
+  /* Calculate error if exact solution is available */
+  ierr = CalculateError(&solver,&mpi);
   if (ierr) {
-    printf("Error: CleanUp() returned with status %d on process %d.\n",ierr,mpi.rank);
+    printf("Error: CalculateError() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
   }
-  if (!mpi.rank) printf("Finished.\n");
 
   gettimeofday(&main_end,NULL);
 
@@ -98,8 +97,27 @@ int main(int argc,char **argv)
               - (solve_start.tv_sec * 1000000 + solve_start.tv_usec));
   double solver_runtime = (double) walltime / 1000000.0;
   ierr = MPIMax_double(&solver_runtime,&solver_runtime,1); if(ierr) return(ierr);
+
+  /* print error and walltime to file and on screen */
+  FILE *out; out = fopen("errors.dat","w");
+  for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",solver.dim_global[d]);
+  fprintf(out,"%1.4E %1.4E %1.4E   ",solver.error[0],solver.error[1],solver.error[2]);
+  fprintf(out,"%1.4E %1.4E\n",solver_runtime,main_runtime);
+  fclose(out);
+  if (!mpi.rank) printf("L1         Error           : %E\n",solver.error[0]);
+  if (!mpi.rank) printf("L2         Error           : %E\n",solver.error[1]);
+  if (!mpi.rank) printf("Linfinity  Error           : %E\n",solver.error[2]);
   if (!mpi.rank) printf("Solver runtime (in seconds): %E\n",solver_runtime);
   if (!mpi.rank) printf("Total  runtime (in seconds): %E\n",main_runtime);
+
+  /* Cleaning up */
+  ierr = Cleanup(&solver,&mpi);
+  if (ierr) {
+    printf("Error: CleanUp() returned with status %d on process %d.\n",ierr,mpi.rank);
+    return(ierr);
+  }
+  if (!mpi.rank) printf("Finished.\n");
+
 
 #ifndef serial
   MPI_Finalize();

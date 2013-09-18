@@ -1,6 +1,7 @@
 noinst_LIBRARIES = libHyParFunctions.a
 libHyParFunctions_a_SOURCES = \
   ApplyBoundaryConditions.c \
+  CalculateError.c \
   Cleanup.c \
   HyperbolicFunction.c \
   Initialize.c \
