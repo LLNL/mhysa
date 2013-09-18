@@ -9,14 +9,15 @@
 /* Function declarations */
 int WriteText               (int,int,int*,double*,double*,char*,int*);
 int ApplyBoundaryConditions (void*,void*,double*);
-int HyperbolicFunction      (void*,void*);
-int ParabolicFunction       (void*,void*);
-int SourceFunction          (void*,void*);
+int HyperbolicFunction      (double*,double*,void*,void*);
+int ParabolicFunction       (double*,double*,void*,void*);
+int SourceFunction          (double*,double*,void*,void*);
 
 int InitializeSolvers(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
+  int           ierr    = 0;
 
   if (!mpi->rank) printf("Initializing solvers.\n");
 
@@ -26,9 +27,16 @@ int InitializeSolvers(void *s, void *m)
   solver->SourceFunction          = SourceFunction;
 
   /* Time integration */
-  if (solver->time_scheme == _FORWARD_EULER_) solver->TimeIntegrate = TimeForwardEuler;
-  else {
-    fprintf(stderr,"Error: %d is a not a supported time-integration scheme.\n",
+  if (!strcmp(solver->time_scheme,_FORWARD_EULER_)) { 
+    solver->TimeIntegrate = TimeForwardEuler;
+    solver->msti = NULL;
+  } else if (!strcmp(solver->time_scheme,_RK_)) {
+    solver->TimeIntegrate = TimeRK;
+    solver->msti = (MSTIParameters*) calloc (1,sizeof(MSTIParameters));
+    ierr = TimeMSTIInitialize(solver->time_scheme,solver->time_scheme_type,
+                              solver->msti); CHECKERR(ierr);
+  } else {
+    fprintf(stderr,"Error: %s is a not a supported time-integration scheme.\n",
             solver->time_scheme);
     return(1);
   }

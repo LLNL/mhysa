@@ -4,13 +4,12 @@
 #include <advectiondiffusionreaction.h>
 #include <hypar.h>
 
-int LinearADRAdvection(double *f,int dir,void *s)
+int LinearADRAdvection(double *f,double *u,int dir,void *s)
 {
   HyPar     *solver = (HyPar*)     s;
   LinearADR *param  = (LinearADR*) solver->physics;
   int       ierr   = 0, i, v;
 
-  double  *u      = solver->u;
   int     *dim    = solver->dim_local;
   int     ghosts  = solver->ghosts;
   int     ndims   = solver->ndims;

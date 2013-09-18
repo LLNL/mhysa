@@ -11,6 +11,7 @@ int TimeInitialize(void *s,void *m,void *ts)
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           s;
   MPIVariables    *mpi    = (MPIVariables*)    m;
+  MSTIParameters  *params = (MSTIParameters*)  solver->msti;
   int             ierr    = 0, d;
   if (!solver) return(1);
 
@@ -29,6 +30,18 @@ int TimeInitialize(void *s,void *m,void *ts)
   TS->rhs = (double*) calloc (size*solver->nvars,sizeof(double));
   ierr = ArraySetValue_double(TS->u  ,size*solver->nvars,0.0); CHECKERR(ierr);
   ierr = ArraySetValue_double(TS->rhs,size*solver->nvars,0.0); CHECKERR(ierr);
+
+  /* allocate arrays for multi-stage schemes, if required */
+  if (params) {
+    int nstages = params->nstages;
+    TS->U     = (double**) calloc (nstages,sizeof(double*));
+    TS->Udot  = (double**) calloc (nstages,sizeof(double*));
+    int i;
+    for (i = 0; i < nstages; i++) {
+      TS->U[i]    = (double*) calloc (size*solver->nvars,sizeof(double));
+      TS->Udot[i] = (double*) calloc (size*solver->nvars,sizeof(double));
+    }
+  } else TS->U = TS->Udot = NULL;
 
   /* open files for writing */
   if (!mpi->rank) {

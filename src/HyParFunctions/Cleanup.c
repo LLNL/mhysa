@@ -4,6 +4,7 @@
 #include <basic.h>
 #include <mpivars.h>
 #include <boundaryconditions.h>
+#include <timeintegration.h>
 #include <hypar.h>
 #include <physics.h>
 
@@ -30,6 +31,12 @@ int Cleanup(void *s,void *m)
     ierr = LinearADRCleanup(solver->physics); CHECKERR(ierr);
   }
   free(solver->physics);
+
+  /* Clean up any allocations from time-integration */
+  if (solver->msti) {
+    ierr = TimeMSTICleanup(solver->msti); CHECKERR(ierr);
+    free(solver->msti);
+  }
 
   /* These variables are allocated in Initialize.c */
   free(solver->dim_global);

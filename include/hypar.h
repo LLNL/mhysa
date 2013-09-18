@@ -11,10 +11,12 @@ typedef struct main_parameters {
   int     npoints_local;              /* total number of points (= product of dim_local ) */
   int     ghosts;                     /* number of ghost points                           */
   int     n_iter;                     /* number of time iterations                        */
-  int     time_scheme;                /* time-integration scheme                          */
+  double  dt;                         /* time step size                                   */
+
+  char    time_scheme[_MAX_STRING_SIZE_];       /* time-integration scheme class (eg. RK) */
+  char    time_scheme_type[_MAX_STRING_SIZE_];  /* specific time-integration scheme type  */
   int     spatial_scheme_hyp;         /* spatial discretization scheme for hyperbolic term*/
   int     spatial_scheme_par;         /* spatial discretization scheme for parabolic  term*/
-  double  dt;                         /* time step size                                   */
 
   /* Data arrays */
   int    *index;                      /* ndims-dimensional variable index                 */
@@ -43,9 +45,9 @@ typedef struct main_parameters {
   int (*TimeIntegrate)            (void*);                                  
   int (*InterpolateInterfacesHyp) (double*,double*,int,int,void*,void*);
   int (*InterpolateInterfacesPar) ();
-  int (*HyperbolicFunction)       (void*,void*);
-  int (*ParabolicFunction)        (void*,void*);
-  int (*SourceFunction)           (void*,void*);
+  int (*HyperbolicFunction)       (double*,double*,void*,void*);
+  int (*ParabolicFunction)        (double*,double*,void*,void*);
+  int (*SourceFunction)           (double*,double*,void*,void*);
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
@@ -55,13 +57,14 @@ typedef struct main_parameters {
       they should be set to NULL                                                          */
   double (*ComputeCFL)         (void*,void*,double);
   double (*ComputeDiffNumber)  (void*,void*,double);
-  int    (*FFunction)          (double*,int,void*);
+  int    (*FFunction)          (double*,double*,int,void*);
   int    (*GFunction)          ();
   int    (*SFunction)          ();
-  int    (*Upwind)             (double*,double*,double*,int,void*);
+  int    (*Upwind)             (double*,double*,double*,double*,int,void*);
 
   /* Other parameters */
-  void *interp;                         /* Interpolation-related parameters */
+  void *interp;                         /* Interpolation-related parameters         */
+  void *msti;                           /* Multi-stage time-integration parameters  */
 
 } HyPar;
 

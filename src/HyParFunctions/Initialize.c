@@ -10,16 +10,6 @@ int Initialize(void *s, void *m)
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0,i;
 
-  /* communicating basic information to all processes */
-  ierr = MPIBroadcast_integer(&solver->ndims,1,0); CHECKERR(ierr);
-  ierr = MPIBroadcast_integer(&solver->nvars,1,0); CHECKERR(ierr);
-  if (mpi->rank) {
-    solver->dim_global = (int*) calloc (solver->ndims,sizeof(int));
-    mpi->iproc         = (int*) calloc (solver->ndims,sizeof(int));
-  }
-  ierr = MPIBroadcast_integer(&solver->dim_global[0],solver->ndims,0); CHECKERR(ierr);
-  ierr = MPIBroadcast_integer(&mpi->iproc[0]        ,solver->ndims,0); CHECKERR(ierr);
-
   /* allocations */
   mpi->ip           = (int*) calloc (solver->ndims,sizeof(int));
   mpi->is           = (int*) calloc (solver->ndims,sizeof(int));
@@ -39,33 +29,6 @@ int Initialize(void *s, void *m)
     fprintf(stderr,"total number of processes from \"solver.inp\" is %d.\n", total_proc);
     return(1);
   }
-
-  int buffer_size = 7;
-  int *buffer;
-  buffer = (int*) calloc(buffer_size,sizeof(int));
-  if (!mpi->rank) {
-    buffer[0] = solver->ghosts;
-    buffer[1] = solver->n_iter;
-    buffer[2] = solver->time_scheme;
-    buffer[3] = solver->screen_op_iter;
-    buffer[4] = solver->file_op_iter;
-    buffer[5] = solver->spatial_scheme_hyp;
-    buffer[6] = solver->spatial_scheme_par;
-  }
-  ierr = MPIBroadcast_integer(buffer,buffer_size,0); CHECKERR(ierr);
-  solver->ghosts             = buffer[0];
-  solver->n_iter             = buffer[1];
-  solver->time_scheme        = buffer[2];
-  solver->screen_op_iter     = buffer[3];
-  solver->file_op_iter       = buffer[4];
-  solver->spatial_scheme_hyp = buffer[5];
-  solver->spatial_scheme_par = buffer[6];
-  free(buffer);
-
-  ierr = MPIBroadcast_double(&solver->dt,1,0);                               CHECKERR(ierr);
-  ierr = MPIBroadcast_character(solver->op_file_format,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
-  ierr = MPIBroadcast_character(solver->op_overwrite  ,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
-  ierr = MPIBroadcast_character(solver->model         ,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
 
   /* calculate ndims-D rank of each process (ip[]) from rank in MPI_COMM_WORLD */
   ierr = MPIRanknD(solver->ndims,mpi->rank,mpi->iproc,mpi->ip); CHECKERR(ierr);

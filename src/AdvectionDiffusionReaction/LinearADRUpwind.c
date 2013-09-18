@@ -4,7 +4,7 @@
 #include <advectiondiffusionreaction.h>
 #include <hypar.h>
 
-int LinearADRUpwind(double *fI,double *fL,double *fR,int dir,void *s)
+int LinearADRUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *s)
 {
   HyPar     *solver = (HyPar*)      s;
   LinearADR *param  = (LinearADR*)  solver->physics;

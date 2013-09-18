@@ -6,10 +6,10 @@
 
 double LinearADRComputeCFL        (void*,void*,double);
 double LinearADRComputeDiffNumber (void*,void*,double);
-int    LinearADRAdvection         (double*,int,void*);
+int    LinearADRAdvection         (double*,double*,int,void*);
 int    LinearADRDiffusion         ();
 int    LinearADRReaction          ();
-int    LinearADRUpwind            (double*,double*,double*,int,void*);
+int    LinearADRUpwind            (double*,double*,double*,double*,int,void*);
 
 int LinearADRInitialize(void *s,void *m)
 {
