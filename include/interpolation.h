@@ -1,18 +1,6 @@
 /* definitions */
-#define _FIRST_ORDER_UPWIND_ 1
-
-typedef struct parameters_weno {
-  /* Options related to the type of WENO scheme */
-  int mapped;		          /* Use mapped weights?                                    */
-  int borges;		          /* Use Borges' implementation of weights?                 */
-  int yc;		              /* Use Yamaleev-Carpenter implementation of weights?      */
-  int no_limiting;        /* Remove limiting -> 5th order polynomial interpolation  */
-  double		eps;		      /* epsilon parameter                                      */
-  double		p;			      /* p parameter                                            */
-} WENOParameters;
-
-/* WENO initializations and clean-up functions */
-int WENOInitialize(void*,void*);
+#define _FIRST_ORDER_UPWIND_    "1"
+#define _FIFTH_ORDER_WENO_      "weno5"
 
 /*
   One-dimensional Interpolation Functions
@@ -65,3 +53,17 @@ int WENOInitialize(void*,void*);
 */
 
 int FirstOrderUpwind    (double*,double*,int,int,void*,void*);
+int FifthOrderWENO      (double*,double*,int,int,void*,void*);
+
+/* WENO scheme related parameters and functions */
+typedef struct parameters_weno {
+  /* Options related to the type of WENO scheme */
+  int     mapped;		    /* Use mapped weights?                                    */
+  int     borges;		    /* Use Borges' implementation of weights?                 */
+  int     yc;		        /* Use Yamaleev-Carpenter implementation of weights?      */
+  int     no_limiting;  /* Remove limiting -> 5th order polynomial interpolation  */
+  double  eps;		      /* epsilon parameter                                      */
+  double	p;			      /* p parameter                                            */
+} WENOParameters;
+int WENOInitialize(void*,void*);
+

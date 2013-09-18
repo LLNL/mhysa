@@ -38,6 +38,9 @@ int Cleanup(void *s,void *m)
     free(solver->msti);
   }
 
+  /* Clean up any spatial reconstruction related allocations */
+  if (solver->interp) free(solver->interp);
+
   /* These variables are allocated in Initialize.c */
   free(solver->dim_global);
   free(solver->dim_local);

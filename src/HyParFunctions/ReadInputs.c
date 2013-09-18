@@ -23,6 +23,8 @@ int ReadInputs(void *s,void *m)
   solver->write_residual  = 0;
   strcpy(solver->time_scheme,"euler");
   strcpy(solver->time_scheme_type," ");
+  strcpy(solver->spatial_scheme_hyp,"1");
+  strcpy(solver->spatial_scheme_par,"2");
   strcpy(solver->op_file_format,"text");
   strcpy(solver->op_overwrite,"no"    );
   strcpy(solver->model       ,"none");
@@ -68,8 +70,8 @@ int ReadInputs(void *s,void *m)
 	    	else if   (!strcmp(word, "n_iter"        ))  ierr = fscanf(in,"%d",&solver->n_iter        );
    			else if   (!strcmp(word, "time_scheme"   ))  ierr = fscanf(in,"%s",solver->time_scheme   );
    			else if   (!strcmp(word, "time_scheme_type"))ierr = fscanf(in,"%s",solver->time_scheme_type);
-   			else if   (!strcmp(word, "hyp_space_order")) ierr = fscanf(in,"%d",&solver->spatial_scheme_hyp);
-   			else if   (!strcmp(word, "par_space_order")) ierr = fscanf(in,"%d",&solver->spatial_scheme_par);
+   			else if   (!strcmp(word, "hyp_space_order")) ierr = fscanf(in,"%s",solver->spatial_scheme_hyp);
+   			else if   (!strcmp(word, "par_space_order")) ierr = fscanf(in,"%s",solver->spatial_scheme_par);
    			else if   (!strcmp(word, "dt"            ))  ierr = fscanf(in,"%lf",&solver->dt           );
    			else if   (!strcmp(word, "screen_op_iter"))  ierr = fscanf(in,"%d",&solver->screen_op_iter);
    			else if   (!strcmp(word, "file_op_iter"  ))  ierr = fscanf(in,"%d",&solver->file_op_iter  );
@@ -108,8 +110,8 @@ int ReadInputs(void *s,void *m)
 	    printf("\tNo. of iter.                               : %d\n"     ,solver->n_iter         );
       printf("\tTime integration scheme                    : %s (%s)\n",
              solver->time_scheme,solver->time_scheme_type);
-      printf("\tSpatial discretization scheme (hyperbolic) : %d\n"     ,solver->spatial_scheme_hyp);
-      printf("\tSpatial discretization scheme (parabolic ) : %d\n"     ,solver->spatial_scheme_par);
+      printf("\tSpatial discretization scheme (hyperbolic) : %s\n"     ,solver->spatial_scheme_hyp);
+      printf("\tSpatial discretization scheme (parabolic ) : %s\n"     ,solver->spatial_scheme_par);
     	printf("\tTime Step                                  : %E\n"     ,solver->dt             );
       printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter );
       printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter   );

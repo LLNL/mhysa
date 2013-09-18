@@ -5,9 +5,7 @@
 
 int WENOInitialize(void *s,void *m)
 {
-  HyPar           *solver = (HyPar*)          s;
-  MPIVariables    *mpi    = (MPIVariables*)   m;
-  WENOParameters  *weno   = (WENOParameters*) solver->interp;
+  WENOParameters  *weno   = (WENOParameters*) s;
 
   /* hard coding these parameters for now */
   /* modify to read from an input file later */

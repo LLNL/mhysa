@@ -13,10 +13,10 @@ typedef struct main_parameters {
   int     n_iter;                     /* number of time iterations                        */
   double  dt;                         /* time step size                                   */
 
-  char    time_scheme[_MAX_STRING_SIZE_];       /* time-integration scheme class (eg. RK) */
-  char    time_scheme_type[_MAX_STRING_SIZE_];  /* specific time-integration scheme type  */
-  int     spatial_scheme_hyp;         /* spatial discretization scheme for hyperbolic term*/
-  int     spatial_scheme_par;         /* spatial discretization scheme for parabolic  term*/
+  char    time_scheme       [_MAX_STRING_SIZE_];/* time-integration scheme class (eg. RK)           */
+  char    time_scheme_type  [_MAX_STRING_SIZE_];/* specific time-integration scheme type            */
+  char    spatial_scheme_hyp[_MAX_STRING_SIZE_];/* spatial discretization scheme for hyperbolic term*/
+  char    spatial_scheme_par[_MAX_STRING_SIZE_];/* spatial discretization scheme for parabolic  term*/
 
   /* Data arrays */
   int    *index;                      /* ndims-dimensional variable index                 */

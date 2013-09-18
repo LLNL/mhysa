@@ -42,10 +42,15 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Spatial interpolation */
-  if (solver->spatial_scheme_hyp == _FIRST_ORDER_UPWIND_) 
+  if (!strcmp(solver->spatial_scheme_hyp,_FIRST_ORDER_UPWIND_)) {
     solver->InterpolateInterfacesHyp = FirstOrderUpwind;
-  else {
-    fprintf(stderr,"Error: %d is a not a supported spatial interpolation scheme.\n",
+    solver->interp = NULL;
+  } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_)) {
+    solver->InterpolateInterfacesHyp = FifthOrderWENO;
+    solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
+    ierr = WENOInitialize(solver->interp,mpi); CHECKERR(ierr);
+  } else {
+    fprintf(stderr,"Error: %s is a not a supported spatial interpolation scheme.\n",
             solver->spatial_scheme_hyp);
     return(1);
   }
