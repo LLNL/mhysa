@@ -2,7 +2,10 @@
 #define _FORWARD_EULER_ "euler"
 #define _RK_            "rk"
 
-#define _RK_1FE_        "1fe"
+#define _RK_1FE_        "1fe"     /* Forward Euler                        */
+#define _RK_22_         "22"      /* 2 stage, 2nd order                   */
+#define _RK_33_         "33"      /* 3 stage, 3rd order                   */
+#define _RK_44_         "44"      /* 4 stage, 4th order                   */
 
 typedef struct time_integration_variables {
   int     iter;     /* iteration number                 */
