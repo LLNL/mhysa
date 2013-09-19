@@ -50,6 +50,12 @@ int CalculateError(void *s,void *m)
         }
       }
       fclose(in);
+
+      /* write the exact solution to file in the same format as the computed solution */
+      /* to enable comparisons and plotting together                                  */
+      char filename[_MAX_STRING_SIZE_] = "op_exact.dat";
+      ierr = solver->WriteOutput(solver->ndims,solver->nvars,solver->dim_global,xg,ug,
+                                 filename,solver->index); CHECKERR(ierr);
     }
 
   } else {
