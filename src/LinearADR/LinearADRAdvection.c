@@ -8,12 +8,12 @@ int LinearADRAdvection(double *f,double *u,int dir,void *s)
 {
   HyPar     *solver = (HyPar*)     s;
   LinearADR *param  = (LinearADR*) solver->physics;
-  int       ierr   = 0, i, v;
+  int       ierr    = 0, i, v;
 
-  int     *dim    = solver->dim_local;
-  int     ghosts  = solver->ghosts;
-  int     ndims   = solver->ndims;
-  int     nvars   = solver->nvars;
+  int *dim    = solver->dim_local;
+  int ghosts  = solver->ghosts;
+  int ndims   = solver->ndims;
+  int nvars   = solver->nvars;
 
   int *index  = (int*) calloc (ndims,sizeof(int));
   int *bounds = (int*) calloc (ndims,sizeof(int));

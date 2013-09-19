@@ -14,7 +14,7 @@
 #undef  _MINIMUM_GHOSTS_
 #define _MINIMUM_GHOSTS_ 3
 
-int FifthOrderWENO(double *fI,double *fC,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderWENO(double *fI,double *fC,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;

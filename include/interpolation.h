@@ -4,13 +4,13 @@
 
 /*
   One-dimensional Interpolation Functions
-  Functions to interpolate a function at interfaces
-  from its cell-centered values.
+  Functions to interpolate the primitive of a function 
+  at interfaces from its  cell-centered values.
 
   Arguments:-
 
     fI        double*   array of size (N+1) in the interpolation direction; will contain 
-                        the interpolated interface flux 
+                        the interpolated interface function primitive 
                         (**needs to be allocated by the calling function)
                         (**does not have ghost points))
 
@@ -52,8 +52,9 @@
     Returns 0 on normal execution, non-zero on error.
 */
 
-int FirstOrderUpwind    (double*,double*,int,int,void*,void*);
-int FifthOrderWENO      (double*,double*,int,int,void*,void*);
+/* functions to interpolate the first primitive (for 1st derivative) */
+int Interp1PrimFirstOrderUpwind (double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderWENO   (double*,double*,int,int,void*,void*);
 
 /* WENO scheme related parameters and functions */
 typedef struct parameters_weno {

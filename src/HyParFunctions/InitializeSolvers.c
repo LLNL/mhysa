@@ -5,13 +5,14 @@
 #include <hypar.h>
 #include <timeintegration.h>
 #include <interpolation.h>
+#include <secondderivative.h>
 
 /* Function declarations */
-int WriteText               (int,int,int*,double*,double*,char*,int*);
-int ApplyBoundaryConditions (void*,void*,double*);
-int HyperbolicFunction      (double*,double*,void*,void*);
-int ParabolicFunction       (double*,double*,void*,void*);
-int SourceFunction          (double*,double*,void*,void*);
+int WriteText                (int,int,int*,double*,double*,char*,int*);
+int ApplyBoundaryConditions  (void*,void*,double*);
+int HyperbolicFunction       (double*,double*,void*,void*);
+int ParabolicFunctionNC1Stage(double*,double*,void*,void*);
+int SourceFunction           (double*,double*,void*,void*);
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -23,8 +24,37 @@ int InitializeSolvers(void *s, void *m)
 
   solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
   solver->HyperbolicFunction      = HyperbolicFunction;
-  solver->ParabolicFunction       = ParabolicFunction;
   solver->SourceFunction          = SourceFunction;
+
+  /* choose the type of parabolic discretization */
+  if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) {
+    solver->ParabolicFunction = ParabolicFunctionNC1Stage;
+    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_)) {
+      solver->SecondDerivativePar = SecondDerivativeSecondOrder; 
+    } else {
+      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+              solver->spatial_type_par);
+    }
+  } else {
+    fprintf(stderr,"Error: %s is not a supported ",solver->spatial_type_par);
+    fprintf(stderr,"spatial discretization type for the parabolic terms.\n");
+    return(1);
+  }
+
+  /* Spatial interpolation for hyperbolic term */
+  if (!strcmp(solver->spatial_scheme_hyp,_FIRST_ORDER_UPWIND_)) {
+    solver->InterpolateInterfacesHyp = Interp1PrimFirstOrderUpwind;
+    solver->interp = NULL;
+  } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_)) {
+    solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderWENO;
+    solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
+    ierr = WENOInitialize(solver->interp,mpi); CHECKERR(ierr);
+  } else {
+    fprintf(stderr,"Error: %s is a not a supported spatial interpolation scheme.\n",
+            solver->spatial_scheme_hyp);
+    return(1);
+  }
 
   /* Time integration */
   if (!strcmp(solver->time_scheme,_FORWARD_EULER_)) { 
@@ -38,20 +68,6 @@ int InitializeSolvers(void *s, void *m)
   } else {
     fprintf(stderr,"Error: %s is a not a supported time-integration scheme.\n",
             solver->time_scheme);
-    return(1);
-  }
-
-  /* Spatial interpolation */
-  if (!strcmp(solver->spatial_scheme_hyp,_FIRST_ORDER_UPWIND_)) {
-    solver->InterpolateInterfacesHyp = FirstOrderUpwind;
-    solver->interp = NULL;
-  } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_)) {
-    solver->InterpolateInterfacesHyp = FifthOrderWENO;
-    solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
-    ierr = WENOInitialize(solver->interp,mpi); CHECKERR(ierr);
-  } else {
-    fprintf(stderr,"Error: %s is a not a supported spatial interpolation scheme.\n",
-            solver->spatial_scheme_hyp);
     return(1);
   }
 

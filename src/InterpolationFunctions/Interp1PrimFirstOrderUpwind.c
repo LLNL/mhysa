@@ -13,7 +13,7 @@
 #undef  _MINIMUM_GHOSTS_
 #define _MINIMUM_GHOSTS_ 1
 
-int FirstOrderUpwind(double *fI,double *fC,int upw,int dir,void *s,void *m)
+int Interp1PrimFirstOrderUpwind(double *fI,double *fC,int upw,int dir,void *s,void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

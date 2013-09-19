@@ -63,6 +63,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m)
 
     /* free interface array */
     free(FluxI);
+    free(FluxC);
 
     offset += dim[d];
   }

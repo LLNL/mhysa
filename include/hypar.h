@@ -16,6 +16,7 @@ typedef struct main_parameters {
   char    time_scheme       [_MAX_STRING_SIZE_];/* time-integration scheme class (eg. RK)           */
   char    time_scheme_type  [_MAX_STRING_SIZE_];/* specific time-integration scheme type            */
   char    spatial_scheme_hyp[_MAX_STRING_SIZE_];/* spatial discretization scheme for hyperbolic term*/
+  char    spatial_type_par  [_MAX_STRING_SIZE_];/* spatial discretization type for parabolic  term  */
   char    spatial_scheme_par[_MAX_STRING_SIZE_];/* spatial discretization scheme for parabolic  term*/
 
   /* Data arrays */
@@ -45,6 +46,7 @@ typedef struct main_parameters {
   int (*TimeIntegrate)            (void*);                                  
   int (*InterpolateInterfacesHyp) (double*,double*,int,int,void*,void*);
   int (*InterpolateInterfacesPar) ();
+  int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
   int (*HyperbolicFunction)       (double*,double*,void*,void*);
   int (*ParabolicFunction)        (double*,double*,void*,void*);
   int (*SourceFunction)           (double*,double*,void*,void*);
@@ -58,7 +60,7 @@ typedef struct main_parameters {
   double (*ComputeCFL)         (void*,void*,double);
   double (*ComputeDiffNumber)  (void*,void*,double);
   int    (*FFunction)          (double*,double*,int,void*);
-  int    (*GFunction)          ();
+  int    (*GFunction)          (double*,double*,int,void*);
   int    (*SFunction)          ();
   int    (*Upwind)             (double*,double*,double*,double*,int,void*);
 
@@ -82,3 +84,10 @@ int InitialSolution         (void*,void*);
 int OutputSolution          (void*,void*);
 int ReadInputs              (void*,void*);
 int Solve                   (void*,void*);
+
+
+/* Some definitions - types of discretizations available 
+   for the parabolic (2nd derivative) term                */
+#define _NC_1STAGE_   "nonconservative-1stage"/* Non-conservative, direct evaluation of the 2nd deriv  */
+#define _CONS_1STAGE_ "conservative-1stage"   /* Conservative, direct evaluation of the 2nd deriv      */
+

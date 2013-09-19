@@ -1,5 +1,6 @@
 typedef struct physics_parameters {
-  double *a;                          /* advection speed along each dimension */
+  double *a;  /* advection speed for each variable along each dimension        */
+  double *d;  /* diffusion coefficient for each variable along  each dimension */
 
 } LinearADR;
 

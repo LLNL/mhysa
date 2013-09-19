@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <basic.h>
+#include <arrayfunctions.h>
 #include <linearadr.h>
 #include <mpivars.h>
 #include <hypar.h>
@@ -7,7 +9,7 @@
 double LinearADRComputeCFL        (void*,void*,double);
 double LinearADRComputeDiffNumber (void*,void*,double);
 int    LinearADRAdvection         (double*,double*,int,void*);
-int    LinearADRDiffusion         ();
+int    LinearADRDiffusion         (double*,double*,int,void*);
 int    LinearADRReaction          ();
 int    LinearADRUpwind            (double*,double*,double*,double*,int,void*);
 
@@ -19,6 +21,11 @@ int LinearADRInitialize(void *s,void *m)
   int           ierr     = 0,i;
 
   physics->a = (double*) calloc (solver->ndims*solver->nvars,sizeof(double));
+  physics->d = (double*) calloc (solver->ndims*solver->nvars,sizeof(double));
+
+  /* default values are zero */
+  ierr = ArraySetValue_double(physics->a,solver->ndims*solver->nvars,0.0); CHECKERR(ierr);
+  ierr = ArraySetValue_double(physics->d,solver->ndims*solver->nvars,0.0); CHECKERR(ierr);
 
   /* reading physical model specific inputs - all processes */
   FILE *in;
@@ -36,6 +43,10 @@ int LinearADRInitialize(void *s,void *m)
         if (!strcmp(word, "advection")) {
           /* read advection coefficients */
           for (i=0; i<solver->ndims*solver->nvars; i++) ierr = fscanf(in,"%lf",&physics->a[i]);
+          if (ierr != 1) return(1);
+        } else if (!strcmp(word, "diffusion")) {
+          /* read diffusion coefficients */
+          for (i=0; i<solver->ndims*solver->nvars; i++) ierr = fscanf(in,"%lf",&physics->d[i]);
           if (ierr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];

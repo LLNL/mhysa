@@ -68,6 +68,7 @@ AC_CONFIG_FILES([
  src/LinearADR/Makefile
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
+ src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
 ])
 

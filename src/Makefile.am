@@ -6,6 +6,7 @@ SUBDIRS = \
   LinearADR \
   MathFunctions \
   MPIFunctions \
+  SecondDerivative \
   TimeIntegration
 
 bin_PROGRAMS = HyPar
@@ -14,6 +15,7 @@ HyPar_LDADD = \
   HyParFunctions/libHyParFunctions.a \
   TimeIntegration/libTimeIntegration.a \
   InterpolationFunctions/libInterpolationFunctions.a \
+  SecondDerivative/libSecondDerivative.a \
   LinearADR/libLinearADR.a \
   BoundaryConditions/libBoundaryConditions.a \
   MPIFunctions/libMPIFunctions.a \

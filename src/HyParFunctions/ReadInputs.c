@@ -21,13 +21,14 @@ int ReadInputs(void *s,void *m)
   solver->screen_op_iter  = 1;
   solver->file_op_iter    = 1000;
   solver->write_residual  = 0;
-  strcpy(solver->time_scheme,"euler");
-  strcpy(solver->time_scheme_type," ");
-  strcpy(solver->spatial_scheme_hyp,"1");
-  strcpy(solver->spatial_scheme_par,"2");
-  strcpy(solver->op_file_format,"text");
-  strcpy(solver->op_overwrite,"no"    );
-  strcpy(solver->model       ,"none");
+  strcpy(solver->time_scheme       ,"euler"    );
+  strcpy(solver->time_scheme_type  ," "        );
+  strcpy(solver->spatial_scheme_hyp,"1"        );
+  strcpy(solver->spatial_type_par  ,_NC_1STAGE_);
+  strcpy(solver->spatial_scheme_par,"2"        );
+  strcpy(solver->op_file_format    ,"text"     );
+  strcpy(solver->op_overwrite      ,"no"       );
+  strcpy(solver->model             ,"none"     );
   /* reading solver inputs */
   FILE *in;
   if (!mpi->rank) printf("Reading solver inputs from file \"solver.inp\".\n");
@@ -71,6 +72,7 @@ int ReadInputs(void *s,void *m)
    			else if   (!strcmp(word, "time_scheme"      ))  ierr = fscanf(in,"%s",solver->time_scheme       );
    			else if   (!strcmp(word, "time_scheme_type" ))  ierr = fscanf(in,"%s",solver->time_scheme_type  );
    			else if   (!strcmp(word, "hyp_space_scheme" ))  ierr = fscanf(in,"%s",solver->spatial_scheme_hyp);
+   			else if   (!strcmp(word, "par_space_type"   ))  ierr = fscanf(in,"%s",solver->spatial_type_par  );
    			else if   (!strcmp(word, "par_space_scheme" ))  ierr = fscanf(in,"%s",solver->spatial_scheme_par);
    			else if   (!strcmp(word, "dt"               ))  ierr = fscanf(in,"%lf",&solver->dt              );
    			else if   (!strcmp(word, "screen_op_iter"   ))  ierr = fscanf(in,"%d",&solver->screen_op_iter   );
