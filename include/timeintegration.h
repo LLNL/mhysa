@@ -9,23 +9,24 @@
 #define _RK_SSP3_       "ssprk3"  /* 3 stage, 3rd order SSP               */
 
 typedef struct time_integration_variables {
-  int     iter;     /* iteration number                 */
-  int     n_iter;   /* Total number of iterations       */
-  double  waqt;     /* time                             */
-  double  dt;       /* time step                        */
-  double  norm;     /* norm of the solution             */
-  double  max_cfl;  /* max CFL for a time step          */
+  int     iter;     /* iteration number                     */
+  int     n_iter;   /* Total number of iterations           */
+  double  waqt;     /* time                                 */
+  double  dt;       /* time step                            */
+  double  norm;     /* norm of the solution                 */
+  double  max_cfl;  /* max CFL for a time step              */
+  double  max_diff; /* max diffusion number for a time step */
 
-  void    *solver;  /* solver object                    */
-  void    *mpi;     /* mpi    object                    */
-  double  *u;       /* array to store solution          */
+  void    *solver;  /* solver object                        */
+  void    *mpi;     /* mpi    object                        */
+  double  *u;       /* array to store solution              */
 
-  double  *rhs;     /* right-hand side array            */ 
+  double  *rhs;     /* right-hand side array                */ 
 
   /* arrays for multi-stage schemes */
-  double **U,**Udot; /* stage values and RHS            */
+  double **U,**Udot; /* stage values and RHS                */
 
-  void *ResidualFile; /* file to write residual         */
+  void *ResidualFile; /* file to write residual             */
 
   /* Functions */
   int (*TimeIntegrate) (void*);

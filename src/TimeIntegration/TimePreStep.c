@@ -16,10 +16,13 @@ int TimePreStep(void *ts)
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d] + 2*solver->ghosts);
   ierr = ArrayCopy1D_double(solver->u,TS->u,size*solver->nvars); CHECKERR(ierr);
 
-  /* compute max CFL over the domain */
-  double local_max_cfl = -1.0;
-  if (solver->ComputeCFL) local_max_cfl = solver->ComputeCFL(solver,mpi,TS->dt);
-  ierr = MPIMax_double(&TS->max_cfl,&local_max_cfl,1); CHECKERR(ierr);
+  /* compute max CFL and diffusion number over the domain */
+  double local_max_cfl  = -1.0;
+  double local_max_diff = -1.0;
+  if (solver->ComputeCFL       ) local_max_cfl  = solver->ComputeCFL        (solver,mpi,TS->dt);
+  if (solver->ComputeDiffNumber) local_max_diff = solver->ComputeDiffNumber (solver,mpi,TS->dt);
+  ierr = MPIMax_double(&TS->max_cfl ,&local_max_cfl ,1); CHECKERR(ierr);
+  ierr = MPIMax_double(&TS->max_diff,&local_max_diff,1); CHECKERR(ierr);
 
   return(0);
 }

@@ -10,10 +10,11 @@ int TimePrintStep(void *ts)
   MPIVariables    *mpi    = (MPIVariables*)    TS->mpi;
 
   if ((!mpi->rank) && ((TS->iter+1)%solver->screen_op_iter == 0)) {
-    printf("Iteration: %6d  " ,TS->iter+1);
-    printf("Time: %E  "       ,TS->waqt);
-    printf("Max CFL: %E  "    ,TS->max_cfl);
-    printf("Norm: %E  "       ,TS->norm);
+    printf("Iteration: %6d  "       ,TS->iter+1  );
+    printf("Time: %1.3E  "          ,TS->waqt    );
+    printf("Max CFL: %1.3E  "       ,TS->max_cfl );
+    printf("Max Diff. No.: %1.3E  " ,TS->max_diff);
+    printf("Norm: %1.4E  "          ,TS->norm    );
     printf("\n");
   }
 
