@@ -10,6 +10,7 @@ libHyParFunctions_a_SOURCES = \
   InitializePhysics.c \
   InitializeSolvers.c \
   OutputSolution.c \
+  ParabolicFunctionCons1Stage.c \
   ParabolicFunctionNC1Stage.c \
   ReadInputs.c \
   ReconstructHyperbolic.c \

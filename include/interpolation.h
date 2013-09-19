@@ -1,5 +1,6 @@
 /* definitions */
 #define _FIRST_ORDER_UPWIND_    "1"
+#define _SECOND_ORDER_CENTRAL_  "2"
 #define _FIFTH_ORDER_WENO_      "weno5"
 
 /*
@@ -52,9 +53,14 @@
     Returns 0 on normal execution, non-zero on error.
 */
 
-/* functions to interpolate the first primitive (for 1st derivative) */
+/* functions to interpolate the first primitive 
+   (for conservative discretization of the 1st derivative) */
 int Interp1PrimFirstOrderUpwind (double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderWENO   (double*,double*,int,int,void*,void*);
+
+/* functions to interpolate the second primitive 
+   (for conservative discretization of the 2nd derivative) */
+int Interp2PrimSecondOrder  (double*,double*,int,void*,void*);
 
 /* WENO scheme related parameters and functions */
 typedef struct parameters_weno {

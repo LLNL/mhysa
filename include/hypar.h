@@ -45,7 +45,7 @@ typedef struct main_parameters {
   int (*ApplyBoundaryConditions)  (void*,void*,double*);                     
   int (*TimeIntegrate)            (void*);                                  
   int (*InterpolateInterfacesHyp) (double*,double*,int,int,void*,void*);
-  int (*InterpolateInterfacesPar) ();
+  int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
   int (*HyperbolicFunction)       (double*,double*,void*,void*);
   int (*ParabolicFunction)        (double*,double*,void*,void*);

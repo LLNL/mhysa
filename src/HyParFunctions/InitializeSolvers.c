@@ -8,11 +8,12 @@
 #include <secondderivative.h>
 
 /* Function declarations */
-int WriteText                (int,int,int*,double*,double*,char*,int*);
-int ApplyBoundaryConditions  (void*,void*,double*);
-int HyperbolicFunction       (double*,double*,void*,void*);
-int ParabolicFunctionNC1Stage(double*,double*,void*,void*);
-int SourceFunction           (double*,double*,void*,void*);
+int WriteText                   (int,int,int*,double*,double*,char*,int*);
+int ApplyBoundaryConditions     (void*,void*,double*);
+int HyperbolicFunction          (double*,double*,void*,void*);
+int ParabolicFunctionNC1Stage   (double*,double*,void*,void*);
+int ParabolicFunctionCons1Stage (double*,double*,void*,void*);
+int SourceFunction              (double*,double*,void*,void*);
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -31,6 +32,15 @@ int InitializeSolvers(void *s, void *m)
     solver->ParabolicFunction = ParabolicFunctionNC1Stage;
     if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_)) {
       solver->SecondDerivativePar = SecondDerivativeSecondOrder; 
+    } else {
+      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+              solver->spatial_type_par);
+    }
+  } else if (!strcmp(solver->spatial_type_par,_CONS_1STAGE_)) {
+    solver->ParabolicFunction = ParabolicFunctionCons1Stage;
+    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
+      solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
     } else {
       fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
       fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",

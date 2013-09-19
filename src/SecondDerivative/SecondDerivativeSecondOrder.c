@@ -26,11 +26,11 @@ int SecondDerivativeSecondOrder(double *D2f,double *f,int dir,void *s,void *m)
 
 
   if ((!D2f) || (!f)) {
-    fprintf(stderr, "Error in FirstOrderUpwind(): input arrays not allocated.\n");
+    fprintf(stderr, "Error in SecondDerivativeSecondOrder(): input arrays not allocated.\n");
     return(1);
   }
   if (ghosts < _MINIMUM_GHOSTS_) {
-    fprintf(stderr, "Error in FirstOrderUpwind(): insufficient number of ghosts.\n");
+    fprintf(stderr, "Error in SecondDerivativeSecondOrder(): insufficient number of ghosts.\n");
     return(1);
   }
 

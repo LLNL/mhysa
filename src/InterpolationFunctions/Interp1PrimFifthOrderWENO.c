@@ -32,11 +32,11 @@ int Interp1PrimFifthOrderWENO(double *fI,double *fC,int upw,int dir,void *s,void
   double one_fourth         = 1.0/4.0;
 
   if ((!fI) || (!fC)) {
-    fprintf(stderr, "Error in FirstOrderUpwind(): input arrays not allocated.\n");
+    fprintf(stderr, "Error in Interp1PrimFifthOrderWENO(): input arrays not allocated.\n");
     return(1);
   }
   if (ghosts < _MINIMUM_GHOSTS_) {
-    fprintf(stderr, "Error in FirstOrderUpwind(): insufficient number of ghosts.\n");
+    fprintf(stderr, "Error in Interp1PrimFifthOrderWENO(): insufficient number of ghosts.\n");
     return(1);
   }
 
