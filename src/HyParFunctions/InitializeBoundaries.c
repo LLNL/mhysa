@@ -43,6 +43,17 @@ int InitializeBoundaries(void *s,void *m)
         ierr = fscanf(in,"%lf %lf", &boundary[n].xmin[d], &boundary[n].xmax[d]);
         if (ierr != 2) return(1);
       }
+      /* some checks */
+      if (boundary[n].dim >= solver->ndims) {
+        fprintf(stderr,"Error in reading boundary condition %d: dim %d is invalid (ndims = %d).\n",
+                n,boundary[n].dim,solver->ndims);
+        return(1);
+      }
+      if (boundary[n].var >= solver->nvars) {
+        fprintf(stderr,"Error in reading boundary condition %d: var %d is invalid (nvars = %d).\n",
+                n,boundary[n].var,solver->nvars);
+        return(1);
+      }
       printf("  Boundary %10s:  Variable %2d, along dimension %2d and face %+1d\n",
                 boundary[n].bctype,boundary[n].var,boundary[n].dim,boundary[n].face);
     }
