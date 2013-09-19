@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <advectiondiffusionreaction.h>
+#include <linearadr.h>
 
 int LinearADRCleanup(void *s)
 {

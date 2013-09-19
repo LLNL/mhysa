@@ -1,5 +1,5 @@
-noinst_LIBRARIES = libAdvectionDiffusionReaction.a
-libAdvectionDiffusionReaction_a_SOURCES = \
+noinst_LIBRARIES = libLinearADR.a
+libLinearADR_a_SOURCES = \
   LinearADRCleanup.c \
   LinearADRInitialize.c \
   LinearADRComputeCFL.c \

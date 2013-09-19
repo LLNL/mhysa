@@ -9,7 +9,7 @@
 #include <physics.h>
 
 /* include header files for each physical model */
-#include <advectiondiffusionreaction.h>
+#include <linearadr.h>
 
 int Cleanup(void *s,void *m)
 {

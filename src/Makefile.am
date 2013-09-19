@@ -1,9 +1,9 @@
 SUBDIRS = \
-  AdvectionDiffusionReaction \
   ArrayFunctions \
   BoundaryConditions\
   HyParFunctions \
   InterpolationFunctions \
+  LinearADR \
   MathFunctions \
   MPIFunctions \
   TimeIntegration
@@ -14,7 +14,7 @@ HyPar_LDADD = \
   HyParFunctions/libHyParFunctions.a \
   TimeIntegration/libTimeIntegration.a \
   InterpolationFunctions/libInterpolationFunctions.a \
-  AdvectionDiffusionReaction/libAdvectionDiffusionReaction.a \
+  LinearADR/libLinearADR.a \
   BoundaryConditions/libBoundaryConditions.a \
   MPIFunctions/libMPIFunctions.a \
   ArrayFunctions/libArrayFunctions.a \

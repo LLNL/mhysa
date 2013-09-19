@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <advectiondiffusionreaction.h>
+#include <linearadr.h>
 #include <mpivars.h>
 #include <hypar.h>
 

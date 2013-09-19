@@ -7,7 +7,7 @@
 #include <physics.h>
 
 /* include header files for each physical model */
-#include <advectiondiffusionreaction.h>
+#include <linearadr.h>
 
 int InitializePhysics(void *s,void *m)
 {

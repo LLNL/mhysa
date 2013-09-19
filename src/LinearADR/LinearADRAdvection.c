@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <advectiondiffusionreaction.h>
+#include <linearadr.h>
 #include <hypar.h>
 
 int LinearADRAdvection(double *f,double *u,int dir,void *s)
