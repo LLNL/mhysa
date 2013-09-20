@@ -6,7 +6,7 @@
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimeRHSFunctionExplicit(double*,double*,void*,void*);
+int TimeRHSFunctionExplicit(double*,double*,void*,void*,double);
 
 int TimeInitialize(void *s,void *m,void *ts)
 {

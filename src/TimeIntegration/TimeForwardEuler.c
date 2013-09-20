@@ -20,7 +20,7 @@ int TimeForwardEuler(void *ts)
                                  solver->ghosts,mpi,solver->u);             CHECKERR(ierr);
 
   /* Evaluate right-hand side and update solution */
-  ierr = TS->RHSFunction(TS->rhs,solver->u,solver,mpi);                     CHECKERR(ierr);
+  ierr = TS->RHSFunction(TS->rhs,solver->u,solver,mpi,TS->waqt);            CHECKERR(ierr);
   ierr = ArrayAXPY(TS->rhs,solver->dt,solver->u,size*solver->nvars);        CHECKERR(ierr);
 
   return(0);

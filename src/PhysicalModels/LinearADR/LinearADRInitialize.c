@@ -8,8 +8,8 @@
 
 double LinearADRComputeCFL        (void*,void*,double);
 double LinearADRComputeDiffNumber (void*,void*,double);
-int    LinearADRAdvection         (double*,double*,int,void*);
-int    LinearADRDiffusion         (double*,double*,int,void*);
+int    LinearADRAdvection         (double*,double*,int,void*,double);
+int    LinearADRDiffusion         (double*,double*,int,void*,double);
 int    LinearADRReaction          ();
 int    LinearADRUpwind            (double*,double*,double*,double*,int,void*);
 

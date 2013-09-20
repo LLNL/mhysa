@@ -47,9 +47,9 @@ typedef struct main_parameters {
   int (*InterpolateInterfacesHyp) (double*,double*,int,int,void*,void*);
   int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
-  int (*HyperbolicFunction)       (double*,double*,void*,void*);
-  int (*ParabolicFunction)        (double*,double*,void*,void*);
-  int (*SourceFunction)           (double*,double*,void*,void*);
+  int (*HyperbolicFunction)       (double*,double*,void*,void*,double);
+  int (*ParabolicFunction)        (double*,double*,void*,void*,double);
+  int (*SourceFunction)           (double*,double*,void*,void*,double);
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
@@ -59,8 +59,8 @@ typedef struct main_parameters {
       they should be set to NULL                                                          */
   double (*ComputeCFL)         (void*,void*,double);
   double (*ComputeDiffNumber)  (void*,void*,double);
-  int    (*FFunction)          (double*,double*,int,void*);
-  int    (*GFunction)          (double*,double*,int,void*);
+  int    (*FFunction)          (double*,double*,int,void*,double);
+  int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*SFunction)          ();
   int    (*Upwind)             (double*,double*,double*,double*,int,void*);
 

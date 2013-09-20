@@ -18,12 +18,13 @@ int TimeRK(void *ts)
   /* Calculate stage values */
   for (stage = 0; stage < params->nstages; stage++) {
     ierr = ArrayCopy1D_double(solver->u,TS->U[stage],size*solver->nvars); CHECKERR(ierr);
+    double stagetime = TS->waqt + params->c[stage]*TS->dt;
     for (i = 0; i < stage; i++) {
       ierr = ArrayAXPY(TS->Udot[i],solver->dt*params->A[stage*params->nstages+i],
                        TS->U[stage],size*solver->nvars); 
       CHECKERR(ierr);
     }
-    ierr = TS->RHSFunction(TS->Udot[stage],TS->U[stage],solver,mpi);
+    ierr = TS->RHSFunction(TS->Udot[stage],TS->U[stage],solver,mpi,stagetime);
   }
 
   /* Stage completion */

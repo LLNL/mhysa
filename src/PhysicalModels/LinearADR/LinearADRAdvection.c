@@ -4,7 +4,7 @@
 #include <linearadr.h>
 #include <hypar.h>
 
-int LinearADRAdvection(double *f,double *u,int dir,void *s)
+int LinearADRAdvection(double *f,double *u,int dir,void *s,double t)
 {
   HyPar     *solver = (HyPar*)     s;
   LinearADR *param  = (LinearADR*) solver->physics;

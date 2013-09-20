@@ -30,12 +30,12 @@ typedef struct time_integration_variables {
 
   /* Functions */
   int (*TimeIntegrate) (void*);
-  int (*RHSFunction)   (double*,double*,void*,void*);
+  int (*RHSFunction)   (double*,double*,void*,void*,double);
 } TimeIntegration;
 
 typedef struct _multistage_time_integration_ {
   int nstages;    /* number of stages */
-  double *A,*b;   /* Butcher tableaux */
+  double *A,*b,*c;/* Butcher tableaux */
 } MSTIParameters;
 
 /* functions */

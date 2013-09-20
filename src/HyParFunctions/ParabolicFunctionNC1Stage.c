@@ -4,7 +4,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m)
+int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -32,7 +32,7 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m)
     /* allocate array for the diffusion function */
     Func = (double*) calloc (size*nvars,sizeof(double));
     /* calculate the diffusion function */
-    ierr = solver->GFunction(Func,u,d,solver); CHECKERR(ierr);
+    ierr = solver->GFunction(Func,u,d,solver,t); CHECKERR(ierr);
 
     /* allocate array for the second differences and calculate it */
     int size_deriv = 1; for (i=0; i<ndims; i++) size_deriv *= dim[i];

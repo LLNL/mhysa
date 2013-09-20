@@ -6,7 +6,7 @@
 
 int ReconstructHyperbolic (double*,double*,double*,int,void*,void*);
 
-int HyperbolicFunction(double *hyp,double *u,void *s,void *m)
+int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -38,7 +38,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m)
     int size_cellcenter = 1; for (i = 0; i < ndims; i++) size_cellcenter *= (dim[i] + 2*ghosts);
     FluxC = (double*) calloc (size_cellcenter*nvars,sizeof(double));
     /* evaluate cell-centered flux */
-    ierr = solver->FFunction(FluxC,u,d,solver); CHECKERR(ierr);
+    ierr = solver->FFunction(FluxC,u,d,solver,t); CHECKERR(ierr);
 
     /* calculate interface flux array dimensions */
     ierr = ArrayCopy1D_int(dim,dim_interface,ndims); CHECKERR(ierr); dim_interface[d]++;

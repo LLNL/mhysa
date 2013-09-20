@@ -10,10 +10,10 @@
 /* Function declarations */
 int WriteText                   (int,int,int*,double*,double*,char*,int*);
 int ApplyBoundaryConditions     (void*,void*,double*);
-int HyperbolicFunction          (double*,double*,void*,void*);
-int ParabolicFunctionNC1Stage   (double*,double*,void*,void*);
-int ParabolicFunctionCons1Stage (double*,double*,void*,void*);
-int SourceFunction              (double*,double*,void*,void*);
+int HyperbolicFunction          (double*,double*,void*,void*,double);
+int ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
+int ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
+int SourceFunction              (double*,double*,void*,void*,double);
 
 int InitializeSolvers(void *s, void *m)
 {
