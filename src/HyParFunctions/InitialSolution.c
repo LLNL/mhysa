@@ -107,7 +107,7 @@ int InitialSolution(void *s, void *m)
         x[i] = x[ghosts] + ((double) delta) * (x[ghosts]-x[ghosts+1]);
       }
     }
-    if (mpi->ip[d] == mpi->iproc[d]) {
+    if (mpi->ip[d] == mpi->iproc[d]-1) {
       /* fill right boundary along this dimension */
       for (i = dim[d]+ghosts; i < dim[d]+2*ghosts; i++) {
         int delta = i - (dim[d]+ghosts-1);
