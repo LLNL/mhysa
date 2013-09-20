@@ -21,6 +21,7 @@ double FPDoubleWellComputeCFL(void *s,void *m,double dt)
       for (v = 0; v < nvars; v++) {
         double advection_speed = 0;
         double x = solver->x[i];
+        advection_speed = 4*x*(x*x-1.0);
         double local_cfl = advection_speed*dt*dxinv[offset+i];
         if (local_cfl > max_cfl) max_cfl = local_cfl;
       }
