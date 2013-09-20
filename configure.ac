@@ -71,7 +71,7 @@ AC_CONFIG_FILES([
  src/TimeIntegration/Makefile
  src/PhysicalModels/Makefile
  src/PhysicalModels/LinearADR/Makefile
- src/PhysicalModels/FokkerPlanck/Makefile
+ src/PhysicalModels/FPDoubleWell/Makefile
 ])
 
 AC_OUTPUT

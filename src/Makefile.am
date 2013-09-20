@@ -21,4 +21,4 @@ HyPar_LDADD = \
   ArrayFunctions/libArrayFunctions.a \
   MathFunctions/libMathFunctions.a \
   PhysicalModels/LinearADR/libLinearADR.a \
-  PhysicalModels/FokkerPlanck/libFokkerPlanck.a
+  PhysicalModels/FPDoubleWell/libFPDoubleWell.a

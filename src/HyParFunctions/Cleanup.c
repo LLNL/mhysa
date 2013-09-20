@@ -9,7 +9,7 @@
 
 /* include header files for each physical model */
 #include <linearadr.h>
-#include <fokkerplanck.h>
+#include <fpdoublewell.h>
 
 int Cleanup(void *s,void *m)
 {
@@ -29,8 +29,8 @@ int Cleanup(void *s,void *m)
   /* Clean up any allocations in physical model */
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
     ierr = LinearADRCleanup(solver->physics); CHECKERR(ierr);
-  } else if (!strcmp(solver->model,_FOKKER_PLANCK_)) {
-    ierr = FokkerPlanckCleanup(solver->physics); CHECKERR(ierr);
+  } else if (!strcmp(solver->model,_FP_DOUBLE_WELL_)) {
+    ierr = FPDoubleWellCleanup(solver->physics); CHECKERR(ierr);
   }
   free(solver->physics);
 

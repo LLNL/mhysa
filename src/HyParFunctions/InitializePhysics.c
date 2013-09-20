@@ -7,7 +7,7 @@
 
 /* include header files for each physical model */
 #include <linearadr.h>
-#include <fokkerplanck.h>
+#include <fpdoublewell.h>
 
 int InitializePhysics(void *s,void *m)
 {
@@ -18,15 +18,21 @@ int InitializePhysics(void *s,void *m)
   if (!mpi->rank) printf("Initializing physics.\n");
 
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
+
     solver->physics = (LinearADR*) calloc (1,sizeof(LinearADR));
     ierr = LinearADRInitialize(solver,mpi); CHECKERR(ierr);
-  } else if (!strcmp(solver->model,_FOKKER_PLANCK_)) {
-    solver->physics = (FokkerPlanck*) calloc (1,sizeof(FokkerPlanck));
-    ierr = FokkerPlanckInitialize(solver,mpi); CHECKERR(ierr);
+
+  } else if (!strcmp(solver->model,_FP_DOUBLE_WELL_)) {
+
+    solver->physics = (FPDoubleWell*) calloc (1,sizeof(FPDoubleWell));
+    ierr = FPDoubleWellInitialize(solver,mpi); CHECKERR(ierr);
+
   } else {
+
     fprintf(stderr,"Error: %s is not a supported physical model.\n",solver->model);
     fprintf(stderr,"See header file \"physics.h\" for a list of supported models.\n");
     return(1);
+
   }
 
   return(0);
