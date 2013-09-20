@@ -79,12 +79,22 @@ int InitializeBoundaries(void *s,void *m)
   }
   /* communicate BC data to other processes */
   for (n = 0; n < solver->nBoundaryZones; n++) {
-    MPIBroadcast_character(boundary[n].bctype,_MAX_STRING_SIZE_,0);
-    MPIBroadcast_integer  (&boundary[n].var  ,1                ,0);
-    MPIBroadcast_integer  (&boundary[n].dim  ,1                ,0);
-    MPIBroadcast_integer  (&boundary[n].face ,1                ,0);
-    MPIBroadcast_double   (boundary[n].xmin  ,solver->ndims    ,0);
-    MPIBroadcast_double   (boundary[n].xmax  ,solver->ndims    ,0);
+    ierr = MPIBroadcast_character(boundary[n].bctype,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
+    ierr = MPIBroadcast_integer  (&boundary[n].var  ,1                ,0); CHECKERR(ierr);
+    ierr = MPIBroadcast_integer  (&boundary[n].dim  ,1                ,0); CHECKERR(ierr);
+    ierr = MPIBroadcast_integer  (&boundary[n].face ,1                ,0); CHECKERR(ierr);
+    ierr = MPIBroadcast_double   (boundary[n].xmin  ,solver->ndims    ,0); CHECKERR(ierr);
+    ierr = MPIBroadcast_double   (boundary[n].xmax  ,solver->ndims    ,0); CHECKERR(ierr);
+  }
+
+  /* On other processes, if necessary, allocate and receive boundary-type-specific data */
+  for (n = 0; n < solver->nBoundaryZones; n++) {
+    if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
+      if (mpi->rank)  boundary[n].DirichletValue = (double*) calloc (solver->nvars,sizeof(double));
+      ierr = MPIBroadcast_double(boundary[n].DirichletValue,solver->nvars,0); CHECKERR(ierr);
+    } else {
+      boundary[n].DirichletValue = NULL;
+    }
   }
 
   solver->boundary = boundary;
