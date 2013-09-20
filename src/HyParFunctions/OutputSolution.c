@@ -46,10 +46,11 @@ int OutputSolution(void *s, void *m)
   int offset_global, offset_local;
   offset_global = offset_local = 0;
   for (d=0; d<solver->ndims; d++) {
-    ierr = MPIGatherArray1D(mpi,(mpi->rank?NULL:&xg[offset_global]),&solver->x[offset_local],
+    ierr = MPIGatherArray1D(mpi,(mpi->rank?NULL:&xg[offset_global]),
+                            &solver->x[offset_local+solver->ghosts],
                             mpi->is[d],mpi->ie[d],solver->dim_local[d],0); CHECKERR(ierr);
     offset_global += solver->dim_global[d];
-    offset_local  += solver->dim_local [d];
+    offset_local  += solver->dim_local [d] + 2*solver->ghosts;
   }
 
   if (!mpi->rank) {

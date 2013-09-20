@@ -3,7 +3,7 @@
 #include <arrayfunctions.h>
 #include <mpivars.h>
 
-int MPIExchangeBoundaries(int ndims,int nvars,int *dim,int ghosts,void *m,double *var)
+int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,double *var)
 {
 #ifndef serial
   MPIVariables  *mpi = (MPIVariables*) m;

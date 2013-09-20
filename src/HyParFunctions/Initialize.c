@@ -70,7 +70,7 @@ int Initialize(void *s, void *m)
   solver->source  = (double*) calloc (solver->nvars*size,sizeof(double));
   /* grid */
   size = 0;
-  for (i=0; i<solver->ndims; i++) size += solver->dim_local[i];
+  for (i=0; i<solver->ndims; i++) size += (solver->dim_local[i]+2*solver->ghosts);
   solver->x     = (double*) calloc (size,sizeof(double));
   solver->dxinv = (double*) calloc (size,sizeof(double));
 

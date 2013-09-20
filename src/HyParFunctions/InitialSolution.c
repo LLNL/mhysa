@@ -10,6 +10,7 @@ int InitialSolution(void *s, void *m)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0,i,d;
+  int           offset_global, offset_local;
 
   /* Only root process reads in initial solution file */
   double *ug,*xg,*dxinvg; /* global solution vector and grid arrays */
@@ -63,20 +64,61 @@ int InitialSolution(void *s, void *m)
     dxinvg  = NULL;
   }
 
+  /* partition initial solution across the processes */
   ierr = MPIPartitionArraynD(solver->ndims,mpi,(mpi->rank?NULL:ug),solver->u,
                              solver->dim_global,solver->dim_local,
                              solver->ghosts,solver->nvars); CHECKERR(ierr);
 
-  int offset_global, offset_local;
+  /* partition x vector across the processes */
   offset_global = offset_local = 0;
   for (d=0; d<solver->ndims; d++) {
-    ierr = MPIPartitionArray1D(mpi,(mpi->rank?NULL:&xg[offset_global]),&solver->x[offset_local],
+    ierr = MPIPartitionArray1D(mpi,(mpi->rank?NULL:&xg[offset_global]),
+                                    &solver->x[offset_local+solver->ghosts],
                                     mpi->is[d],mpi->ie[d],solver->dim_local[d],0); CHECKERR(ierr);
-    ierr = MPIPartitionArray1D(mpi,(mpi->rank?NULL:&dxinvg[offset_global]),&solver->dxinv[offset_local],
+    ierr = MPIPartitionArray1D(mpi,(mpi->rank?NULL:&dxinvg[offset_global]),
+                                    &solver->dxinv[offset_local+solver->ghosts],
                                     mpi->is[d],mpi->ie[d],solver->dim_local[d],0); CHECKERR(ierr);
     offset_global += solver->dim_global[d];
-    offset_local  += solver->dim_local [d];
+    offset_local  += solver->dim_local [d] + 2*solver->ghosts;
   }
+
+  /* exchange MPI-boundary values of x between processors */
+  offset_local = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    ierr = MPIExchangeBoundaries1D(mpi,&solver->x[offset_local],solver->dim_local[d],
+                                   solver->ghosts,d,solver->ndims); CHECKERR(ierr);
+    ierr = MPIExchangeBoundaries1D(mpi,&solver->dxinv[offset_local],solver->dim_local[d],
+                                   solver->ghosts,d,solver->ndims); CHECKERR(ierr);
+    offset_local  += solver->dim_local [d] + 2*solver->ghosts;
+  }
+
+  /* fill in ghost values of x and dxinv at physical boundaries by extrapolation */
+  offset_local = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    double *x     = &solver->x    [offset_local];
+    double *dxinv = &solver->dxinv[offset_local];
+    int    ghosts = solver->ghosts;
+    int    *dim   = solver->dim_local;
+    if (mpi->ip[d] == 0) {
+      /* fill left boundary along this dimension */
+      for (i = 0; i < ghosts; i++) {
+        int delta = ghosts - i;
+        dxinv[i] = dxinv[ghosts];
+        x[i] = x[ghosts] + ((double) delta) * (x[ghosts]-x[ghosts+1]);
+      }
+    }
+    if (mpi->ip[d] == mpi->iproc[d]) {
+      /* fill right boundary along this dimension */
+      for (i = dim[d]+ghosts; i < dim[d]+2*ghosts; i++) {
+        int delta = i - (dim[d]+ghosts-1);
+        dxinv[i] = dxinv[dim[d]+ghosts-1];
+        x[i] =  x[dim[d]+ghosts-1] 
+              + ((double) delta) * (x[dim[d]+ghosts-1]-x[dim[d]+ghosts-2]);
+      }
+    }
+    offset_local  += dim[d] + 2*ghosts;
+  }
+  
 
   if (!mpi->rank) {
     free(ug);

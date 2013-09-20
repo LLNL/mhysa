@@ -55,7 +55,7 @@ int ParabolicFunctionCons1Stage(double *par,double *u,void *s,void *m,double t)
       int p1 = ArrayIndex1D(ndims,dim_interface,index1,NULL,0     );
       int p2 = ArrayIndex1D(ndims,dim_interface,index2,NULL,0     );
       for (v=0; v<nvars; v++) 
-        par[nvars*p+v] =  (dxinv[offset+index[d]] * dxinv[offset+index[d]]) 
+        par[nvars*p+v] =  (dxinv[offset+ghosts+index[d]] * dxinv[offset+ghosts+index[d]]) 
                         * (FluxI[nvars*p2+v] - FluxI[nvars*p1+v]);
       done = ArrayIncrementIndex(ndims,dim,index);
     }
@@ -64,7 +64,7 @@ int ParabolicFunctionCons1Stage(double *par,double *u,void *s,void *m,double t)
     free(FluxI);
     free(Func);
 
-    offset += dim[d];
+    offset += dim[d] + 2*ghosts;
   }
 
   free(index );

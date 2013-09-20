@@ -14,7 +14,7 @@ int TimeRHSFunctionExplicit(double *rhs,double *u,void *s,void *m, double t)
 
   /* apply boundary conditions and exchange data over MPI interfaces */
   ierr = solver->ApplyBoundaryConditions(solver,mpi,u);               CHECKERR(ierr);
-  ierr = MPIExchangeBoundaries  (solver->ndims,solver->nvars,solver->dim_local,
+  ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,u);               CHECKERR(ierr);
 
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
