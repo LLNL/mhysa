@@ -10,5 +10,7 @@ typedef struct fp_double_well_parameters {
   double q;
 } FPDoubleWell;
 
+#define drift(x) (4.0*(x)*(1.0-(x)*(x))) 
+
 int FPDoubleWellInitialize    (void*,void*);
 int FPDoubleWellCleanup       (void*);

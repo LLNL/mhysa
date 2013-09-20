@@ -26,11 +26,9 @@ int FPDoubleWellUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *
     ierr = ArrayCopy1D_int(index_outer,index_inter,ndims);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p = ArrayIndex1D(ndims,bounds_inter,index_inter,NULL,0);
-      double advection_speed = 0;
       double x = 0.5 * (solver->x[index_inter[dir]-1+ghosts] + solver->x[index_inter[dir]+ghosts]);
-      advection_speed = -4*x*(x*x-1.0);
       for (v = 0; v < nvars; v++)  
-        fI[nvars*p+v] = (advection_speed > 0 ? fL[nvars*p+v] : fR[nvars*p+v] );
+        fI[nvars*p+v] = (drift(x) > 0 ? fL[nvars*p+v] : fR[nvars*p+v] );
     }
     done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
   }

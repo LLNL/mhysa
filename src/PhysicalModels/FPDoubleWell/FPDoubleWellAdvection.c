@@ -28,10 +28,8 @@ int FPDoubleWellAdvection(double *f,double *u,int dir,void *s,double t)
   int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
   while (!done) {
     int p = ArrayIndex1D(ndims,dim,index,offset,ghosts);
-    double advection_speed = 0;
     double x = solver->x[index[dir]];
-    advection_speed = -4.0*x*(x*x-1.0);
-    for (v = 0; v < nvars; v++) f[nvars*p+v] = advection_speed * u[nvars*p+v];
+    for (v = 0; v < nvars; v++) f[nvars*p+v] = drift(x) * u[nvars*p+v];
     done = ArrayIncrementIndex(ndims,bounds,index);
   }
 
