@@ -31,7 +31,7 @@ int InitializeBoundaries(void *s,void *m)
 
     /* read each boundary condition */
     for (n = 0; n < solver->nBoundaryZones; n++) {
-      int d;
+      int d, v;
       boundary[n].xmin = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
       boundary[n].xmax = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
 
@@ -43,6 +43,13 @@ int InitializeBoundaries(void *s,void *m)
         ierr = fscanf(in,"%lf %lf", &boundary[n].xmin[d], &boundary[n].xmax[d]);
         if (ierr != 2) return(1);
       }
+      /* read in boundary type-specific additional data if required */
+      if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
+        boundary[n].DirichletValue = (double*) calloc (solver->nvars,sizeof(double)); 
+                                     /* deallocated in BCCleanup.c */
+        /* read the Dirichlet value for each variable on this boundary */
+        for (v = 0; v < solver->nvars; v++) ierr = fscanf(in,"%lf",&boundary[n].DirichletValue[v]);
+      } else boundary[n].DirichletValue = NULL;
       /* some checks */
       if (boundary[n].dim >= solver->ndims) {
         fprintf(stderr,"Error in reading boundary condition %d: dim %d is invalid (ndims = %d).\n",

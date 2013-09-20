@@ -1,10 +1,8 @@
 #define _MAX_STRING_SIZE_ 500
 
-#define _NOSLIP_      "noslip"
 #define _PERIODIC_    "periodic"
-#define _SYMMETRIC_   "symmetric"
 #define _EXTRAPOLATE_ "extrapolate"
-#define _FREESTREAM_  "freestream"
+#define _DIRICHLET_   "dirichlet"
 
 typedef struct domain_boundaries {
   char    bctype [_MAX_STRING_SIZE_]; /* Type of boundary condition                           */
@@ -17,6 +15,8 @@ typedef struct domain_boundaries {
   int *is, *ie;       /* Index range on which to apply this BC on this process                */
 
   int (*BCFunction)(void*,void*,int,int,int*,int,double*); /* the boundary condition function */
+
+  double *DirichletValue;   /* specified value for steady Dirichlet BC */
 } DomainBoundary;
 
 /* Functions */
@@ -25,3 +25,4 @@ int BCCleanUp   (void*);
 
 int BCPeriodic    (void*,void*,int,int,int*,int,double*);    /* Periodic boundary conditions    */
 int BCExtrapolate (void*,void*,int,int,int*,int,double*);    /* extrapolate boundary conditions */
+int BCDirichlet   (void*,void*,int,int,int*,int,double*);    /* extrapolate boundary conditions */

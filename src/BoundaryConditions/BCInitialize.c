@@ -9,6 +9,7 @@ int BCInitialize(void *b)
 
   if      (!strcmp(boundary->bctype,_PERIODIC_   )) boundary->BCFunction = BCPeriodic;
   else if (!strcmp(boundary->bctype,_EXTRAPOLATE_)) boundary->BCFunction = BCExtrapolate;
+  else if (!strcmp(boundary->bctype,_DIRICHLET_  )) boundary->BCFunction = BCDirichlet;  
   else {
     fprintf(stderr,"Error in BCInitialize(): \"%s\" is not a supported boundary condition.\n",
             boundary->bctype);

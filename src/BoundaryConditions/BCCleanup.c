@@ -8,6 +8,7 @@ int BCCleanup(void *b)
   free(boundary->xmax);
   free(boundary->is);
   free(boundary->ie);
+  if (boundary->DirichletValue) free(boundary->DirichletValue);
 
   return(0);
 }
