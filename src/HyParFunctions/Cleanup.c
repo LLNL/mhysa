@@ -6,10 +6,10 @@
 #include <boundaryconditions.h>
 #include <timeintegration.h>
 #include <hypar.h>
-#include <physics.h>
 
 /* include header files for each physical model */
 #include <linearadr.h>
+#include <fokkerplanck.h>
 
 int Cleanup(void *s,void *m)
 {
@@ -29,6 +29,8 @@ int Cleanup(void *s,void *m)
   /* Clean up any allocations in physical model */
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
     ierr = LinearADRCleanup(solver->physics); CHECKERR(ierr);
+  } else if (!strcmp(solver->model,_FOKKER_PLANCK_)) {
+    ierr = FokkerPlanckCleanup(solver->physics); CHECKERR(ierr);
   }
   free(solver->physics);
 

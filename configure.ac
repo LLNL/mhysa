@@ -65,11 +65,13 @@ AC_CONFIG_FILES([
  src/BoundaryConditions/Makefile
  src/HyParFunctions/Makefile
  src/InterpolationFunctions/Makefile
- src/LinearADR/Makefile
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
+ src/PhysicalModels/Makefile
+ src/PhysicalModels/LinearADR/Makefile
+ src/PhysicalModels/FokkerPlanck/Makefile
 ])
 
 AC_OUTPUT

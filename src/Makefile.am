@@ -3,7 +3,7 @@ SUBDIRS = \
   BoundaryConditions\
   HyParFunctions \
   InterpolationFunctions \
-  LinearADR \
+  PhysicalModels \
   MathFunctions \
   MPIFunctions \
   SecondDerivative \
@@ -16,8 +16,9 @@ HyPar_LDADD = \
   TimeIntegration/libTimeIntegration.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   SecondDerivative/libSecondDerivative.a \
-  LinearADR/libLinearADR.a \
   BoundaryConditions/libBoundaryConditions.a \
   MPIFunctions/libMPIFunctions.a \
   ArrayFunctions/libArrayFunctions.a \
-  MathFunctions/libMathFunctions.a
+  MathFunctions/libMathFunctions.a \
+  PhysicalModels/LinearADR/libLinearADR.a \
+  PhysicalModels/FokkerPlanck/libFokkerPlanck.a
