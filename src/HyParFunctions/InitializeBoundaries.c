@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <basic.h>
 #include <mathfunctions.h>
 #include <mpivars.h>
