@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <fpdoublewell.h>
@@ -17,7 +18,7 @@ int FPDoubleWellInitialize(void *s,void *m)
   HyPar         *solver  = (HyPar*)         s;
   MPIVariables  *mpi     = (MPIVariables*)  m; 
   FPDoubleWell  *physics = (FPDoubleWell*)  solver->physics;
-  int           ierr     = 0,i;
+  int           ierr     = 0;
 
   if (solver->nvars != _MODEL_NVARS_) {
     fprintf(stderr,"Error in FPDoubleWellInitializeO(): nvars has to be %d.\n",_MODEL_NVARS_);

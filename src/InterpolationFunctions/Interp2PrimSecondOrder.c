@@ -16,8 +16,7 @@
 int Interp2PrimSecondOrder(double *fI,double *fC,int dir,void *s,void *m)
 {
   HyPar         *solver = (HyPar*)        s;
-  MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0, d;
+  int           ierr    = 0;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;

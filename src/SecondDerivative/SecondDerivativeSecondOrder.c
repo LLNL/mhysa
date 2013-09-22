@@ -16,8 +16,7 @@
 int SecondDerivativeSecondOrder(double *D2f,double *f,int dir,void *s,void *m)
 {
   HyPar         *solver = (HyPar*)        s;
-  MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0, d, i, v;
+  int           ierr    = 0, i, v;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;

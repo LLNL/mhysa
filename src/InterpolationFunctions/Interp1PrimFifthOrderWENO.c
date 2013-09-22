@@ -17,9 +17,8 @@
 int Interp1PrimFifthOrderWENO(double *fI,double *fC,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
-  MPIVariables    *mpi    = (MPIVariables*)   m;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
-  int             ierr    = 0, d;
+  int             ierr    = 0;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;

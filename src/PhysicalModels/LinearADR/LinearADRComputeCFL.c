@@ -5,9 +5,8 @@
 double LinearADRComputeCFL(void *s,void *m,double dt)
 {
   HyPar         *solver = (HyPar*)        s;
-  MPIVariables  *mpi    = (MPIVariables*) m;
   LinearADR     *params = (LinearADR*)    solver->physics;
-  int           ierr    = 0, d, i, v;
+  int           d, i, v;
 
   int     ndims  = solver->ndims;
   int     nvars  = solver->nvars;

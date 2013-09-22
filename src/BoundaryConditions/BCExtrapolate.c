@@ -6,7 +6,7 @@
 int BCExtrapolate(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
-  int            ierr      = 0, d;
+  int            ierr      = 0;
 
   int dim   = boundary->dim;
   int face  = boundary->face;

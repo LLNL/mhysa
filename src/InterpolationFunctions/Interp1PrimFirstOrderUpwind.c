@@ -16,8 +16,7 @@
 int Interp1PrimFirstOrderUpwind(double *fI,double *fC,int upw,int dir,void *s,void *m)
 {
   HyPar         *solver = (HyPar*)        s;
-  MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0, d;
+  int           ierr    = 0;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;

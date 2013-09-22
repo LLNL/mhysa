@@ -6,9 +6,7 @@
 double FPDoubleWellComputeCFL(void *s,void *m,double dt)
 {
   HyPar         *solver = (HyPar*)        s;
-  MPIVariables  *mpi    = (MPIVariables*) m;
-  FPDoubleWell  *params = (FPDoubleWell*) solver->physics;
-  int           ierr    = 0, d, i, v;
+  int           d, i, v;
 
   int     ndims  = solver->ndims;
   int     nvars  = solver->nvars;
@@ -21,7 +19,6 @@ double FPDoubleWellComputeCFL(void *s,void *m,double dt)
   for (d = 0; d < ndims; d++) {
     for (i = 0; i < dim[d]; i++) {
       for (v = 0; v < nvars; v++) {
-        double advection_speed = 0;
         double x = solver->x[i+ghosts];
         double local_cfl =  absolute(drift(x)) * dt 
                           * dxinv[offset+ghosts+i];
