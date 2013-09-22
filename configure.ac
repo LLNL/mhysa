@@ -56,6 +56,26 @@ CXXFLAGS=$CFLAGS
 LDFLAGS="$LDFLAGS -L/opt/local/lib"
 LIBS="$LIBS -lm"
 
+if test "x$PETSC_DIR" = "x"; then
+  AC_MSG_NOTICE([Environment variable PETSC_DIR not set. Compiling without PETSc interface.])
+else
+  if test "x$PETSC_ARCH" = "x"; then
+    AC_MSG_NOTICE([Environment variable PETSC_ARCH not set. Compiling without PETSc interface.])
+  else
+    AC_MSG_NOTICE([Compiling with PETSc interface.])
+cat <<MFILE > petscmake$$
+PETSC_ARCH = ${PETSC_ARCH}
+PETSC_DIR  = ${PETSC_DIR}
+include ${PETSC_DIR}/conf/variables
+include ${PETSC_DIR}/conf/rules
+MFILE
+    PETSC_INC="`make -f petscmake$$ getincludedirs`"
+    PETSC_LIB="`make -f petscmake$$ getlinklibs`"
+    CFLAGS="$CFLAGS -Dwith_petsc $PETSC_INC"
+    LDFLAGS="$LDFLAGS $PETSC_LIB"
+  fi
+fi
+
 AC_PROG_RANLIB
 AC_PROG_INSTALL
 AC_CONFIG_FILES([
