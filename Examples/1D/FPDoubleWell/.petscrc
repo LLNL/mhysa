@@ -1,0 +1,13 @@
+-use-petscts
+
+-ts_type arkimex
+-ts_arkimex_type 3
+-ts_adapt_type basic
+-ts_monitor
+
+-hyperbolic_explicit
+-parabolic_implicit
+
+-snes_type ksponly
+-snes_monitor
+-ksp_monitor
