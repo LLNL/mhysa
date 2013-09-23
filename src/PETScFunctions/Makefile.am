@@ -5,6 +5,7 @@ libPETScFunctions_a_SOURCES = \
   PetscPostStage.c \
   PetscPostTimeStep.c \
   PetscPreStage.c \
+  PetscRegisterTIMethods.c \
   PetscRHSFunctionExpl.c \
   PetscRHSFunctionIMEX.c \
   TransferFromPETSc.c \

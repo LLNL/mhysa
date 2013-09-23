@@ -25,7 +25,7 @@ int SolvePETSc(void *s,void *m)
   ierr = OutputSolution(solver,mpi); if (ierr) return(ierr);
 
   /* Register custom time-integration methods, if specified */
-//  ierr = PetscRegisterTIMethods(solver->ti_filename,mpi->rank); CHECKERR(ierr);
+  ierr = PetscRegisterTIMethods(mpi->rank);                               CHECKERR(ierr);
   if(!mpi->rank) printf("Setting up PETSc time integration... \n");
 
   /* create and set a PETSc context */
@@ -106,9 +106,9 @@ int SolvePETSc(void *s,void *m)
   ierr = TransferFromPETSc(solver->u,Y,&context);
 
   /* clean up */
-//  if (!strcmp(time_scheme,TSARKIMEX)) {
-//    ierr = MatDestroy(&A);                                                CHKERRQ(ierr);
-//  }
+  if (!strcmp(time_scheme,TSARKIMEX)) {
+    ierr = MatDestroy(&A);                                                CHKERRQ(ierr);
+  }
   ierr = TSDestroy(&ts);                                                  CHKERRQ(ierr);
   ierr = VecDestroy(&Y);                                                  CHKERRQ(ierr);
   return(0);

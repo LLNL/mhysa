@@ -27,7 +27,7 @@ int TransferToPETSc    (double*,Vec,void*);
 int TransferFromPETSc  (double*,Vec,void*);
 
 /* Register custom time-integration RK/ARKIMEX method */
-// int PetscRegisterTIMethods (char*,int);
+int PetscRegisterTIMethods (int);
 
 /* Right and left -hand side functions */
 PetscErrorCode PetscRHSFunctionExpl (TS,PetscReal,Vec,Vec,void*);

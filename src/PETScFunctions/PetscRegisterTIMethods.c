@@ -1,0 +1,257 @@
+#ifdef with_petsc
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <petscinterface.h>
+
+int PetscRegisterTIMethods(int rank)
+{
+  PetscErrorCode ierr;
+  int            ierr2;
+  /* Note: all processors read and register the custom methods */
+  /* instead of root doing it and broadcasting.                */
+  FILE *in;
+  in = fopen("time_method.inp","r");
+  if (in) {
+    int n, N; /* N = total number of methods specified in the file */
+    ierr2 = fscanf(in,"%d",&N); if (ierr2 != 1) return(1);
+    for (n = 0; n < N; n++) {
+      char      name[_MAX_STRING_SIZE_];      /* name of the scheme                           */
+      char      type[_MAX_STRING_SIZE_];      /* type of scheme - ARKIMEX or RK               */
+      PetscInt  s, order;                     /* number of stages and order                   */
+      PetscReal *A , *b,  *c;                 /* Butcher tableaux entries for non-stiff terms */
+      PetscReal *At, *bt, *ct;                /* Butcher tableaux entries for the stiff terms */
+      PetscReal *bemb, *bembt;                /* Embedded method coefficients                 */
+      PetscInt  pinterp;                      /* order of interpolation scheme                */
+      PetscReal *bint,*bintt;                 /* Dense output interpolation coefficients      */
+
+      /* Initializations */
+      strcpy(name,"");
+      s = order = pinterp = 0;
+      A  = b  = c  = NULL;
+      At = bt = ct = NULL;
+      bemb = bembt = NULL;
+      bint = bintt = NULL;
+
+      /* Read the method */
+      char word[_MAX_STRING_SIZE_];
+      ierr2 = fscanf(in,"%s",word); if (ierr2 != 1) return(1);
+      if (!strcmp(word,"begin")) {
+        while (strcmp(word, "end")) {
+          ierr2 = fscanf(in,"%s",word); if (ierr2 != 1) return(1);
+          if      (!strcmp(word,"name"))    { ierr2 = fscanf(in,"%s",name);    if (ierr2 != 1) return(1); }
+          else if (!strcmp(word,"class"))   { ierr2 = fscanf(in,"%s",type);    if (ierr2 != 1) return(1); }
+          else if (!strcmp(word,"nstages")) { ierr2 = fscanf(in,"%d",&s);      if (ierr2 != 1) return(1); }
+          else if (!strcmp(word,"order"))   { ierr2 = fscanf(in,"%d",&order);  if (ierr2 != 1) return(1); }
+          else if (!strcmp(word,"pinterp")) { ierr2 = fscanf(in,"%d",&pinterp);if (ierr2 != 1) return(1); }
+          else if (!strcmp(word,"At")) {
+            if (s == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages must be defined ");
+              if (!rank) fprintf(stderr,"before specifying the Butcher tableaux entries.\n"              );
+              return(1);
+            } else {
+              At = (PetscReal*) calloc (s*s, sizeof(PetscReal));
+              int i, j;
+              for (i = 0; i < s; i++) {
+                for (j = 0; j < s; j++) {
+                  ierr2 = fscanf(in,"%lf",&At[i*s+j]); if (ierr2 != 1) return(1);
+                }
+              }
+            }
+          } else if (!strcmp(word,"A")) {
+            if (s == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages must be defined ");
+              if (!rank) fprintf(stderr,"before specifying the Butcher tableaux entries.\n"              );
+              return(1);
+            } else {
+              A = (PetscReal*) calloc (s*s, sizeof(PetscReal));
+              int i, j;
+              for (i = 0; i < s; i++) {
+                for (j = 0; j < s; j++) {
+                  ierr2 = fscanf(in,"%lf",&A[i*s+j]); if (ierr2 != 1) return(1);
+                }
+              }
+            }
+          } else if (!strcmp(word,"bt")) {
+            if (s == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages must be defined ");
+              if (!rank) fprintf(stderr,"before specifying the Butcher tableaux entries.\n"              );
+              return(1);
+            } else {
+              bt = (PetscReal*) calloc (s, sizeof(PetscReal));
+              int i;
+              for (i = 0; i < s; i++) ierr2 = fscanf(in,"%lf",&bt[i]); if (ierr2 != 1) return(1);
+            }
+          } else if (!strcmp(word,"b")) {
+            if (s == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages must be defined ");
+              if (!rank) fprintf(stderr,"before specifying the Butcher tableaux entries.\n"              );
+              return(1);
+            } else {
+              b = (PetscReal*) calloc (s, sizeof(PetscReal));
+              int i;
+              for (i = 0; i < s; i++) ierr2 = fscanf(in,"%lf",&b[i]); if (ierr2 != 1) return(1);
+            }
+          } else if (!strcmp(word,"ct")) {
+            if (s == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages must be defined ");
+              if (!rank) fprintf(stderr,"before specifying the Butcher tableaux entries.\n"              );
+              return(1);
+            } else {
+              ct = (PetscReal*) calloc (s, sizeof(PetscReal));
+              int i;
+              for (i = 0; i < s; i++) ierr2 = fscanf(in,"%lf",&ct[i]); if (ierr2 != 1) return(1);
+            }
+          } else if (!strcmp(word,"c")) {
+            if (s == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages must be defined ");
+              if (!rank) fprintf(stderr,"before specifying the Butcher tableaux entries.\n"              );
+              return(1);
+            } else {
+              c = (PetscReal*) calloc (s, sizeof(PetscReal));
+              int i;
+              for (i = 0; i < s; i++) ierr2 = fscanf(in,"%lf",&c[i]); if (ierr2 != 1) return(1);
+            }
+          } else if (!strcmp(word,"bembt")) {
+            if (s == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages must be defined ");
+              if (!rank) fprintf(stderr,"before specifying the Butcher tableaux entries.\n"              );
+              return(1);
+            } else {
+              bembt = (PetscReal*) calloc (s, sizeof(PetscReal));
+              int i;
+              for (i = 0; i < s; i++) ierr2 = fscanf(in,"%lf",&bembt[i]); if (ierr2 != 1) return(1);
+            }
+          } else if (!strcmp(word,"bemb")) {
+            if (s == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages must be defined ");
+              if (!rank) fprintf(stderr,"before specifying the Butcher tableaux entries.\n"              );
+              return(1);
+            } else {
+              bemb = (PetscReal*) calloc (s, sizeof(PetscReal));
+              int i;
+              for (i = 0; i < s; i++) ierr2 = fscanf(in,"%lf",&bemb[i]); if (ierr2 != 1) return(1);
+            }
+          } else if (!strcmp(word,"bintt")) {
+            if (s == 0 || pinterp == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages and pinterp must be " );
+              if (!rank) fprintf(stderr,"defined as positive values before specifying interpolation coeffs.\n");
+              return(1);
+            } else {
+              bintt = (PetscReal*) calloc (s*pinterp, sizeof(PetscReal));
+              int i, j;
+              for (i = 0; i < s; i++) {
+                for (j = 0; j < pinterp; j++) {
+                  ierr2 = fscanf(in,"%lf",&bintt[i*s+j]); if (ierr2 != 1) return(1);
+                }
+              }
+            }
+          } else if (!strcmp(word,"bint")) {
+            if (s == 0 || pinterp == 0) { 
+              if (!rank) fprintf(stderr,"Error in PetscRegisterTIMethods(): nstages and pinterp must be " );
+              if (!rank) fprintf(stderr,"defined as positive values before specifying interpolation coeffs.\n");
+              return(1);
+            } else {
+              bint = (PetscReal*) calloc (s*pinterp, sizeof(PetscReal));
+              int i, j;
+              for (i = 0; i < s; i++) {
+                for (j = 0; j < pinterp; j++) {
+                  ierr2 = fscanf(in,"%lf",&bint[i*s+j]); if (ierr2 != 1) return(1);
+                }
+              }
+            }
+          } else if (strcmp(word,"end")) {
+            if (!rank) printf("Warning: keyword %s in file \"time_method.inp\" is not valid. Ignoring.\n",word);
+          }
+        }
+      } else {
+    		if (!rank) fprintf(stderr,"Error: Illegal format in file \"time_method.inp\" (expected keyword \"begin\").\n");
+        return(1);
+      }
+    
+      /* Register the method */
+      if (!strcmp(type,"arkimex")) {
+        if (A && At) {
+          ierr = TSARKIMEXRegister(name,order,s,At,bt,ct,A,b,c,bembt,bemb,pinterp,bintt,bint); CHKERRQ(ierr);
+          if (!rank) {
+            printf("\nRegistered custom ARKIMEX scheme \"%s\" with the following Butcher tableaux:-\n",name);
+            int i,j;
+            for (i = 0; i < s; i++) {
+              if (c)  printf("  %+1.5lf |",c[i]);
+              else    printf("           |");
+              for (j = 0; j < s; j++) printf (" %+1.5lf :",A[i*s+j]);
+              printf("\t");
+              if (ct)  printf("%+1.5lf |",ct[i]);
+              else     printf("           |");
+              for (j = 0; j < s; j++) printf (" %+1.5lf :",At[i*s+j]);
+              printf("\n");
+            }
+            printf("  ---------|");
+            for (j = 0; j < s; j++) printf("-----------");
+            printf("\t");
+            printf("---------|");
+            for (j = 0; j < s; j++) printf("-----------");
+            printf("\n");
+            printf("           |");
+            if (b)   for (j = 0; j < s; j++) printf(" %+1.5lf :",b[j]);
+            else     for (j = 0; j < s; j++) printf("          :");
+            printf("\t");
+            printf("         |");
+            if (bt)  for (j = 0; j < s; j++) printf(" %+1.5lf :",bt[j]);
+            else     for (j = 0; j < s; j++) printf("          :");
+            printf("\n\n");
+          } else {
+            if (!rank) fprintf(stderr,"Warning in PetscRegisterTIMethods(): Failed to register method ");
+            if (!rank) fprintf(stderr,"(A or At not defined).\n");
+          }
+        }
+      } else if (!strcmp(type,"rk")) {
+        if (A) {
+          ierr = TSRKRegister(name,order,s,A,b,c,bemb,pinterp,bint); CHKERRQ(ierr);
+          if (!rank) {
+            printf("\nRegistered custom RK scheme \"%s\" with the following Butcher tableaux:-\n",name);
+            int i,j;
+            for (i = 0; i < s; i++) {
+              if (c)  printf("  %+1.5lf |",c[i]);
+              else    printf("           |");
+              for (j = 0; j < s; j++) printf (" %+1.5lf :",A[i*s+j]);
+              printf("\n");
+            }
+            printf("  ---------|");
+            for (j = 0; j < s; j++) printf("-----------");
+            printf("\n");
+            printf("           |");
+            if (b)   for (j = 0; j < s; j++) printf(" %+1.5lf :",b[j]);
+            else     for (j = 0; j < s; j++) printf("          :");
+            printf("\n\n");
+          } else {
+            if (!rank) fprintf(stderr,"Warning in PetscRegisterTIMethods(): Failed to register method ");
+            if (!rank) fprintf(stderr,"(A or At not defined).\n");
+          }
+        }
+      } else {
+        if (!rank){
+          fprintf(stderr,"Error in PetscRegisterTIMethods():  %s class of time-integration schemes ",type);
+          fprintf(stderr,"does not support custom method registration and usage.\n");
+        }
+      }
+
+      /* Free the arrays */
+      if (At)     free(At);
+      if (bt)     free(bt);
+      if (ct)     free(ct);
+      if (A)      free(A);
+      if (b)      free(b);
+      if (c)      free(c);
+      if (bembt)  free(bembt);
+      if (bemb)   free(bemb);
+      if (bintt)  free(bintt);
+      if (bint)   free(bint);
+    
+    }
+  }
+  return(0);
+}
+
+#endif
