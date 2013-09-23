@@ -71,8 +71,10 @@ include ${PETSC_DIR}/conf/rules
 MFILE
     PETSC_INC="`make -f petscmake$$ getincludedirs`"
     PETSC_LIB="`make -f petscmake$$ getlinklibs`"
+    rm petscmake$$
     CFLAGS="$CFLAGS -Dwith_petsc $PETSC_INC"
-    LDFLAGS="$LDFLAGS $PETSC_LIB"
+    CXXFLAGS=$CFLAGS
+    LIBS="$LIBS $PETSC_LIB"
   fi
 fi
 
@@ -88,11 +90,11 @@ AC_CONFIG_FILES([
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
  src/PETScFunctions/Makefile
+ src/PhysicalModels/Makefile
+  src/PhysicalModels/LinearADR/Makefile
+  src/PhysicalModels/FPDoubleWell/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
- src/PhysicalModels/Makefile
- src/PhysicalModels/LinearADR/Makefile
- src/PhysicalModels/FPDoubleWell/Makefile
 ])
 
 AC_OUTPUT
