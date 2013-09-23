@@ -87,6 +87,7 @@ AC_CONFIG_FILES([
  src/InterpolationFunctions/Makefile
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
+ src/PETScFunctions/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
  src/PhysicalModels/Makefile

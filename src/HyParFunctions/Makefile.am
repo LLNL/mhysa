@@ -15,5 +15,6 @@ libHyParFunctions_a_SOURCES = \
   ReadInputs.c \
   ReconstructHyperbolic.c \
   Solve.c \
+  SolvePETSc.c \
   SourceFunction.c \
   WriteText.c

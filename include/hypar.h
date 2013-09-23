@@ -70,6 +70,10 @@ typedef struct main_parameters {
 
   /* Errors */
   double error[3];                      /* L1,L2,Linf errors, if calculated         */
+#ifdef with_petsc
+  /* PETSc */
+  int use_petscTS;                      /* Use PETSc time-integration? */
+#endif
 
 } HyPar;
 
@@ -84,6 +88,9 @@ int InitialSolution         (void*,void*);
 int OutputSolution          (void*,void*);
 int ReadInputs              (void*,void*);
 int Solve                   (void*,void*);
+#ifdef with_petsc
+int SolvePETSc            (void*,void*);
+#endif
 
 
 /* Some definitions - types of discretizations available 

@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <sys/time.h>
+#ifdef with_petsc
+#include <petscinterface.h>
+#endif
 #include <mpivars.h>
 #include <hypar.h>
+
+static const char help[] = "HyPar - A finite-difference algorithm for solving hyperbolic-parabolic PDEs";
 
 int main(int argc,char **argv)
 {
@@ -10,6 +15,9 @@ int main(int argc,char **argv)
   int             ierr = 0,d;
   struct timeval  main_start, solve_start;
   struct timeval  main_end  , solve_end  ;
+#ifdef with_petsc
+  PetscBool       use_petscts;
+#endif
 
 #ifdef serial
   mpi.rank  = 0;
@@ -19,7 +27,18 @@ int main(int argc,char **argv)
   MPI_Init(&argc,&argv);
   MPI_Comm_rank(MPI_COMM_WORLD,&mpi.rank );
   MPI_Comm_size(MPI_COMM_WORLD,&mpi.nproc);
-  if (!mpi.rank) printf("HyPar - Parallel (MPI) version with %d processes\n",mpi.nproc);
+  if (!mpi.rank) printf("HyPar - Parallel (MPI) version with %d processes ",mpi.nproc);
+#endif
+
+#ifdef with_petsc
+  PetscInitialize(&argc,&argv,(char*)0,help);
+  if (!mpi.rank) printf("compiled with PETSc time integration.\n");
+
+  use_petscts = PETSC_FALSE; /* default value */
+  ierr = PetscOptionsGetBool(PETSC_NULL,"-use-petscts" ,&use_petscts ,PETSC_NULL); CHKERRQ(ierr);
+  solver.use_petscTS  = use_petscts;
+#else
+  printf(".\n");
 #endif
 
   gettimeofday(&main_start,NULL);
@@ -63,6 +82,28 @@ int main(int argc,char **argv)
   /* Initializations complete */
 
   /* Run the solver */
+#ifdef with_petsc
+  if (solver.use_petscTS == PETSC_TRUE) {
+    /* Use PETSc time-integration */
+    gettimeofday(&solve_start,NULL);
+    ierr = SolvePETSc(&solver,&mpi);
+    gettimeofday(&solve_end,NULL);
+    if (ierr) {
+      printf("Error: SolvePETSc() returned with status %d on process %d.\n",ierr,mpi.rank);
+      return(ierr);
+    }
+  } else {
+    /* Use native time-integration */
+    gettimeofday(&solve_start,NULL);
+    ierr = Solve(&solver,&mpi);
+    gettimeofday(&solve_end,NULL);
+    if (ierr) {
+      printf("Error: Solve() returned with status %d on process %d.\n",ierr,mpi.rank);
+      return(ierr);
+    }
+  }
+#else 
+  /* Use native time-integration */
   gettimeofday(&solve_start,NULL);
   ierr = Solve(&solver,&mpi);
   gettimeofday(&solve_end,NULL);
@@ -70,6 +111,7 @@ int main(int argc,char **argv)
     printf("Error: Solve() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
   }
+#endif
 
   /* Write output */
   ierr = OutputSolution(&solver,&mpi);

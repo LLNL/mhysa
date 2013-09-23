@@ -3,6 +3,7 @@ SUBDIRS = \
   BoundaryConditions\
   HyParFunctions \
   InterpolationFunctions \
+  PETScFunctions \
   PhysicalModels \
   MathFunctions \
   MPIFunctions \
@@ -14,6 +15,7 @@ HyPar_SOURCES = main.c
 HyPar_LDADD = \
   HyParFunctions/libHyParFunctions.a \
   TimeIntegration/libTimeIntegration.a \
+  PETScFunctions/libPETScFunctions.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   SecondDerivative/libSecondDerivative.a \
   BoundaryConditions/libBoundaryConditions.a \
