@@ -82,6 +82,35 @@ int SolvePETSc(void *s,void *m)
     KSPGetPC(ksp,&pc);
     PCSetType(pc,PCNONE);
 
+    /* read the implicit/explicit flags for each of the terms for IMEX schemes */
+    /* default -> hyperbolic - explicit, parabolic and source - implicit       */
+    PetscBool flag = PETSC_FALSE;
+
+    context.flag_hyperbolic = _EXPLICIT_; 
+    context.flag_parabolic  = _IMPLICIT_; 
+    context.flag_source     = _IMPLICIT_; 
+
+    flag = PETSC_FALSE; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_hyperbolic = _EXPLICIT_; 
+    flag = PETSC_FALSE; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_hyperbolic = _IMPLICIT_; 
+
+    flag = PETSC_FALSE; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_explicit",&flag,PETSC_NULL);  CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_parabolic = _EXPLICIT_; 
+    flag = PETSC_FALSE; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_implicit",&flag,PETSC_NULL);  CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_parabolic = _IMPLICIT_; 
+
+    flag = PETSC_FALSE; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-source_explicit",&flag,PETSC_NULL);     CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_source = _EXPLICIT_; 
+    flag = PETSC_FALSE; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-source_implicit",&flag,PETSC_NULL);     CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_source = _IMPLICIT_; 
+
   } else {
     fprintf(stderr,"Error in SolvePETSc: TSType %s not supported.\n",time_scheme);
     return(1);
