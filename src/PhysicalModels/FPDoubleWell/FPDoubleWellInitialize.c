@@ -12,6 +12,8 @@ double FPDoubleWellComputeDiffNumber (void*,void*,double);
 int    FPDoubleWellAdvection         (double*,double*,int,void*,double);
 int    FPDoubleWellDiffusion         (double*,double*,int,void*,double);
 int    FPDoubleWellUpwind            (double*,double*,double*,double*,int,void*);
+int    FPDoubleWellPostStep          (double*,void*,void*,double);
+int    FPDoubleWellPrintStep         (void*,void*,double);
 
 int FPDoubleWellInitialize(void *s,void *m)
 {
@@ -65,8 +67,9 @@ int FPDoubleWellInitialize(void *s,void *m)
   solver->ComputeDiffNumber  = FPDoubleWellComputeDiffNumber;
   solver->FFunction          = FPDoubleWellAdvection;
   solver->GFunction          = FPDoubleWellDiffusion;
-  solver->SFunction          = NULL;
   solver->Upwind             = FPDoubleWellUpwind;
+  solver->PostStep           = FPDoubleWellPostStep;
+  solver->PrintStep           = FPDoubleWellPrintStep;
 
   return(0);
 }
