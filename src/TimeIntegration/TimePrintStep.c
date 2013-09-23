@@ -16,6 +16,8 @@ int TimePrintStep(void *ts)
     printf("Max Diff. No.: %1.3E  " ,TS->max_diff);
     printf("Norm: %1.4E  "          ,TS->norm    );
     printf("\n");
+    /* print physics-specific info, if available */
+    if (solver->PrintStep) solver->PrintStep(solver,mpi,TS->waqt);
   }
 
   return(0);

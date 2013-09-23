@@ -1,9 +1,11 @@
 noinst_LIBRARIES = libFPDoubleWell.a
 libFPDoubleWell_a_SOURCES = \
+  FPDoubleWellAdvection.c \
   FPDoubleWellCleanup.c \
-  FPDoubleWellInitialize.c \
   FPDoubleWellComputeCFL.c \
   FPDoubleWellComputeDiffNumber.c \
-  FPDoubleWellAdvection.c \
   FPDoubleWellDiffusion.c \
+  FPDoubleWellInitialize.c \
+  FPDoubleWellPostStep.c \
+  FPDoubleWellPrintStep.c \
   FPDoubleWellUpwind.c

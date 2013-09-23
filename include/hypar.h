@@ -63,6 +63,12 @@ typedef struct main_parameters {
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*SFunction)          ();
   int    (*Upwind)             (double*,double*,double*,double*,int,void*);
+  /* physics-specific pre/post-time-step/stage functions */
+  int    (*PreStage)           (int,double**,void*,void*,double);
+  int    (*PostStage)          (int,double**,void*,void*,double);
+  int    (*PreStep)            (double*,void*,void*,double);
+  int    (*PostStep)           (double*,void*,void*,double);
+  int    (*PrintStep)          (void*,void*,double);
 
   /* Other parameters */
   void *interp;                         /* Interpolation-related parameters         */
