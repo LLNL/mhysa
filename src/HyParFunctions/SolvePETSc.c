@@ -61,26 +61,26 @@ int SolvePETSc(void *s,void *m)
     /* Convection and diffusion are both explicit */
     ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionExpl,&context); CHKERRQ(ierr);
 
-//  } else if (!strcmp(time_scheme,TSARKIMEX)) {
+  } else if (!strcmp(time_scheme,TSARKIMEX)) {
 
     /* Convection is explicit, diffusion is implicit */
-//    ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionIMEX,&context); CHKERRQ(ierr);
-//    ierr = TSSetIFunction  (ts,PETSC_NULL,PetscIFunctionIMEX,  &context); CHKERRQ(ierr);
-//    ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-//                          PETSC_DETERMINE,&context,&A);                   CHKERRQ(ierr);
-//    ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX);
-//                                                                          CHKERRQ(ierr);
-//    ierr = MatSetUp(A);                                                   CHKERRQ(ierr);
-//    ierr = TSSetIJacobian(ts,A,A,PetscIJacobianIMEX,&context);            CHKERRQ(ierr);
+    ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionIMEX,&context); CHKERRQ(ierr);
+    ierr = TSSetIFunction  (ts,PETSC_NULL,PetscIFunctionIMEX,  &context); CHKERRQ(ierr);
+    ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
+                          PETSC_DETERMINE,&context,&A);                   CHKERRQ(ierr);
+    ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX);
+                                                                          CHKERRQ(ierr);
+    ierr = MatSetUp(A);                                                   CHKERRQ(ierr);
+    ierr = TSSetIJacobian(ts,A,A,PetscIJacobianIMEX,&context);            CHKERRQ(ierr);
 
     /* set pre-conditioner to none for MatShell */
-//    SNES snes;
-//    KSP  ksp;
-//    PC   pc;
-//    TSGetSNES(ts,&snes);
-//    SNESGetKSP(snes,&ksp);
-//    KSPGetPC(ksp,&pc);
-//    PCSetType(pc,PCNONE);
+    SNES snes;
+    KSP  ksp;
+    PC   pc;
+    TSGetSNES(ts,&snes);
+    SNESGetKSP(snes,&ksp);
+    KSPGetPC(ksp,&pc);
+    PCSetType(pc,PCNONE);
 
   } else {
     fprintf(stderr,"Error in SolvePETSc: TSType %s not supported.\n",time_scheme);
@@ -88,9 +88,9 @@ int SolvePETSc(void *s,void *m)
   }
 
   /* Set pre/post-stage and post-timestep function */
-//  ierr = TSSetPreStage(ts,PetscPreStage    );                             CHKERRQ(ierr);
-//  ierr = TSSetPostStage(ts,PetscPostStage  );                             CHKERRQ(ierr);
-//  ierr = TSSetPostStep(ts,PetscPostTimeStep);                             CHKERRQ(ierr);
+  ierr = TSSetPreStage(ts,PetscPreStage    );                             CHKERRQ(ierr);
+  ierr = TSSetPostStage(ts,PetscPostStage  );                             CHKERRQ(ierr);
+  ierr = TSSetPostStep(ts,PetscPostTimeStep);                             CHKERRQ(ierr);
   /* Set solution vector for TS */
   ierr = TSSetSolution(ts,Y);                                             CHKERRQ(ierr);
   /* Set it all up */
