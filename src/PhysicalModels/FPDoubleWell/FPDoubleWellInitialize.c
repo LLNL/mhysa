@@ -69,7 +69,11 @@ int FPDoubleWellInitialize(void *s,void *m)
   solver->GFunction          = FPDoubleWellDiffusion;
   solver->Upwind             = FPDoubleWellUpwind;
   solver->PostStep           = FPDoubleWellPostStep;
-  solver->PrintStep           = FPDoubleWellPrintStep;
+  solver->PrintStep          = FPDoubleWellPrintStep;
 
+  /* Calculate and print the PDF integral of the initial solution */
+  ierr = FPDoubleWellPostStep(solver->u,solver,mpi,0.0);  CHECKERR(ierr);
+  ierr = FPDoubleWellPrintStep(solver,mpi,0.0);           CHECKERR(ierr);
+  
   return(0);
 }
