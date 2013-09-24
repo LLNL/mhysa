@@ -58,12 +58,10 @@ int SolvePETSc(void *s,void *m)
       || (!strcmp(time_scheme,TSSSP  ))
       || (!strcmp(time_scheme,TSRK   )) ){
     
-    /* Convection and diffusion are both explicit */
     ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionExpl,&context); CHKERRQ(ierr);
 
   } else if (!strcmp(time_scheme,TSARKIMEX)) {
 
-    /* Convection is explicit, diffusion is implicit */
     ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionIMEX,&context); CHKERRQ(ierr);
     ierr = TSSetIFunction  (ts,PETSC_NULL,PetscIFunctionIMEX,  &context); CHKERRQ(ierr);
     ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
