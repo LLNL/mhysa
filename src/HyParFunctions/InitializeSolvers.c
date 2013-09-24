@@ -9,6 +9,8 @@
 
 /* Function declarations */
 int WriteText                   (int,int,int*,double*,double*,char*,int*);
+int WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
+int WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
 int ApplyBoundaryConditions     (void*,void*,double*);
 int HyperbolicFunction          (double*,double*,void*,void*,double);
 int ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
@@ -82,10 +84,18 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Solution output function */
+  solver->WriteOutput = WriteText;
+  if (!strcmp(solver->op_overwrite,"no")) strcpy(solver->op_filename,"op_00000");
+  else                                    strcpy(solver->op_filename,"op");
   if (!strcmp(solver->op_file_format,"text")) {
     solver->WriteOutput = WriteText;
-    if (!strcmp(solver->op_overwrite,"no")) strcpy(solver->op_filename,"op_00000.dat");
-    else                                    strcpy(solver->op_filename,"op.dat");
+    strcat(solver->op_filename,".dat");
+  } else if (!strcmp(solver->op_file_format,"tecplot2d")) {
+    solver->WriteOutput = WriteTecplot2D;
+    strcat(solver->op_filename,".dat");
+  } else if (!strcmp(solver->op_file_format,"tecplot3d")) {
+    solver->WriteOutput = WriteTecplot3D;
+    strcat(solver->op_filename,".dat");
   } else if (!strcmp(solver->op_file_format,"none")) {
     solver->WriteOutput = NULL;
   } else {
