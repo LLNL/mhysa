@@ -56,7 +56,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
       int p  = ArrayIndex1D(ndims,dim          ,index ,NULL,ghosts);
       int p1 = ArrayIndex1D(ndims,dim_interface,index1,NULL,0     );
       int p2 = ArrayIndex1D(ndims,dim_interface,index2,NULL,0     );
-      for (v=0; v<nvars; v++) hyp[nvars*p+v] =  dxinv[offset+ghosts+index[d]] 
+      for (v=0; v<nvars; v++) hyp[nvars*p+v] += dxinv[offset+ghosts+index[d]] 
                                               * (FluxI[nvars*p2+v]-FluxI[nvars*p1+v]);
       done = ArrayIncrementIndex(ndims,dim,index);
     }
