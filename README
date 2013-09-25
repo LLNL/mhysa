@@ -40,6 +40,9 @@ lower bounds of x_i) is discretized with a Cartesian grid.
   + Fokker-Planck model for Power Systems
   + Euler equations (1D, 2D, 3D) (Coming soon)
   + Porous Medium Equations (Coming soon)
+- Output options
+  + Plain text
+  + Tecplot (2D and 3D problems only)
 
 The solver provides a standardized template for discretization schemes and 
 physical models. New physical models can be easily incorporated by defining 
@@ -148,10 +151,10 @@ files in the Examples for a better idea):
 
   Format
     <nb>
-    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x_{ndim-1}min>  <x_{ndims-1}max>]
-    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x_{ndim-1}min>  <x_{ndims-1}max>]
+    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
+    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
     ...
-    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x_{ndim-1}min>  <x_{ndims-1}max>]
+    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
 
   Explanation:
     nb  -> number of boundary conditions
