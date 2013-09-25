@@ -50,6 +50,7 @@ typedef struct main_parameters {
   int (*HyperbolicFunction)       (double*,double*,void*,void*,double);
   int (*ParabolicFunction)        (double*,double*,void*,void*,double);
   int (*SourceFunction)           (double*,double*,void*,void*,double);
+  double (*GetCoordinate)         (int,int,int*,int,double*);
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
@@ -57,12 +58,12 @@ typedef struct main_parameters {
   /* Physical model specific functions                                                    */
   /* These functions are mandatory; if not required in a particular model, 
       they should be set to NULL                                                          */
-  double (*ComputeCFL)         (void*,void*,double);
-  double (*ComputeDiffNumber)  (void*,void*,double);
+  double (*ComputeCFL)         (void*,void*,double,double);
+  double (*ComputeDiffNumber)  (void*,void*,double,double);
   int    (*FFunction)          (double*,double*,int,void*,double);
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*SFunction)          ();
-  int    (*Upwind)             (double*,double*,double*,double*,int,void*);
+  int    (*Upwind)             (double*,double*,double*,double*,int,void*,double);
   /* physics-specific pre/post-time-step/stage functions */
   int    (*PreStage)           (int,double**,void*,void*,double);
   int    (*PostStage)          (int,double**,void*,void*,double);
@@ -90,6 +91,8 @@ int InitialSolution         (void*,void*);
 int OutputSolution          (void*,void*);
 int ReadInputs              (void*,void*);
 int Solve                   (void*,void*);
+
+/* function to get the grid coordinate at a given point along a given dimension */
 
 
 /* Some definitions - types of discretizations available 

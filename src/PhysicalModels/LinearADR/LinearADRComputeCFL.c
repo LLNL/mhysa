@@ -2,7 +2,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-double LinearADRComputeCFL(void *s,void *m,double dt)
+double LinearADRComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   LinearADR     *params = (LinearADR*)    solver->physics;

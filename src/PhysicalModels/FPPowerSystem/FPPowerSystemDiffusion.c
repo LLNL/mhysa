@@ -1,12 +1,15 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <physicalmodels/fpdoublewell.h>
+#include <physicalmodels/fppowersystem.h>
 #include <hypar.h>
 
-int FPDoubleWellAdvection(double *f,double *u,int dir,void *s,double t)
+inline double FPPowerSystemDissipationFunction(int,void*,double);
+
+int FPPowerSystemDiffusion(double *f,double *u,int dir,void *s,double t)
 {
   HyPar         *solver = (HyPar*)        s;
+  FPPowerSystem *params = (FPPowerSystem*) solver->physics;
   int           ierr    = 0, i, v;
 
   int *dim    = solver->dim_local;
@@ -28,8 +31,8 @@ int FPDoubleWellAdvection(double *f,double *u,int dir,void *s,double t)
   int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
   while (!done) {
     int p = ArrayIndex1D(ndims,dim,index,offset,ghosts);
-    double x = solver->GetCoordinate(0,index[0]-ghosts,dim,ghosts,solver->x);
-    for (v = 0; v < nvars; v++) f[nvars*p+v] = drift(x) * u[nvars*p+v];
+    double dissipation = FPPowerSystemDissipationFunction(dir,params,t);
+    for (v = 0; v < nvars; v++) f[nvars*p+v] = dissipation * u[nvars*p+v];
     done = ArrayIncrementIndex(ndims,bounds,index);
   }
 

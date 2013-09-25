@@ -7,12 +7,12 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-double LinearADRComputeCFL        (void*,void*,double);
-double LinearADRComputeDiffNumber (void*,void*,double);
+double LinearADRComputeCFL        (void*,void*,double,double);
+double LinearADRComputeDiffNumber (void*,void*,double,double);
 int    LinearADRAdvection         (double*,double*,int,void*,double);
 int    LinearADRDiffusion         (double*,double*,int,void*,double);
 int    LinearADRReaction          ();
-int    LinearADRUpwind            (double*,double*,double*,double*,int,void*);
+int    LinearADRUpwind            (double*,double*,double*,double*,int,void*,double);
 
 int LinearADRInitialize(void *s,void *m)
 {

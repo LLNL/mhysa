@@ -4,7 +4,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int ReconstructHyperbolic (double*,double*,double*,int,void*,void*);
+int ReconstructHyperbolic (double*,double*,double*,int,void*,void*,double);
 
 int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
 {
@@ -46,7 +46,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
     /* allocate interface array for conservative discretization */
     FluxI = (double*) calloc (size_interface*nvars,sizeof(double));
     /* compute interface fluxes */
-    ierr = ReconstructHyperbolic(FluxI,FluxC,u,d,solver,mpi); CHECKERR(ierr);
+    ierr = ReconstructHyperbolic(FluxI,FluxC,u,d,solver,mpi,t); CHECKERR(ierr);
 
     /* calculate the first derivative */
     done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);

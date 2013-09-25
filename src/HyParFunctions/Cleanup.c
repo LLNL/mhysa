@@ -10,6 +10,7 @@
 /* include header files for each physical model */
 #include <physicalmodels/linearadr.h>
 #include <physicalmodels/fpdoublewell.h>
+#include <physicalmodels/fppowersystem.h>
 
 int Cleanup(void *s,void *m)
 {
@@ -31,6 +32,8 @@ int Cleanup(void *s,void *m)
     ierr = LinearADRCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_FP_DOUBLE_WELL_)) {
     ierr = FPDoubleWellCleanup(solver->physics); CHECKERR(ierr);
+  } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_)) {
+    ierr = FPPowerSystemCleanup(solver->physics); CHECKERR(ierr);
   }
   free(solver->physics);
 

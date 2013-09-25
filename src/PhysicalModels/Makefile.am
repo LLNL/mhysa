@@ -1,3 +1,4 @@
 SUBDIRS = \
   LinearADR \
-  FPDoubleWell
+  FPDoubleWell \
+  FPPowerSystem

@@ -67,11 +67,12 @@ AC_CONFIG_FILES([
  src/InterpolationFunctions/Makefile
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
+ src/PhysicalModels/Makefile
+   src/PhysicalModels/LinearADR/Makefile
+   src/PhysicalModels/FPDoubleWell/Makefile
+   src/PhysicalModels/FPPowerSystem/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
- src/PhysicalModels/Makefile
- src/PhysicalModels/LinearADR/Makefile
- src/PhysicalModels/FPDoubleWell/Makefile
 ])
 
 AC_OUTPUT

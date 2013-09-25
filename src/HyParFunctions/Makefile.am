@@ -4,6 +4,7 @@ libHyParFunctions_a_SOURCES = \
   CalculateError.c \
   Cleanup.c \
   HyperbolicFunction.c \
+  GetCoordinate.c \
   Initialize.c \
   InitialSolution.c \
   InitializeBoundaries.c \

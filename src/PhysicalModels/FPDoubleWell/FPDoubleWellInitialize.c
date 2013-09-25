@@ -7,11 +7,11 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-double FPDoubleWellComputeCFL        (void*,void*,double);
-double FPDoubleWellComputeDiffNumber (void*,void*,double);
+double FPDoubleWellComputeCFL        (void*,void*,double,double);
+double FPDoubleWellComputeDiffNumber (void*,void*,double,double);
 int    FPDoubleWellAdvection         (double*,double*,int,void*,double);
 int    FPDoubleWellDiffusion         (double*,double*,int,void*,double);
-int    FPDoubleWellUpwind            (double*,double*,double*,double*,int,void*);
+int    FPDoubleWellUpwind            (double*,double*,double*,double*,int,void*,double);
 int    FPDoubleWellPostStep          (double*,void*,void*,double);
 int    FPDoubleWellPrintStep         (void*,void*,double);
 
