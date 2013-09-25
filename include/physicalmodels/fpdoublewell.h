@@ -1,3 +1,11 @@
+/*
+
+Reference: 
++ Miller, R.N., Carter E.F., Blue S.T., "Data assimilation into
+  nonlinear stochastic models", Tellus (1999), 51 A, 167-194
+
+*/
+
 #define _FP_DOUBLE_WELL_  "fp-double-well"
 
 /* define ndims and nvars for this model */
