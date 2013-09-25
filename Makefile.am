@@ -4,4 +4,5 @@ docdir = doc
 
 EXTRA_DIST = \
   include \
+  include/physicalmodels \
   Examples

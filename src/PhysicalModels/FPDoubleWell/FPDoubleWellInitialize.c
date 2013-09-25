@@ -3,7 +3,7 @@
 #include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 #include <mpivars.h>
 #include <hypar.h>
 

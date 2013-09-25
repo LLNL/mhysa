@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <linearadr.h>
+#include <physicalmodels/linearadr.h>
 
 int LinearADRCleanup(void *s)
 {

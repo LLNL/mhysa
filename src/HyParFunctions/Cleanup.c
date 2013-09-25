@@ -8,8 +8,8 @@
 #include <hypar.h>
 
 /* include header files for each physical model */
-#include <linearadr.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/linearadr.h>
+#include <physicalmodels/fpdoublewell.h>
 
 int Cleanup(void *s,void *m)
 {

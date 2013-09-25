@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 
 int FPDoubleWellCleanup(void *s)
 {

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 #include <hypar.h>
 
 int FPDoubleWellPrintStep(void* s,void *m,double t)

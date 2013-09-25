@@ -1,5 +1,5 @@
 #include <mathfunctions.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 #include <mpivars.h>
 #include <hypar.h>
 

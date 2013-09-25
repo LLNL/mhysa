@@ -3,7 +3,7 @@
 #include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <linearadr.h>
+#include <physicalmodels/linearadr.h>
 #include <mpivars.h>
 #include <hypar.h>
 

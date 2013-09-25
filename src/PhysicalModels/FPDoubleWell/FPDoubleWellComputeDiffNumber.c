@@ -1,4 +1,4 @@
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 #include <mpivars.h>
 #include <hypar.h>
 
