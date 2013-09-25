@@ -34,6 +34,26 @@ lower bounds of x_i) is discretized with a Cartesian grid.
   + Multi-stage explicit Runge Kutta scheme
     - First, second, third, fourth order schemes
     - SSP RK3
+- Physics models
+  + Linear advection-diffusion-reaction
+  + Fokker-Planck double well
+  + Fokker-Planck model for Power Systems
+  + Euler equations (1D, 2D, 3D) (Coming soon)
+  + Porous Medium Equations (Coming soon)
+
+The solver provides a standardized template for discretization schemes and 
+physical models. New physical models can be easily incorporated by defining 
+the following functions for them:-
+- Hyperbolic function  
+- Parabolic function   
+- Source function      
+- Upwinding function if hyperbolic function present
+- CFL and Diffusion number computation functions
+Existing physical models provide a template.
+Similarly, new discretization schemes can be added easily by following the 
+existing template. The only restriction is that any new discretization scheme
+for the hyperbolic terms needs to be conservative (i.e., only the function to
+interpolate interface fluxes needs to be specified).
 
 -------------------------------------------------------------------------------------
 
