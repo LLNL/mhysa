@@ -43,6 +43,8 @@ int FPPowerSystemInitialize(void *s,void *m)
   physics->l   = 0.1;
   physics->q   = 1.0;
   physics->O_s = 8.0*atan(1.0)/60.0;
+  physics->tf  = 0.1;
+  physics->tcl = 0.2;
 
   /* reading physical model specific inputs - all processes */
   FILE *in;
@@ -57,15 +59,17 @@ int FPPowerSystemInitialize(void *s,void *m)
     if (!strcmp(word, "begin")){
 	    while (strcmp(word, "end")){
 		    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
-        if      (!strcmp(word, "inertia")) { ierr = fscanf(in,"%lf",&physics->H ); if (ierr != 1) return(1); }
-        else if (!strcmp(word, "E"      )) { ierr = fscanf(in,"%lf",&physics->E ); if (ierr != 1) return(1); }
-        else if (!strcmp(word, "V"      )) { ierr = fscanf(in,"%lf",&physics->V ); if (ierr != 1) return(1); }
-        else if (!strcmp(word, "g1"     )) { ierr = fscanf(in,"%lf",&physics->g1); if (ierr != 1) return(1); }
-        else if (!strcmp(word, "g2"     )) { ierr = fscanf(in,"%lf",&physics->g2); if (ierr != 1) return(1); }
-        else if (!strcmp(word, "D"      )) { ierr = fscanf(in,"%lf",&physics->D ); if (ierr != 1) return(1); }
-        else if (!strcmp(word, "PM_min" )) { ierr = fscanf(in,"%lf",&physics->Pm); if (ierr != 1) return(1); }
-        else if (!strcmp(word, "lambda" )) { ierr = fscanf(in,"%lf",&physics->l ); if (ierr != 1) return(1); }
-        else if (!strcmp(word, "q"      )) { ierr = fscanf(in,"%lf",&physics->q ); if (ierr != 1) return(1); }
+        if      (!strcmp(word, "inertia")) { ierr = fscanf(in,"%lf",&physics->H  ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "E"      )) { ierr = fscanf(in,"%lf",&physics->E  ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "V"      )) { ierr = fscanf(in,"%lf",&physics->V  ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "g1"     )) { ierr = fscanf(in,"%lf",&physics->g1 ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "g2"     )) { ierr = fscanf(in,"%lf",&physics->g2 ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "D"      )) { ierr = fscanf(in,"%lf",&physics->D  ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "PM_min" )) { ierr = fscanf(in,"%lf",&physics->Pm ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "lambda" )) { ierr = fscanf(in,"%lf",&physics->l  ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "q"      )) { ierr = fscanf(in,"%lf",&physics->q  ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "tf"     )) { ierr = fscanf(in,"%lf",&physics->tf ); if (ierr != 1) return(1); }
+        else if (!strcmp(word, "tcl"    )) { ierr = fscanf(in,"%lf",&physics->tcl); if (ierr != 1) return(1); }
         else if (strcmp(word , "end")) {
           char useless[_MAX_STRING_SIZE_];
           ierr = fscanf(in,"%s",useless); if (ierr != 1) return(ierr);
