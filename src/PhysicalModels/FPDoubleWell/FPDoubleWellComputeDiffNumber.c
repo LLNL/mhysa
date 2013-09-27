@@ -1,8 +1,8 @@
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-double FPDoubleWellComputeDiffNumber(void *s,void *m,double dt)
+double FPDoubleWellComputeDiffNumber(void *s,void *m,double dt,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   FPDoubleWell  *params = (FPDoubleWell*) solver->physics;

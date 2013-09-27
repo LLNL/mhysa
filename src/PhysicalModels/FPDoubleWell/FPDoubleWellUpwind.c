@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 #include <hypar.h>
 
-int FPDoubleWellUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *s)
+int FPDoubleWellUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
 {
   HyPar        *solver = (HyPar*) s;
   int          ierr    = 0,done,v;
@@ -26,7 +26,8 @@ int FPDoubleWellUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *
     ierr = ArrayCopy1D_int(index_outer,index_inter,ndims);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p = ArrayIndex1D(ndims,bounds_inter,index_inter,NULL,0);
-      double x = 0.5 * (solver->x[index_inter[dir]-1+ghosts] + solver->x[index_inter[dir]+ghosts]);
+      double x = 0.5 * ( solver->GetCoordinate(0,index_inter[0]-1,dim,ghosts,solver->x) 
+                       + solver->GetCoordinate(0,index_inter[0]  ,dim,ghosts,solver->x) );
       for (v = 0; v < nvars; v++)  
         fI[nvars*p+v] = (drift(x) > 0 ? fL[nvars*p+v] : fR[nvars*p+v] );
     }

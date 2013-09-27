@@ -9,11 +9,16 @@
 
 /* Function declarations */
 int WriteText                   (int,int,int*,double*,double*,char*,int*);
+int WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
+int WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
 int ApplyBoundaryConditions     (void*,void*,double*);
 int HyperbolicFunction          (double*,double*,void*,void*,double);
 int ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
 int ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
 int SourceFunction              (double*,double*,void*,void*,double);
+
+/* function to get the grid coordinate at a given point along a given dimension */
+double GetCoordinate(int,int,int*,int,double*);
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -26,6 +31,7 @@ int InitializeSolvers(void *s, void *m)
   solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
   solver->HyperbolicFunction      = HyperbolicFunction;
   solver->SourceFunction          = SourceFunction;
+  solver->GetCoordinate           = GetCoordinate;
 
   /* choose the type of parabolic discretization */
   if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) {
@@ -82,10 +88,18 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Solution output function */
+  solver->WriteOutput = WriteText;
+  if (!strcmp(solver->op_overwrite,"no")) strcpy(solver->op_filename,"op_00000");
+  else                                    strcpy(solver->op_filename,"op");
   if (!strcmp(solver->op_file_format,"text")) {
     solver->WriteOutput = WriteText;
-    if (!strcmp(solver->op_overwrite,"no")) strcpy(solver->op_filename,"op_00000.dat");
-    else                                    strcpy(solver->op_filename,"op.dat");
+    strcat(solver->op_filename,".dat");
+  } else if (!strcmp(solver->op_file_format,"tecplot2d")) {
+    solver->WriteOutput = WriteTecplot2D;
+    strcat(solver->op_filename,".dat");
+  } else if (!strcmp(solver->op_file_format,"tecplot3d")) {
+    solver->WriteOutput = WriteTecplot3D;
+    strcat(solver->op_filename,".dat");
   } else if (!strcmp(solver->op_file_format,"none")) {
     solver->WriteOutput = NULL;
   } else {

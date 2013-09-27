@@ -19,8 +19,8 @@ int TimePreStep(void *ts)
   /* compute max CFL and diffusion number over the domain */
   double local_max_cfl  = -1.0;
   double local_max_diff = -1.0;
-  if (solver->ComputeCFL       ) local_max_cfl  = solver->ComputeCFL        (solver,mpi,TS->dt);
-  if (solver->ComputeDiffNumber) local_max_diff = solver->ComputeDiffNumber (solver,mpi,TS->dt);
+  if (solver->ComputeCFL       ) local_max_cfl  = solver->ComputeCFL        (solver,mpi,TS->dt,TS->waqt);
+  if (solver->ComputeDiffNumber) local_max_diff = solver->ComputeDiffNumber (solver,mpi,TS->dt,TS->waqt);
   ierr = MPIMax_double(&TS->max_cfl ,&local_max_cfl ,1); CHECKERR(ierr);
   ierr = MPIMax_double(&TS->max_diff,&local_max_diff,1); CHECKERR(ierr);
 

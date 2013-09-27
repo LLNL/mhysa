@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 #include <hypar.h>
 
 int FPDoubleWellAdvection(double *f,double *u,int dir,void *s,double t)
@@ -28,7 +28,7 @@ int FPDoubleWellAdvection(double *f,double *u,int dir,void *s,double t)
   int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
   while (!done) {
     int p = ArrayIndex1D(ndims,dim,index,offset,ghosts);
-    double x = solver->x[index[dir]];
+    double x = solver->GetCoordinate(0,index[0]-ghosts,dim,ghosts,solver->x);
     for (v = 0; v < nvars; v++) f[nvars*p+v] = drift(x) * u[nvars*p+v];
     done = ArrayIncrementIndex(ndims,bounds,index);
   }

@@ -70,7 +70,7 @@ int CalculateError(void *s,void *m)
 
   /* allocate local exact solution array */
   int size = 1;
-  for (d=0; d<solver->nvars; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
+  for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
   double *uex = (double*) calloc (size*solver->nvars,sizeof(double));
   
   /* partition global exact solution array to all processes */
@@ -105,6 +105,7 @@ int CalculateError(void *s,void *m)
   global_sum = 0; MPIMax_double(&global_sum,&sum,1);
   solver->error[2] = global_sum;
 
+  free(uex);
   return(0);
 }
 

@@ -3,7 +3,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,void *m)
+int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,void *m,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -29,7 +29,7 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
   ierr = solver->InterpolateInterfacesHyp(fluxR,fluxC,-1,dir,solver,mpi); CHECKERR(ierr);
 
   /* Upwind -> to calculate the final interface flux */
-  ierr = solver->Upwind(fluxI,fluxL,fluxR,u,dir,solver); CHECKERR(ierr); 
+  ierr = solver->Upwind(fluxI,fluxL,fluxR,u,dir,solver,t); CHECKERR(ierr); 
 
   free(fluxL);
   free(fluxR);

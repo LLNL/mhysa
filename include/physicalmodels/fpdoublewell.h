@@ -1,3 +1,20 @@
+/*
+  Fokker-Planck Model for Double Well
+
+Reference: 
++ Miller, R.N., Carter E.F., Blue S.T., "Data assimilation into
+  nonlinear stochastic models", Tellus (1999), 51 A, 167-194
+
+  dP     d[f(x)P]     1   d^2 P
+  --  =  --------  +  - q -----
+  dt        dx        2   dx^2
+
+  f(x) = 4x(x^2-1) (drift)
+  q = constant (input)
+
+
+*/
+
 #define _FP_DOUBLE_WELL_  "fp-double-well"
 
 /* define ndims and nvars for this model */

@@ -91,8 +91,9 @@ AC_CONFIG_FILES([
  src/MPIFunctions/Makefile
  src/PETScFunctions/Makefile
  src/PhysicalModels/Makefile
-  src/PhysicalModels/LinearADR/Makefile
-  src/PhysicalModels/FPDoubleWell/Makefile
+   src/PhysicalModels/LinearADR/Makefile
+   src/PhysicalModels/FPDoubleWell/Makefile
+   src/PhysicalModels/FPPowerSystem/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
 ])

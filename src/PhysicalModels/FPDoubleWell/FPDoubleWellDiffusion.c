@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/fpdoublewell.h>
 #include <hypar.h>
 
 int FPDoubleWellDiffusion(double *f,double *u,int dir,void *s,double t)

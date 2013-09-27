@@ -4,15 +4,206 @@ A finite-difference algorithm to solve hyperbolic-parabolic equations
 of the following form:
 
     du        d [f_i(u)]         d^2 [g_i(u)]
-   ----   +  ------------   =  ----------------  ;   0 < i <= ndims
-    dt           dx_i             d (x_i)^2          (implied summation)
+   ----   +  ------------   =  ---------------- + S(u)  ;   0 < i <= ndims
+    dt           dx_i             d (x_i)^2                 (implied summation)
 
 where
   u     -> state vector of size nvar
   f     -> hyperbolic flux function
   g     -> parabolic  function
+  S     -> source term
   ndims -> number of space dimensions
   (^ denotes superscript and _ denotes subscript)
 
 The domain, x1_i < x_i < x2_i (where x1_i and x2_i are the upper and 
 lower bounds of x_i) is discretized with a Cartesian grid.
+
+- Spatial Discretization of Hyperbolic Terms - Conservative:
+  + First order upwind
+  + Third order MUSCL with Koren's limiter (coming soon)
+  + Fifth order WENO 
+  + Fifth order CRWENO (coming soon)
+- Spatial Discretization of Parabolic Terms - Conservative and Non-Conservative
+  + Second order central
+  + Fourth order central (coming soon)
+  + Fourth order compact (coming soon)
+  + Sixth order compact (coming soon)
+  + Sixth order WENO (coming soon)
+- Time integration
+  + Forward Euler
+  + Multi-stage explicit Runge Kutta scheme
+    - First, second, third, fourth order schemes
+    - SSP RK3
+- Physics models
+  + Linear advection-diffusion-reaction
+  + Fokker-Planck double well
+  + Fokker-Planck model for Power Systems
+  + Euler equations (1D, 2D, 3D) (Coming soon)
+  + Porous Medium Equations (Coming soon)
+- Output options
+  + Plain text
+  + Tecplot (2D and 3D problems only)
+- Serial as well as parallel (MPI)
+
+The solver provides a standardized template for discretization schemes and 
+physical models. New physical models can be easily incorporated by defining 
+the following functions for them:-
+- Hyperbolic function  
+- Parabolic function   
+- Source function      
+- Upwinding function if hyperbolic function present
+- CFL and Diffusion number computation functions
+Existing physical models provide a template.
+Similarly, new discretization schemes can be added easily by following the 
+existing template. The only restriction is that any new discretization scheme
+for the hyperbolic terms needs to be conservative (i.e., only the function to
+interpolate interface fluxes needs to be specified).
+
+-------------------------------------------------------------------------------------
+
+COMPILING:-
+
+If obtained by cloning the GIT/SVN repository, run these commands:-
+> autoreconf -i
+
+This will generate the required files for:
+> [CFLAGS="..."] ./configure [--with-mpidir=/path/to/mpi] [--prefix=/install/dir]
+> make
+> make install
+
+If unpacked from tarball, then proceed with ./configure, make and
+make install.
+
+** A serial version can be compiled using the "-Dserial" compile flag.
+** If MPI is unavailable or the configure script is unable to detect MPI, then a 
+   serial version of the code will get compiled.
+
+-------------------------------------------------------------------------------------
+
+RUNNING:-
+
+> [/path/to/mpi/bin/]mpiexec -n $NPROC /path/to/HyPar_binary
+
+Note: $NPROC needs to be equal to the product of the "iproc" entries in the input
+      file "solver.inp".
+
+See section "INPUT FILES" for a list of required input files and their explanations.
+
+-------------------------------------------------------------------------------------
+
+EXAMPLES:-
+
+The folder $(top_srcdir)/Examples contains several examples with all the input files
+required to run a case.
+
+-------------------------------------------------------------------------------------
+
+INPUT FILES:-
+
+In general, the following input files are needed by the solver (See also sample input
+files in the Examples for a better idea):
+
+- solver.inp - Solver inputs
+
+  Format:
+    begin
+      <keyword>   <value> [<value> ... <value>]
+      <keyword>   <value> [<value> ... <value>]
+      ...
+      <keyword>   <value> [<value> ... <value>]
+    end
+
+  Keywords:
+    ndims               -> number of dimensions
+    nvars               -> number of variables per grid point
+    size                -> number of grid points in each dimension
+    iproc               -> number of processes in each dimension (for MPI runs)
+    ghost               -> number of ghost points to use
+    n_iter              -> number of time iterations
+    time_scheme         -> time-integration scheme ("euler", "rk")
+                           (see include/timeintegration.h for a complete list)
+    time_scheme_type    -> specific time-integration scheme in case of "rk" 
+                           ("1fe","22","33","44","ssprk3")
+                           (see include/timeintegration.h for a complete list)
+    hyp_space_scheme    -> spatial discretization scheme for hyperbolic terms
+                           (see include/interpolation.h for a complete list)
+    par_space_type      -> type of discretization for parabolic terms
+                           ("conservative-1stage", "nonconservative-1stage")
+                           (see include/hypar.h for a complete list)
+    par_space_scheme    -> spatial discretization scheme for parabolic terms
+                           (see include/interpolation.h for a complete list 
+                            for conservative discretization)
+                           (see include/secondderivative.h for a complete list 
+                            for non-conservative discretization)
+    dt                  -> time step size
+    screen_op_iter      -> frequency of screen output
+    file_op_iter        -> frequency of file output
+    write_residual      -> write residual information to file ? (1/0)
+    op_file_format      -> format of output file
+                           ("text", "tecplot2d", "tecplot3d")
+    op_overwrite        -> Overwrite output file ? ("yes"/"no")
+    model               -> Physical model to use
+                           ("linear-advection-diffusion-reaction", 
+                            "fp-double-well",etc)
+                           (see Examples to see currently supported 
+                            physical models)
+    
+
+- boundary.inp - Boundary inputs
+
+  Format
+    <nb>
+    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
+    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
+    ...
+    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
+
+  Explanation:
+    nb  -> number of boundary conditions
+    Followed by nb lines, 1 for each boundary condition, of the format as 
+    shown above
+
+    bctype      -> type of boundary condition 
+                   ("periodic", "extrapolate", "dirichlet", etc)
+                   (see include/boundaryconditions.h for a complete list)
+    dim         -> dimension along which to apply this boundary conditions 
+                   (0 <= dim < ndims)
+    var         -> variable on which to apply this boundary conditions 
+                   (0 <= var < nvars)
+    face        -> face on which to apply this boundary condition 
+                   (1 -> left/xmin; -1 -> right/xmax)
+
+    xNmin, xNmax -> extent of this boundary condition along dimension N
+                    note: the values for N=dim are ignored.
+                    This needs to be specified for all the dimensions 
+                    0 <= N < ndims
+
+- initial.inp
+  
+  The initial solution - The cases in Examples contain codes "init.C" to 
+                         generate this input file in the correct format. 
+                         They can be modified to generate different initial 
+                         conditions (or use different codes as long as it 
+                         outputs the initial conditions in the same format 
+                         as "init.C")
+
+- exact.inp (**Optional**)
+
+  The exact solution, if available - used to calculate the numerical errors. 
+  The format of this file is same  as that of "initial.inp"
+
+- physics.inp
+  
+  Format
+    <begin>
+      <keyword>     <value>
+      <keyword>     <value>
+      ...
+      <keyword>     <value>
+    <end>
+
+  Physics-specific parameters (eg. advection speed, diffusion coefficient, 
+  etc). Keywords are specific to the physical model, so consult an example 
+  of a specific physical model to see the required parameters for that model.
+
+-------------------------------------------------------------------------------------

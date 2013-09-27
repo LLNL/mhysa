@@ -6,8 +6,9 @@
 #include <hypar.h>
 
 /* include header files for each physical model */
-#include <linearadr.h>
-#include <fpdoublewell.h>
+#include <physicalmodels/linearadr.h>
+#include <physicalmodels/fpdoublewell.h>
+#include <physicalmodels/fppowersystem.h>
 
 int InitializePhysics(void *s,void *m)
 {
@@ -39,6 +40,11 @@ int InitializePhysics(void *s,void *m)
 
     solver->physics = (FPDoubleWell*) calloc (1,sizeof(FPDoubleWell));
     ierr = FPDoubleWellInitialize(solver,mpi); CHECKERR(ierr);
+
+  } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_)) {
+
+    solver->physics = (FPPowerSystem*) calloc (1,sizeof(FPPowerSystem));
+    ierr = FPPowerSystemInitialize(solver,mpi); CHECKERR(ierr);
 
   } else {
 

@@ -4,6 +4,7 @@ libHyParFunctions_a_SOURCES = \
   CalculateError.c \
   Cleanup.c \
   HyperbolicFunction.c \
+  GetCoordinate.c \
   Initialize.c \
   InitialSolution.c \
   InitializeBoundaries.c \
@@ -17,4 +18,6 @@ libHyParFunctions_a_SOURCES = \
   Solve.c \
   SolvePETSc.c \
   SourceFunction.c \
+  WriteTecplot2D.c \
+  WriteTecplot3D.c \
   WriteText.c

@@ -52,9 +52,9 @@ int main(){
 
   FILE *out;
 	out = fopen("initial.inp","w");
-  for (i = 0; i < NI; i++)  fprintf(out,"%lf ",x[i]);
+  for (i = 0; i < NI; i++)  fprintf(out,"%1.16e ",x[i]);
   fprintf(out,"\n");
-	for (i = 0; i < NI; i++)	fprintf(out,"%lf ",u[i]);						
+	for (i = 0; i < NI; i++)	fprintf(out,"%1.16e ",u[i]);						
   fprintf(out,"\n");
 	fclose(out);
 

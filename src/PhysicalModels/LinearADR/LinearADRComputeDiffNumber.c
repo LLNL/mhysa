@@ -1,8 +1,8 @@
-#include <linearadr.h>
+#include <physicalmodels/linearadr.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-double LinearADRComputeDiffNumber(void *s,void *m,double dt)
+double LinearADRComputeDiffNumber(void *s,void *m,double dt,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   LinearADR     *params = (LinearADR*)    solver->physics;

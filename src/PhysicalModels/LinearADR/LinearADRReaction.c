@@ -1,4 +1,4 @@
-#include <linearadr.h>
+#include <physicalmodels/linearadr.h>
 #include <mpivars.h>
 #include <hypar.h>
 

@@ -15,8 +15,7 @@ int WriteText(int ndims,int nvars,int *dim,double *x,double *u,char *f,int *inde
     return(1);
   }
 
-  int done = 0;
-  ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+  int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
   while (!done) {
     int i;
     int p = ArrayIndex1D(ndims,dim,index,NULL,0);
