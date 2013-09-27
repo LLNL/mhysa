@@ -35,8 +35,6 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
       int v; for (v=0; v<nvars; v++) xbuf[nvars*p1+v] = x[nvars*p2+v];
       done = ArrayIncrementIndex(ndims,bounds,index);
     }
-    return(0);
-
   } else {
 #ifdef serial
     fprintf(stderr,"Error in MPIGetArrayDatanD(): This is a serial run. Source and ");

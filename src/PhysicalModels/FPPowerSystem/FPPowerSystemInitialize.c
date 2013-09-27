@@ -89,8 +89,8 @@ int FPPowerSystemInitialize(void *s,void *m)
   solver->PrintStep          = FPPowerSystemPrintStep;
 
   /* Calculate and print the PDF integral of the initial solution */
-  ierr = FPPowerSystemPostStep(solver->u,solver,mpi,0.0);  CHECKERR(ierr);
-  ierr = FPPowerSystemPrintStep(solver,mpi,0.0);           CHECKERR(ierr);
+  ierr = FPPowerSystemPostStep(solver->u,solver,mpi,0.0);        CHECKERR(ierr);
+  if (!mpi->rank) ierr = FPPowerSystemPrintStep(solver,mpi,0.0); CHECKERR(ierr);
   
   return(0);
 }
