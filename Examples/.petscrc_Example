@@ -1,0 +1,74 @@
+# This is an example of a .petscrc file needed to provide
+# the inputs to PETSc time integration
+# Before starting, it will be useful to briefly go through 
+# the documentation, user manuals and examples for PETSc's 
+# time-integration (TS) module:
+# http://www.mcs.anl.gov/petsc/petsc-current/docs/manual.pdf (Chapter 6)
+# http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html
+
+# Some basic useful input flags are listed here that are needed
+# to run a case. See PETSc documentation for more input options
+# and flags (or run with "-use-petscts -help" at the command 
+# prompt)
+
+# Copy this file to the run directory, rename to ".petscrc" and 
+# edit the flags as desired
+
+# Use PETSc time-integration ?
+-use-petscts
+
+# Time integration scheme type
+# Can be euler,rk,arkimex
+-ts_type arkimex
+
+# Specific time integration scheme
+# For arkimex, options are 1bee,2a,2e,3,4,5
+# For rk, options are 1fe,2a,3,3bs,4,5f,5dp
+# These refer to different schemes of different order
+# and number of stages.
+# See documentation for complete list and explanation
+-ts_arkimex_type 4 # 4th order, 5 stage ARKIMEX scheme 
+
+# Time-step adaptivity? (none,basic,advanced)
+-ts_adapt_type none
+
+# Print time step information to screen
+-ts_monitor
+
+# If time-integration is implicit-explicit, specify
+# which terms are implicit and which are explicit
+-hyperbolic_explicit  # treat hyperbolic term explicitly
+-parabolic_implicit   # treat parabolic  term implicitly
+-source_implicit      # treat source     term implicitly
+# This is the default, and can be changed depending on the 
+# problem.
+
+# If time-integration is implicit or implicit-explicit,
+# specify non-linear equation solver (SNES) options
+# SNES type
+-snes_type newtonls
+# **OR**
+# for implicit term being linear, tell SNES to only use
+# the linear solver (KSP)
+-snes_type ksponly
+# Set relative tolerance
+-snes_rtol 1e-10
+# Set absolute tolerance
+-snes_atol 1e-10
+# Print SNES iteration information to screen
+-snes_monitor
+
+# For Newton-type non-linear equation solver, specify
+# linear solver (KSP) options
+# KSP type
+-ksp_type gmres
+# Set relative tolerance
+-ksp_rtol 1e-10
+# Set absolute tolerance
+-ksp_atol 1e-10
+# Print KSP iteration information to screen
+-ksp_monitor
+
+# Other options
+-log_summary    # Provide a summary at the end of execution
+-help           # Help!

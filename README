@@ -1,4 +1,5 @@
 HyPar - Hyperbolic-Parabolic Partial Differential Equations Solver
+        (with PETSc time-integration)
 
 A finite-difference algorithm to solve hyperbolic-parabolic equations 
 of the following form:
@@ -30,10 +31,11 @@ lower bounds of x_i) is discretized with a Cartesian grid.
   + Sixth order compact (coming soon)
   + Sixth order WENO (coming soon)
 - Time integration
-  + Forward Euler
-  + Multi-stage explicit Runge Kutta scheme
-    - First, second, third, fourth order schemes
-    - SSP RK3
+  + With PETSc (http://www.mcs.anl.gov/petsc/)
+  + Without PETSc
+    - Forward Euler
+    - Multi-stage explicit Runge Kutta scheme
+      (First, second, third, fourth order schemes)
 - Physics models
   + Linear advection-diffusion-reaction
   + Fokker-Planck double well
@@ -59,6 +61,25 @@ existing template. The only restriction is that any new discretization scheme
 for the hyperbolic terms needs to be conservative (i.e., only the function to
 interpolate interface fluxes needs to be specified).
 
+PETSc TIME INTEGRATION:-
+This code can be compiled with PETSc's time-integration library to use a large
+number of RK and ARK implicit-explicit schemes. Before starting, it will be 
+useful to briefly go through the documentation, user manuals and examples for 
+PETSc's time-integration (TS) module:
++ http://www.mcs.anl.gov/petsc/petsc-current/docs/manual.pdf (Chapter 6)
++ http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html
+
+-------------------------------------------------------------------------------------
+
+PETSc INSTALLATION:-
+
+The code uses some PETSc features that are *NOT* available yet in the official release. 
+The appropriate copy of PETSc can be obtained from the following source:
+  git@bitbucket.org:emconsta/petsc-emil.git (with SSH keys and a Bitbucket account)
+  https://dog5011@bitbucket.org/emconsta/petsc-emil.git (otherwise)
+The branch "emil/ts-main" should be compiled using the same instructions as provided
+in the official PETSc documentation. 
+
 -------------------------------------------------------------------------------------
 
 COMPILING:-
@@ -78,6 +99,16 @@ make install.
 ** If MPI is unavailable or the configure script is unable to detect MPI, then a 
    serial version of the code will get compiled.
 
+COMPILING WITH PETSc:
+- install PETSc (http://www.mcs.anl.gov/petsc/)
+- define the variables PETSC_DIR=/path/to/petsc and PETSC_ARCH (architecture/build)
+- compile with the usual steps (the configure script will automatically detect these
+  variables and decide whether to compile with PETSc interface).
+
+** It is preferable to use the same MPI compiler for building PETSc and this code.
+** If the variables PETSC_DIR and PETSC_ARCH are not defined in the environment,
+   the code will get compiled without PETSc time-integration.
+
 -------------------------------------------------------------------------------------
 
 RUNNING:-
@@ -89,16 +120,54 @@ Note: $NPROC needs to be equal to the product of the "iproc" entries in the inpu
 
 See section "INPUT FILES" for a list of required input files and their explanations.
 
+RUNNING WITH PETSc TIME INTEGRATION:-
+- To run with PETSc time-integration, use the flag "-use-petscts"
+  Example: [$MPIEXEC -n $NPROC] /path/to/IBCARTINS3D -use-petscts
+- In addition to the regular inputs, PETSc inputs can be provided through
+  command line arguments or in a file ".petscrc". See PETSc documentation
+  or use the "-help" argument to get a list of available arguments.
+  > [$MPIEXEC -n $NPROC] /path/to/IBCARTINS3D -use-petscts -help
+
+Time integration inputs:-
+- When running with PETSc, the inputs "time_scheme" and "time_scheme_type" in 
+  solver.inp (see section INPUT FILES below) are redundant. Use -ts_type to specify 
+  PETSc time integration scheme.
+- "dt", "n_iter" (time step size and number of time steps) may be specified
+  in solver.inp but may also be specified through PETSc command line inputs
+  -ts_dt, -ts_max_steps. The final time may also be specified through 
+  -ts_final_time
+
+Screen output:-
+- The inputs "screen_op_iter" and "print_ls" are redundant. Instead use
+  -ts_monitor, -snes_monitor, -ksp_monitor, etc to print what you need.
+  See PETSc documentation for more details.
+
+Currently, the solver uses explicit and implicit-explicit (IMEX) time-integration
+schemes in PETSc. In the latter case, the user can specify for each term (hyperbolic,
+parabolic, and source) whether it should be treated implicitly or explicitly through
+the flags:
+-{term}_{type}
+where {term} can be hyperbolic, parabolic or source
+and   {type} can be implicit or explicit
+
+**Alternatively, these flags may be placed in a file ".petscrc" (See section INPUT
+FILES below).
+
 -------------------------------------------------------------------------------------
 
 EXAMPLES:-
 
 The folder $(top_srcdir)/Examples contains several examples with all the input files
-required to run a case.
+required to run a case. In addition, to run with PETSc time-integration, see the 
+sections RUNNING WITH PETSc and INPUT FILES on what additional inputs are required.
 
 -------------------------------------------------------------------------------------
 
 INPUT FILES:-
+
+** In addition to the regular inputs described below, all the flags for PETSc time-integra-
+tion can be placed in a file ".petscrc". The flag "-use-petscts" *must* be present to use
+PETSc time-integration. The folder Examples contains a sample ".petscrc".
 
 In general, the following input files are needed by the solver (See also sample input
 files in the Examples for a better idea):
