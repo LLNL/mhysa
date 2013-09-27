@@ -144,6 +144,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   free(recvbuf);
 
   /* free other allocated variables */
+  free(bufdim);
   free(bounds);
   free(offset);
   free(index);

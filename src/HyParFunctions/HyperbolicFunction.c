@@ -68,6 +68,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
     offset += dim[d] + 2*ghosts;
   }
 
+  free(dim_interface);
   free(index );
   free(index1);
   free(index2);

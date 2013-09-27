@@ -17,20 +17,22 @@ int CalculateError(void *s,void *m)
   double *ug,*xg; 
   if (!mpi->rank) {
     int size,offset;
-    /* allocate global solution array */
-    size = solver->npoints_global*solver->nvars;
-    ug = (double*) calloc(size,sizeof(double));
-    size = 0;
-    for (d=0; d<solver->ndims; d++) size += solver->dim_global[d];
-    xg      = (double*) calloc(size,sizeof(double));
 
     /* Reading grid and exact solution */
     FILE *in; in = fopen("exact.inp","r");
     if (!in) {
       solver->error[0] = solver->error[1] = solver->error[2] = 0;
       exact_flag = 0;
+      ug = xg = NULL;
     } else {
       exact_flag = 1;
+      /* allocate global solution array */
+      size = solver->npoints_global*solver->nvars;
+      ug = (double*) calloc(size,sizeof(double));
+      size = 0;
+      for (d=0; d<solver->ndims; d++) size += solver->dim_global[d];
+      xg      = (double*) calloc(size,sizeof(double));
+
       printf("Reading grid and exact solution from file \"exact.inp\".\n");
       /* read grid, though not necessary (so that file format is consistent) */
       offset = 0;
@@ -58,10 +60,7 @@ int CalculateError(void *s,void *m)
                                  filename,solver->index); CHECKERR(ierr);
     }
 
-  } else {
-    ug      = NULL;
-    xg      = NULL;
-  }
+  } else ug = xg = NULL;
 
   /* Broadcast exact_flag to all processes */
   ierr = MPIBroadcast_integer(&exact_flag,1,0);
@@ -79,10 +78,8 @@ int CalculateError(void *s,void *m)
                              solver->ghosts,solver->nvars); CHECKERR(ierr);
 
   /* free up global exact solution arrays */
-  if (!mpi->rank) {
-    free(ug);
-    free(xg);
-  }
+  if (ug)  free(ug);
+  if (xg)  free(xg);
 
   /* compute error = difference between exact and numerical solution */
   ierr = ArrayAXPY(solver->u,-1.0,uex,size*solver->nvars); CHECKERR(ierr);
