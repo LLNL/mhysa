@@ -43,6 +43,7 @@ lower bounds of x_i) is discretized with a Cartesian grid.
 - Output options
   + Plain text
   + Tecplot (2D and 3D problems only)
+- Serial as well as parallel (MPI)
 
 The solver provides a standardized template for discretization schemes and 
 physical models. New physical models can be easily incorporated by defining 
@@ -73,6 +74,7 @@ This will generate the required files for:
 If unpacked from tarball, then proceed with ./configure, make and
 make install.
 
+** A serial version can be compiled using the "-Dserial" compile flag.
 ** If MPI is unavailable or the configure script is unable to detect MPI, then a 
    serial version of the code will get compiled.
 
