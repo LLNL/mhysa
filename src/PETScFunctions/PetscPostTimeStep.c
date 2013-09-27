@@ -36,8 +36,8 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   /* Calculate CFL and diffusion number */
   double local_max_cfl  = -1.0, max_cfl  = -1.0;
   double local_max_diff = -1.0, max_diff = -1.0;
-  if (solver->ComputeCFL       ) local_max_cfl  = solver->ComputeCFL        (solver,mpi,dt);
-  if (solver->ComputeDiffNumber) local_max_diff = solver->ComputeDiffNumber (solver,mpi,dt);
+  if (solver->ComputeCFL       ) local_max_cfl  = solver->ComputeCFL        (solver,mpi,dt,waqt);
+  if (solver->ComputeDiffNumber) local_max_diff = solver->ComputeDiffNumber (solver,mpi,dt,waqt);
   ierr = MPIMax_double(&max_cfl ,&local_max_cfl ,1); CHECKERR(ierr);
   ierr = MPIMax_double(&max_diff,&local_max_diff,1); CHECKERR(ierr);
 
@@ -50,6 +50,10 @@ PetscErrorCode PetscPostTimeStep(TS ts)
     /* print physics-specific info, if available */
     if (solver->PrintStep) solver->PrintStep(solver,mpi,waqt);
   }
+
+  /* Write intermediate solution to file */
+  if ((iter+1)%solver->file_op_iter == 0) 
+    ierr = OutputSolution(solver,mpi); CHECKERR(ierr);
 
   return(0);
 }
