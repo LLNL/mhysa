@@ -8,9 +8,9 @@ Reference:
   Stochastic ODEs of Power Systems with Uncertain 
   Power Input", Preprint
 
-  dp           dp           dp        d^2 p
-  -- + mu(x,y) -- + nu(x,y) -- = f(t) -----
-  dt           dx           dy        dy^2
+  dp    d[mu(x,y)p]    d[nu(x,y)p]        d^2 p
+  -- +  ----------- +  ----------- = f(t) -----
+  dt        dx             dy             dy^2
 
   mu(x,y) = O_s(y-1)
   nu(x,y) = (1/2H)[Pm - Pmax sin(x) - D(y-1)]
@@ -52,6 +52,7 @@ Reference:
 typedef struct fp_power_system_parameters {
 
   /* input parameters */
+  double O_s;
   double H;
   double E;
   double V;
@@ -63,7 +64,6 @@ typedef struct fp_power_system_parameters {
   double tf, tcl;
 
   /* computed/constant parameters */
-  double O_s;
   double Pmax;
 
   double pdf_integral; /* not an input          */

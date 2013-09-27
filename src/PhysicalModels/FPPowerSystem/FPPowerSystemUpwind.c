@@ -43,7 +43,7 @@ int FPPowerSystemUpwind(double *fI,double *fL,double *fR,double *u,int dir,void 
       }
       double drift = FPPowerSystemDriftFunction(dir,params,x,y,t);
       for (v = 0; v < nvars; v++)  
-        fI[nvars*p+v] = (drift > 0 ? fL[nvars*p+v] : fR[nvars*p+v] );
+        fI[nvars*p+v] = drift * (drift > 0 ? fL[nvars*p+v] : fR[nvars*p+v] );
     }
     done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
   }
