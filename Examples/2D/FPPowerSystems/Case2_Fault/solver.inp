@@ -1,0 +1,19 @@
+begin
+  ndims             2
+  nvars             1
+  size              200 201
+  iproc             2 2
+  ghost             3
+  n_iter            16000
+  time_scheme       rk
+  time_scheme_type  ssprk3
+  hyp_space_scheme  weno5
+  par_space_type    nonconservative-1stage
+  par_space_scheme  2
+  dt                0.0001
+  screen_op_iter    10
+  file_op_iter      50
+  op_file_format    tecplot2d
+  op_overwrite      no
+  model             fp-power-system
+end
