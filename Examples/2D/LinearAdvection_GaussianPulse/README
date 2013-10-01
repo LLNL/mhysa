@@ -37,3 +37,4 @@ periodic domain.
 
 For Tecplot users, the file solution.lay is a layout to visualize
 the solution (op_file_format should be "tecplot2d" in solver.inp)
+(Use Animate->Zones to see the evolution of the solution)
