@@ -75,9 +75,9 @@ PETSc INSTALLATION:-
 
 The code uses some PETSc features that are *NOT* available yet in the official release. 
 The appropriate copy of PETSc can be obtained from the following source:
-  git@bitbucket.org:emconsta/petsc-emil.git (with SSH keys and a Bitbucket account)
-  https://dog5011@bitbucket.org/emconsta/petsc-emil.git (otherwise)
-The branch "emil/ts-main" should be compiled using the same instructions as provided
+  git@bitbucket.org:dog5011/petsc-debo.git (with SSH keys and a Bitbucket account)
+  https://dog5011@bitbucket.org/dog5011/petsc-debo.git (otherwise)
+The branch "debo/main" should be compiled using the same instructions as provided
 in the official PETSc documentation. 
 
 -------------------------------------------------------------------------------------
