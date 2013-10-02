@@ -29,7 +29,7 @@ int FPPowerSystemUpwind(double *fI,double *fL,double *fR,double *u,int dir,void 
     ierr = ArrayCopy1D_int(index_outer,index_inter,ndims);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p = ArrayIndex1D(ndims,bounds_inter,index_inter,NULL,0);
-      double x,y; /* x,y coordinates of the interface */
+      double x = 0,y = 0; /* x,y coordinates of the interface */
       if (dir == 0) {
         /* x-interface */
         x = 0.5 * ( solver->GetCoordinate(0,index_inter[0]-1,dim,ghosts,solver->x) 
