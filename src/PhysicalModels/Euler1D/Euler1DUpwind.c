@@ -6,8 +6,11 @@
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-inline int Euler1DGetFlowVar (double*,double*,double*,double*,double*,void*);
-inline int Euler1DRoeAverage (double*,double*,double*,void*);
+inline int Euler1DGetFlowVar        (double*,double*,double*,double*,double*,void*);
+inline int Euler1DRoeAverage        (double*,double*,double*,void*);
+inline int Euler1DEigenvalues       (double*,double**,void*);
+inline int Euler1DLeftEigenvectors  (double*,double**,void*);
+inline int Euler1DRightEigenvectors (double*,double**,void*);
 
 int Euler1DUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {
@@ -46,7 +49,6 @@ int Euler1DUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,double 
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p = ArrayIndex1D(ndims,bounds_inter,index_inter,NULL,0);
       double udiff[3], uavg[3],udiss[3];
-      double rho,v,e,P,c,H,gamma = param->gamma;
 
       /* Roe's upwinding scheme */
 
@@ -55,28 +57,12 @@ int Euler1DUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,double 
       udiff[2] = 0.5 * (uR[nvars*p+2] - uL[nvars*p+2]);
 
       ierr = Euler1DRoeAverage(&uavg[0],&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
-      ierr = Euler1DGetFlowVar(&uavg[0],&rho,&v,&e,&P,param);              CHECKERR(ierr);
-      c = sqrt(gamma*P/rho);
-      H = (e+P)/rho;
 
-      D[0][0] = absolute(v-c);  D[0][1] = 0;              D[0][2] = 0;
-      D[1][0] = 0;              D[1][1] = absolute(v);    D[1][2] = 0;
-      D[2][0] = 0;              D[2][1] = 0;              D[2][2] = absolute(v+c);
-      
-      R[0][0] = - rho/(2*c);  R[1][0] = -rho*(v-c)/(2*c); R[2][0] = -rho*((v*v)/2+(c*c)/(gamma-1)-c*v)/(2*c);
-      R[0][1] = 1;            R[1][1] = v;                R[2][1] = v*v / 2;
-      R[0][2] = rho/(2*c);    R[1][2] = rho*(v+c)/(2*c);  R[2][2] = rho*((v*v)/2+(c*c)/(gamma-1)+c*v)/(2*c);
-      
-      L[0][0] = ((gamma - 1)/(rho*c)) * (-(v*v)/2 - c*v/(gamma-1));
-      L[0][1] = ((gamma - 1)/(rho*c)) * (v + c/(gamma-1));
-      L[0][2] = ((gamma - 1)/(rho*c)) * (-1);
-      L[1][0] = ((gamma - 1)/(rho*c)) * (rho*(-(v*v)/2+c*c/(gamma-1))/c);
-      L[1][1] = ((gamma - 1)/(rho*c)) * (rho*v/c);
-      L[1][2] = ((gamma - 1)/(rho*c)) * (-rho/c);
-      L[2][0] = ((gamma - 1)/(rho*c)) * ((v*v)/2 - c*v/(gamma-1));
-      L[2][1] = ((gamma - 1)/(rho*c)) * (-v + c/(gamma-1));
-      L[2][2] = ((gamma - 1)/(rho*c)) * (1);
+      ierr = Euler1DEigenvalues       (&uavg[0],D,param); CHECKERR(ierr);
+      ierr = Euler1DLeftEigenvectors  (&uavg[0],L,param); CHECKERR(ierr);
+      ierr = Euler1DRightEigenvectors (&uavg[0],R,param); CHECKERR(ierr);
 
+      for (k=0; k<nvars; k++) D[k][k] = absolute(D[k][k]);
       ierr = MatMult(3,DL,D,L);    CHECKERR(ierr);
       ierr = MatMult(3,modA,R,DL); CHECKERR(ierr);
 
