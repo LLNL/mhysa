@@ -24,11 +24,11 @@ int FPPowerSystemInitialize(void *s,void *m)
   int             ierr     = 0;
 
   if (solver->nvars != _MODEL_NVARS_) {
-    fprintf(stderr,"Error in FPPowerSystemInitializeO(): nvars has to be %d.\n",_MODEL_NVARS_);
+    fprintf(stderr,"Error in FPPowerSystemInitialize(): nvars has to be %d.\n",_MODEL_NVARS_);
     return(1);
   }
   if (solver->ndims != _MODEL_NDIMS_) {
-    fprintf(stderr,"Error in FPPowerSystemInitializeO(): ndims has to be %d.\n",_MODEL_NDIMS_);
+    fprintf(stderr,"Error in FPPowerSystemInitialize(): ndims has to be %d.\n",_MODEL_NDIMS_);
     return(1);
   }
 
