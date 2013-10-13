@@ -6,7 +6,8 @@
 
 inline double FPPowerSystemDriftFunction(int,void*,double,double,double);
 
-int FPPowerSystemUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
+int FPPowerSystemUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
+                        double *u,int dir,void *s,double t)
 {
   HyPar         *solver = (HyPar*) s;
   FPPowerSystem *params = (FPPowerSystem*)solver->physics;

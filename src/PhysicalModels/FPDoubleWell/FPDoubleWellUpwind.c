@@ -4,7 +4,8 @@
 #include <physicalmodels/fpdoublewell.h>
 #include <hypar.h>
 
-int FPDoubleWellUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
+int FPDoubleWellUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
+                       double *u,int dir,void *s,double t)
 {
   HyPar        *solver = (HyPar*) s;
   int          ierr    = 0,done,v;

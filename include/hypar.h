@@ -63,7 +63,8 @@ typedef struct main_parameters {
   int    (*FFunction)          (double*,double*,int,void*,double);
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*SFunction)          ();
-  int    (*Upwind)             (double*,double*,double*,double*,int,void*,double);
+  int    (*Upwind)             (double*,double*,double*,double*,double*,double*,
+                                int,void*,double);
   /* physics-specific pre/post-time-step/stage functions */
   int    (*PreStage)           (int,double**,void*,void*,double);
   int    (*PostStage)          (int,double**,void*,void*,double);

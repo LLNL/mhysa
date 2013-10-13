@@ -4,7 +4,8 @@
 #include <physicalmodels/linearadr.h>
 #include <hypar.h>
 
-int LinearADRUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
+int LinearADRUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
+                    double *u,int dir,void *s,double t)
 {
   HyPar     *solver = (HyPar*)      s;
   LinearADR *param  = (LinearADR*)  solver->physics;

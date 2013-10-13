@@ -12,7 +12,8 @@ double FPPowerSystemComputeCFL        (void*,void*,double,double);
 double FPPowerSystemComputeDiffNumber (void*,void*,double,double);
 int    FPPowerSystemAdvection         (double*,double*,int,void*,double);
 int    FPPowerSystemDiffusion         (double*,double*,int,void*,double);
-int    FPPowerSystemUpwind            (double*,double*,double*,double*,int,void*,double);
+int    FPPowerSystemUpwind            (double*,double*,double*,double*,
+                                       double*,double*,int,void*,double);
 int    FPPowerSystemPostStep          (double*,void*,void*,double);
 int    FPPowerSystemPrintStep         (void*,void*,double);
 
