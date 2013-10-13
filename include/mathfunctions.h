@@ -7,4 +7,6 @@ inline double absolute (double);
 inline double raiseto  (double,double);
 inline double sign     (double);
 
-void FindInterval (double,double,double*,int,int*,int*);
+void FindInterval      (double,double,double*,int,int*,int*);
+
+inline int MatMult     (int,double**,double**,double**);
