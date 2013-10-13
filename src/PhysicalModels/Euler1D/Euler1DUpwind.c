@@ -26,15 +26,17 @@ int Euler1DUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,double 
   ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
   ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
 
-  double **R, **D, **L, **modA;
+  double **R, **D, **L, **DL,**modA;
   R     = (double**) calloc (nvars,sizeof(double*));
   D     = (double**) calloc (nvars,sizeof(double*));
   L     = (double**) calloc (nvars,sizeof(double*));
+  DL    = (double**) calloc (nvars,sizeof(double*));
   modA  = (double**) calloc (nvars,sizeof(double*));
   for (k = 0; k < nvars; k++){
     R[k]    = (double*) calloc (nvars,sizeof(double));
     D[k]    = (double*) calloc (nvars,sizeof(double));
     L[k]    = (double*) calloc (nvars,sizeof(double));
+    DL[k]   = (double*) calloc (nvars,sizeof(double));
     modA[k] = (double*) calloc (nvars,sizeof(double));
   }
 
@@ -75,8 +77,8 @@ int Euler1DUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,double 
       L[2][1] = ((gamma - 1)/(rho*c)) * (-v + c/(gamma-1));
       L[2][2] = ((gamma - 1)/(rho*c)) * (1);
 
-      ierr = MatMult(3,modA,D,L);    CHECKERR(ierr);
-      ierr = MatMult(3,modA,R,modA); CHECKERR(ierr);
+      ierr = MatMult(3,DL,D,L);    CHECKERR(ierr);
+      ierr = MatMult(3,modA,R,DL); CHECKERR(ierr);
 
       udiss[0] = modA[0][0]*udiff[0] + modA[0][1]*udiff[1] + modA[0][2]*udiff[2];
       udiss[1] = modA[1][0]*udiff[0] + modA[1][1]*udiff[1] + modA[1][2]*udiff[2];
@@ -94,11 +96,13 @@ int Euler1DUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,double 
     free(R[k]);
     free(D[k]);
     free(L[k]);
+    free(DL[k]);
   }
   free(modA);
   free(R);
   free(D);
   free(L);
+  free(DL);
 
   free(index_inter);
   free(index_outer);
