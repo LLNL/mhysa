@@ -1,4 +1,5 @@
 SUBDIRS = \
   LinearADR \
   FPDoubleWell \
-  FPPowerSystem
+  FPPowerSystem \
+  Euler1D

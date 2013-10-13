@@ -9,6 +9,7 @@
 #include <physicalmodels/linearadr.h>
 #include <physicalmodels/fpdoublewell.h>
 #include <physicalmodels/fppowersystem.h>
+#include <physicalmodels/euler1d.h>
 
 int InitializePhysics(void *s,void *m)
 {
@@ -46,10 +47,14 @@ int InitializePhysics(void *s,void *m)
     solver->physics = (FPPowerSystem*) calloc (1,sizeof(FPPowerSystem));
     ierr = FPPowerSystemInitialize(solver,mpi); CHECKERR(ierr);
 
+  } else if (!strcmp(solver->model,_EULER_1D_)) {
+
+    solver->physics = (Euler1D*) calloc (1,sizeof(Euler1D));
+    ierr = Euler1DInitialize(solver,mpi); CHECKERR(ierr);
+
   } else {
 
     fprintf(stderr,"Error: %s is not a supported physical model.\n",solver->model);
-    fprintf(stderr,"See header file \"physics.h\" for a list of supported models.\n");
     return(1);
 
   }
