@@ -29,6 +29,11 @@
 #define _MODEL_NDIMS_ 1
 #define _MODEL_NVARS_ 3
 
+/* choices for upwinding schemes */
+#define _ROE_   "roe"
+#define _RF_    "rf-char"
+#define _LLF_   "llf-char"
+
 typedef struct euler1d_parameters {
   double  gamma;  /* Ratio of heat capacities */
   char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */

@@ -17,20 +17,23 @@ int InitializePhysics(void *s,void *m)
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0;
 
-  if (!mpi->rank) printf("Initializing physics.\n");
+  if (!mpi->rank) printf("Initializing physics. Model = \"%s\"\n",solver->model);
 
   /* Initialize physics-specific functions to NULL */
-  solver->ComputeCFL        = NULL;
-  solver->ComputeDiffNumber = NULL;
-  solver->FFunction         = NULL;
-  solver->GFunction         = NULL;
-  solver->SFunction         = NULL;
-  solver->Upwind            = NULL;
-  solver->PreStage          = NULL;
-  solver->PostStage         = NULL;
-  solver->PreStep           = NULL;
-  solver->PostStep          = NULL;
-  solver->PrintStep         = NULL;
+  solver->ComputeCFL            = NULL;
+  solver->ComputeDiffNumber     = NULL;
+  solver->FFunction             = NULL;
+  solver->GFunction             = NULL;
+  solver->SFunction             = NULL;
+  solver->Upwind                = NULL;
+  solver->PreStage              = NULL;
+  solver->PostStage             = NULL;
+  solver->PreStep               = NULL;
+  solver->PostStep              = NULL;
+  solver->PrintStep             = NULL;
+  solver->AveragingFunction     = NULL;
+  solver->GetLeftEigenvectors   = NULL;
+  solver->GetRightEigenvectors  = NULL;
 
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
 

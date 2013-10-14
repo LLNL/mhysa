@@ -29,10 +29,10 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
   fluxR = (double*) calloc (size*nvars,sizeof(double));
 
   /* Interpolation -> to calculate left and right-biased interface flux and state variable*/
-  ierr = solver->InterpolateInterfacesHyp(uL   ,u    , 1,dir,solver,mpi); CHECKERR(ierr);
-  ierr = solver->InterpolateInterfacesHyp(uR   ,u    ,-1,dir,solver,mpi); CHECKERR(ierr);
-  ierr = solver->InterpolateInterfacesHyp(fluxL,fluxC, 1,dir,solver,mpi); CHECKERR(ierr);
-  ierr = solver->InterpolateInterfacesHyp(fluxR,fluxC,-1,dir,solver,mpi); CHECKERR(ierr);
+  ierr = solver->InterpolateInterfacesHyp(uL   ,u    ,u, 1,dir,solver,mpi); CHECKERR(ierr);
+  ierr = solver->InterpolateInterfacesHyp(uR   ,u    ,u,-1,dir,solver,mpi); CHECKERR(ierr);
+  ierr = solver->InterpolateInterfacesHyp(fluxL,fluxC,u, 1,dir,solver,mpi); CHECKERR(ierr);
+  ierr = solver->InterpolateInterfacesHyp(fluxR,fluxC,u,-1,dir,solver,mpi); CHECKERR(ierr);
 
   /* Upwind -> to calculate the final interface flux */
   ierr = solver->Upwind(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 
