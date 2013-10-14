@@ -10,3 +10,4 @@ inline double sign     (double);
 void FindInterval      (double,double,double*,int,int*,int*);
 
 inline int MatMult     (int,double**,double**,double**);
+inline int MatVecMult  (int,double*,double**,double*);
