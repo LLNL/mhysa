@@ -12,7 +12,14 @@
     e = -------  +   - rho * u^2
         gamma-1      2
 
+  Choices for upwinding:
+  "roe"       Roe upwinding
+  "rf-char"   Roe-fixed
+  "llf-char"  Local Lax-Friedrich
+
 */
+
+#include <basic.h>
 
 #define _EULER_1D_  "euler1d"
 
@@ -24,6 +31,7 @@
 
 typedef struct euler1d_parameters {
   double  gamma;  /* Ratio of heat capacities */
+  char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */
 } Euler1D;
 
 int    Euler1DInitialize (void*,void*);

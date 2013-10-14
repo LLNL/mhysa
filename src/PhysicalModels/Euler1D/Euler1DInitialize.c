@@ -7,9 +7,11 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-double Euler1DComputeCFL        (void*,void*,double,double);
-int    Euler1DFlux              (double*,double*,int,void*,double);
-int    Euler1DUpwind            (double*,double*,double*,double*,double*,double*,int,void*,double);
+double Euler1DComputeCFL (void*,void*,double,double);
+int    Euler1DFlux       (double*,double*,int,void*,double);
+int    Euler1DUpwindRoe  (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    Euler1DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    Euler1DUpwindLLF  (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 int Euler1DInitialize(void *s,void *m)
 {
@@ -27,7 +29,10 @@ int Euler1DInitialize(void *s,void *m)
     return(1);
   }
 
-  physics->gamma = 1.4; /* default value */
+  /* default values */
+  physics->gamma = 1.4; 
+  strcpy(physics->upw_choice,"roe");
+
 
   /* reading physical model specific inputs - all processes */
   FILE *in;
@@ -43,6 +48,9 @@ int Euler1DInitialize(void *s,void *m)
 		    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
         if (!strcmp(word, "gamma")) { 
           ierr = fscanf(in,"%lf",&physics->gamma); 
+          if (ierr != 1) return(1);
+        } else if (!strcmp(word,"upwinding")) {
+          ierr = fscanf(in,"%s",physics->upw_choice); 
           if (ierr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
@@ -61,7 +69,14 @@ int Euler1DInitialize(void *s,void *m)
   /* initializing physical model-specific functions */
   solver->ComputeCFL         = Euler1DComputeCFL;
   solver->FFunction          = Euler1DFlux;
-  solver->Upwind             = Euler1DUpwind;
+  if      (!strcmp(physics->upw_choice,"roe"))      solver->Upwind = Euler1DUpwindRoe;
+  else if (!strcmp(physics->upw_choice,"rf-char"))  solver->Upwind = Euler1DUpwindRF;
+  else if (!strcmp(physics->upw_choice,"llf-char")) solver->Upwind = Euler1DUpwindLLF;
+  else {
+    fprintf(stderr,"Error in Euler1DInitialize(): %s is not a valid upwinding scheme.\n",
+            physics->upw_choice);
+    return(1);
+  }
 
   return(0);
 }
