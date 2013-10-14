@@ -1,4 +1,4 @@
-#define _MAX_STRING_SIZE_ 500
+#include <basic.h>
 
 #define _PERIODIC_    "periodic"
 #define _EXTRAPOLATE_ "extrapolate"
