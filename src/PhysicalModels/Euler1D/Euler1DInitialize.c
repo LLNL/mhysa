@@ -18,7 +18,7 @@ int Euler1DInitialize(void *s,void *m)
   HyPar         *solver  = (HyPar*)         s;
   MPIVariables  *mpi     = (MPIVariables*)  m; 
   Euler1D       *physics = (Euler1D*)       solver->physics;
-  int           ierr     = 0,i;
+  int           ierr     = 0;
 
   if (solver->nvars != _MODEL_NVARS_) {
     fprintf(stderr,"Error in Euler1DInitialize(): nvars has to be %d.\n",_MODEL_NVARS_);

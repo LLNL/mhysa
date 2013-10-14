@@ -12,7 +12,7 @@ int Euler1DComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar     *solver = (HyPar*)   s;
   Euler1D   *param  = (Euler1D*) solver->physics;
-  int       ierr    = 0, i, v;
+  int       ierr    = 0;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;

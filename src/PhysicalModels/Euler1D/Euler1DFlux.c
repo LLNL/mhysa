@@ -11,7 +11,7 @@ int Euler1DFlux(double *f,double *u,int dir,void *s,double t)
 {
   HyPar     *solver = (HyPar*)   s;
   Euler1D   *param  = (Euler1D*) solver->physics;
-  int       ierr    = 0, i, v;
+  int       ierr    = 0, i;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
