@@ -2,6 +2,7 @@
 #define _FIRST_ORDER_UPWIND_    "1"
 #define _SECOND_ORDER_CENTRAL_  "2"
 #define _FIFTH_ORDER_WENO_      "weno5"
+#define _FIFTH_ORDER_CRWENO_    "crweno5"
 
 /* interpolation type definitions */
 #define _CHARACTERISTIC_        "characteristic"
@@ -66,6 +67,7 @@
    (for conservative discretization of the 1st derivative) */
 int Interp1PrimFirstOrderUpwind (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderWENO   (double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderCRWENO (double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) */
