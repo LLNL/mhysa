@@ -4,7 +4,7 @@
 #include <arrayfunctions.h>
 #include <mathfunctions.h>
 #include <interpolation.h>
-#include <tridiaglu.h>
+#include <tridiagLU.h>
 #include <mpivars.h>
 #include <hypar.h>
 
@@ -53,7 +53,7 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
 
   /* calculate total number of tridiagonal systems to solve */
-  Nsys = 1; for (d=0; d<ndims; d++) Nsys *= bounds_outer[dir]; Nsys *= nvars;
+  Nsys = 1; for (d=0; d<ndims; d++) Nsys *= bounds_outer[d]; Nsys *= nvars;
 
   /* Allocate arrays for tridiagonal system */
   double **A, **B, **C, **R;
@@ -100,17 +100,17 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
 
         /* Candidate stencils and their optimal weights*/
         double f1, f2, f3, c1, c2, c3;
-        if (  ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            ||((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
           /* Use WENO5 at the physical boundaries */
           f1 = (2*one_sixth)*m3 - (7.0*one_sixth)*m2 + (11.0*one_sixth)*m1; c1 = 0.1;
           f2 = (-one_sixth)*m2 + (5.0*one_sixth)*m1 + (2*one_sixth)*p1;     c2 = 0.6;
           f3 = (2*one_sixth)*m1 + (5*one_sixth)*p1 - (one_sixth)*p2;        c3 = 0.3;
         } else {
           /* CRWENO5 at the interior points */
-          f1 = (one_sixth) * (m2 + 5*m1); c1 = 0.2;
-          f2 = (one_sixth) * (5*m1 + p1); c2 = 0.5;
-          f3 = (one_sixth) * (m1 + 5*p1); c3 = 0.3;
+          f1 = (one_sixth) * (m2 + 5*m1);                                   c1 = 0.2;
+          f2 = (one_sixth) * (5*m1 + p1);                                   c2 = 0.5;
+          f3 = (one_sixth) * (m1 + 5*p1);                                   c3 = 0.3;
         }
 
         /* calculate WENO weights */
@@ -173,20 +173,21 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
           }
   
         }
-        if (  ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            ||((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          A[sys][indexI[dir]] = 0.0;
-          B[sys][indexI[dir]] = 1.0;
-          C[sys][indexI[dir]] = 0.0;
+
+        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+          A[sys*nvars+v][indexI[dir]] = 0.0;
+          B[sys*nvars+v][indexI[dir]] = 1.0;
+          C[sys*nvars+v][indexI[dir]] = 0.0;
         } else {
-          A[sys][indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
-          B[sys][indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
-          C[sys][indexI[dir]] = (one_third)*w3;
+          A[sys*nvars+v][indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
+          B[sys*nvars+v][indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
+          C[sys*nvars+v][indexI[dir]] = (one_third)*w3;
         }
-        R[sys][indexI[dir]] = w1*f1 + w2*f2 + w3*f3;
-        sys++;
+        R[sys*nvars+v][indexI[dir]] = w1*f1 + w2*f2 + w3*f3;
       }
     }
+    sys++;
     done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
   }
 
@@ -198,20 +199,46 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
 #else
 
   /* Set the MPI context for the tridiagonal system solver */
+  MPI_Comm world; MPI_Comm_dup(MPI_COMM_WORLD,&world);
+
   MPIContext mpicntxt;
-  mpicntxt.rank   = mpi->ip[dir];     /* rank along this dimension  */
-  mpicntxt.nproc  = mpi->iproc[dir];  /* nproc along this dimension */
-  mpicntxt.comm   = (MPI_Comm*) calloc (1,sizeof(MPI_Comm));
-  *((MPI_Comm*)mpicntxt.comm)  = MPI_COMM_WORLD;
-  mpicntxt.proc   = (int*) calloc (mpicntxt.nproc,sizeof(int));
-  for (d=0; d<mpicntxt.nproc; d++) mpicntxt.proc[d] = mpi->rank;
+  mpicntxt.rank  = mpi->ip[dir];     /* rank along this dimension  */
+  mpicntxt.nproc = mpi->iproc[dir];  /* nproc along this dimension */
+  mpicntxt.comm  = &world;
+
+  int *ip = (int*) calloc (ndims,sizeof(int));
+  ierr = ArrayCopy1D_int(mpi->ip,ip,ndims); CHECKERR(ierr);
+  mpicntxt.proc  = (int*) calloc (mpicntxt.nproc,sizeof(int));
+  for (d=0; d<mpicntxt.nproc; d++) {
+    ip[dir] = d;
+    int rank = MPIRank1D(ndims,mpi->iproc,ip);
+    mpicntxt.proc[d] = rank;
+  }
 
   /* Solve the tridiagonal system */
-  ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,NULL,&mpicntxt);
+  /* all processes except the last will solve without the last interface to avoid overlap */
+  if (mpi->ip[dir] != mpi->iproc[dir]-1)  ierr = tridiagLU(A,B,C,R,dim[dir]  ,Nsys,NULL,&mpicntxt);
+  else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,NULL,&mpicntxt);
+  /* Now get the solution to the last interface from the next proc */
+  ierr = ArrayCopy1D_int(mpi->ip,ip,ndims); CHECKERR(ierr);
+  ip[dir]++; int source = MPIRank1D(ndims,mpi->iproc,ip); ip[dir]--;
+  ip[dir]--; int dest   = MPIRank1D(ndims,mpi->iproc,ip); ip[dir]++;
+  double *sendbuf,*recvbuf;
+  sendbuf = (double*) calloc (Nsys,sizeof(double));
+  recvbuf = (double*) calloc (Nsys,sizeof(double));
+  MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
+  if (mpi->ip[dir]) for (d=0; d<Nsys; d++) sendbuf[d] = R[d][0];
+  if (mpi->ip[dir] != mpi->iproc[dir]-1) MPI_Irecv(recvbuf,Nsys,MPI_DOUBLE,source,214,MPI_COMM_WORLD,&req[0]);
+  if (mpi->ip[dir])                      MPI_Isend(sendbuf,Nsys,MPI_DOUBLE,dest  ,214,MPI_COMM_WORLD,&req[1]);
+  MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
+  if (mpi->ip[dir] != mpi->iproc[dir]-1) for (d=0; d<Nsys; d++) R[d][dim[dir]] = recvbuf[d];
+  free(sendbuf);
+  free(recvbuf);
 
   /* deallocate allocations made for MPI context */
+  free(ip);
   free(mpicntxt.proc);
-  free(mpicntxt.comm);
+  MPI_Comm_free(&world);
 
 #endif
 
@@ -230,12 +257,10 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
       ierr = ArrayCopy1D_int(index_outer,indexI,ndims); CHECKERR(ierr);
       for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
         int p = ArrayIndex1D(ndims,bounds_inter,indexI,NULL,0);
-        int v; for (v=0; v<nvars; v++)  {
-          fI[nvars*p+v] = R[sys][indexI[dir]];
-          sys++;
-        }
+        int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = R[sys*nvars+v][indexI[dir]];
       }
       done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+      sys++;
     }
   }
 

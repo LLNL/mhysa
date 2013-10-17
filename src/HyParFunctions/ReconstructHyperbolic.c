@@ -37,6 +37,8 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
   /* Upwind -> to calculate the final interface flux */
   ierr = solver->Upwind(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 
 
+  free(uL);
+  free(uR);
   free(fluxL);
   free(fluxR);
   return(0);
