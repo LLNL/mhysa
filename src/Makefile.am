@@ -7,7 +7,8 @@ SUBDIRS = \
   MathFunctions \
   MPIFunctions \
   SecondDerivative \
-  TimeIntegration
+  TimeIntegration \
+  TridiagLU
 
 bin_PROGRAMS = HyPar
 HyPar_SOURCES = main.c
@@ -21,6 +22,7 @@ HyPar_LDADD = \
   PhysicalModels/Euler1D/libEuler1D.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   SecondDerivative/libSecondDerivative.a \
+  TridiagLU/libTridiagLU.a \
   MPIFunctions/libMPIFunctions.a \
   ArrayFunctions/libArrayFunctions.a \
   MathFunctions/libMathFunctions.a

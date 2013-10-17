@@ -74,6 +74,7 @@ AC_CONFIG_FILES([
    src/PhysicalModels/Euler1D/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
+ src/TridiagLU/Makefile
 ])
 
 AC_OUTPUT
