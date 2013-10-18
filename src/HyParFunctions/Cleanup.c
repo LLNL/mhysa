@@ -49,6 +49,9 @@ int Cleanup(void *s,void *m)
   /* Clean up any spatial reconstruction related allocations */
   if (solver->interp) free(solver->interp);
 
+  /* Free the communicators created */
+  ierr = MPIFreeCommunicators(solver->ndims,mpi);
+
   /* These variables are allocated in Initialize.c */
   free(solver->dim_global);
   free(solver->dim_local);

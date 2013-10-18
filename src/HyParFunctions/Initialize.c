@@ -41,6 +41,9 @@ int Initialize(void *s, void *m)
   ierr = MPILocalDomainLimits(solver->ndims,mpi->rank,mpi,solver->dim_global,mpi->is,mpi->ie);
   CHECKERR(ierr);
 
+  /* create sub-communicators for parallel computations along grid lines in each dimension */
+  ierr = MPICreateCommunicators(solver->ndims,mpi); CHECKERR(ierr);
+
 #else
 
   for (i=0; i<solver->ndims; i++) {

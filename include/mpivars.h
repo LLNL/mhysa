@@ -18,8 +18,10 @@ typedef struct mpi_variables {
 int MPIBroadcast_double     (double*,int,int,void*);
 int MPIBroadcast_integer    (int*,int,int,void*);
 int MPIBroadcast_character  (char*,int,int,void*);
+int MPICreateCommunicators  (int,void*);
 int MPIExchangeBoundaries1D (void*,double*,int,int,int,int);
 int MPIExchangeBoundariesnD (int,int,int*,int,void*,double*);
+int MPIFreeCommunicators    (int,void*);
 int MPIGatherArray1D        (void*,double*,double*,int,int,int,int); 
 int MPIGatherArraynD        (int,void*,double*,double*,int*,int*,int,int);
 int MPIGetArrayDatanD       (double*,double*,int*,int*,int*,int*,int,int,int,void*);
