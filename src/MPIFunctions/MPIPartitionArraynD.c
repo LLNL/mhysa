@@ -49,7 +49,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
       }
       if (proc) {
 #ifndef serial
-        MPI_Send(buffer,size*nvars,MPI_DOUBLE,proc,1538,MPI_COMM_WORLD);
+        MPI_Send(buffer,size*nvars,MPI_DOUBLE,proc,1538,mpi->world);
 #endif
       } else {
         done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
@@ -70,7 +70,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
     int d, done, size;
     size = 1; for (d=0; d<ndims; d++) size *= dim_local[d];
     buffer = (double*) calloc (size*nvars,sizeof(double));
-    MPI_Recv(buffer,size*nvars,MPI_DOUBLE,0,1538,MPI_COMM_WORLD,&status);
+    MPI_Recv(buffer,size*nvars,MPI_DOUBLE,0,1538,mpi->world,&status);
     done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
     while (!done) {
       int p1 = ArrayIndex1D(ndims,dim_local,index,NULL,ghosts);

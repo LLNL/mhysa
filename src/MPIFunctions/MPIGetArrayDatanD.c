@@ -51,11 +51,11 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
         int v; for (v=0; v<nvars; v++) buf[nvars*p1+v] = x[nvars*p2+v];
         done = ArrayIncrementIndex(ndims,bounds,index);
       }
-      MPI_Send(buf,size*nvars,MPI_DOUBLE,dest_rank,2211,MPI_COMM_WORLD);
+      MPI_Send(buf,size*nvars,MPI_DOUBLE,dest_rank,2211,mpi->world);
       free(buf);
     } else if (mpi->rank == dest_rank) {
       MPI_Status status;
-      MPI_Recv(xbuf,size*nvars,MPI_DOUBLE,source_rank,2211,MPI_COMM_WORLD,&status);
+      MPI_Recv(xbuf,size*nvars,MPI_DOUBLE,source_rank,2211,mpi->world,&status);
     } else {
       fprintf(stderr,"Error in MPIGetArrayData3D(): Process %d shouldn't have entered this function.\n",
               mpi->rank);

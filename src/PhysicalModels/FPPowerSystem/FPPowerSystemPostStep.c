@@ -8,6 +8,7 @@
 int FPPowerSystemPostStep(double *u,void* s,void *m,double t)
 {
   HyPar         *solver = (HyPar*)         s;
+  MPIVariables  *mpi    = (MPIVariables*)  m;
   FPPowerSystem *params = (FPPowerSystem*) solver->physics;
   int           ierr    = 0;
 
@@ -26,7 +27,8 @@ int FPPowerSystemPostStep(double *u,void* s,void *m,double t)
     done = ArrayIncrementIndex(ndims,dim,index);
   }
   double local_integral = local_sum;
-  double global_integral = 0; ierr = MPISum_double(&global_integral,&local_integral,1); CHECKERR(ierr);
+  double global_integral = 0; 
+  ierr = MPISum_double(&global_integral,&local_integral,1,&mpi->world); CHECKERR(ierr);
   params->pdf_integral = global_integral;
 
   free(index);

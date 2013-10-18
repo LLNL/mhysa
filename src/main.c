@@ -17,8 +17,9 @@ int main(int argc,char **argv)
   printf("HyPar - Serial Version\n");
 #else
   MPI_Init(&argc,&argv);
-  MPI_Comm_rank(MPI_COMM_WORLD,&mpi.rank );
-  MPI_Comm_size(MPI_COMM_WORLD,&mpi.nproc);
+  MPI_Comm_dup (MPI_COMM_WORLD,&mpi.world);
+  MPI_Comm_rank(mpi.world,&mpi.rank );
+  MPI_Comm_size(mpi.world,&mpi.nproc);
   if (!mpi.rank) printf("HyPar - Parallel (MPI) version with %d processes\n",mpi.nproc);
 #endif
 
@@ -92,11 +93,11 @@ int main(int argc,char **argv)
   walltime = (  (main_end.tv_sec * 1000000   + main_end.tv_usec  ) 
               - (main_start.tv_sec * 1000000 + main_start.tv_usec));
   double main_runtime = (double) walltime / 1000000.0;
-  ierr = MPIMax_double(&main_runtime,&main_runtime,1); if(ierr) return(ierr);
+  ierr = MPIMax_double(&main_runtime,&main_runtime,1,&mpi.world); if(ierr) return(ierr);
   walltime = (  (solve_end.tv_sec * 1000000   + solve_end.tv_usec  ) 
               - (solve_start.tv_sec * 1000000 + solve_start.tv_usec));
   double solver_runtime = (double) walltime / 1000000.0;
-  ierr = MPIMax_double(&solver_runtime,&solver_runtime,1); if(ierr) return(ierr);
+  ierr = MPIMax_double(&solver_runtime,&solver_runtime,1,&mpi.world); if(ierr) return(ierr);
 
   /* print error and walltime to file and on screen */
   FILE *out; out = fopen("errors.dat","w");
@@ -120,6 +121,7 @@ int main(int argc,char **argv)
 
 
 #ifndef serial
+  MPI_Comm_free(&mpi.world);
   MPI_Finalize();
 #endif
   return(0);

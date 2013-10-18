@@ -10,6 +10,7 @@ int TimePostStep(void *ts)
 {
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           TS->solver;
+  MPIVariables    *mpi    = (MPIVariables*)    TS->mpi;
   int             ierr    = 0;
 
   /* update current time */
@@ -23,7 +24,7 @@ int TimePostStep(void *ts)
     ierr = ArrayAXPY(solver->u,-1.0,TS->u,size*solver->nvars); CHECKERR(ierr);
     double sum = ArraySumSquarenD(solver->nvars,solver->ndims,solver->dim_local,
                                   solver->ghosts,solver->index,TS->u);
-    double global_sum = 0; MPISum_double(&global_sum,&sum,1);
+    double global_sum = 0; MPISum_double(&global_sum,&sum,1,&mpi->world);
     TS->norm = sqrt((global_sum/(double)solver->npoints_global));
 
     /* write to file */

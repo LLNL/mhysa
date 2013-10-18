@@ -53,13 +53,13 @@ int MPIExchangeBoundaries1D(void *m,double *x,int N,int ghosts,int dir,int ndims
   /* exchange the data */
   int tick = 0;
   if (neighbor_rank[0]!= -1) {
-    MPI_Irecv(recvbuf[0],ghosts,MPI_DOUBLE,neighbor_rank[0],1631,MPI_COMM_WORLD,&requests[tick]);
-    MPI_Isend(sendbuf[0],ghosts,MPI_DOUBLE,neighbor_rank[0],1631,MPI_COMM_WORLD,&requests[tick+non]);
+    MPI_Irecv(recvbuf[0],ghosts,MPI_DOUBLE,neighbor_rank[0],1631,mpi->world,&requests[tick]);
+    MPI_Isend(sendbuf[0],ghosts,MPI_DOUBLE,neighbor_rank[0],1631,mpi->world,&requests[tick+non]);
     tick++;
   }
   if (neighbor_rank[1] != -1) {
-    MPI_Irecv(recvbuf[1],ghosts,MPI_DOUBLE,neighbor_rank[1],1631,MPI_COMM_WORLD,&requests[tick]);
-    MPI_Isend(sendbuf[1],ghosts,MPI_DOUBLE,neighbor_rank[1],1631,MPI_COMM_WORLD,&requests[tick+non]);
+    MPI_Irecv(recvbuf[1],ghosts,MPI_DOUBLE,neighbor_rank[1],1631,mpi->world,&requests[tick]);
+    MPI_Isend(sendbuf[1],ghosts,MPI_DOUBLE,neighbor_rank[1],1631,mpi->world,&requests[tick+non]);
     tick++;
   }
 

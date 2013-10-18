@@ -50,7 +50,7 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
 #ifndef serial
         MPI_Status status;
         double *recvbuf = (double*) calloc (size*nvars,sizeof(double));
-        MPI_Recv(recvbuf,size*nvars,MPI_DOUBLE,proc,1902,MPI_COMM_WORLD,&status);
+        MPI_Recv(recvbuf,size*nvars,MPI_DOUBLE,proc,1902,mpi->world,&status);
         int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
         while (!done) {
           int p1 = ArrayIndex1D(ndims,bounds    ,index,NULL,0);
@@ -74,7 +74,7 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
   } else {
 #ifndef serial
     /* Meanwhile, on other processes */
-    MPI_Send(buffer,size*nvars,MPI_DOUBLE,0,1902,MPI_COMM_WORLD);
+    MPI_Send(buffer,size*nvars,MPI_DOUBLE,0,1902,mpi->world);
 #endif
   }
   free(is);

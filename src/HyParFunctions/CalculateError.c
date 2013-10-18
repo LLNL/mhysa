@@ -63,7 +63,7 @@ int CalculateError(void *s,void *m)
   } else ug = xg = NULL;
 
   /* Broadcast exact_flag to all processes */
-  ierr = MPIBroadcast_integer(&exact_flag,1,0);
+  ierr = MPIBroadcast_integer(&exact_flag,1,0,&mpi->world);
 
   if (!exact_flag)  return(0);  /* No exact solution */
 
@@ -87,19 +87,19 @@ int CalculateError(void *s,void *m)
   /* calculate L1 norm of error */
   sum = ArraySumAbsnD   (solver->nvars,solver->ndims,solver->dim_local,
                          solver->ghosts,solver->index,uex);
-  global_sum = 0; MPISum_double(&global_sum,&sum,1);
+  global_sum = 0; MPISum_double(&global_sum,&sum,1,&mpi->world);
   solver->error[0] = global_sum/((double)solver->npoints_global);
 
   /* calculate L2 norm of error */
   sum = ArraySumSquarenD(solver->nvars,solver->ndims,solver->dim_local,
                          solver->ghosts,solver->index,uex);
-  global_sum = 0; MPISum_double(&global_sum,&sum,1);
+  global_sum = 0; MPISum_double(&global_sum,&sum,1,&mpi->world);
   solver->error[1] = sqrt(global_sum/((double)solver->npoints_global));
 
   /* calculate Linf norm of error */
   sum = ArrayMaxnD      (solver->nvars,solver->ndims,solver->dim_local,
                          solver->ghosts,solver->index,uex);
-  global_sum = 0; MPIMax_double(&global_sum,&sum,1);
+  global_sum = 0; MPIMax_double(&global_sum,&sum,1,&mpi->world);
   solver->error[2] = global_sum;
 
   free(uex);

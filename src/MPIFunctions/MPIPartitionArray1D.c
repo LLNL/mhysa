@@ -32,8 +32,8 @@ int MPIPartitionArray1D(void *m,double *xg,double *x,int istart,int iend,
       int is,ie;
       if (proc) {
 #ifndef serial
-        MPI_Recv(&is,1,MPI_INT,proc,1442,MPI_COMM_WORLD,&status);
-        MPI_Recv(&ie,1,MPI_INT,proc,1443,MPI_COMM_WORLD,&status);
+        MPI_Recv(&is,1,MPI_INT,proc,1442,mpi->world,&status);
+        MPI_Recv(&ie,1,MPI_INT,proc,1443,mpi->world,&status);
 #endif
       } else {
         is = istart;
@@ -44,7 +44,7 @@ int MPIPartitionArray1D(void *m,double *xg,double *x,int istart,int iend,
       for (i=0; i<size; i++) buffer[i] = xg[i+is];
       if (proc) {
 #ifndef serial
-        MPI_Send(buffer,size,MPI_DOUBLE,proc,1539,MPI_COMM_WORLD);
+        MPI_Send(buffer,size,MPI_DOUBLE,proc,1539,mpi->world);
 #endif
       } else for (i=0; i<N_local; i++) x[i] = buffer[i];
       free(buffer);
@@ -54,10 +54,10 @@ int MPIPartitionArray1D(void *m,double *xg,double *x,int istart,int iend,
 #ifndef serial
     /* Meanwhile, on other processes */
     /* send local start and end indices to root */
-    MPI_Send(&istart,1,MPI_INT,0,1442,MPI_COMM_WORLD);
-    MPI_Send(&iend  ,1,MPI_INT,0,1443,MPI_COMM_WORLD);
+    MPI_Send(&istart,1,MPI_INT,0,1442,mpi->world);
+    MPI_Send(&iend  ,1,MPI_INT,0,1443,mpi->world);
     buffer = (double*) calloc (N_local,sizeof(double));
-    MPI_Recv(buffer,N_local,MPI_DOUBLE,0,1539,MPI_COMM_WORLD,&status);
+    MPI_Recv(buffer,N_local,MPI_DOUBLE,0,1539,mpi->world,&status);
     for (i=0; i<N_local; i++) x[i+ghosts] = buffer[i];
     free(buffer);
 #endif

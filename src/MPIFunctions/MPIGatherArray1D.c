@@ -36,15 +36,15 @@ int MPIGatherArray1D(void *m,double *xg,double *x,int istart,int iend,
       int is,ie;
       if (proc) {
 #ifndef serial
-        MPI_Recv(&is,1,MPI_INT,proc,1442,MPI_COMM_WORLD,&status);
-        MPI_Recv(&ie,1,MPI_INT,proc,1443,MPI_COMM_WORLD,&status);
+        MPI_Recv(&is,1,MPI_INT,proc,1442,mpi->world,&status);
+        MPI_Recv(&ie,1,MPI_INT,proc,1443,mpi->world,&status);
 #endif
       } else { is = istart; ie = iend; }
       int size = ie - is;
       if (proc) {
 #ifndef serial
         double *recvbuf = (double*) calloc (size,sizeof(double));
-        MPI_Recv(recvbuf,size,MPI_DOUBLE,proc,1916,MPI_COMM_WORLD,&status);
+        MPI_Recv(recvbuf,size,MPI_DOUBLE,proc,1916,mpi->world,&status);
         for (i=0; i<size; i++) xg[is+i] = recvbuf[i];
         free(recvbuf);
 #endif
@@ -54,9 +54,9 @@ int MPIGatherArray1D(void *m,double *xg,double *x,int istart,int iend,
   } else {
 #ifndef serial
     /* Meanwhile, on other processes - send stuff to root */
-    MPI_Send(&istart,1      ,MPI_INT   ,0,1442,MPI_COMM_WORLD);
-    MPI_Send(&iend  ,1      ,MPI_INT   ,0,1443,MPI_COMM_WORLD);
-    MPI_Send(buffer ,N_local,MPI_DOUBLE,0,1916,MPI_COMM_WORLD);
+    MPI_Send(&istart,1      ,MPI_INT   ,0,1442,mpi->world);
+    MPI_Send(&iend  ,1      ,MPI_INT   ,0,1443,mpi->world);
+    MPI_Send(buffer ,N_local,MPI_DOUBLE,0,1916,mpi->world);
 #endif
   }
   free(buffer);
