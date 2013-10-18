@@ -199,46 +199,34 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
 #else
 
   /* Set the MPI context for the tridiagonal system solver */
-  MPI_Comm world; MPI_Comm_dup(MPI_COMM_WORLD,&world);
 
   MPIContext mpicntxt;
   mpicntxt.rank  = mpi->ip[dir];     /* rank along this dimension  */
   mpicntxt.nproc = mpi->iproc[dir];  /* nproc along this dimension */
-  mpicntxt.comm  = &world;
-
-  int *ip = (int*) calloc (ndims,sizeof(int));
-  ierr = ArrayCopy1D_int(mpi->ip,ip,ndims); CHECKERR(ierr);
+  mpicntxt.comm  = &mpi->comm[dir];
   mpicntxt.proc  = (int*) calloc (mpicntxt.nproc,sizeof(int));
-  for (d=0; d<mpicntxt.nproc; d++) {
-    ip[dir] = d;
-    int rank = MPIRank1D(ndims,mpi->iproc,ip);
-    mpicntxt.proc[d] = rank;
-  }
+  for (d=0; d<mpicntxt.nproc; d++) mpicntxt.proc[d] = d;
 
   /* Solve the tridiagonal system */
   /* all processes except the last will solve without the last interface to avoid overlap */
   if (mpi->ip[dir] != mpi->iproc[dir]-1)  ierr = tridiagLU(A,B,C,R,dim[dir]  ,Nsys,NULL,&mpicntxt);
   else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,NULL,&mpicntxt);
+
   /* Now get the solution to the last interface from the next proc */
-  ierr = ArrayCopy1D_int(mpi->ip,ip,ndims); CHECKERR(ierr);
-  ip[dir]++; int source = MPIRank1D(ndims,mpi->iproc,ip); ip[dir]--;
-  ip[dir]--; int dest   = MPIRank1D(ndims,mpi->iproc,ip); ip[dir]++;
   double *sendbuf,*recvbuf;
   sendbuf = (double*) calloc (Nsys,sizeof(double));
   recvbuf = (double*) calloc (Nsys,sizeof(double));
   MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
   if (mpi->ip[dir]) for (d=0; d<Nsys; d++) sendbuf[d] = R[d][0];
-  if (mpi->ip[dir] != mpi->iproc[dir]-1) MPI_Irecv(recvbuf,Nsys,MPI_DOUBLE,source,214,MPI_COMM_WORLD,&req[0]);
-  if (mpi->ip[dir])                      MPI_Isend(sendbuf,Nsys,MPI_DOUBLE,dest  ,214,MPI_COMM_WORLD,&req[1]);
+  if (mpi->ip[dir] != mpi->iproc[dir]-1) MPI_Irecv(recvbuf,Nsys,MPI_DOUBLE,mpi->ip[dir]+1,214,mpi->comm[dir],&req[0]);
+  if (mpi->ip[dir])                      MPI_Isend(sendbuf,Nsys,MPI_DOUBLE,mpi->ip[dir]-1,214,mpi->comm[dir],&req[1]);
   MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
   if (mpi->ip[dir] != mpi->iproc[dir]-1) for (d=0; d<Nsys; d++) R[d][dim[dir]] = recvbuf[d];
   free(sendbuf);
   free(recvbuf);
 
   /* deallocate allocations made for MPI context */
-  free(ip);
   free(mpicntxt.proc);
-  MPI_Comm_free(&world);
 
 #endif
 
