@@ -198,19 +198,10 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
 
 #else
 
-  /* Set the MPI context for the tridiagonal system solver */
-
-  MPIContext mpicntxt;
-  mpicntxt.rank  = mpi->ip[dir];     /* rank along this dimension  */
-  mpicntxt.nproc = mpi->iproc[dir];  /* nproc along this dimension */
-  mpicntxt.comm  = &mpi->comm[dir];
-  mpicntxt.proc  = (int*) calloc (mpicntxt.nproc,sizeof(int));
-  for (d=0; d<mpicntxt.nproc; d++) mpicntxt.proc[d] = d;
-
   /* Solve the tridiagonal system */
   /* all processes except the last will solve without the last interface to avoid overlap */
-  if (mpi->ip[dir] != mpi->iproc[dir]-1)  ierr = tridiagLU(A,B,C,R,dim[dir]  ,Nsys,NULL,&mpicntxt);
-  else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,NULL,&mpicntxt);
+  if (mpi->ip[dir] != mpi->iproc[dir]-1)  ierr = tridiagLU(A,B,C,R,dim[dir]  ,Nsys,NULL,&mpi->comm[dir]);
+  else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,NULL,&mpi->comm[dir]);
 
   /* Now get the solution to the last interface from the next proc */
   double *sendbuf,*recvbuf;
@@ -224,9 +215,6 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   if (mpi->ip[dir] != mpi->iproc[dir]-1) for (d=0; d<Nsys; d++) R[d][dim[dir]] = recvbuf[d];
   free(sendbuf);
   free(recvbuf);
-
-  /* deallocate allocations made for MPI context */
-  free(mpicntxt.proc);
 
 #endif
 
