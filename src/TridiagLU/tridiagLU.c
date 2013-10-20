@@ -18,7 +18,6 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   MPIContext      *mpi = (MPIContext*) m;
   int             ierr = 0;
   const int       nvar = 4;
-  int             *proc;
   double          *sendbuf,*recvbuf;
   MPI_Comm        *comm;
 #endif
@@ -34,17 +33,10 @@ int tridiagLU(double **a,double **b,double **c,double **x,
     rank  = mpi->rank;
     nproc = mpi->nproc;
     comm  = (MPI_Comm*) mpi->comm;
-    proc  = mpi->proc;
-    if (!proc) {
-      fprintf(stderr,"Error in tridiagLU() on process %d: ",rank);
-      fprintf(stderr,"aray \"proc\" is NULL.\n");
-      return(-1);
-    }
   } else {
     rank  = 0;
     nproc = 1;
     comm  = NULL;
-    proc  = NULL;
   }
 #endif
 
@@ -90,8 +82,8 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   }
   if (nproc > 1) {
     MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
-    if (rank)             MPI_Irecv(recvbuf,nvar*ns,MPI_DOUBLE,proc[rank-1],1436,*comm,&req[0]);
-    if (rank != nproc-1)  MPI_Isend(sendbuf,nvar*ns,MPI_DOUBLE,proc[rank+1],1436,*comm,&req[1]);
+    if (rank)             MPI_Irecv(recvbuf,nvar*ns,MPI_DOUBLE,rank-1,1436,*comm,&req[0]);
+    if (rank != nproc-1)  MPI_Isend(sendbuf,nvar*ns,MPI_DOUBLE,rank+1,1436,*comm,&req[1]);
     MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
   }
   /* The first process sits this one out */
@@ -139,8 +131,8 @@ int tridiagLU(double **a,double **b,double **c,double **x,
     /* Each process, get the first x of the next process */
     MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
     for (d=0; d<ns; d++)  xs1[d] = x[d][0];
-    if (rank+1 < nproc) MPI_Irecv(xp1,ns,MPI_DOUBLE,proc[rank+1],1323,*comm,&req[0]);
-    if (rank)           MPI_Isend(xs1,ns,MPI_DOUBLE,proc[rank-1],1323,*comm,&req[1]);
+    if (rank+1 < nproc) MPI_Irecv(xp1,ns,MPI_DOUBLE,rank+1,1323,*comm,&req[0]);
+    if (rank)           MPI_Isend(xs1,ns,MPI_DOUBLE,rank-1,1323,*comm,&req[1]);
     MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
   }
 #else

@@ -28,14 +28,7 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
   double      *sendbuf,*recvbuf;
   int         rank  = mpi->rank;
   int         nproc = mpi->nproc;
-  int         *proc = mpi->proc;
   MPI_Comm    *comm = (MPI_Comm*) mpi->comm;
-
-  if (!proc) {
-    fprintf(stderr,"Error in tridiagLUGS() on process %d: ",rank);
-    fprintf(stderr,"array \"proc\" is NULL.\n");
-    return(-1);
-  }
 
   if ((ns == 0) || (n == 0)) return(0);
 
@@ -102,7 +95,7 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
         }
       }
       MPI_Gatherv(sendbuf,nvar*n*ns_local[p],MPI_DOUBLE,
-                  recvbuf,counts,displ,MPI_DOUBLE,proc[p],*comm);
+                  recvbuf,counts,displ,MPI_DOUBLE,p,*comm);
 
       /* deallocate send buffer */
       free(sendbuf);
@@ -155,7 +148,7 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
       }
       MPI_Scatterv(sendbuf,counts,displ,MPI_DOUBLE,
                    recvbuf,ns_local[p]*n,MPI_DOUBLE,
-                   proc[p],*comm);
+                   p,*comm);
       /* save the solution on all root processes */
       for (d = 0; d < ns_local[p]; d++) {
         for (i = 0; i < n; i++) {

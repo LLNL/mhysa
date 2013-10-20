@@ -77,15 +77,12 @@ typedef struct _tridiagLUruntimes_ {
             cipating in the tridiagonal solve
   nproc     number of processes participating in the tridiagonal solve
   comm      MPI communicator
-  proc      an array of size nproc containing the actual rank in comm
-            for each rank 0,...,nproc
 */
 
 typedef struct _mpi_context_ {
   int   rank;
   int   nproc;
   void* comm;
-  int*  proc;
 } MPIContext;
 
 int tridiagLU  (double**,double**,double**,double**,int,int,void*,void*);
