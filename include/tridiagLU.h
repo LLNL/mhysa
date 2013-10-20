@@ -42,9 +42,7 @@
                            function needs to do something to add/average 
                            them to get some global value.
                         ** Can be NULL if runtimes are not needed.
-    m                   MPIContext*       structure containing the MPI
-                                          context
-                                          **See below
+    m                   MPI_Comm*       MPI Communicator
 
   Return value (int) -> 0 (successful solve), -1 (singular system)
 
@@ -68,22 +66,6 @@ typedef struct _tridiagLUruntimes_ {
   double  stage3_time;
   double  stage4_time;
 } TridiagLUTime;
-
-
-/* 
-  Data structure for the MPI context
-
-  rank      rank of this process with respect to the processes parti-
-            cipating in the tridiagonal solve
-  nproc     number of processes participating in the tridiagonal solve
-  comm      MPI communicator
-*/
-
-typedef struct _mpi_context_ {
-  int   rank;
-  int   nproc;
-  void* comm;
-} MPIContext;
 
 int tridiagLU  (double**,double**,double**,double**,int,int,void*,void*);
 int tridiagLUGS(double**,double**,double**,double**,int,int,void*,void*);

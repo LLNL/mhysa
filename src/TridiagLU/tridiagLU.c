@@ -14,32 +14,27 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   int             d,i,istart,iend;
   int             rank,nproc;
   struct timeval  start,stage1,stage2,stage3,stage4;
-#ifndef serial
-  MPIContext      *mpi = (MPIContext*) m;
-  int             ierr = 0;
-  const int       nvar = 4;
-  double          *sendbuf,*recvbuf;
-  MPI_Comm        *comm;
-#endif
-
-  /* start */
-  gettimeofday(&start,NULL);
 
 #ifdef serial
   rank  = 0;
   nproc = 1;
 #else
-  if (mpi) {
-    rank  = mpi->rank;
-    nproc = mpi->nproc;
-    comm  = (MPI_Comm*) mpi->comm;
+  MPI_Comm        *comm = (MPI_Comm*) m;
+  int             ierr = 0;
+  const int       nvar = 4;
+  double          *sendbuf,*recvbuf;
+
+  if (comm) {
+    MPI_Comm_size(*comm,&nproc);
+    MPI_Comm_rank(*comm,&rank);
   } else {
     rank  = 0;
     nproc = 1;
-    comm  = NULL;
   }
 #endif
 
+  /* start */
+  gettimeofday(&start,NULL);
 
   if ((ns == 0) || (n == 0)) return(0);
   /* some allocations */
@@ -122,8 +117,8 @@ int tridiagLU(double **a,double **b,double **c,double **x,
       one [d] = (double* ) calloc (1,sizeof(double )); one [d][0] = 1.0;
     }
     /* Solving the reduced system by gather-and-solve algorithm */
-    if (rank) ierr = tridiagLUGS(a,b,c,x,1,ns,NULL,mpi);
-    else      ierr = tridiagLUGS(zero,one,zero,zero,1,ns,NULL,mpi);
+    if (rank) ierr = tridiagLUGS(a,b,c,x,1,ns,NULL,comm);
+    else      ierr = tridiagLUGS(zero,one,zero,zero,1,ns,NULL,comm);
     if (ierr) return(ierr);
     for (d=0; d<ns; d++) free(zero[d]); free(zero);
     for (d=0; d<ns; d++) free(one [d]); free(one );

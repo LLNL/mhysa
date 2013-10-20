@@ -17,18 +17,16 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
 
 #else
 
-  /* Parallel compilation */
-  MPIContext      *mpi = (MPIContext*) m;
-
-  /* MPIContext argument = NULL => Serial solve */
-  if (!mpi) return(tridiagLU(a,b,c,x,n,ns,r,NULL));
-
   int         d,i,ierr = 0,dstart,istart,p,q;
   const int   nvar = 4;
   double      *sendbuf,*recvbuf;
-  int         rank  = mpi->rank;
-  int         nproc = mpi->nproc;
-  MPI_Comm    *comm = (MPI_Comm*) mpi->comm;
+  int         rank,nproc;
+
+  /* Parallel compilation */
+  MPI_Comm  *comm = (MPI_Comm*) m;
+  if (!comm) return(tridiagLU(a,b,c,x,n,ns,r,NULL));
+  MPI_Comm_size(*comm,&nproc);
+  MPI_Comm_rank(*comm,&rank);
 
   if ((ns == 0) || (n == 0)) return(0);
 
