@@ -127,6 +127,9 @@ files in the Examples for a better idea):
                            (see include/timeintegration.h for a complete list)
     hyp_space_scheme    -> spatial discretization scheme for hyperbolic terms
                            (see include/interpolation.h for a complete list)
+    hyp_interp_type     -> for vector problems, whether to use characteristic-
+                           based or component-wise interpolation
+                           ("characteristic", "components")
     par_space_type      -> type of discretization for parabolic terms
                            ("conservative-1stage", "nonconservative-1stage")
                            (see include/hypar.h for a complete list)
@@ -195,15 +198,40 @@ files in the Examples for a better idea):
 - physics.inp
   
   Format
-    <begin>
+    begin
       <keyword>     <value>
       <keyword>     <value>
       ...
       <keyword>     <value>
-    <end>
+    end
 
   Physics-specific parameters (eg. advection speed, diffusion coefficient, 
   etc). Keywords are specific to the physical model, so consult an example 
   of a specific physical model to see the required parameters for that model.
+
+- lusolver.inp
+  When using compact schemes (for hyperbolic or parabolic discretization), this
+  is used to specify the tridiagonal solver related parameters. If not present,
+  default values are used.
+  For more details: http://www.mcs.anl.gov/~ghosh/codes/tridiaglu.html
+
+  Format
+    begin
+      <keyword>     <value>
+    end
+
+  Keywords
+    reducedsolvetype    How to solve the reduced system - gather-and-solve or
+                        iteratively
+                        ("gather-and-solve", "jacobi)
+    evaluate_norm       Evaluate norm every iteration for iterative reduced 
+                        system solve (and use norm-based exit criterion)
+                        (1 or 0)
+                        If 0 (do not evaluate norm, then iterate for maxiter
+                        number of iterations)
+    maxiter             Maximum number of iterations
+    atol                Absolute tolerance
+    rtol                Relative tolerance
+    verbose             Print iteration and norm to screen (1 or 0)
 
 -------------------------------------------------------------------------------------
