@@ -75,6 +75,13 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
   iter = 0;
   while(1) {
 
+    /* evaluate break conditions */
+    if (    (iter >= context->maxiter) 
+        ||  (context->evaluate_norm && (global_norm < context->atol)) 
+        ||  (context->evaluate_norm && (global_norm/norm0 < context->rtol))  ) {
+      break;
+    }
+
     /* Communicate the boundary x values between processors */
     for (d=0; d<ns; d++)  recvbufL[d] = recvbufR[d] = 0;
 #ifndef serial
@@ -135,13 +142,6 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
     if (context->verbose && (!rank))
 #endif
       printf("\t\titer: %d, norm: %1.16E\n",iter,global_norm);
-
-    /* evaluate break conditions */
-    if (    (iter > context->maxiter) 
-        ||  (context->evaluate_norm && (global_norm < context->atol)) 
-        ||  (context->evaluate_norm && (global_norm/norm0 < context->rtol))  ) {
-      break;
-    }
 
     /* correct the solution for this iteration */
     for (d=0; d<ns; d++) {
