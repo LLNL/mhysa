@@ -123,8 +123,8 @@ int tridiagLU(double **a,double **b,double **c,double **x,
     }
     if (!strcmp(params->reducedsolvetype,_TRIDIAG_GS_)) {
       /* Solving the reduced system by gather-and-solve algorithm */
-      if (rank) ierr = tridiagLUGS(a,b,c,x,1,ns,NULL,comm);
-      else      ierr = tridiagLUGS(zero,one,zero,zero,1,ns,NULL,comm);
+      if (rank) ierr = tridiagLUGS(a,b,c,x,1,ns,params,comm);
+      else      ierr = tridiagLUGS(zero,one,zero,zero,1,ns,params,comm);
       if (ierr) return(ierr);
     } else if (!strcmp(params->reducedsolvetype,_TRIDIAG_JACOBI_)) {
       /* Solving the reduced system iteratively with the Jacobi method */

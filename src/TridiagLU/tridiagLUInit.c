@@ -66,6 +66,7 @@ int tridiagLUInit(void *r,void *c)
   /* broadcast to all processes */
 #ifndef serial
   if (comm) {
+    MPI_Bcast(t->reducedsolvetype,50,MPI_CHAR,0,*comm);
     MPI_Bcast(&t->evaluate_norm,1,MPI_INT,0,*comm);
     MPI_Bcast(&t->maxiter,1,MPI_INT,0,*comm);
     MPI_Bcast(&t->verbose,1,MPI_INT,0,*comm);
