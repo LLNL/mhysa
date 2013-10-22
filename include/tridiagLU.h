@@ -32,7 +32,9 @@
     x   [0,ns-1]x[0,n-1] double**         right-hand side (solution)
     n                    int              local size of the system
     ns                   int              number of systems to solve
-    r                    TridiagLUTime*   structure containing the runtimes
+    r                    TridiagLU*       structure containing paramters
+                                          for the tridiagonal solve and
+                                          the walltimes:
                                             total_time
                                             stage1_time
                                             stage2_time
@@ -57,15 +59,36 @@
 
 */
 
+/* definitions */
+#define _TRIDIAG_JACOBI_  "jacobi"
+#define _TRIDIAG_GS_      "gather-and-solve"
 
 /* Data structure containing the stage runtimes */
-typedef struct _tridiagLUruntimes_ {
+typedef struct _tridiagLU_ {
+
+  /* Parameters for tridiagLU() */
+  char reducedsolvetype[50]; /* solver to use for the reduced system */
+                             /* gather-and-solve direct solver       */
+                             /* or iterative jabobi solver           */
+
+  /* Parameters for the iterative tridiagonal solver    */
+  int     evaluate_norm;  /* calculate norm at each iteration?*/
+  int     maxiter;        /* maximum number of iterations     */
+  double  atol,rtol;      /* absolute and relative tolerace   */
+  int     exititer;       /* number of iterations it ran for  */
+  double  exitnorm;       /* error norm at exit               */
+  int     verbose;        /* print iterations and norms       */
+
+  /* Runtimes for the 4 stages of tridiagLU() */
   double  total_time;
   double  stage1_time;
   double  stage2_time;
   double  stage3_time;
   double  stage4_time;
-} TridiagLUTime;
 
-int tridiagLU  (double**,double**,double**,double**,int,int,void*,void*);
-int tridiagLUGS(double**,double**,double**,double**,int,int,void*,void*);
+} TridiagLU;
+
+int tridiagLU         (double**,double**,double**,double**,int,int,void*,void*);
+int tridiagLUGS       (double**,double**,double**,double**,int,int,void*,void*);
+int tridiagIterJacobi (double**,double**,double**,double**,int,int,void*,void*);
+int tridiagLUInit     (void*,void*);

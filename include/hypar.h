@@ -79,8 +79,9 @@ typedef struct main_parameters {
   int   (*GetRightEigenvectors)(double*,double**,void*);
 
   /* Other parameters */
-  void *interp;                         /* Interpolation-related parameters         */
-  void *msti;                           /* Multi-stage time-integration parameters  */
+  void *interp;       /* Interpolation-related parameters         */
+  void *msti;         /* Multi-stage time-integration parameters  */
+  void *lusolver;     /* Tridiagonal LU solver parameters         */
 
   /* Errors */
   double error[3];                      /* L1,L2,Linf errors, if calculated         */

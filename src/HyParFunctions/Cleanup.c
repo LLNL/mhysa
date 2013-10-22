@@ -3,6 +3,7 @@
 #include <string.h>
 #include <basic.h>
 #include <mpivars.h>
+#include <tridiagLU.h>
 #include <boundaryconditions.h>
 #include <timeintegration.h>
 #include <hypar.h>
@@ -47,7 +48,8 @@ int Cleanup(void *s,void *m)
   }
 
   /* Clean up any spatial reconstruction related allocations */
-  if (solver->interp) free(solver->interp);
+  if (solver->interp)   free(solver->interp);
+  if (solver->lusolver) free(solver->lusolver);
 
   /* Free the communicators created */
   ierr = MPIFreeCommunicators(solver->ndims,mpi);

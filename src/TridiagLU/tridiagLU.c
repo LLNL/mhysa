@@ -1,7 +1,7 @@
-#include <time.h>
-#include <sys/time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/time.h>
+#include <string.h>
 #ifndef serial
 #include <mpi.h>
 #endif
@@ -10,7 +10,7 @@
 int tridiagLU(double **a,double **b,double **c,double **x,
               int n,int ns,void *r,void *m)
 {
-  TridiagLUTime   *runtimes = (TridiagLUTime*) r;
+  TridiagLU       *params = (TridiagLU*) r;
   int             d,i,istart,iend;
   int             rank,nproc;
   struct timeval  start,stage1,stage2,stage3,stage4;
@@ -32,6 +32,11 @@ int tridiagLU(double **a,double **b,double **c,double **x,
     nproc = 1;
   }
 #endif
+
+  if (!params) {
+    fprintf(stderr,"Error in tridiagLU(): NULL pointer passed for parameters.\n");
+    return(-1);
+  }
 
   /* start */
   gettimeofday(&start,NULL);
@@ -116,10 +121,16 @@ int tridiagLU(double **a,double **b,double **c,double **x,
       zero[d] = (double* ) calloc (1,sizeof(double )); zero[d][0] = 0.0;
       one [d] = (double* ) calloc (1,sizeof(double )); one [d][0] = 1.0;
     }
-    /* Solving the reduced system by gather-and-solve algorithm */
-    if (rank) ierr = tridiagLUGS(a,b,c,x,1,ns,NULL,comm);
-    else      ierr = tridiagLUGS(zero,one,zero,zero,1,ns,NULL,comm);
-    if (ierr) return(ierr);
+    if (!strcmp(params->reducedsolvetype,_TRIDIAG_GS_)) {
+      /* Solving the reduced system by gather-and-solve algorithm */
+      if (rank) ierr = tridiagLUGS(a,b,c,x,1,ns,NULL,comm);
+      else      ierr = tridiagLUGS(zero,one,zero,zero,1,ns,NULL,comm);
+      if (ierr) return(ierr);
+    } else if (!strcmp(params->reducedsolvetype,_TRIDIAG_JACOBI_)) {
+      /* Solving the reduced system iteratively with the Jacobi method */
+      if (rank) ierr = tridiagIterJacobi(a,b,c,x,1,ns,params,comm);
+      else      ierr = tridiagIterJacobi(zero,one,zero,zero,1,ns,params,comm);
+    }
     for (d=0; d<ns; d++) free(zero[d]); free(zero);
     for (d=0; d<ns; d++) free(one [d]); free(one );
 
@@ -159,18 +170,16 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   free(xs1);
 
   /* save runtimes if needed */
-  if (runtimes) {
-    long long walltime;
-    walltime = ((stage1.tv_sec * 1000000 + stage1.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
-    runtimes->stage1_time = (double) walltime / 1000000.0;
-    walltime = ((stage2.tv_sec * 1000000 + stage2.tv_usec) - (stage1.tv_sec * 1000000 + stage1.tv_usec));
-    runtimes->stage2_time = (double) walltime / 1000000.0;
-    walltime = ((stage3.tv_sec * 1000000 + stage3.tv_usec) - (stage2.tv_sec * 1000000 + stage2.tv_usec));
-    runtimes->stage3_time = (double) walltime / 1000000.0;
-    walltime = ((stage4.tv_sec * 1000000 + stage4.tv_usec) - (stage3.tv_sec * 1000000 + stage3.tv_usec));
-    runtimes->stage4_time = (double) walltime / 1000000.0;
-    walltime = ((stage4.tv_sec * 1000000 + stage4.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
-    runtimes->total_time = (double) walltime / 1000000.0;
-  }
+  long long walltime;
+  walltime = ((stage1.tv_sec * 1000000 + stage1.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
+  params->stage1_time = (double) walltime / 1000000.0;
+  walltime = ((stage2.tv_sec * 1000000 + stage2.tv_usec) - (stage1.tv_sec * 1000000 + stage1.tv_usec));
+  params->stage2_time = (double) walltime / 1000000.0;
+  walltime = ((stage3.tv_sec * 1000000 + stage3.tv_usec) - (stage2.tv_sec * 1000000 + stage2.tv_usec));
+  params->stage3_time = (double) walltime / 1000000.0;
+  walltime = ((stage4.tv_sec * 1000000 + stage4.tv_usec) - (stage3.tv_sec * 1000000 + stage3.tv_usec));
+  params->stage4_time = (double) walltime / 1000000.0;
+  walltime = ((stage4.tv_sec * 1000000 + stage4.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
+  params->total_time = (double) walltime / 1000000.0;
   return(0);
 }

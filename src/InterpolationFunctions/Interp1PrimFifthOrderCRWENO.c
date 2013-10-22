@@ -20,6 +20,7 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
+  TridiagLU       *lu     = (TridiagLU*)      solver->lusolver;
   int             ierr    = 0,sys,Nsys,d;
 
   int ghosts = solver->ghosts;
@@ -194,14 +195,14 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
 #ifdef serial
 
   /* Solve the tridiagonal system */
-  ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,NULL,NULL);
+  ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,lu,NULL);
 
 #else
 
   /* Solve the tridiagonal system */
   /* all processes except the last will solve without the last interface to avoid overlap */
-  if (mpi->ip[dir] != mpi->iproc[dir]-1)  ierr = tridiagLU(A,B,C,R,dim[dir]  ,Nsys,NULL,&mpi->comm[dir]);
-  else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,NULL,&mpi->comm[dir]);
+  if (mpi->ip[dir] != mpi->iproc[dir]-1)  ierr = tridiagLU(A,B,C,R,dim[dir]  ,Nsys,lu,&mpi->comm[dir]);
+  else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,lu,&mpi->comm[dir]);
 
   /* Now get the solution to the last interface from the next proc */
   double *sendbuf,*recvbuf;

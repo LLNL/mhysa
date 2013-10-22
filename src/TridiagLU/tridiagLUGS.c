@@ -10,10 +10,15 @@
 int tridiagLUGS(double **a,double **b,double **c,double **x,
               int n,int ns,void *r,void *m)
 {
+  TridiagLU *context = (TridiagLU*) r;
+  if (!context) {
+    fprintf(stderr,"Error in tridiagLUGS(): NULL pointer passed for paramters.\n");
+    return(-1);
+  }
 #ifdef serial
 
   /* Serial compilation */
-  return(tridiagLU(a,b,c,x,n,ns,r,m));
+  return(tridiagLU(a,b,c,x,n,ns,context,m));
 
 #else
 
@@ -24,7 +29,7 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
 
   /* Parallel compilation */
   MPI_Comm  *comm = (MPI_Comm*) m;
-  if (!comm) return(tridiagLU(a,b,c,x,n,ns,r,NULL));
+  if (!comm) return(tridiagLU(a,b,c,x,n,ns,context,NULL));
   MPI_Comm_size(*comm,&nproc);
   MPI_Comm_rank(*comm,&rank);
 
@@ -116,7 +121,7 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
   if (recvbuf)  free(recvbuf);
 
   /* solve the gathered systems in serial */
-  ierr = tridiagLU(ra,rb,rc,rx,NT,ns_local[rank],NULL,NULL);
+  ierr = tridiagLU(ra,rb,rc,rx,NT,ns_local[rank],context,NULL);
   if (ierr) return(ierr);
 
   /* allocate send buffer and save the data to send */

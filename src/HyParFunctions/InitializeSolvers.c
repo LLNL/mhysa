@@ -3,6 +3,7 @@
 #include <string.h>
 #include <mpivars.h>
 #include <hypar.h>
+#include <tridiagLU.h>
 #include <timeintegration.h>
 #include <interpolation.h>
 #include <secondderivative.h>
@@ -59,6 +60,8 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Spatial interpolation for hyperbolic term */
+  solver->interp    = NULL;
+  solver->lusolver  = NULL;
   if (!strcmp(solver->spatial_scheme_hyp,_FIRST_ORDER_UPWIND_)) {
     /* First order upwind scheme */
     if (solver->nvars > 1) {
@@ -82,7 +85,6 @@ int InitializeSolvers(void *s, void *m)
         return(1);
       }
     }
-    solver->interp = NULL;
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_)) {
     /* Fifth order WENO scheme */
     if (solver->nvars > 1) {
@@ -134,6 +136,8 @@ int InitializeSolvers(void *s, void *m)
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
     ierr = WENOInitialize(solver->interp,mpi); CHECKERR(ierr);
+    solver->lusolver = (TridiagLU*) calloc (1,sizeof(TridiagLU));
+    ierr = tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
   } else {
     fprintf(stderr,"Error: %s is a not a supported spatial interpolation scheme.\n",
             solver->spatial_scheme_hyp);
