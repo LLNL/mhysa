@@ -20,6 +20,7 @@ HyPar_LDADD = \
   PhysicalModels/FPDoubleWell/libFPDoubleWell.a \
   PhysicalModels/FPPowerSystem/libFPPowerSystem.a \
   PhysicalModels/Euler1D/libEuler1D.a \
+  PhysicalModels/Euler2D/libEuler2D.a \
   PhysicalModels/NavierStokes3D/libNavierStokes3D.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   SecondDerivative/libSecondDerivative.a \
