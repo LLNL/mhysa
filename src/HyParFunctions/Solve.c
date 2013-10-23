@@ -9,9 +9,6 @@ int Solve(void *s,void *m)
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0;
 
-  /* Write an initial solution file */
-  ierr = OutputSolution(solver,mpi); CHECKERR(ierr);
-
   /* Define and initialize the time-integration object */
   TimeIntegration TS;
   ierr = TimeInitialize(solver,mpi,&TS); CHECKERR(ierr);

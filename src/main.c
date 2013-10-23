@@ -65,6 +65,13 @@ int main(int argc,char **argv)
     return(ierr);
   }
   /* Initializations complete */
+  
+  /* Write an initial solution file */
+  ierr = OutputSolution(&solver,&mpi);
+  if (ierr) {
+    printf("Error: OutputSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
+    return(ierr);
+  }
 
   /* Run the solver */
   gettimeofday(&solve_start,NULL);
@@ -75,7 +82,7 @@ int main(int argc,char **argv)
     return(ierr);
   }
 
-  /* Write output */
+  /* Write final solution file */
   ierr = OutputSolution(&solver,&mpi);
   if (ierr) {
     printf("Error: OutputSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
