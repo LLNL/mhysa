@@ -95,12 +95,12 @@ inline int NavierStokes3DRightEigenvectors(double *u,double **R,void *p,int dir)
   NavierStokes3D *param  = (NavierStokes3D*)  p;
   int     ierr    = 0;
   double  gamma   = param->gamma;
-  double  rho,vx,vy,vz,e,P,c,csq;
+  double  rho,vx,vy,vz,e,P,c;
   double  nx,ny,nz,lx,ly,lz,mx,my,mz;
   double  qsq,qn,qm,ql,H;
 
   ierr = NavierStokes3DGetFlowVar(u,&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
-  c    = sqrt(gamma*P/rho); csq = c*c;
+  c    = sqrt(gamma*P/rho);
   H    = (e+P)/rho;
 
   if (dir == _XDIR_) {
