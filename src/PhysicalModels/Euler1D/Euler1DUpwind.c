@@ -8,9 +8,9 @@
 
 inline int Euler1DGetFlowVar        (double*,double*,double*,double*,double*,void*);
 inline int Euler1DRoeAverage        (double*,double*,double*,void*);
-inline int Euler1DEigenvalues       (double*,double**,void*);
-inline int Euler1DLeftEigenvectors  (double*,double**,void*);
-inline int Euler1DRightEigenvectors (double*,double**,void*);
+inline int Euler1DEigenvalues       (double*,double**,void*,int);
+inline int Euler1DLeftEigenvectors  (double*,double**,void*,int);
+inline int Euler1DRightEigenvectors (double*,double**,void*,int);
 
 int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {
@@ -58,9 +58,9 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
 
       ierr = Euler1DRoeAverage(&uavg[0],&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
 
-      ierr = Euler1DEigenvalues       (&uavg[0],D,param); CHECKERR(ierr);
-      ierr = Euler1DLeftEigenvectors  (&uavg[0],L,param); CHECKERR(ierr);
-      ierr = Euler1DRightEigenvectors (&uavg[0],R,param); CHECKERR(ierr);
+      ierr = Euler1DEigenvalues       (&uavg[0],D,param,0); CHECKERR(ierr);
+      ierr = Euler1DLeftEigenvectors  (&uavg[0],L,param,0); CHECKERR(ierr);
+      ierr = Euler1DRightEigenvectors (&uavg[0],R,param,0); CHECKERR(ierr);
 
       for (k=0; k<nvars; k++) D[k][k] = absolute(D[k][k]);
       ierr = MatMult(3,DL,D,L);    CHECKERR(ierr);
@@ -136,9 +136,9 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
 
       ierr = Euler1DRoeAverage(&uavg[0],&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
 
-      ierr = Euler1DEigenvalues       (&uavg[0],D,param); CHECKERR(ierr);
-      ierr = Euler1DLeftEigenvectors  (&uavg[0],L,param); CHECKERR(ierr);
-      ierr = Euler1DRightEigenvectors (&uavg[0],R,param); CHECKERR(ierr);
+      ierr = Euler1DEigenvalues       (&uavg[0],D,param,0); CHECKERR(ierr);
+      ierr = Euler1DLeftEigenvectors  (&uavg[0],L,param,0); CHECKERR(ierr);
+      ierr = Euler1DRightEigenvectors (&uavg[0],R,param,0); CHECKERR(ierr);
 
       /* calculate characteristic fluxes and variables */
       ierr = MatVecMult(nvars,&ucL[0],L,&uL[nvars*p]);
@@ -148,11 +148,11 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
-        ierr = Euler1DEigenvalues(&uL[nvars*p],D,param); CHECKERR(ierr);
+        ierr = Euler1DEigenvalues(&uL[nvars*p],D,param,0); CHECKERR(ierr);
         eigL = D[k][k];
-        ierr = Euler1DEigenvalues(&uR[nvars*p],D,param); CHECKERR(ierr);
+        ierr = Euler1DEigenvalues(&uR[nvars*p],D,param,0); CHECKERR(ierr);
         eigR = D[k][k];
-        ierr = Euler1DEigenvalues(&uavg[0]    ,D,param); CHECKERR(ierr);
+        ierr = Euler1DEigenvalues(&uavg[0]    ,D,param,0); CHECKERR(ierr);
         eigC = D[k][k];
 
         if ((eigL > 0) && (eigC > 0) && (eigR > 0)) {
@@ -226,9 +226,9 @@ int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
 
       ierr = Euler1DRoeAverage(&uavg[0],&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
 
-      ierr = Euler1DEigenvalues       (&uavg[0],D,param); CHECKERR(ierr);
-      ierr = Euler1DLeftEigenvectors  (&uavg[0],L,param); CHECKERR(ierr);
-      ierr = Euler1DRightEigenvectors (&uavg[0],R,param); CHECKERR(ierr);
+      ierr = Euler1DEigenvalues       (&uavg[0],D,param,0); CHECKERR(ierr);
+      ierr = Euler1DLeftEigenvectors  (&uavg[0],L,param,0); CHECKERR(ierr);
+      ierr = Euler1DRightEigenvectors (&uavg[0],R,param,0); CHECKERR(ierr);
 
       /* calculate characteristic fluxes and variables */
       ierr = MatVecMult(nvars,&ucL[0],L,&uL[nvars*p]);
@@ -238,11 +238,11 @@ int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
-        ierr = Euler1DEigenvalues(&uL[nvars*p],D,param); CHECKERR(ierr);
+        ierr = Euler1DEigenvalues(&uL[nvars*p],D,param,0); CHECKERR(ierr);
         eigL = absolute(D[k][k]);
-        ierr = Euler1DEigenvalues(&uR[nvars*p],D,param); CHECKERR(ierr);
+        ierr = Euler1DEigenvalues(&uR[nvars*p],D,param,0); CHECKERR(ierr);
         eigR = absolute(D[k][k]);
-        ierr = Euler1DEigenvalues(&uavg[0]    ,D,param); CHECKERR(ierr);
+        ierr = Euler1DEigenvalues(&uavg[0]    ,D,param,0); CHECKERR(ierr);
         eigC = absolute(D[k][k]);
 
         double alpha = max3(eigL,eigC,eigR);

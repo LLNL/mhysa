@@ -10,6 +10,7 @@
 #include <physicalmodels/fpdoublewell.h>
 #include <physicalmodels/fppowersystem.h>
 #include <physicalmodels/euler1d.h>
+#include <physicalmodels/navierstokes3d.h>
 
 int InitializePhysics(void *s,void *m)
 {
@@ -54,6 +55,11 @@ int InitializePhysics(void *s,void *m)
 
     solver->physics = (Euler1D*) calloc (1,sizeof(Euler1D));
     ierr = Euler1DInitialize(solver,mpi); CHECKERR(ierr);
+
+  } else if (!strcmp(solver->model,_NAVIER_STOKES_3D_)) {
+
+    solver->physics = (NavierStokes3D*) calloc (1,sizeof(NavierStokes3D));
+    ierr = NavierStokes3DInitialize(solver,mpi); CHECKERR(ierr);
 
   } else {
 

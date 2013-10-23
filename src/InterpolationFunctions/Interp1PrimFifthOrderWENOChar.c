@@ -104,8 +104,8 @@ int Interp1PrimFifthOrderWENOChar(double *fI,double *fC,double *u,int upw,int di
       ierr = solver->AveragingFunction(uavg,&u[nvars*qm1],&u[nvars*qp1],solver->physics); CHECKERR(ierr);
 
       /* Get the left and right eigenvectors */
-      ierr = solver->GetLeftEigenvectors  (uavg,L,solver->physics); CHECKERR(ierr);
-      ierr = solver->GetRightEigenvectors (uavg,R,solver->physics); CHECKERR(ierr);
+      ierr = solver->GetLeftEigenvectors  (uavg,L,solver->physics,dir); CHECKERR(ierr);
+      ierr = solver->GetRightEigenvectors (uavg,R,solver->physics,dir); CHECKERR(ierr);
 
       /* For each characteristic field */
       for (v = 0; v < nvars; v++) {
