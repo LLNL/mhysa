@@ -1,16 +1,6 @@
 /*
 
-  1D Euler Equations for Inviscid, Compressible Flows
-
-    
-  d   [ rho   ]   d   [   rho*u    ]
-  --  [ rho*u ] + --  [rho*u*u + p ] = 0
-  dt  [   e   ]   dx  [ (e+p)*u    ]
-
-  Equation of state:
-           p         1
-    e = -------  +   - rho * u^2
-        gamma-1      2
+  3D Navier-Stokes Equations for Compressible Flows
 
   Choices for upwinding:
   "roe"       Roe upwinding
