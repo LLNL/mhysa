@@ -8,7 +8,7 @@ int Initialize(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0,i;
+  int           i;
 
   /* allocations */
   mpi->ip           = (int*) calloc (solver->ndims,sizeof(int));
@@ -17,6 +17,7 @@ int Initialize(void *s, void *m)
   solver->dim_local = (int*) calloc (solver->ndims,sizeof(int));
 
 #ifndef serial
+  int ierr = 0;
 
   /* Domain partitioning */
   if (!mpi->rank) printf("Partitioning domain.\n");

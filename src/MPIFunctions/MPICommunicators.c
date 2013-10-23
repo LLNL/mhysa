@@ -5,6 +5,9 @@
 int MPICreateCommunicators(int ndims,void *m)
 {
   MPIVariables *mpi = (MPIVariables*) m;
+#ifdef serial
+  mpi->comm = NULL;
+#else
   int          i,n,color,key;
   int          *ip,*iproc;
 
@@ -29,16 +32,17 @@ int MPICreateCommunicators(int ndims,void *m)
     free(ip);
     free(iproc);
   }
+#endif
   return(0);
 }
 
 int MPIFreeCommunicators(int ndims,void *m)
 {
+#ifndef serial
   MPIVariables *mpi = (MPIVariables*) m;
   int          n;
-  
   for (n=0; n<ndims; n++) MPI_Comm_free(&mpi->comm[n]);
   free(mpi->comm);
-
+#endif
   return(0);
 }

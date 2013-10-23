@@ -181,9 +181,15 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
           B[sys*nvars+v][indexI[dir]] = 1.0;
           C[sys*nvars+v][indexI[dir]] = 0.0;
         } else {
-          A[sys*nvars+v][indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
-          B[sys*nvars+v][indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
-          C[sys*nvars+v][indexI[dir]] = (one_third)*w3;
+          if (upw > 0) {
+            A[sys*nvars+v][indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
+            B[sys*nvars+v][indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
+            C[sys*nvars+v][indexI[dir]] = (one_third)*w3;
+          } else {
+            C[sys*nvars+v][indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
+            B[sys*nvars+v][indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
+            A[sys*nvars+v][indexI[dir]] = (one_third)*w3;
+          }
         }
         R[sys*nvars+v][indexI[dir]] = w1*f1 + w2*f2 + w3*f3;
       }

@@ -8,7 +8,10 @@ typedef struct mpi_variables {
   int   *iproc;   /* number of processes along each dimension           */
   int   *ip;      /* process rank along each dimension                  */
   int   *is,*ie;  /* global start and end indices along each dimension  */
-#ifndef serial
+#ifdef serial
+  int   world;
+  int   *comm;
+#else
   MPI_Comm  world;   /* communicator for all processes                  */
   MPI_Comm  *comm;   /* sub-communicators                               */
 #endif

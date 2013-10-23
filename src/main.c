@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #include <mpivars.h>
 #include <hypar.h>
@@ -14,6 +15,8 @@ int main(int argc,char **argv)
 #ifdef serial
   mpi.rank  = 0;
   mpi.nproc = 1;
+  mpi.world = 0;
+  mpi.comm  = NULL;
   printf("HyPar - Serial Version\n");
 #else
   MPI_Init(&argc,&argv);

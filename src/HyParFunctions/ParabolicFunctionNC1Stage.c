@@ -18,13 +18,13 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
   int     *dim    = solver->dim_local;
   double  *dxinv  = solver->dxinv;
 
-  int *index = (int*) calloc (ndims,sizeof(int));
+  if (!solver->GFunction) return(0); /* zero parabolic terms */
 
+  int *index = (int*) calloc (ndims,sizeof(int));
   int size = 1;
   for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
 
   ierr = ArraySetValue_double(par,size*nvars,0.0); CHECKERR(ierr);
-  if (!solver->GFunction) return(0); /* zero parabolic terms */
 
   int offset = 0;
   for (d = 0; d < ndims; d++) {
