@@ -58,19 +58,19 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
   sendbufR = (double*) calloc (ns,sizeof(double));
 
   /* total number of points */
-  if (context->evaluate_norm)
 #ifdef serial
-    NT = n;
+  if (context->evaluate_norm)    NT = n;
+  else                           NT = 0;
 #else
-    MPI_Allreduce(&n,&NT,1,MPI_INT,MPI_SUM,*comm);
+  if (context->evaluate_norm) MPI_Allreduce(&n,&NT,1,MPI_INT,MPI_SUM,*comm);
+  else NT = 0;
 #endif
 
 #ifdef serial
-    if (context->verbose)
+    if (context->verbose) printf("\n");
 #else
-    if (context->verbose && (!rank))
+    if (context->verbose && (!rank)) printf("\n");
 #endif
-      printf("\n");
 
   iter = 0;
   while(1) {

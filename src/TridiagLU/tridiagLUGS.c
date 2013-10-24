@@ -54,7 +54,7 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
   for (p=0; p<ns%nproc; p++) ns_local[p]++;
 
   /* allocate the arrays for the gathered tridiagonal systems */
-  double **ra,**rb,**rc,**rx; 
+  double **ra=NULL,**rb=NULL,**rc=NULL,**rx=NULL; 
   if (ns_local[rank] > 0) {
     ra = (double**) calloc (ns_local[rank],sizeof(double));
     rb = (double**) calloc (ns_local[rank],sizeof(double));

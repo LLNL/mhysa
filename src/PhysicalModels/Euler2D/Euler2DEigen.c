@@ -20,6 +20,7 @@ inline int Euler2DEigenvalues(double *u,double **D,void *p,int dir)
 
   if      (dir == _XDIR_) vn = vx;
   else if (dir == _YDIR_) vn = vy;
+  else                    vn = 0;
 
   D[0][0] = vn-c; D[0][1] = 0;      D[0][2] = 0;    D[0][3] = 0;
   D[1][0] = 0;    D[1][1] = vn;     D[1][2] = 0;    D[1][3] = 0;
@@ -46,6 +47,9 @@ inline int Euler2DLeftEigenvectors(double *u,double **L,void *p,int dir)
     lx = 0.0; ly = 1.0;
   } else if (dir == _YDIR_) {
     nx = 0.0; ny = 1.0;
+    lx = 1.0; ly = 0.0;
+  } else {
+    nx = 0.0; ny = 0.0;
     lx = 0.0; ly = 0.0;
   }
   qn  = vx*nx + vy*ny;
@@ -90,6 +94,9 @@ inline int Euler2DRightEigenvectors(double *u,double **R,void *p,int dir)
     lx = 0.0; ly = 1.0;
   } else if (dir == _YDIR_) {
     nx = 0.0; ny = 1.0;
+    lx = 1.0; ly = 0.0;
+  } else {
+    nx = 0.0; ny = 0.0;
     lx = 0.0; ly = 0.0;
   }
   qn  = vx*nx + vy*ny;

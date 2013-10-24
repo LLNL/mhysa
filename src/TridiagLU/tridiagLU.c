@@ -108,11 +108,13 @@ int tridiagLU(double **a,double **b,double **c,double **x,
     }
   }
   free(sendbuf); free(recvbuf);
+#endif
 
   /* end of stage 2 */
   gettimeofday(&stage2,NULL);
 
   /* Stage 3 - Solve the reduced (nproc-1) X (nproc-1) tridiagonal system   */
+#ifndef serial
   if (nproc > 1) {
     double **zero, **one;
     zero    = (double**) calloc (ns,sizeof(double*));

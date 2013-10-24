@@ -21,6 +21,7 @@ inline int NavierStokes3DEigenvalues(double *u,double **D,void *p,int dir)
   if      (dir == _XDIR_) vn = vx;
   else if (dir == _YDIR_) vn = vy;
   else if (dir == _ZDIR_) vn = vz;
+  else                    vn = 0.0;
 
   D[0][0] = vn;     D[0][1] = 0;    D[0][2] = 0;      D[0][3] = 0;    D[0][4] = 0;
   D[1][0] = 0;      D[1][1] = vn-c; D[1][2] = 0;      D[1][3] = 0;    D[1][4] = 0;
@@ -55,6 +56,10 @@ inline int NavierStokes3DLeftEigenvectors(double *u,double **L,void *p,int dir)
     nx = 0.0; ny = 0.0; nz = 1.0;
     lx = 1.0; ly = 0.0; lz = 0.0;
     mx = 0.0; my = 1.0; mz = 0.0;
+  } else {
+    nx = 0.0; ny = 0.0; nz = 0.0;
+    lx = 0.0; ly = 0.0; lz = 0.0;
+    mx = 0.0; my = 0.0; mz = 0.0;
   }
   qn  = vx*nx + vy*ny + vz*nz;
   ql  = vx*lx + vy*ly + vz*lz;
@@ -115,6 +120,10 @@ inline int NavierStokes3DRightEigenvectors(double *u,double **R,void *p,int dir)
     nx = 0.0; ny = 0.0; nz = 1.0;
     lx = 1.0; ly = 0.0; lz = 0.0;
     mx = 0.0; my = 1.0; mz = 0.0;
+  } else {
+    nx = 0.0; ny = 0.0; nz = 0.0;
+    lx = 0.0; ly = 0.0; lz = 0.0;
+    mx = 0.0; my = 0.0; mz = 0.0;
   }
   qn  = vx*nx + vy*ny + vz*nz;
   ql  = vx*lx + vy*ly + vz*lz;
