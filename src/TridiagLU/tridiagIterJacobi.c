@@ -77,8 +77,8 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
 
     /* evaluate break conditions */
     if (    (iter >= context->maxiter) 
-        ||  (context->evaluate_norm && (global_norm < context->atol)) 
-        ||  (context->evaluate_norm && (global_norm/norm0 < context->rtol))  ) {
+        ||  (iter && context->evaluate_norm && (global_norm < context->atol)) 
+        ||  (iter && context->evaluate_norm && (global_norm/norm0 < context->rtol))  ) {
       break;
     }
 
