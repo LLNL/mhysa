@@ -22,7 +22,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
 
   rcvreq = (MPI_Request*) calloc(2*ndims,sizeof(MPI_Request));
   sndreq = (MPI_Request*) calloc(2*ndims,sizeof(MPI_Request));
-  for (d=0; d<ndims; d++) rcvreq[d] = sndreq[d] = MPI_REQUEST_NULL;
+  for (d=0; d<2*ndims; d++) rcvreq[d] = sndreq[d] = MPI_REQUEST_NULL;
 
   /* each process has 2*ndims neighbors (except at non-periodic physical boundaries)  */
   /* calculate the rank of these neighbors (-1 -> none)                               */
