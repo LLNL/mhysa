@@ -35,7 +35,7 @@ int TimeRK(void *ts)
       { ierr = solver->PostStage(stage,TS->U,solver,mpi,stagetime); CHECKERR(ierr); }
   }
 
-  /* Stage completion */
+  /* Step completion */
   for (stage = 0; stage < params->nstages; stage++) {
     ierr = ArrayAXPY(TS->Udot[stage],solver->dt*params->b[stage],solver->u,size*solver->nvars);
     CHECKERR(ierr);
