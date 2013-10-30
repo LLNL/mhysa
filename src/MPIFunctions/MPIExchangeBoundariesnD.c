@@ -7,20 +7,22 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
 {
 #ifndef serial
   MPIVariables  *mpi = (MPIVariables*) m;
-  MPI_Request   *requests;
-  MPI_Status    *statuses;
+  MPI_Request   *rcvreq,*sndreq;
   int           ierr = 0, d;
   
   int *ip     = mpi->ip;
   int *iproc  = mpi->iproc;
   int *bcflag = mpi->bcperiodic;
-  int n_neighbors = 0;
 
   int *neighbor_rank  = (int*) calloc (2*ndims,sizeof(int));
   int *nip            = (int*) calloc (ndims  ,sizeof(int));
   int *index          = (int*) calloc (ndims  ,sizeof(int));
   int *bounds         = (int*) calloc (ndims,sizeof(int));
   int *offset         = (int*) calloc (ndims,sizeof(int));
+
+  rcvreq = (MPI_Request*) calloc(2*ndims,sizeof(MPI_Request));
+  sndreq = (MPI_Request*) calloc(2*ndims,sizeof(MPI_Request));
+  for (d=0; d<ndims; d++) rcvreq[d] = sndreq[d] = MPI_REQUEST_NULL;
 
   /* each process has 2*ndims neighbors (except at non-periodic physical boundaries)  */
   /* calculate the rank of these neighbors (-1 -> none)                               */
@@ -59,12 +61,22 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
     recvbuf[2*d+1] = (double*) calloc(bufdim[d]*nvars,sizeof(double));
   }
 
+  /* post the receive requests */
+  for (d = 0; d < ndims; d++) {
+    if (neighbor_rank[2*d  ] != -1) {
+      MPI_Irecv(recvbuf[2*d  ],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1630,
+                mpi->world,&rcvreq[2*d]);
+    }
+    if (neighbor_rank[2*d+1] != -1) {
+      MPI_Irecv(recvbuf[2*d+1],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1631,
+                mpi->world,&rcvreq[2*d+1]);
+    }
+  }
+
   /* count number of neighbors and copy data to send buffers */
-  n_neighbors = 0;
   for (d = 0; d < ndims; d++) {
     ierr = ArrayCopy1D_int(dim,bounds,ndims); CHECKERR(ierr); bounds[d] = ghosts;
     if (neighbor_rank[2*d] != -1) {
-      n_neighbors++;
       ierr = ArraySetValue_int(offset,ndims,0); CHECKERR(ierr);
       int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
       while (!done) {
@@ -75,7 +87,6 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       }
     }
     if (neighbor_rank[2*d+1] != -1) {
-      n_neighbors++;
       ierr = ArraySetValue_int(offset,ndims,0); CHECKERR(ierr); offset[d] = dim[d]-ghosts;
       int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
       while (!done) {
@@ -86,32 +97,21 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       }
     }
   }
-  requests = (MPI_Request*) calloc(2*n_neighbors,sizeof(MPI_Request));
-  statuses = (MPI_Status* ) calloc(2*n_neighbors,sizeof(MPI_Status ));
 
-  /* exchange the data */
-  int tick = 0;
+  /* send the data */
   for (d = 0; d < ndims; d++) {
     if (neighbor_rank[2*d  ] != -1) {
-      MPI_Irecv(recvbuf[2*d  ],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1630,
-                mpi->world,&requests[tick]);
       MPI_Isend(sendbuf[2*d  ],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1631,
-                mpi->world,&requests[tick+n_neighbors]);
-      tick++;
+                mpi->world,&sndreq[2*d]);
     }
     if (neighbor_rank[2*d+1] != -1) {
-      MPI_Irecv(recvbuf[2*d+1],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1631,
-                mpi->world,&requests[tick]);
       MPI_Isend(sendbuf[2*d+1],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1630,
-                mpi->world,&requests[tick+n_neighbors]);
-      tick++;
+                mpi->world,&sndreq[2*d+1]);
     }
   }
 
-  /* Wait till data transfer is done */
-  MPI_Waitall(2*n_neighbors,requests,statuses);
-  if (requests) free(requests);
-  if (statuses) free(statuses);
+  /* Wait till data is done received */
+  MPI_Waitall(2*ndims,rcvreq,MPI_STATUS_IGNORE);
 
   /* copy received data to ghost points */
   for (d = 0; d < ndims; d++) {
@@ -138,6 +138,9 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
     }
   }
   
+  /* Wait till send requests are complete before freeing memory */
+  MPI_Waitall(2*ndims,sndreq,MPI_STATUS_IGNORE);
+
   /* free send and receive buffers */
   for (d = 0; d < ndims; d++) {
     free(sendbuf[2*d  ]);
@@ -155,6 +158,8 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   free(index);
   free(nip);
   free(neighbor_rank);
+  free(rcvreq);
+  free(sndreq);
 #endif
   return(0);
 }
