@@ -44,6 +44,7 @@ int InitializeBoundaries(void *s,void *m)
         ierr = fscanf(in,"%lf %lf", &boundary[n].xmin[d], &boundary[n].xmax[d]);
         if (ierr != 2) return(1);
       }
+
       /* read in boundary type-specific additional data if required */
       if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
         boundary[n].DirichletValue = (double*) calloc (solver->nvars,sizeof(double)); 
@@ -51,6 +52,17 @@ int InitializeBoundaries(void *s,void *m)
         /* read the Dirichlet value for each variable on this boundary */
         for (v = 0; v < solver->nvars; v++) ierr = fscanf(in,"%lf",&boundary[n].DirichletValue[v]);
       } else boundary[n].DirichletValue = NULL;
+
+      /* if boundary is periodic, let the MPI info know */
+      /* 
+        The MPI function to exchange internal (MPI) boundary information will handle
+        periodic boundaries ONLY IF number of process along that dimension is more 
+        than 1.
+      */
+      if ((!strcmp(boundary[n].bctype,_PERIODIC_)) && (mpi->iproc[boundary[n].dim] > 1)) {
+        mpi->bcperiodic[boundary[n].dim] = 1;
+      }
+
       /* some checks */
       if (boundary[n].dim >= solver->ndims) {
         fprintf(stderr,"Error in reading boundary condition %d: dim %d is invalid (ndims = %d).\n",
@@ -65,6 +77,7 @@ int InitializeBoundaries(void *s,void *m)
       printf("  Boundary %10s:  Variable %2d, along dimension %2d and face %+1d\n",
                 boundary[n].bctype,boundary[n].var,boundary[n].dim,boundary[n].face);
     }
+
     fclose(in);
     printf("%d boundary condition(s) read.\n",solver->nBoundaryZones);
   }
@@ -78,6 +91,7 @@ int InitializeBoundaries(void *s,void *m)
       boundary[n].xmax = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
     }
   }
+
   /* communicate BC data to other processes */
   for (n = 0; n < solver->nBoundaryZones; n++) {
     ierr = MPIBroadcast_character(boundary[n].bctype,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
@@ -87,6 +101,10 @@ int InitializeBoundaries(void *s,void *m)
     ierr = MPIBroadcast_double   (boundary[n].xmin  ,solver->ndims    ,0,&mpi->world); CHECKERR(ierr);
     ierr = MPIBroadcast_double   (boundary[n].xmax  ,solver->ndims    ,0,&mpi->world); CHECKERR(ierr);
   }
+
+  /* broadcast periodic boundary info for MPI to all processes */
+  ierr = MPIBroadcast_integer(mpi->bcperiodic,solver->ndims,0,&mpi->world);CHECKERR(ierr);
+
 
   /* On other processes, if necessary, allocate and receive boundary-type-specific data */
   for (n = 0; n < solver->nBoundaryZones; n++) {

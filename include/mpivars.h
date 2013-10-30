@@ -8,6 +8,7 @@ typedef struct mpi_variables {
   int   *iproc;   /* number of processes along each dimension           */
   int   *ip;      /* process rank along each dimension                  */
   int   *is,*ie;  /* global start and end indices along each dimension  */
+  int   *bcperiodic; /* flag for periodic BCs along any dimension       */
 #ifdef serial
   int   world;
   int   *comm;

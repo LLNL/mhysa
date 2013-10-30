@@ -74,6 +74,7 @@ int Cleanup(void *s,void *m)
   free(mpi->ip);
   free(mpi->is);
   free(mpi->ie);
+  free(mpi->bcperiodic);
 
   return(0);
 }

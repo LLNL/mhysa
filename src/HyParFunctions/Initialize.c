@@ -14,6 +14,7 @@ int Initialize(void *s, void *m)
   mpi->ip           = (int*) calloc (solver->ndims,sizeof(int));
   mpi->is           = (int*) calloc (solver->ndims,sizeof(int));
   mpi->ie           = (int*) calloc (solver->ndims,sizeof(int));
+  mpi->bcperiodic   = (int*) calloc (solver->ndims,sizeof(int));
   solver->dim_local = (int*) calloc (solver->ndims,sizeof(int));
 
 #ifndef serial
@@ -45,6 +46,9 @@ int Initialize(void *s, void *m)
   /* create sub-communicators for parallel computations along grid lines in each dimension */
   ierr = MPICreateCommunicators(solver->ndims,mpi); CHECKERR(ierr);
 
+  /* initialize periodic BC flags to zero */
+  for (i=0; i<solver->ndims; i++) mpi->bcperiodic[i] = 0;
+
 #else
 
   for (i=0; i<solver->ndims; i++) {
@@ -53,6 +57,7 @@ int Initialize(void *s, void *m)
     mpi->iproc[i]         = 1;
     mpi->is[i]            = 0;
     mpi->ie[i]            = solver->dim_local[i];
+    mpi->bcperiodic[i]    = 0;
   }
 
 #endif

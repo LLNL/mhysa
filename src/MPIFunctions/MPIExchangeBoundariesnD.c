@@ -13,6 +13,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   
   int *ip     = mpi->ip;
   int *iproc  = mpi->iproc;
+  int *bcflag = mpi->bcperiodic;
   int n_neighbors = 0;
 
   int *neighbor_rank  = (int*) calloc (2*ndims,sizeof(int));
@@ -21,15 +22,19 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   int *bounds         = (int*) calloc (ndims,sizeof(int));
   int *offset         = (int*) calloc (ndims,sizeof(int));
 
-  /* each process has 2*ndims neighbors (except at physical boundaries) */
-  /* calculate the rank of these neighbors (-1 -> none)                 */
+  /* each process has 2*ndims neighbors (except at non-periodic physical boundaries)  */
+  /* calculate the rank of these neighbors (-1 -> none)                               */
   for (d = 0; d < ndims; d++) {
-    ierr = ArrayCopy1D_int(ip,nip,ndims); CHECKERR(ierr); nip[d]--;
-    if (ip[d] == 0)             neighbor_rank[2*d]   = -1;
-    else                        neighbor_rank[2*d]   = MPIRank1D(ndims,iproc,nip);
-    ierr = ArrayCopy1D_int(ip,nip,ndims); CHECKERR(ierr); nip[d]++;
-    if (ip[d] == (iproc[d]-1))  neighbor_rank[2*d+1] = -1;
-    else                        neighbor_rank[2*d+1] = MPIRank1D(ndims,iproc,nip);
+    ierr = ArrayCopy1D_int(ip,nip,ndims); CHECKERR(ierr); 
+    if (ip[d] == 0) nip[d] = iproc[d]-1;
+    else            nip[d]--;
+    if ((ip[d] == 0) && (!bcflag[d])) neighbor_rank[2*d]   = -1;
+    else                              neighbor_rank[2*d]   = MPIRank1D(ndims,iproc,nip);
+    ierr = ArrayCopy1D_int(ip,nip,ndims); CHECKERR(ierr); 
+    if (ip[d] == (iproc[d]-1)) nip[d] = 0;
+    else                       nip[d]++;
+    if ((ip[d] == (iproc[d]-1)) && (!bcflag[d]))  neighbor_rank[2*d+1] = -1;
+    else                                          neighbor_rank[2*d+1] = MPIRank1D(ndims,iproc,nip);
   }
 
   /* calculate dimensions of each of the send-receive regions */
