@@ -95,12 +95,12 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
     if (neighbor_rank[2*d  ] != -1) {
       MPI_Irecv(recvbuf[2*d  ],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1630,
                 mpi->world,&requests[tick]);
-      MPI_Isend(sendbuf[2*d  ],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1630,
+      MPI_Isend(sendbuf[2*d  ],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1631,
                 mpi->world,&requests[tick+n_neighbors]);
       tick++;
     }
     if (neighbor_rank[2*d+1] != -1) {
-      MPI_Irecv(recvbuf[2*d+1],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1630,
+      MPI_Irecv(recvbuf[2*d+1],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1631,
                 mpi->world,&requests[tick]);
       MPI_Isend(sendbuf[2*d+1],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1630,
                 mpi->world,&requests[tick+n_neighbors]);
