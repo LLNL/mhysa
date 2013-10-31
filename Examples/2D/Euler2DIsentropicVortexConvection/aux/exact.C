@@ -75,8 +75,9 @@ int main(){
 
       double rx, ry;
       rx = (x[i] - x0);
-      if (rx < -5)      { rx += 5; rx = -rx; }
-      else if (rx > 5)  { rx -= 5; rx = -rx; }
+      ry = (y[j] - y0);
+      if (rx < -5)      { rx += 10; }
+      else if (rx > 5)  { rx -= 10; }
 
       double rsq = rx*rx + ry*ry;
       double rho, u, v, P;
