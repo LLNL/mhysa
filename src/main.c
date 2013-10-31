@@ -74,9 +74,15 @@ int main(int argc,char **argv)
   }
 
   /* Run the solver */
+#ifndef serial
+  MPI_Barrier(mpi.world);
+#endif
   gettimeofday(&solve_start,NULL);
   ierr = Solve(&solver,&mpi);
   gettimeofday(&solve_end,NULL);
+#ifndef serial
+  MPI_Barrier(mpi.world);
+#endif
   if (ierr) {
     printf("Error: Solve() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
