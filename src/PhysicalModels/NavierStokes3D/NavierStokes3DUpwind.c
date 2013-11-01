@@ -6,7 +6,6 @@
 #include <physicalmodels/navierstokes3d.h>
 #include <hypar.h>
 
-inline int NavierStokes3DGetFlowVar        (double*,double*,double*,double*,double*,double*,double*,void*);
 inline int NavierStokes3DRoeAverage        (double*,double*,double*,void*);
 inline int NavierStokes3DEigenvalues       (double*,double**,void*,int);
 inline int NavierStokes3DLeftEigenvectors  (double*,double**,void*,int);
@@ -218,7 +217,7 @@ int NavierStokes3DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
       int p = ArrayIndex1D(ndims,bounds_inter,index_inter,NULL,0);
       double uavg[5], fcL[5], fcR[5], ucL[5], ucR[5], fc[5];
 
-      /* Roe-Fixed upwinding scheme */
+      /* Local Lax-Friedrich upwinding scheme */
 
       ierr = NavierStokes3DRoeAverage(&uavg[0],&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
 

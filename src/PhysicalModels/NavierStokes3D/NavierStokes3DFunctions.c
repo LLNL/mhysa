@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <math.h>
 #include <basic.h>
 #include <physicalmodels/navierstokes3d.h>
@@ -16,6 +17,14 @@ inline int NavierStokes3DGetFlowVar(double *u,double *rho,
   *e   = u[4];
   vsq  = (*vx)*(*vx) + (*vy)*(*vy) + (*vz)*(*vz);
   *P   = ((*e) - 0.5*(*rho)*vsq) * (gamma-1.0);
+  if (*rho < 0) {
+    fprintf(stderr,"Error: Negative density encountered.\n");
+    return(1);
+  }
+  if (*P < 0) {
+    fprintf(stderr,"Error: Negative pressure encountered.\n");
+    return(1);
+  }
 
   return(0);
 }
