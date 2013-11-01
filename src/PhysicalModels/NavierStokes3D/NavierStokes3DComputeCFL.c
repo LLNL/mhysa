@@ -8,7 +8,7 @@
 
 inline int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,double*,void*);
 
-int NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
+double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar             *solver = (HyPar*)   s;
   NavierStokes3D    *param  = (NavierStokes3D*) solver->physics;
@@ -44,5 +44,5 @@ int NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
   }
 
   free(index);
-  return(0);
+  return(max_cfl);
 }

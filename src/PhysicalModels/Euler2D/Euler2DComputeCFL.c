@@ -8,7 +8,7 @@
 
 inline int Euler2DGetFlowVar (double*,double*,double*,double*,double*,double*,void*);
 
-int Euler2DComputeCFL(void *s,void *m,double dt,double t)
+double Euler2DComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar   *solver = (HyPar*)   s;
   Euler2D *param  = (Euler2D*) solver->physics;
@@ -41,5 +41,5 @@ int Euler2DComputeCFL(void *s,void *m,double dt,double t)
   }
 
   free(index);
-  return(0);
+  return(max_cfl);
 }
