@@ -30,8 +30,8 @@ int NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
 
     c         = sqrt(param->gamma*P/rho); /* speed of sound */
     dxinv     = solver->GetCoordinate(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv); /* 1/dx */
-    dyinv     = solver->GetCoordinate(_YDIR_,index[_YDIR_],dim,ghosts,solver->dxinv); /* 1/dx */
-    dzinv     = solver->GetCoordinate(_ZDIR_,index[_ZDIR_],dim,ghosts,solver->dxinv); /* 1/dx */
+    dyinv     = solver->GetCoordinate(_YDIR_,index[_YDIR_],dim,ghosts,solver->dxinv); /* 1/dy */
+    dzinv     = solver->GetCoordinate(_ZDIR_,index[_ZDIR_],dim,ghosts,solver->dxinv); /* 1/dz */
 
     local_cfl[_XDIR_] = (absolute(vx)+c)*dt*dxinv; /* local cfl for this grid point (x) */
     local_cfl[_YDIR_] = (absolute(vy)+c)*dt*dyinv; /* local cfl for this grid point (y) */
