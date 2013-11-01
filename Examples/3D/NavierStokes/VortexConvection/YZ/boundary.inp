@@ -1,0 +1,36 @@
+30
+periodic      0     0     1     0     0      0   10.0     0     10.0
+periodic      0     0    -1     0     0      0   10.0     0     10.0
+periodic      0     1     1     0  10.0      0      0     0     10.0
+periodic      0     1    -1     0  10.0      0      0     0     10.0
+periodic      0     2     1     0  10.0      0   10.0     0        0
+periodic      0     2    -1     0  10.0      0   10.0     0        0
+
+periodic      1     0     1     0     0      0   10.0     0     10.0
+periodic      1     0    -1     0     0      0   10.0     0     10.0
+periodic      1     1     1     0  10.0      0      0     0     10.0
+periodic      1     1    -1     0  10.0      0      0     0     10.0
+periodic      1     2     1     0  10.0      0   10.0     0        0
+periodic      1     2    -1     0  10.0      0   10.0     0        0
+
+periodic      2     0     1     0     0      0   10.0     0     10.0
+periodic      2     0    -1     0     0      0   10.0     0     10.0
+periodic      2     1     1     0  10.0      0      0     0     10.0
+periodic      2     1    -1     0  10.0      0      0     0     10.0
+periodic      2     2     1     0  10.0      0   10.0     0        0
+periodic      2     2    -1     0  10.0      0   10.0     0        0
+
+periodic      3     0     1     0     0      0   10.0     0     10.0
+periodic      3     0    -1     0     0      0   10.0     0     10.0
+periodic      3     1     1     0  10.0      0      0     0     10.0
+periodic      3     1    -1     0  10.0      0      0     0     10.0
+periodic      3     2     1     0  10.0      0   10.0     0        0
+periodic      3     2    -1     0  10.0      0   10.0     0        0
+
+periodic      4     0     1     0     0      0   10.0     0     10.0
+periodic      4     0    -1     0     0      0   10.0     0     10.0
+periodic      4     1     1     0  10.0      0      0     0     10.0
+periodic      4     1    -1     0  10.0      0      0     0     10.0
+periodic      4     2     1     0  10.0      0   10.0     0        0
+periodic      4     2    -1     0  10.0      0   10.0     0        0
+
