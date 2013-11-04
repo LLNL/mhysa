@@ -74,7 +74,7 @@ int InitializeBoundaries(void *s,void *m)
                 n,boundary[n].var,solver->nvars);
         return(1);
       }
-      printf("  Boundary %10s:  Variable %2d, along dimension %2d and face %+1d\n",
+      printf("  Boundary %15s:  Variable %2d, along dimension %2d and face %+1d\n",
                 boundary[n].bctype,boundary[n].var,boundary[n].dim,boundary[n].face);
     }
 
