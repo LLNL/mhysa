@@ -17,20 +17,22 @@
         gamma-1      2
 
 
-Radial Expansion Wave problem:
+2D Riemann Problem (Case 4):
 
-http://www.as.dlr.de/hiocfd/case_c1.5.html
++ P. Lax and X.-D. Liu, Solution of two-dimensional Riemann 
+  problems of gas dynamics by positive schemes, 
+  SIAM J Sci Comp 19 (1998), 319–340.
 
 Domain:
 
-  -4.0 <= x,y <= 4.0
+  -0.5 <= x,y <= 0.5
   "extrapolate" boundary conditions
-  (supersonic outflow)
 
 The following input files are required:
 + solver.inp    -   General solver parameters
 + boundary.inp  -   Boundary conditions
 + physics.inp   -   Physical parameters (advection speed)
+
 
 Due to file sizes, the required file initial.inp for 
 initial solution are not provided. It can be generated 
