@@ -1,6 +1,7 @@
 /* interpolation scheme definitions */
 #define _FIRST_ORDER_UPWIND_    "1"
 #define _SECOND_ORDER_CENTRAL_  "2"
+#define _THIRD_ORDER_MUSCL_     "muscl3"
 #define _FIFTH_ORDER_WENO_      "weno5"
 #define _FIFTH_ORDER_CRWENO_    "crweno5"
 
@@ -66,17 +67,25 @@
 /* functions to interpolate the first primitive in a component-wise way
    (for conservative discretization of the 1st derivative) */
 int Interp1PrimFirstOrderUpwind (double*,double*,double*,int,int,void*,void*);
+int Interp1PrimThirdOrderMUSCL  (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderWENO   (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderCRWENO (double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) */
 int Interp1PrimFirstOrderUpwindChar (double*,double*,double*,int,int,void*,void*);
+int Interp1PrimThirdOrderMUSCLChar  (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderWENOChar   (double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the second primitive 
    (for conservative discretization of the 2nd derivative) */
 int Interp2PrimSecondOrder  (double*,double*,int,void*,void*);
+
+/* MUSCL scheme related parameters */
+typedef struct paramters_muscl {
+  double eps;
+} MUSCLParameters;
+int MUSCLInitialize(void*,void*);
 
 /* WENO scheme related parameters and functions */
 typedef struct parameters_weno {
