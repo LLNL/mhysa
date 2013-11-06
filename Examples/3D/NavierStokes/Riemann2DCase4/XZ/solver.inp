@@ -1,0 +1,18 @@
+begin
+  ndims             3
+  nvars             5
+  size              201 21 201
+  iproc             5 1 5
+  ghost             3
+  n_iter            250
+  time_scheme       rk
+  time_scheme_type  ssprk3
+  hyp_space_scheme  muscl3
+  hyp_interp_type   characteristic
+  dt                0.001
+  screen_op_iter    1
+  file_op_iter      25
+  op_file_format    tecplot3d
+  op_overwrite      no
+  model             navierstokes3d
+end
