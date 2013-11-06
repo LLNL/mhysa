@@ -59,7 +59,7 @@ inline int NavierStokes3DRoeAverage(double *uavg,double *uL,double *uR,void *p)
 {
   NavierStokes3D *param  = (NavierStokes3D*) p;
   int     ierr = 0;
-  double  rho ,vx, vy, vz, e ,P ,H ,csq, vsq;
+  double  rho ,vx, vy, vz, e ,P ,H;
   double  rhoL,vxL,vyL,vzL,eL,PL,HL,cLsq;
   double  rhoR,vxR,vyR,vzR,eR,PR,HR,cRsq;
   double  gamma = param->gamma;
@@ -79,11 +79,9 @@ inline int NavierStokes3DRoeAverage(double *uavg,double *uL,double *uR,void *p)
   vx  = (tL*vxL + tR*vxR) / (tL + tR);
   vy  = (tL*vyL + tR*vyR) / (tL + tR);
   vz  = (tL*vzL + tR*vzR) / (tL + tR);
-  H   = (tL*HL + tR*HR) / (tL + tR);
-  vsq = vx*vx + vy*vy + vz*vz;
-  csq = (gamma-1.0) * (H-0.5*vsq);
-  P   = csq * rho / gamma;
-  e   = P/(gamma-1.0) + 0.5*rho*vsq;
+  H   = (tL*HL  + tR*HR ) / (tL + tR);
+  P = (H - 0.5* (vx*vx+vy*vy+vz*vz)) * (rho*(gamma-1.0))/gamma;
+  e   = P/(gamma-1.0) + 0.5*rho*(vx*vx+vy*vy+vz*vz);
 
   uavg[0] = rho;
   uavg[1] = rho*vx;
