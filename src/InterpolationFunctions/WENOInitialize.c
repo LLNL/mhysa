@@ -9,7 +9,7 @@ int WENOInitialize(void *s,void *m)
 
   /* hard coding these parameters for now */
   /* modify to read from an input file later */
-  weno->mapped      = 0;
+  weno->mapped      = 1;
   weno->borges      = 0;
   weno->yc          = 0;
   weno->no_limiting = 0;
