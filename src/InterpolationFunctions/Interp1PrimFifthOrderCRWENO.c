@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mathfunctions.h>
@@ -53,17 +52,10 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   Nsys = 1; for (d=0; d<ndims; d++) Nsys *= bounds_outer[d]; Nsys *= nvars;
 
   /* Allocate arrays for tridiagonal system */
-  double **A, **B, **C, **R;
-  A = (double**) calloc (Nsys,sizeof(double*));
-  B = (double**) calloc (Nsys,sizeof(double*));
-  C = (double**) calloc (Nsys,sizeof(double*));
-  R = (double**) calloc (Nsys,sizeof(double*));
-  for (sys = 0; sys < Nsys; sys++) {
-    A[sys] = (double*) calloc (dim[dir]+1, sizeof(double));
-    B[sys] = (double*) calloc (dim[dir]+1, sizeof(double));
-    C[sys] = (double*) calloc (dim[dir]+1, sizeof(double));
-    R[sys] = (double*) calloc (dim[dir]+1, sizeof(double));
-  }
+  double A[Nsys*(dim[dir]+1)];
+  double B[Nsys*(dim[dir]+1)];
+  double C[Nsys*(dim[dir]+1)];
+  double R[Nsys*(dim[dir]+1)];
 
   int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
   sys = 0;
@@ -173,21 +165,21 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
 
         if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
             || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          A[sys*nvars+v][indexI[dir]] = 0.0;
-          B[sys*nvars+v][indexI[dir]] = 1.0;
-          C[sys*nvars+v][indexI[dir]] = 0.0;
+          A[sys*nvars+v+Nsys*indexI[dir]] = 0.0;
+          B[sys*nvars+v+Nsys*indexI[dir]] = 1.0;
+          C[sys*nvars+v+Nsys*indexI[dir]] = 0.0;
         } else {
           if (upw > 0) {
-            A[sys*nvars+v][indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
-            B[sys*nvars+v][indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
-            C[sys*nvars+v][indexI[dir]] = (one_third)*w3;
+            A[sys*nvars+v+Nsys*indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
+            B[sys*nvars+v+Nsys*indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
+            C[sys*nvars+v+Nsys*indexI[dir]] = (one_third)*w3;
           } else {
-            C[sys*nvars+v][indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
-            B[sys*nvars+v][indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
-            A[sys*nvars+v][indexI[dir]] = (one_third)*w3;
+            C[sys*nvars+v+Nsys*indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
+            B[sys*nvars+v+Nsys*indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
+            A[sys*nvars+v+Nsys*indexI[dir]] = (one_third)*w3;
           }
         }
-        R[sys*nvars+v][indexI[dir]] = w1*f1 + w2*f2 + w3*f3;
+        R[sys*nvars+v+Nsys*indexI[dir]] = w1*f1 + w2*f2 + w3*f3;
       }
     }
     sys++;
@@ -207,17 +199,13 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,lu,&mpi->comm[dir]);
 
   /* Now get the solution to the last interface from the next proc */
-  double *sendbuf,*recvbuf;
-  sendbuf = (double*) calloc (Nsys,sizeof(double));
-  recvbuf = (double*) calloc (Nsys,sizeof(double));
+  double sendbuf[Nsys], recvbuf[Nsys];
   MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
-  if (mpi->ip[dir]) for (d=0; d<Nsys; d++) sendbuf[d] = R[d][0];
+  if (mpi->ip[dir]) for (d=0; d<Nsys; d++) sendbuf[d] = R[d];
   if (mpi->ip[dir] != mpi->iproc[dir]-1) MPI_Irecv(recvbuf,Nsys,MPI_DOUBLE,mpi->ip[dir]+1,214,mpi->comm[dir],&req[0]);
   if (mpi->ip[dir])                      MPI_Isend(sendbuf,Nsys,MPI_DOUBLE,mpi->ip[dir]-1,214,mpi->comm[dir],&req[1]);
   MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
-  if (mpi->ip[dir] != mpi->iproc[dir]-1) for (d=0; d<Nsys; d++) R[d][dim[dir]] = recvbuf[d];
-  free(sendbuf);
-  free(recvbuf);
+  if (mpi->ip[dir] != mpi->iproc[dir]-1) for (d=0; d<Nsys; d++) R[d+Nsys*dim[dir]] = recvbuf[d];
 
 #endif
 
@@ -236,23 +224,12 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
       ierr = ArrayCopy1D_int(index_outer,indexI,ndims); CHECKERR(ierr);
       for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
         int p = ArrayIndex1D(ndims,bounds_inter,indexI,NULL,0);
-        int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = R[sys*nvars+v][indexI[dir]];
+        int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = R[sys*nvars+v+Nsys*indexI[dir]];
       }
       done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
       sys++;
     }
   }
-
-  for (sys = 0; sys < Nsys; sys++) {
-    free(A[sys]);
-    free(B[sys]);
-    free(C[sys]);
-    free(R[sys]);
-  }
-  free(A);
-  free(B);
-  free(C);
-  free(R);
 
   return(0);
 }
