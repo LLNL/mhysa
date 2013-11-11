@@ -53,24 +53,12 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,int upw,int d
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
-  int *indexC       = (int*) calloc (ndims,sizeof(int));
-  int *indexI       = (int*) calloc (ndims,sizeof(int));
-  int *index_outer  = (int*) calloc (ndims,sizeof(int));
-  int *bounds_outer = (int*) calloc (ndims,sizeof(int));
-  int *bounds_inter = (int*) calloc (ndims,sizeof(int));
+  int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
   ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
   ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
 
   /* allocate arrays for the averaged state, eigenvectors and characteristic interpolated f */
-  double **R, **L, *uavg, *fchar;
-  R     = (double**) calloc (nvars,sizeof(double*));
-  L     = (double**) calloc (nvars,sizeof(double*));
-  for (k = 0; k < nvars; k++){
-    R[k]    = (double*) calloc (nvars,sizeof(double));
-    L[k]    = (double*) calloc (nvars,sizeof(double));
-  }
-  uavg  = (double*)  calloc (nvars,sizeof(double ));
-  fchar = (double*)  calloc (nvars,sizeof(double ));
+  double R[nvars*nvars], L[nvars*nvars], uavg[nvars], fchar[nvars];
 
   int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
   if (upw > 0) {
@@ -104,9 +92,9 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,int upw,int d
           double m2, m1, p1;
           m2 = m1 = p1 = 0;
           for (k = 0; k < nvars; k++) {
-            m2 += L[v][k] * fC[qm2*nvars+k];
-            m1 += L[v][k] * fC[qm1*nvars+k];
-            p1 += L[v][k] * fC[qp1*nvars+k];
+            m2 += L[v*nvars+k] * fC[qm2*nvars+k];
+            m1 += L[v*nvars+k] * fC[qm1*nvars+k];
+            p1 += L[v*nvars+k] * fC[qp1*nvars+k];
           }
           double fdiff = p1 - m1;
           double bdiff = m1 - m2;
@@ -151,9 +139,9 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,int upw,int d
           double m1, p1, p2;
           m1 = p1 = p2 = 0;
           for (k = 0; k < nvars; k++) {
-            m1 += L[v][k] * fC[qm1*nvars+k];
-            p1 += L[v][k] * fC[qp1*nvars+k];
-            p2 += L[v][k] * fC[qp2*nvars+k];
+            m1 += L[v*nvars+k] * fC[qm1*nvars+k];
+            p1 += L[v*nvars+k] * fC[qp1*nvars+k];
+            p2 += L[v*nvars+k] * fC[qp2*nvars+k];
           }
           double fdiff = p2 - p1;
           double bdiff = p1 - m1;
@@ -169,20 +157,5 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,int upw,int d
     }
   }
 
-  for (k = 0; k < nvars; k++) {
-    free(R[k]);
-    free(L[k]);
-  }
-  free(R);
-  free(L);
-  free(uavg);
-  free(fchar);
-
-  free(indexC);
-  free(indexI);
-  free(index_outer);
-  free(bounds_outer);
-  free(bounds_inter);
-  
   return(0);
 }

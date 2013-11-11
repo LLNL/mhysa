@@ -18,10 +18,7 @@ int FPPowerSystemUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
   int ghosts  = solver->ghosts;
   int *dim    = solver->dim_local;
 
-  int *index_outer  = (int*) calloc (ndims,sizeof(int));
-  int *index_inter  = (int*) calloc (ndims,sizeof(int));
-  int *bounds_outer = (int*) calloc (ndims,sizeof(int));
-  int *bounds_inter = (int*) calloc (ndims,sizeof(int));
+  int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
   ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
 
@@ -48,11 +45,6 @@ int FPPowerSystemUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
     }
     done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
   }
-
-  free(index_inter);
-  free(index_outer);
-  free(bounds_outer);
-  free(bounds_inter);
 
   return(0);
 }

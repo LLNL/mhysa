@@ -8,10 +8,6 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0, d;
-  double        *fluxL  = NULL;
-  double        *fluxR  = NULL;
-  double        *uL     = NULL;
-  double        *uR     = NULL;
 
   int ndims = solver->ndims;
   int nvars = solver->nvars;
@@ -23,10 +19,8 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
     if (d == dir) size  *= (dim[d]+1);
     else          size  *=  dim[d];
   }
-  uL    = (double*) calloc (size*nvars,sizeof(double));
-  uR    = (double*) calloc (size*nvars,sizeof(double));
-  fluxL = (double*) calloc (size*nvars,sizeof(double));
-  fluxR = (double*) calloc (size*nvars,sizeof(double));
+  size *= nvars;
+  double uL[size], uR[size], fluxL[size], fluxR[size];
 
   /* Interpolation -> to calculate left and right-biased interface flux and state variable*/
   ierr = solver->InterpolateInterfacesHyp(uL   ,u    ,u, 1,dir,solver,mpi); CHECKERR(ierr);
@@ -37,9 +31,5 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
   /* Upwind -> to calculate the final interface flux */
   ierr = solver->Upwind(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 
 
-  free(uL);
-  free(uR);
-  free(fluxL);
-  free(fluxR);
   return(0);
 }

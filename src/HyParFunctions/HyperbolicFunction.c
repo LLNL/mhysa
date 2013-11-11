@@ -20,10 +20,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
   int     *dim   = solver->dim_local;
   double  *dxinv = solver->dxinv;
 
-  int *index          = (int*) calloc (ndims,sizeof(int));
-  int *index1         = (int*) calloc (ndims,sizeof(int));
-  int *index2         = (int*) calloc (ndims,sizeof(int));
-  int *dim_interface  = (int*) calloc (ndims,sizeof(int));
+  int index[ndims], index1[ndims], index2[ndims], dim_interface[ndims];
 
   int size = 1;
   for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
@@ -33,18 +30,13 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
 
   int offset = 0;
   for (d = 0; d < ndims; d++) {
-
-    /* allocate array for cell-centered flux */
+    ierr = ArrayCopy1D_int(dim,dim_interface,ndims); CHECKERR(ierr); dim_interface[d]++;
     int size_cellcenter = 1; for (i = 0; i < ndims; i++) size_cellcenter *= (dim[i] + 2*ghosts);
-    FluxC = (double*) calloc (size_cellcenter*nvars,sizeof(double));
+    int size_interface = 1; for (i = 0; i < ndims; i++) size_interface *= dim_interface[i];
+    double FluxC[size_cellcenter*nvars], FluxI[size_interface*nvars];
+
     /* evaluate cell-centered flux */
     ierr = solver->FFunction(FluxC,u,d,solver,t); CHECKERR(ierr);
-
-    /* calculate interface flux array dimensions */
-    ierr = ArrayCopy1D_int(dim,dim_interface,ndims); CHECKERR(ierr); dim_interface[d]++;
-    int size_interface = 1; for (i = 0; i < ndims; i++) size_interface *= dim_interface[i];
-    /* allocate interface array for conservative discretization */
-    FluxI = (double*) calloc (size_interface*nvars,sizeof(double));
     /* compute interface fluxes */
     ierr = ReconstructHyperbolic(FluxI,FluxC,u,d,solver,mpi,t); CHECKERR(ierr);
 
@@ -61,17 +53,8 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
       done = ArrayIncrementIndex(ndims,dim,index);
     }
 
-    /* free interface array */
-    free(FluxI);
-    free(FluxC);
-
     offset += dim[d] + 2*ghosts;
   }
-
-  free(dim_interface);
-  free(index );
-  free(index1);
-  free(index2);
 
   return(0);
 }

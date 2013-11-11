@@ -13,8 +13,8 @@ int    NavierStokes3DUpwindRoe         (double*,double*,double*,double*,double*,
 int    NavierStokes3DUpwindRF          (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes3DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes3DRoeAverage        (double*,double*,double*,void*);
-int    NavierStokes3DLeftEigenvectors  (double*,double**,void*,int);
-int    NavierStokes3DRightEigenvectors (double*,double**,void*,int);
+int    NavierStokes3DLeftEigenvectors  (double*,double*,void*,int);
+int    NavierStokes3DRightEigenvectors (double*,double*,void*,int);
 
 int NavierStokes3DInitialize(void *s,void *m)
 {

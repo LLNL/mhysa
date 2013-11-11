@@ -19,7 +19,7 @@ double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
   int     *dim   = solver->dim_local;
 
   double  max_cfl = 0;
-  int *index  = (int*) calloc (ndims,sizeof(int));
+  int     index[ndims];
   int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
   while (!done) {
     double x      = solver->GetCoordinate(0,index[0],dim,ghosts,solver->x);
@@ -38,6 +38,5 @@ double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
     done = ArrayIncrementIndex(ndims,dim,index);
   }
 
-  free(index);
   return(max_cfl);
 }

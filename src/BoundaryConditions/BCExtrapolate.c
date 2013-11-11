@@ -13,9 +13,7 @@ int BCExtrapolate(void *b,void *m,int ndims,int nvars,int *size,int ghosts,doubl
   int var   = boundary->var;
 
   if (boundary->on_this_proc) {
-    int *bounds = (int*) calloc (ndims,sizeof(int));
-    int *indexb = (int*) calloc (ndims,sizeof(int));  /* boundary index */
-    int *indexi = (int*) calloc (ndims,sizeof(int));  /* interior index */
+    int bounds[ndims], indexb[ndims], indexi[ndims];
     ierr = ArraySubtract1D_int(bounds,boundary->ie,boundary->is,ndims); CHECKERR(ierr);
     ierr = ArraySetValue_int  (indexb,ndims,0);                         CHECKERR(ierr);
     int done = 0;
@@ -30,9 +28,6 @@ int BCExtrapolate(void *b,void *m,int ndims,int nvars,int *size,int ghosts,doubl
       phi[nvars*p1+var] = phi[nvars*p2+var];
       done = ArrayIncrementIndex(ndims,bounds,indexb);
     }
-    free(bounds);
-    free(indexb);
-    free(indexi);
   }
   return(0);
 }

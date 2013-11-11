@@ -75,8 +75,8 @@ typedef struct main_parameters {
 
   /* Physics-specific functions for characteristic-based interpolation */
   int   (*AveragingFunction)   (double*,double*,double*,void*);
-  int   (*GetLeftEigenvectors) (double*,double**,void*,int);
-  int   (*GetRightEigenvectors)(double*,double**,void*,int);
+  int   (*GetLeftEigenvectors) (double*,double*,void*,int);
+  int   (*GetRightEigenvectors)(double*,double*,void*,int);
 
   /* Other parameters */
   void *interp;       /* Interpolation-related parameters         */

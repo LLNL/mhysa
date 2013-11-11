@@ -23,9 +23,7 @@ int BCPeriodic(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
   int var   = boundary->var;
 
   if ((boundary->on_this_proc) && (mpi->iproc[dim] == 1)) {
-    int *bounds = (int*) calloc (ndims,sizeof(int));
-    int *index1  = (int*) calloc (ndims,sizeof(int));
-    int *index2  = (int*) calloc (ndims,sizeof(int));
+    int bounds[ndims], index1[ndims], index2[ndims];
     ierr = ArraySubtract1D_int(bounds,boundary->ie,boundary->is,ndims); CHECKERR(ierr);
     ierr = ArraySetValue_int  (index1,ndims,0);                         CHECKERR(ierr);
     ierr = ArraySetValue_int  (index2,ndims,0);                         CHECKERR(ierr);
@@ -44,9 +42,6 @@ int BCPeriodic(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       phi[nvars*p1+var] = phi[nvars*p2+var];
       done = ArrayIncrementIndex(ndims,bounds,index1);
     }
-    free(bounds);
-    free(index1);
-    free(index2);
   }
   return(0);
 }

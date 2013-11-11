@@ -45,11 +45,7 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
-  int *indexC       = (int*) calloc (ndims,sizeof(int));
-  int *indexI       = (int*) calloc (ndims,sizeof(int));
-  int *index_outer  = (int*) calloc (ndims,sizeof(int));
-  int *bounds_outer = (int*) calloc (ndims,sizeof(int));
-  int *bounds_inter = (int*) calloc (ndims,sizeof(int));
+  int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
   ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
   ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
 
@@ -258,11 +254,5 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   free(C);
   free(R);
 
-  free(indexC);
-  free(indexI);
-  free(index_outer);
-  free(bounds_outer);
-  free(bounds_inter);
-  
   return(0);
 }

@@ -35,9 +35,7 @@ int SecondDerivativeSecondOrder(double *D2f,double *f,int dir,void *s,void *m)
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
-  int *indexC       = (int*) calloc (ndims,sizeof(int));
-  int *index_outer  = (int*) calloc (ndims,sizeof(int));
-  int *bounds_outer = (int*) calloc (ndims,sizeof(int));
+  int indexC[ndims], index_outer[ndims], bounds_outer[ndims];
   ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
 
   int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
@@ -53,10 +51,6 @@ int SecondDerivativeSecondOrder(double *D2f,double *f,int dir,void *s,void *m)
     }
     done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
   }
-
-  free(indexC);
-  free(index_outer);
-  free(bounds_outer);
   
   return(0);
 }

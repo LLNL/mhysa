@@ -119,14 +119,14 @@ int main(int argc,char **argv)
   FILE *out; out = fopen("errors.dat","w");
   for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",solver.dim_global[d]);
   for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",mpi.iproc[d]);
-  fprintf(out,"%1.4E %1.4E %1.4E   ",solver.error[0],solver.error[1],solver.error[2]);
-  fprintf(out,"%1.4E %1.4E\n",solver_runtime,main_runtime);
+  fprintf(out,"%1.16E %1.16E %1.16E   ",solver.error[0],solver.error[1],solver.error[2]);
+  fprintf(out,"%1.16E %1.16E\n",solver_runtime,main_runtime);
   fclose(out);
-  if (!mpi.rank) printf("L1         Error           : %E\n",solver.error[0]);
-  if (!mpi.rank) printf("L2         Error           : %E\n",solver.error[1]);
-  if (!mpi.rank) printf("Linfinity  Error           : %E\n",solver.error[2]);
-  if (!mpi.rank) printf("Solver runtime (in seconds): %E\n",solver_runtime);
-  if (!mpi.rank) printf("Total  runtime (in seconds): %E\n",main_runtime);
+  if (!mpi.rank) printf("L1         Error           : %1.16E\n",solver.error[0]);
+  if (!mpi.rank) printf("L2         Error           : %1.16E\n",solver.error[1]);
+  if (!mpi.rank) printf("Linfinity  Error           : %1.16E\n",solver.error[2]);
+  if (!mpi.rank) printf("Solver runtime (in seconds): %1.16E\n",solver_runtime);
+  if (!mpi.rank) printf("Total  runtime (in seconds): %1.16E\n",main_runtime);
 
   /* Cleaning up */
   ierr = Cleanup(&solver,&mpi);

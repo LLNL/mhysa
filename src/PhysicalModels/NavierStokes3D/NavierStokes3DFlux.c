@@ -17,10 +17,7 @@ int NavierStokes3DFlux(double *f,double *u,int dir,void *s,double t)
   int ghosts  = solver->ghosts;
   int ndims   = solver->ndims;
   int nvars   = solver->nvars;
-
-  int *index  = (int*) calloc (ndims,sizeof(int));
-  int *bounds = (int*) calloc (ndims,sizeof(int));
-  int *offset = (int*) calloc (ndims,sizeof(int));
+  int index[ndims], bounds[ndims], offset[ndims];
 
   /* set bounds for array index to include ghost points */
   ierr = ArrayCopy1D_int(dim,bounds,ndims); CHECKERR(ierr);
@@ -37,9 +34,6 @@ int NavierStokes3DFlux(double *f,double *u,int dir,void *s,double t)
     ierr = NavierStokes3DSetFlux   (&f[nvars*p],rho ,vx ,vy ,vz ,e ,P ,param,dir); CHECKERR(ierr);
     done = ArrayIncrementIndex(ndims,bounds,index);
   }
-
-  free(index);
-  free(bounds);
-  free(offset);
+  
   return(0);
 }

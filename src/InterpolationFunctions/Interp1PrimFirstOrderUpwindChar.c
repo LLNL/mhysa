@@ -49,24 +49,12 @@ int Interp1PrimFirstOrderUpwindChar(double *fI,double *fC,double *u,int upw,int 
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
-  int *indexC       = (int*) calloc (ndims,sizeof(int));
-  int *indexI       = (int*) calloc (ndims,sizeof(int));
-  int *index_outer  = (int*) calloc (ndims,sizeof(int));
-  int *bounds_outer = (int*) calloc (ndims,sizeof(int));
-  int *bounds_inter = (int*) calloc (ndims,sizeof(int));
+  int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
   ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
   ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
 
   /* allocate arrays for the averaged state, eigenvectors and characteristic interpolated f */
-  double **R, **L, *uavg, *fchar;
-  R     = (double**) calloc (nvars,sizeof(double*));
-  L     = (double**) calloc (nvars,sizeof(double*));
-  for (k = 0; k < nvars; k++){
-    R[k]    = (double*) calloc (nvars,sizeof(double));
-    L[k]    = (double*) calloc (nvars,sizeof(double));
-  }
-  uavg  = (double*)  calloc (nvars,sizeof(double ));
-  fchar = (double*)  calloc (nvars,sizeof(double ));
+  double R[nvars*nvars], L[nvars*nvars], uavg[nvars], fchar[nvars];
 
   int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
   while (!done) {
@@ -95,8 +83,8 @@ int Interp1PrimFirstOrderUpwindChar(double *fI,double *fC,double *u,int upw,int 
         /* calculate the characteristic flux components along this characteristic */
         double fcL = 0, fcR = 0;
         for (k = 0; k < nvars; k++) {
-          fcL += L[v][k] * fC[pL*nvars+k];
-          fcR += L[v][k] * fC[pR*nvars+k];
+          fcL += L[v*nvars+k] * fC[pL*nvars+k];
+          fcR += L[v*nvars+k] * fC[pR*nvars+k];
         }
 
         /* first order upwind approximation of the characteristic flux */
@@ -111,20 +99,5 @@ int Interp1PrimFirstOrderUpwindChar(double *fI,double *fC,double *u,int upw,int 
     done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
   }
 
-  for (k = 0; k < nvars; k++) {
-    free(R[k]);
-    free(L[k]);
-  }
-  free(R);
-  free(L);
-  free(uavg);
-  free(fchar);
-
-  free(indexC);
-  free(indexI);
-  free(index_outer);
-  free(bounds_outer);
-  free(bounds_inter);
-  
   return(0);
 }

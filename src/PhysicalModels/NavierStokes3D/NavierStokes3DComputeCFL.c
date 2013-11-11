@@ -18,7 +18,7 @@ double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
   int ghosts  = solver->ghosts;
   int ndims   = solver->ndims;
   int nvars   = solver->nvars;
-  int *index  = (int*) calloc (ndims,sizeof(int));
+  int index[ndims];
   double *u   = solver->u;
 
   double max_cfl = 0;
@@ -43,6 +43,5 @@ double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
     done = ArrayIncrementIndex(ndims,dim,index);
   }
 
-  free(index);
   return(max_cfl);
 }

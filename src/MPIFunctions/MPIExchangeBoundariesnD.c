@@ -7,21 +7,14 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
 {
 #ifndef serial
   MPIVariables  *mpi = (MPIVariables*) m;
-  MPI_Request   *rcvreq,*sndreq;
   int           ierr = 0, d;
   
   int *ip     = mpi->ip;
   int *iproc  = mpi->iproc;
   int *bcflag = mpi->bcperiodic;
 
-  int *neighbor_rank  = (int*) calloc (2*ndims,sizeof(int));
-  int *nip            = (int*) calloc (ndims  ,sizeof(int));
-  int *index          = (int*) calloc (ndims  ,sizeof(int));
-  int *bounds         = (int*) calloc (ndims,sizeof(int));
-  int *offset         = (int*) calloc (ndims,sizeof(int));
-
-  rcvreq = (MPI_Request*) calloc(2*ndims,sizeof(MPI_Request));
-  sndreq = (MPI_Request*) calloc(2*ndims,sizeof(MPI_Request));
+  int neighbor_rank[2*ndims], nip[ndims], index[ndims], bounds[ndims], offset[ndims];
+  MPI_Request rcvreq[2*ndims], sndreq[2*ndims];
   for (d=0; d<2*ndims; d++) rcvreq[d] = sndreq[d] = MPI_REQUEST_NULL;
 
   /* each process has 2*ndims neighbors (except at non-periodic physical boundaries)  */
@@ -40,7 +33,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   }
 
   /* calculate dimensions of each of the send-receive regions */
-  int *bufdim = (int*) calloc (ndims,sizeof(int));
+  int bufdim[ndims], maxbuf = 0;
   for (d = 0; d < ndims; d++) {
     bufdim[d] = 1;
     int i;
@@ -48,18 +41,11 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       if (i == d) bufdim[d] *= ghosts;
       else        bufdim[d] *= dim[i];
     }
+    if (bufdim[d] > maxbuf) maxbuf = bufdim[d];
   }
-  
+  maxbuf *= nvars;
   /* Allocate send and receive buffers */
-  double **sendbuf,**recvbuf;
-  sendbuf = (double**) calloc (2*ndims,sizeof(double*));
-  recvbuf = (double**) calloc (2*ndims,sizeof(double*));
-  for (d = 0; d < ndims; d++) {
-    sendbuf[2*d]   = (double*) calloc(bufdim[d]*nvars,sizeof(double));
-    sendbuf[2*d+1] = (double*) calloc(bufdim[d]*nvars,sizeof(double));
-    recvbuf[2*d]   = (double*) calloc(bufdim[d]*nvars,sizeof(double));
-    recvbuf[2*d+1] = (double*) calloc(bufdim[d]*nvars,sizeof(double));
-  }
+  double sendbuf[2*ndims][maxbuf], recvbuf[2*ndims][maxbuf];
 
   /* post the receive requests */
   for (d = 0; d < ndims; d++) {
@@ -141,25 +127,6 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   /* Wait till send requests are complete before freeing memory */
   MPI_Waitall(2*ndims,sndreq,MPI_STATUS_IGNORE);
 
-  /* free send and receive buffers */
-  for (d = 0; d < ndims; d++) {
-    free(sendbuf[2*d  ]);
-    free(sendbuf[2*d+1]);
-    free(recvbuf[2*d  ]);
-    free(recvbuf[2*d+1]);
-  }
-  free(sendbuf);
-  free(recvbuf);
-
-  /* free other allocated variables */
-  free(bufdim);
-  free(bounds);
-  free(offset);
-  free(index);
-  free(nip);
-  free(neighbor_rank);
-  free(rcvreq);
-  free(sndreq);
 #endif
   return(0);
 }

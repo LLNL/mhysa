@@ -15,8 +15,7 @@ int FPDoubleWellPostStep(double *u,void* s,void *m,double t)
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
   int ndims   = solver->ndims;
-
-  int *index  = (int*) calloc (ndims,sizeof(int));
+  int index[ndims];
 
   double local_sum = 0;
   int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
@@ -31,6 +30,5 @@ int FPDoubleWellPostStep(double *u,void* s,void *m,double t)
   ierr = MPISum_double(&global_integral,&local_integral,1,&mpi->world); CHECKERR(ierr);
   params->pdf_integral = global_integral;
 
-  free(index);
   return(0);
 }

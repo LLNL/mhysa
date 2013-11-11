@@ -10,11 +10,7 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
   MPIVariables *mpi = (MPIVariables*) m;
   int          ierr = 0, d, size;
 
-  int *is, *ie, *index, *bounds;
-  is     = (int*) calloc (ndims,sizeof(int));
-  ie     = (int*) calloc (ndims,sizeof(int));
-  index  = (int*) calloc (ndims,sizeof(int));
-  bounds = (int*) calloc (ndims,sizeof(int));
+  int is[ndims], ie[ndims], index[ndims], bounds[ndims];
 
   /* xg should be non-null only on root */
   if (mpi->rank && xg) {
@@ -32,7 +28,7 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
   for (d = 0; d < ndims; d++) size *= dim_local[d];
 
   /* create and copy data to send to root process */
-  double *buffer = (double*) calloc (size*nvars,sizeof(double));
+  double buffer[size*nvars];
   ierr = ArrayCopynD(ndims,x,buffer,dim_local,ghosts,0,index,nvars); CHECKERR(ierr);
 
   if (!mpi->rank) {
@@ -49,7 +45,7 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
       if (proc) {
 #ifndef serial
         MPI_Status status;
-        double *recvbuf = (double*) calloc (size*nvars,sizeof(double));
+        double recvbuf[size*nvars];
         MPI_Recv(recvbuf,size*nvars,MPI_DOUBLE,proc,1902,mpi->world,&status);
         int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
         while (!done) {
@@ -58,7 +54,6 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
           int v; for (v=0; v<nvars; v++) xg[nvars*p2+v] = recvbuf[nvars*p1+v];
           done = ArrayIncrementIndex(ndims,bounds,index);
         }
-        free(recvbuf);
 #endif
       } else {
         done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
@@ -77,10 +72,5 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
     MPI_Send(buffer,size*nvars,MPI_DOUBLE,0,1902,mpi->world);
 #endif
   }
-  free(is);
-  free(ie);
-  free(index);
-  free(bounds);
-  free(buffer);
   return(ierr);
 }

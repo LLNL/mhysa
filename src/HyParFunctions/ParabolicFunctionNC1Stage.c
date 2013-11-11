@@ -20,7 +20,7 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
 
   if (!solver->GFunction) return(0); /* zero parabolic terms */
 
-  int *index = (int*) calloc (ndims,sizeof(int));
+  int index[ndims];
   int size = 1;
   for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
 
@@ -28,16 +28,12 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
 
   int offset = 0;
   for (d = 0; d < ndims; d++) {
+    int size_deriv = 1; for (i=0; i<ndims; i++) size_deriv *= dim[i];
+    double Func[size*nvars], Deriv2[size_deriv*nvars];
 
-    /* allocate array for the diffusion function */
-    Func = (double*) calloc (size*nvars,sizeof(double));
     /* calculate the diffusion function */
     ierr = solver->GFunction(Func,u,d,solver,t); CHECKERR(ierr);
-
-    /* allocate array for the second differences and calculate it */
-    int size_deriv = 1; for (i=0; i<ndims; i++) size_deriv *= dim[i];
-    Deriv2  = (double*) calloc (size_deriv*nvars,sizeof(double));
-    ierr    = solver->SecondDerivativePar(Deriv2,Func,d,solver,mpi); CHECKERR(ierr);
+    ierr = solver->SecondDerivativePar(Deriv2,Func,d,solver,mpi); CHECKERR(ierr);
 
     /* calculate the final term - second derivative of the diffusion function */
     done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
@@ -50,13 +46,8 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
       done = ArrayIncrementIndex(ndims,dim,index);
     }
 
-    /* free allocated arrays */
-    free(Func);
-    free(Deriv2);
-
     offset += dim[d] + 2*ghosts;
   }
 
-  free(index);
   return(0);
 }

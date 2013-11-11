@@ -13,8 +13,8 @@ int    Euler2DUpwindRoe         (double*,double*,double*,double*,double*,double*
 int    Euler2DUpwindRF          (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler2DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler2DRoeAverage        (double*,double*,double*,void*);
-int    Euler2DLeftEigenvectors  (double*,double**,void*,int);
-int    Euler2DRightEigenvectors (double*,double**,void*,int);
+int    Euler2DLeftEigenvectors  (double*,double*,void*,int);
+int    Euler2DRightEigenvectors (double*,double*,void*,int);
 
 int Euler2DInitialize(void *s,void *m)
 {
