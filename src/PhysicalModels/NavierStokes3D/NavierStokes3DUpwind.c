@@ -6,10 +6,10 @@
 #include <physicalmodels/navierstokes3d.h>
 #include <hypar.h>
 
-inline int NavierStokes3DRoeAverage        (double*,double*,double*,void*);
-inline int NavierStokes3DEigenvalues       (double*,double*,void*,int);
-inline int NavierStokes3DLeftEigenvectors  (double*,double*,void*,int);
-inline int NavierStokes3DRightEigenvectors (double*,double*,void*,int);
+int NavierStokes3DRoeAverage        (double*,double*,double*,void*);
+int NavierStokes3DEigenvalues       (double*,double*,void*,int);
+int NavierStokes3DLeftEigenvectors  (double*,double*,void*,int);
+int NavierStokes3DRightEigenvectors (double*,double*,void*,int);
 
 int NavierStokes3DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {

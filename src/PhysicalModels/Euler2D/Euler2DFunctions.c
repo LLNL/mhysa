@@ -2,7 +2,7 @@
 #include <basic.h>
 #include <physicalmodels/euler2d.h>
 
-inline int Euler2DGetFlowVar(double *u,double *rho,double *vx,double *vy,
+int Euler2DGetFlowVar(double *u,double *rho,double *vx,double *vy,
                              double *e,double *P,void *p)
 {
   Euler2D *param  = (Euler2D*) p;
@@ -18,7 +18,7 @@ inline int Euler2DGetFlowVar(double *u,double *rho,double *vx,double *vy,
   return(0);
 }
 
-inline int Euler2DSetFlux(double *f,double rho,double vx,double vy,
+int Euler2DSetFlux(double *f,double rho,double vx,double vy,
                           double e,double P,void *p,int dir)
 {
   if (dir == _XDIR_) {
@@ -35,7 +35,7 @@ inline int Euler2DSetFlux(double *f,double rho,double vx,double vy,
   return(0);
 }
 
-inline int Euler2DRoeAverage(double *uavg,double *uL,double *uR,void *p)
+int Euler2DRoeAverage(double *uavg,double *uL,double *uR,void *p)
 {
   Euler2D *param  = (Euler2D*) p;
   int     ierr = 0;

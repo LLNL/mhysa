@@ -6,7 +6,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-inline double FPPowerSystemDissipationFunction(int,void*,double);
+double FPPowerSystemDissipationFunction(int,void*,double);
 
 double FPPowerSystemComputeDiffNumber(void *s,void *m,double dt,double t)
 {

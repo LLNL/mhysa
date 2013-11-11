@@ -6,7 +6,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-inline double FPPowerSystemDriftFunction(int,void*,double,double,double);
+double FPPowerSystemDriftFunction(int,void*,double,double,double);
 
 double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
 {

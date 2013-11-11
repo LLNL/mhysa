@@ -4,7 +4,7 @@
 #include <physicalmodels/fppowersystem.h>
 #include <hypar.h>
 
-inline double FPPowerSystemDriftFunction(int,void*,double,double,double);
+double FPPowerSystemDriftFunction(int,void*,double,double,double);
 
 int FPPowerSystemUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
                         double *u,int dir,void *s,double t)

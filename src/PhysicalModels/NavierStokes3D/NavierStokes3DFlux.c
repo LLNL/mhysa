@@ -4,8 +4,8 @@
 #include <physicalmodels/navierstokes3d.h>
 #include <hypar.h>
 
-inline int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,double*,void*);
-inline int NavierStokes3DSetFlux    (double*,double ,double ,double ,double ,double ,double ,void*,int);
+int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,double*,void*);
+int NavierStokes3DSetFlux    (double*,double ,double ,double ,double ,double ,double ,void*,int);
 
 int NavierStokes3DFlux(double *f,double *u,int dir,void *s,double t)
 {

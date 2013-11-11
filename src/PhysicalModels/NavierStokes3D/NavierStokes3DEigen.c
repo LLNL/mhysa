@@ -13,9 +13,9 @@
 
 */
 
-inline int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,double*,void*);
+int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,double*,void*);
 
-inline int NavierStokes3DEigenvalues(double *u,double *D,void *p,int dir)
+int NavierStokes3DEigenvalues(double *u,double *D,void *p,int dir)
 {
   NavierStokes3D  *param  = (NavierStokes3D*)  p;
   int             ierr    = 0;
@@ -39,7 +39,7 @@ inline int NavierStokes3DEigenvalues(double *u,double *D,void *p,int dir)
   return(0);
 }
 
-inline int NavierStokes3DLeftEigenvectors(double *u,double *L,void *p,int dir)
+int NavierStokes3DLeftEigenvectors(double *u,double *L,void *p,int dir)
 {
   NavierStokes3D *param  = (NavierStokes3D*)  p;
   int     ierr  = 0;
@@ -161,7 +161,7 @@ inline int NavierStokes3DLeftEigenvectors(double *u,double *L,void *p,int dir)
   return(0);
 }
 
-inline int NavierStokes3DRightEigenvectors(double *u,double *R,void *p,int dir)
+int NavierStokes3DRightEigenvectors(double *u,double *R,void *p,int dir)
 {
   NavierStokes3D *param  = (NavierStokes3D*)  p;
   int     ierr = 0;

@@ -6,9 +6,9 @@
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-inline int Euler1DGetFlowVar (double*,double*,double*,double*,double*,void*);
+int Euler1DGetFlowVar (double*,double*,double*,double*,double*,void*);
 
-inline int Euler1DEigenvalues(double *u,double *D,void *p,int dir)
+int Euler1DEigenvalues(double *u,double *D,void *p,int dir)
 {
   Euler1D *param  = (Euler1D*)  p;
   int     ierr    = 0;
@@ -25,7 +25,7 @@ inline int Euler1DEigenvalues(double *u,double *D,void *p,int dir)
   return(0);
 }
 
-inline int Euler1DLeftEigenvectors(double *u,double *L,void *p,int dir)
+int Euler1DLeftEigenvectors(double *u,double *L,void *p,int dir)
 {
   Euler1D *param  = (Euler1D*)  p;
   int     ierr    = 0;
@@ -48,7 +48,7 @@ inline int Euler1DLeftEigenvectors(double *u,double *L,void *p,int dir)
   return(0);
 }
 
-inline int Euler1DRightEigenvectors(double *u,double *R,void *p,int dir)
+int Euler1DRightEigenvectors(double *u,double *R,void *p,int dir)
 {
   Euler1D *param  = (Euler1D*)  p;
   int     ierr    = 0;

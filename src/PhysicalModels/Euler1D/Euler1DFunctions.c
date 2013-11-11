@@ -2,7 +2,7 @@
 #include <basic.h>
 #include <physicalmodels/euler1d.h>
 
-inline int Euler1DGetFlowVar(double *u,double *rho,double *v,double *e,double *P,void *p)
+int Euler1DGetFlowVar(double *u,double *rho,double *v,double *e,double *P,void *p)
 {
   Euler1D   *param  = (Euler1D*) p;
   double    gamma   = param->gamma;
@@ -15,7 +15,7 @@ inline int Euler1DGetFlowVar(double *u,double *rho,double *v,double *e,double *P
   return(0);
 }
 
-inline int Euler1DSetFlux(double *f,double rho,double v,double e,double P,void *p)
+int Euler1DSetFlux(double *f,double rho,double v,double e,double P,void *p)
 {
   f[0] = rho * v;
   f[1] = rho * v * v + P;
@@ -24,7 +24,7 @@ inline int Euler1DSetFlux(double *f,double rho,double v,double e,double P,void *
   return(0);
 }
 
-inline int Euler1DRoeAverage(double *uavg,double *uL,double *uR,void *p)
+int Euler1DRoeAverage(double *uavg,double *uL,double *uR,void *p)
 {
   Euler1D *param  = (Euler1D*) p;
   int     ierr = 0;

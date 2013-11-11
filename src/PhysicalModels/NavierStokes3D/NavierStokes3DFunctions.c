@@ -3,7 +3,7 @@
 #include <basic.h>
 #include <physicalmodels/navierstokes3d.h>
 
-inline int NavierStokes3DGetFlowVar(double *u,double *rho,
+int NavierStokes3DGetFlowVar(double *u,double *rho,
                                     double *vx,double *vy,double *vz,
                                     double *e,double *P,void *p)
 {
@@ -29,7 +29,7 @@ inline int NavierStokes3DGetFlowVar(double *u,double *rho,
   return(0);
 }
 
-inline int NavierStokes3DSetFlux(double *f,double rho,
+int NavierStokes3DSetFlux(double *f,double rho,
                                  double vx,double vy,double vz,
                                  double e,double P,void *p,int dir)
 {
@@ -55,7 +55,7 @@ inline int NavierStokes3DSetFlux(double *f,double rho,
   return(0);
 }
 
-inline int NavierStokes3DRoeAverage(double *uavg,double *uL,double *uR,void *p)
+int NavierStokes3DRoeAverage(double *uavg,double *uL,double *uR,void *p)
 {
   NavierStokes3D *param  = (NavierStokes3D*) p;
   int     ierr = 0;

@@ -6,7 +6,7 @@
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-inline int Euler1DGetFlowVar (double*,double*,double*,double*,double*,void*);
+int Euler1DGetFlowVar (double*,double*,double*,double*,double*,void*);
 
 int Euler1DComputeCFL(void *s,void *m,double dt,double t)
 {

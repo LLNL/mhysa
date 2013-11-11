@@ -4,8 +4,8 @@
 #include <physicalmodels/euler2d.h>
 #include <hypar.h>
 
-inline int Euler2DGetFlowVar (double*,double*,double*,double*,double*,double*,void*);
-inline int Euler2DSetFlux    (double*,double ,double ,double ,double ,double ,void*,int);
+int Euler2DGetFlowVar (double*,double*,double*,double*,double*,double*,void*);
+int Euler2DSetFlux    (double*,double ,double ,double ,double ,double ,void*,int);
 
 int Euler2DFlux(double *f,double *u,int dir,void *s,double t)
 {

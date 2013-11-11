@@ -6,7 +6,7 @@
 #include <physicalmodels/navierstokes3d.h>
 #include <hypar.h>
 
-inline int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,double*,void*);
+int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,double*,void*);
 
 double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
 {

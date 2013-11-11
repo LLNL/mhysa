@@ -4,7 +4,7 @@
 #include <mathfunctions.h>
 
 #if !defined(INLINE)
-# define INLINE extern inline
+# define INLINE inline
 #endif
 
 INLINE int    ArrayAXPY              (double*,double,double*,int);

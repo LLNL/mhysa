@@ -6,11 +6,11 @@
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-inline int Euler1DGetFlowVar        (double*,double*,double*,double*,double*,void*);
-inline int Euler1DRoeAverage        (double*,double*,double*,void*);
-inline int Euler1DEigenvalues       (double*,double*,void*,int);
-inline int Euler1DLeftEigenvectors  (double*,double*,void*,int);
-inline int Euler1DRightEigenvectors (double*,double*,void*,int);
+int Euler1DGetFlowVar        (double*,double*,double*,double*,double*,void*);
+int Euler1DRoeAverage        (double*,double*,double*,void*);
+int Euler1DEigenvalues       (double*,double*,void*,int);
+int Euler1DLeftEigenvectors  (double*,double*,void*,int);
+int Euler1DRightEigenvectors (double*,double*,void*,int);
 
 int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {

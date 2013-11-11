@@ -1,13 +1,13 @@
 /* Basic functions */
-inline double min      (double,double);
-inline double min3     (double,double,double);
-inline double max      (double,double);
-inline double max3     (double,double,double);
-inline double absolute (double);
-inline double raiseto  (double,double);
-inline double sign     (double);
+double min      (double,double);
+double min3     (double,double,double);
+double max      (double,double);
+double max3     (double,double,double);
+double absolute (double);
+double raiseto  (double,double);
+double sign     (double);
 
 void FindInterval      (double,double,double*,int,int*,int*);
 
-inline int MatMult     (int,double*,double*,double*);
-inline int MatVecMult  (int,double*,double*,double*);
+int MatMult     (int,double*,double*,double*);
+int MatVecMult  (int,double*,double*,double*);

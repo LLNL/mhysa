@@ -4,7 +4,7 @@
 #include <physicalmodels/fppowersystem.h>
 #include <hypar.h>
 
-inline double FPPowerSystemDissipationFunction(int,void*,double);
+double FPPowerSystemDissipationFunction(int,void*,double);
 
 int FPPowerSystemDiffusion(double *f,double *u,int dir,void *s,double t)
 {

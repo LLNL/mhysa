@@ -13,9 +13,9 @@
 
 */
 
-inline int Euler2DGetFlowVar (double*,double*,double*,double*,double*,double*,void*);
+int Euler2DGetFlowVar (double*,double*,double*,double*,double*,double*,void*);
 
-inline int Euler2DEigenvalues(double *u,double *D,void *p,int dir)
+int Euler2DEigenvalues(double *u,double *D,void *p,int dir)
 {
   Euler2D *param  = (Euler2D*)  p;
   int     ierr    = 0;
@@ -37,7 +37,7 @@ inline int Euler2DEigenvalues(double *u,double *D,void *p,int dir)
   return(0);
 }
 
-inline int Euler2DLeftEigenvectors(double *u,double *L,void *p,int dir)
+int Euler2DLeftEigenvectors(double *u,double *L,void *p,int dir)
 {
   Euler2D *param  = (Euler2D*)  p;
   int     ierr  = 0;
@@ -105,7 +105,7 @@ inline int Euler2DLeftEigenvectors(double *u,double *L,void *p,int dir)
   return(0);
 }
 
-inline int Euler2DRightEigenvectors(double *u,double *R,void *p,int dir)
+int Euler2DRightEigenvectors(double *u,double *R,void *p,int dir)
 {
   Euler2D *param  = (Euler2D*)  p;
   int     ierr = 0;
