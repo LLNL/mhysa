@@ -6,14 +6,12 @@
 #endif
 #include <tridiagLU.h>
 
-int tridiagIterJacobi(double **a,double **b,double **c,double **x,
+int tridiagIterJacobi(double *a,double *b,double *c,double *x,
               int n,int ns,void *r,void *m)
 {
   TridiagLU  *context = (TridiagLU*) r;
   int        iter,d,i,NT;
-  double     norm=0,norm0=0,global_norm=0,**rhs;
-  double     *sendbufL,*recvbufL;
-  double     *sendbufR,*recvbufR;
+  double     norm=0,norm0=0,global_norm=0;
 
 #ifndef serial
   MPI_Comm  *comm = (MPI_Comm*) m;
@@ -29,33 +27,29 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
 #endif
 
   if (!context) {
-    fprintf(stderr,"Error in tridiagIterJacobi(): NULL pointer passed for paramters!\n");
+    fprintf(stderr,"Error in tridiagIterJacobi(): NULL pointer passed for parameters!\n");
     return(-1);
   }
 
   /* check for zero along the diagonal */
-  for (d=0; d<ns; d++) {
-    for (i=0; i<n; i++) {
-      if (b[d][i]*b[d][i] < context->atol*context->atol) {
+  for (i=0; i<n; i++) {
+    for (d=0; d<ns; d++) {
+      if (b[i*ns+d]*b[i*ns+d] < context->atol*context->atol) {
         fprintf(stderr,"Error in tridiagIterJacobi(): Encountered zero on main diagonal!\n");
         return(1);
       }
     }
   }
 
-  rhs = (double**) calloc (ns,sizeof(double*));
-  for (d=0; d<ns; d++) {
-    rhs[d] = (double*) calloc (n,sizeof(double));
-    for (i=0; i<n; i++) {
-      rhs[d][i] = x[d][i]; /* save a copy of the rhs */
-      x[d][i]  /= b[d][i]; /* initial guess          */
+  double rhs[ns*n];
+  for (i=0; i<n; i++) {
+    for (d=0; d<ns; d++) {
+      rhs[i*ns+d] = x[i*ns+d]; /* save a copy of the rhs */
+      x[i*ns+d]  /= b[i*ns+d]; /* initial guess          */
     }
   }
 
-  recvbufL = (double*) calloc (ns,sizeof(double));
-  recvbufR = (double*) calloc (ns,sizeof(double));
-  sendbufL = (double*) calloc (ns,sizeof(double));
-  sendbufR = (double*) calloc (ns,sizeof(double));
+  double recvbufL[ns], recvbufR[ns], sendbufL[ns], sendbufR[ns];
 
   /* total number of points */
 #ifdef serial
@@ -88,7 +82,7 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
     MPI_Request req[4] =  {MPI_REQUEST_NULL,MPI_REQUEST_NULL,MPI_REQUEST_NULL,MPI_REQUEST_NULL};
     if (rank)             MPI_Irecv(recvbufL,ns,MPI_DOUBLE,rank-1,2,*comm,&req[0]);
     if (rank != nproc-1)  MPI_Irecv(recvbufR,ns,MPI_DOUBLE,rank+1,3,*comm,&req[1]);
-    for (d=0; d<ns; d++)  { sendbufL[d] = x[d][0]; sendbufR[d] = x[d][n-1]; }
+    for (d=0; d<ns; d++)  { sendbufL[d] = x[d]; sendbufR[d] = x[(n-1)*ns+d]; }
     if (rank)             MPI_Isend(sendbufL,ns,MPI_DOUBLE,rank-1,3,*comm,&req[2]);
     if (rank != nproc-1)  MPI_Isend(sendbufR,ns,MPI_DOUBLE,rank+1,2,*comm,&req[3]);
 #endif
@@ -96,10 +90,10 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
     /* calculate error norm - interior */
     if (context->evaluate_norm) {
       norm = 0;
-      for (d=0; d<ns; d++) {
-        for (i=1; i<n-1; i++) {
-          norm  += ( (a[d][i]*x[d][i-1] + b[d][i]*x[d][i] + c[d][i]*x[d][i+1] - rhs[d][i])
-                   * (a[d][i]*x[d][i-1] + b[d][i]*x[d][i] + c[d][i]*x[d][i+1] - rhs[d][i]) );
+      for (i=1; i<n-1; i++) {
+        for (d=0; d<ns; d++) {
+          norm  += ( (a[i*ns+d]*x[(i-1)*ns+d] + b[i*ns+d]*x[i*ns+d] + c[i*ns+d]*x[(i+1)*ns+d] - rhs[i*ns+d])
+                   * (a[i*ns+d]*x[(i-1)*ns+d] + b[i*ns+d]*x[i*ns+d] + c[i*ns+d]*x[(i+1)*ns+d] - rhs[i*ns+d]) );
         }
       }
     }
@@ -110,17 +104,17 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
     if (context->evaluate_norm) {
       if (n > 1) {
         for (d=0; d<ns; d++) {
-          norm  += ( (a[d][0]*recvbufL[d] + b[d][0]*x[d][0] + c[d][0]*x[d][1]- rhs[d][0])
-                   * (a[d][0]*recvbufL[d] + b[d][0]*x[d][0] + c[d][0]*x[d][1]- rhs[d][0]) );
+          norm  += ( (a[d]*recvbufL[d] + b[d]*x[d] + c[d]*x[d+ns*1]- rhs[d])
+                   * (a[d]*recvbufL[d] + b[d]*x[d] + c[d]*x[d+ns*1]- rhs[d]) );
         }
         for (d=0; d<ns; d++) {
-          norm  += ( (a[d][n-1]*x[d][n-2] + b[d][n-1]*x[d][n-1] + c[d][n-1]*recvbufR[d] - rhs[d][n-1])
-                   * (a[d][n-1]*x[d][n-2] + b[d][n-1]*x[d][n-1] + c[d][n-1]*recvbufR[d] - rhs[d][n-1]) );
+          norm  += ( (a[d+ns*(n-1)]*x[d+ns*(n-2)] + b[d+ns*(n-1)]*x[d+ns*(n-1)] + c[d+ns*(n-1)]*recvbufR[d] - rhs[d+ns*(n-1)])
+                   * (a[d+ns*(n-1)]*x[d+ns*(n-2)] + b[d+ns*(n-1)]*x[d+ns*(n-1)] + c[d+ns*(n-1)]*recvbufR[d] - rhs[d+ns*(n-1)]) );
         }
       } else {
         for (d=0; d<ns; d++) {
-          norm  += ( (a[d][0]*recvbufL[d] + b[d][0]*x[d][0] + c[d][0]*recvbufR[d] - rhs[d][0])
-                   * (a[d][0]*recvbufL[d] + b[d][0]*x[d][0] + c[d][0]*recvbufR[d] - rhs[d][0]) );
+          norm  += ( (a[d]*recvbufL[d] + b[d]*x[d] + c[d]*recvbufR[d] - rhs[d])
+                   * (a[d]*recvbufL[d] + b[d]*x[d] + c[d]*recvbufR[d] - rhs[d]) );
         }
       }
       /* sum over all processes */
@@ -144,12 +138,18 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
       printf("\t\titer: %d, norm: %1.16E\n",iter,global_norm);
 
     /* correct the solution for this iteration */
-    for (d=0; d<ns; d++) {
-      if (n > 1) {
-        i = 0;    x[d][i] = (rhs[d][i] - a[d][i]*recvbufL[d] - c[d][i]*x[d][i+1]  ) / b[d][i];
-        i = n-1;  x[d][i] = (rhs[d][i] - a[d][i]*x[d][i-1]   - c[d][i]*recvbufR[d]) / b[d][i];
-        for (i=1; i<n-1; i++) x[d][i] = (rhs[d][i] - a[d][i]*x[d][i-1] - c[d][i]*x[d][i+1]) / b[d][i];
-      } else x[d][0] = (rhs[d][0] - a[d][0]*recvbufL[d] - c[d][0]*recvbufR[d]) / b[d][0];
+    if (n > 1) {
+      for (d=0; d<ns; d++) {
+        i = 0;    x[i*ns+d] = (rhs[i*ns+d] - a[i*ns+d]*recvbufL[d] - c[i*ns+d]*x[d+ns*(i+1)]  ) / b[i*ns+d];
+        i = n-1;  x[i*ns+d] = (rhs[i*ns+d] - a[i*ns+d]*x[d+ns*(i-1)]   - c[i*ns+d]*recvbufR[d]) / b[i*ns+d];
+      }
+      for (i=1; i<n-1; i++) {
+        for (d=0; d<ns; d++) {
+          x[i*ns+d] = (rhs[i*ns+d] - a[i*ns+d]*x[d+ns*(i-1)] - c[i*ns+d]*x[d+ns*(i+1)]) / b[i*ns+d];
+        }
+      }
+    } else {
+      for (d=0; d<ns; d++) x[d] = (rhs[d] - a[d]*recvbufL[d] - c[d]*recvbufR[d]) / b[d];
     }
 
     /* finished with this iteration */
@@ -159,12 +159,6 @@ int tridiagIterJacobi(double **a,double **b,double **c,double **x,
   /* save convergence information */
   context->exitnorm = (context->evaluate_norm ? global_norm : -1.0);
   context->exititer = iter;
-
-  free(recvbufL);
-  free(recvbufR);
-  free(sendbufL);
-  free(sendbufR);
-  for (d=0; d<ns; d++) free(rhs[d]); free(rhs);
 
   return(0);
 }

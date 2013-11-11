@@ -7,12 +7,12 @@
 #endif
 #include <tridiagLU.h>
 
-int tridiagLUGS(double **a,double **b,double **c,double **x,
+int tridiagLUGS(double *a,double *b,double *c,double *x,
               int n,int ns,void *r,void *m)
 {
   TridiagLU *context = (TridiagLU*) r;
   if (!context) {
-    fprintf(stderr,"Error in tridiagLUGS(): NULL pointer passed for paramters.\n");
+    fprintf(stderr,"Error in tridiagLUGS(): NULL pointer passed for parameters.\n");
     return(-1);
   }
 #ifdef serial
@@ -54,20 +54,12 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
   for (p=0; p<ns%nproc; p++) ns_local[p]++;
 
   /* allocate the arrays for the gathered tridiagonal systems */
-  double **ra=NULL,**rb=NULL,**rc=NULL,**rx=NULL; 
+  double *ra=NULL,*rb=NULL,*rc=NULL,*rx=NULL; 
   if (ns_local[rank] > 0) {
-    ra = (double**) calloc (ns_local[rank],sizeof(double));
-    rb = (double**) calloc (ns_local[rank],sizeof(double));
-    rc = (double**) calloc (ns_local[rank],sizeof(double));
-    rx = (double**) calloc (ns_local[rank],sizeof(double));
-    for (d = 0; d < ns_local[rank]; d++) {
-      ra[d] = (double*) calloc (NT, sizeof(double));
-      rb[d] = (double*) calloc (NT, sizeof(double));
-      rc[d] = (double*) calloc (NT, sizeof(double));
-      rx[d] = (double*) calloc (NT, sizeof(double));
-      for (i = 0; i < NT; i++) 
-        ra[d][i] = rb[d][i] = rc[d][i] = rx[d][i] = 0.0;
-    }
+    ra = (double*) calloc (ns_local[rank]*NT,sizeof(double));
+    rb = (double*) calloc (ns_local[rank]*NT,sizeof(double));
+    rc = (double*) calloc (ns_local[rank]*NT,sizeof(double));
+    rx = (double*) calloc (ns_local[rank]*NT,sizeof(double));
   }
 
   /* Gather the systems on each process */
@@ -82,10 +74,10 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
       sendbuf = (double*) calloc (nvar*n*ns_local[p],sizeof(double));
       for (d = 0; d < ns_local[p]; d++) {
         for (i = 0; i < n; i++) {
-          sendbuf[n*nvar*d+n*0+i] = a[d+dstart][i];
-          sendbuf[n*nvar*d+n*1+i] = b[d+dstart][i];
-          sendbuf[n*nvar*d+n*2+i] = c[d+dstart][i];
-          sendbuf[n*nvar*d+n*3+i] = x[d+dstart][i];
+          sendbuf[n*nvar*d+n*0+i] = a[d+dstart+ns*i];
+          sendbuf[n*nvar*d+n*1+i] = b[d+dstart+ns*i];
+          sendbuf[n*nvar*d+n*2+i] = c[d+dstart+ns*i];
+          sendbuf[n*nvar*d+n*3+i] = x[d+dstart+ns*i];
         }
       }
       dstart += ns_local[p];
@@ -109,10 +101,10 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
   for (q = 0; q < nproc; q++) {
     for (d = 0; d < ns_local[rank]; d++) {
       for (i = 0; i < N[q]; i++) {
-        ra[d][istart+i] = recvbuf[istart*nvar*ns_local[rank]+d*nvar*N[q]+0*N[q]+i];
-        rb[d][istart+i] = recvbuf[istart*nvar*ns_local[rank]+d*nvar*N[q]+1*N[q]+i];
-        rc[d][istart+i] = recvbuf[istart*nvar*ns_local[rank]+d*nvar*N[q]+2*N[q]+i];
-        rx[d][istart+i] = recvbuf[istart*nvar*ns_local[rank]+d*nvar*N[q]+3*N[q]+i];
+        ra[d+ns_local[rank]*(istart+i)] = recvbuf[istart*nvar*ns_local[rank]+d*nvar*N[q]+0*N[q]+i];
+        rb[d+ns_local[rank]*(istart+i)] = recvbuf[istart*nvar*ns_local[rank]+d*nvar*N[q]+1*N[q]+i];
+        rc[d+ns_local[rank]*(istart+i)] = recvbuf[istart*nvar*ns_local[rank]+d*nvar*N[q]+2*N[q]+i];
+        rx[d+ns_local[rank]*(istart+i)] = recvbuf[istart*nvar*ns_local[rank]+d*nvar*N[q]+3*N[q]+i];
       }
     }
     istart += N[q];
@@ -132,7 +124,7 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
   for (q = 0; q < nproc; q++) {
     for (i = 0; i < N[q]; i++) {
       for (d = 0; d < ns_local[rank]; d++) {
-        sendbuf[istart*ns_local[rank]+d*N[q]+i] = rx[d][istart+i];
+        sendbuf[istart*ns_local[rank]+d*N[q]+i] = rx[d+ns_local[rank]*(istart+i)];
       }
     }
     istart += N[q];
@@ -155,7 +147,7 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
       /* save the solution on all root processes */
       for (d = 0; d < ns_local[p]; d++) {
         for (i = 0; i < n; i++) {
-          x[d+dstart][i] = recvbuf[d*n+i];
+          x[d+dstart+ns*i] = recvbuf[d*n+i];
         }
       }
       dstart += ns_local[p];
@@ -168,12 +160,6 @@ int tridiagLUGS(double **a,double **b,double **c,double **x,
 
   /* clean up */
   if (ns_local[rank] > 0) {
-    for (d = 0; d < ns_local[rank]; d++) {
-      free(ra[d]);
-      free(rb[d]);
-      free(rc[d]);
-      free(rx[d]);
-    }
     free(ra);
     free(rb);
     free(rc);

@@ -26,10 +26,10 @@
     ~ns/nproc number of systems in serial).
 
   Arguments:-
-    a   [0,ns-1]x[0,n-1] double**         subdiagonal entries
-    b   [0,ns-1]x[0,n-1] double**         diagonal entries
-    c   [0,ns-1]x[0,n-1] double**         superdiagonal entries
-    x   [0,ns-1]x[0,n-1] double**         right-hand side (solution)
+    a   [0,ns-1]x[0,n-1] double*          subdiagonal entries
+    b   [0,ns-1]x[0,n-1] double*          diagonal entries
+    c   [0,ns-1]x[0,n-1] double*          superdiagonal entries
+    x   [0,ns-1]x[0,n-1] double*          right-hand side (solution)
     n                    int              local size of the system
     ns                   int              number of systems to solve
     r                    TridiagLU*       structure containing paramters
@@ -46,13 +46,16 @@
                         ** Can be NULL if runtimes are not needed.
     m                   MPI_Comm*       MPI Communicator
 
+  For a,b,c, and x, [0,ns-1] is the inner loop, i.e., the i-th row of the
+  d-th system is a[i*ns+d], b[i*ns+d], c[i*ns+d] and x[i*ns+d].
+
   Return value (int) -> 0 (successful solve), -1 (singular system)
 
   Note:-
     x contains the final solution (right-hand side is replaced)
     a,b,c are not preserved
-    On rank=0,        a[0] has to be zero.
-    On rank=nproc-1,  c[n-1] has to be zero.
+    On rank=0,        a[0*ns+d] has to be zero for all d.
+    On rank=nproc-1,  c[(n-1)*ns+d] has to be zero for all d.
 
   For a serial tridiagonal solver, compile with the flag "-Dserial"
   or send NULL as the argument for the MPI communicator.
@@ -88,7 +91,7 @@ typedef struct _tridiagLU_ {
 
 } TridiagLU;
 
-int tridiagLU         (double**,double**,double**,double**,int,int,void*,void*);
-int tridiagLUGS       (double**,double**,double**,double**,int,int,void*,void*);
-int tridiagIterJacobi (double**,double**,double**,double**,int,int,void*,void*);
+int tridiagLU         (double*,double*,double*,double*,int,int,void*,void*);
+int tridiagLUGS       (double*,double*,double*,double*,int,int,void*,void*);
+int tridiagIterJacobi (double*,double*,double*,double*,int,int,void*,void*);
 int tridiagLUInit     (void*,void*);

@@ -7,7 +7,7 @@
 #endif
 #include <tridiagLU.h>
 
-int tridiagLU(double **a,double **b,double **c,double **x,
+int tridiagLU(double *a,double *b,double *c,double *x,
               int n,int ns,void *r,void *m)
 {
   TridiagLU       *params = (TridiagLU*) r;
@@ -22,7 +22,6 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   MPI_Comm        *comm = (MPI_Comm*) m;
   int             ierr = 0;
   const int       nvar = 4;
-  double          *sendbuf,*recvbuf;
 
   if (comm) {
     MPI_Comm_size(*comm,&nproc);
@@ -35,33 +34,31 @@ int tridiagLU(double **a,double **b,double **c,double **x,
 
   if (!params) {
     fprintf(stderr,"Error in tridiagLU(): NULL pointer passed for parameters.\n");
-    return(-1);
+    return(1);
   }
 
   /* start */
   gettimeofday(&start,NULL);
 
   if ((ns == 0) || (n == 0)) return(0);
-  /* some allocations */
-  double *xs1,*xp1; /* to exchange the first element on the next process   */
-  xp1 = (double*) calloc(ns,sizeof(double)); for (d=0; d<ns; d++) xp1[d] = 0.0;
-  xs1 = (double*) calloc(ns,sizeof(double)); for (d=0; d<ns; d++) xs1[d] = 0.0;
+  double xs1[ns], xp1[ns];
+  for (i=0; i<ns; i++) xs1[i] = xp1[i] = 0;
 
   /* Stage 1 - Parallel elimination of subdiagonal entries */
   istart  = (rank == 0 ? 1 : 2);
   iend    = n;
-  for (d = 0; d < ns; d++) {
-    for (i = istart; i < iend; i++) {
-      if (b[d][i-1] == 0) return(-1);
-      double factor = a[d][i] / b[d][i-1];
-      b[d][i] -=  factor * c[d][i-1];
-      a[d][i]  = -factor * a[d][i-1];
-      x[d][i] -=  factor * x[d][i-1];
+  for (i = istart; i < iend; i++) {
+    for (d = 0; d < ns; d++) {
+      if (b[(i-1)*ns+d] == 0) return(-1);
+      double factor = a[i*ns+d] / b[(i-1)*ns+d];
+      b[i*ns+d] -=  factor * c[(i-1)*ns+d];
+      a[i*ns+d]  = -factor * a[(i-1)*ns+d];
+      x[i*ns+d] -=  factor * x[(i-1)*ns+d];
       if (rank) {
-        double factor = c[d][0] / b[d][i-1];
-        c[d][0]  = -factor * c[d][i-1];
-        b[d][0] -=  factor * a[d][i-1];
-        x[d][0] -=  factor * x[d][i-1];
+        double factor = c[d] / b[(i-1)*ns+d];
+        c[d]  = -factor * c[(i-1)*ns+d];
+        b[d] -=  factor * a[(i-1)*ns+d];
+        x[d] -=  factor * x[(i-1)*ns+d];
       }
     }
   }
@@ -72,13 +69,12 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   /* Stage 2 - Eliminate the first sub- & super-diagonal entries */
   /* This needs the last (a,b,c,x) from the previous process     */
 #ifndef serial
-  sendbuf = (double*) calloc (ns*nvar,sizeof(double*));
-  recvbuf = (double*) calloc (ns*nvar,sizeof(double*));
+  double sendbuf[ns*nvar], recvbuf[ns*nvar];
   for (d=0; d<ns; d++) {
-    sendbuf[d*nvar+0] = a[d][n-1]; 
-    sendbuf[d*nvar+1] = b[d][n-1]; 
-    sendbuf[d*nvar+2] = c[d][n-1]; 
-    sendbuf[d*nvar+3] = x[d][n-1];
+    sendbuf[d*nvar+0] = a[(n-1)*ns+d]; 
+    sendbuf[d*nvar+1] = b[(n-1)*ns+d]; 
+    sendbuf[d*nvar+2] = c[(n-1)*ns+d]; 
+    sendbuf[d*nvar+3] = x[(n-1)*ns+d];
   }
   if (nproc > 1) {
     MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
@@ -96,18 +92,17 @@ int tridiagLU(double **a,double **b,double **c,double **x,
       xm1 = recvbuf[d*nvar+3];
       double factor;
       if (bm1 == 0) return(-1);
-      factor =  a[d][0] / bm1;
-      b[d][0]  -=  factor * cm1;
-      a[d][0]   = -factor * am1;
-      x[d][0]  -=  factor * xm1;
-      if (b[d][n-1] == 0) return(-1);
-      factor =  c[d][0] / b[d][n-1];
-      b[d][0]  -=  factor * a[d][n-1];
-      c[d][0]   = -factor * c[d][n-1];
-      x[d][0]  -=  factor * x[d][n-1];
+      factor =  a[d] / bm1;
+      b[d]  -=  factor * cm1;
+      a[d]   = -factor * am1;
+      x[d]  -=  factor * xm1;
+      if (b[(n-1)*ns+d] == 0) return(-1);
+      factor =  c[d] / b[(n-1)*ns+d];
+      b[d]  -=  factor * a[(n-1)*ns+d];
+      c[d]   = -factor * c[(n-1)*ns+d];
+      x[d]  -=  factor * x[(n-1)*ns+d];
     }
   }
-  free(sendbuf); free(recvbuf);
 #endif
 
   /* end of stage 2 */
@@ -116,12 +111,10 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   /* Stage 3 - Solve the reduced (nproc-1) X (nproc-1) tridiagonal system   */
 #ifndef serial
   if (nproc > 1) {
-    double **zero, **one;
-    zero    = (double**) calloc (ns,sizeof(double*));
-    one     = (double**) calloc (ns,sizeof(double*));
+    double zero[ns],one[ns];
     for (d=0; d<ns; d++) {
-      zero[d] = (double* ) calloc (1,sizeof(double )); zero[d][0] = 0.0;
-      one [d] = (double* ) calloc (1,sizeof(double )); one [d][0] = 1.0;
+      zero[d] = 0.0;
+      one [d] = 1.0;
     }
     if (!strcmp(params->reducedsolvetype,_TRIDIAG_GS_)) {
       /* Solving the reduced system by gather-and-solve algorithm */
@@ -133,12 +126,10 @@ int tridiagLU(double **a,double **b,double **c,double **x,
       if (rank) ierr = tridiagIterJacobi(a,b,c,x,1,ns,params,comm);
       else      ierr = tridiagIterJacobi(zero,one,zero,zero,1,ns,params,comm);
     }
-    for (d=0; d<ns; d++) free(zero[d]); free(zero);
-    for (d=0; d<ns; d++) free(one [d]); free(one );
 
     /* Each process, get the first x of the next process */
     MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
-    for (d=0; d<ns; d++)  xs1[d] = x[d][0];
+    for (d=0; d<ns; d++)  xs1[d] = x[d];
     if (rank+1 < nproc) MPI_Irecv(xp1,ns,MPI_DOUBLE,rank+1,1323,*comm,&req[0]);
     if (rank)           MPI_Isend(xs1,ns,MPI_DOUBLE,rank-1,1323,*comm,&req[1]);
     MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
@@ -155,12 +146,15 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   /* Stage 4 - Parallel back-substitution to get the solution  */
   istart = n-1;
   iend   = (rank == 0 ? 0 : 1);
+
   for (d = 0; d < ns; d++) {
-    if (b[d][istart] == 0) return(-1);
-    x[d][istart] = (x[d][istart]-a[d][istart]*x[d][0]-c[d][istart]*xp1[d]) / b[d][istart];
-    for (i = istart-1; i > iend-1; i--) {
-      if (b[d][i] == 0) return(-1);
-      x[d][i] = (x[d][i]-c[d][i]*x[d][i+1]-a[d][i]*x[d][0]) / b[d][i];
+    if (b[istart*ns+d] == 0) return(-1);
+    x[istart*ns+d] = (x[istart*ns+d]-a[istart*ns+d]*x[d]-c[istart*ns+d]*xp1[d]) / b[istart*ns+d];
+  }
+  for (i = istart-1; i > iend-1; i--) {
+    for (d = 0; d < ns; d++) {
+      if (b[i*ns+d] == 0) return(-1);
+      x[i*ns+d] = (x[i*ns+d]-c[i*ns+d]*x[(i+1)*ns+d]-a[i*ns+d]*x[d]) / b[i*ns+d];
     }
   }
 
@@ -168,8 +162,6 @@ int tridiagLU(double **a,double **b,double **c,double **x,
   gettimeofday(&stage4,NULL);
 
   /* Done - now x contains the solution */
-  free(xp1);
-  free(xs1);
 
   /* save runtimes if needed */
   long long walltime;
