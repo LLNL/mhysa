@@ -9,6 +9,7 @@ typedef struct mpi_variables {
   int   *ip;      /* process rank along each dimension                  */
   int   *is,*ie;  /* global start and end indices along each dimension  */
   int   *bcperiodic; /* flag for periodic BCs along any dimension       */
+
 #ifdef serial
   int   world;
   int   *comm;
@@ -16,6 +17,10 @@ typedef struct mpi_variables {
   MPI_Comm  world;   /* communicator for all processes                  */
   MPI_Comm  *comm;   /* sub-communicators                               */
 #endif
+
+  double *sendbuf, *recvbuf; /* buffers to exchange data */
+  double maxbuf;
+
 } MPIVariables;
 
 /* Functions */

@@ -9,8 +9,8 @@ int ParabolicFunctionCons1Stage(double *par,double *u,void *s,void *m,double t)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0, d, v, i, done;
-  double        *FluxI  = NULL; /* interface flux     array */
-  double        *Func   = NULL; /* diffusion function array */
+  double        *FluxI  = solver->fluxI; /* interface flux     array */
+  double        *Func   = solver->fluxC; /* diffusion function array */
 
   int     ndims  = solver->ndims;
   int     nvars  = solver->nvars;
@@ -31,7 +31,6 @@ int ParabolicFunctionCons1Stage(double *par,double *u,void *s,void *m,double t)
     ierr = ArrayCopy1D_int(dim,dim_interface,ndims); CHECKERR(ierr); dim_interface[d]++;
     int size_cellcenter = 1; for (i = 0; i < ndims; i++) size_cellcenter *= (dim[i] + 2*ghosts);
     int size_interface = 1; for (i = 0; i < ndims; i++) size_interface *= dim_interface[i];
-    double Func[size_cellcenter*nvars], FluxI[size_interface*nvars];
 
     /* evaluate cell-centered flux */
     ierr = solver->GFunction(Func,u,d,solver,t); CHECKERR(ierr);

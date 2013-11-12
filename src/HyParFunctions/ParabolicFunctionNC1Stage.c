@@ -9,8 +9,8 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0, d, v, i, done;
-  double        *Func   = NULL;
-  double        *Deriv2 = NULL;
+  double        *Func   = solver->fluxC;
+  double        *Deriv2 = solver->fluxI;
 
   int     ndims   = solver->ndims;
   int     nvars   = solver->nvars;
@@ -29,7 +29,6 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
   int offset = 0;
   for (d = 0; d < ndims; d++) {
     int size_deriv = 1; for (i=0; i<ndims; i++) size_deriv *= dim[i];
-    double Func[size*nvars], Deriv2[size_deriv*nvars];
 
     /* calculate the diffusion function */
     ierr = solver->GFunction(Func,u,d,solver,t); CHECKERR(ierr);

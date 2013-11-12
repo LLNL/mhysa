@@ -39,13 +39,14 @@ int MPIPartitionArray1D(void *m,double *xg,double *x,int istart,int iend,
         ie = iend;
       }
       int size = ie - is;
-      double buffer[size];
+      double *buffer = (double*) calloc (size, sizeof(double));
       for (i=0; i<size; i++) buffer[i] = xg[i+is];
       if (proc) {
 #ifndef serial
         MPI_Send(buffer,size,MPI_DOUBLE,proc,1539,mpi->world);
 #endif
       } else for (i=0; i<N_local; i++) x[i] = buffer[i];
+      free(buffer);
     }
 
   } else {
@@ -54,9 +55,10 @@ int MPIPartitionArray1D(void *m,double *xg,double *x,int istart,int iend,
     /* send local start and end indices to root */
     MPI_Send(&istart,1,MPI_INT,0,1442,mpi->world);
     MPI_Send(&iend  ,1,MPI_INT,0,1443,mpi->world);
-    double buffer[N_local];
+    double *buffer = (double*) calloc (N_local, sizeof(buffer));
     MPI_Recv(buffer,N_local,MPI_DOUBLE,0,1539,mpi->world,&status);
     for (i=0; i<N_local; i++) x[i+ghosts] = buffer[i];
+    free(buffer);
 #endif
   }
   return(ierr);

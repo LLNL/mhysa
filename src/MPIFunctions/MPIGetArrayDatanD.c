@@ -39,7 +39,7 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
     return(1);
 #else
     if (mpi->rank == source_rank) {
-      double buf[size*nvars];
+      double *buf = (double*) calloc (size*nvars, sizeof(double));
       int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
       while (!done) {
         int p1 = ArrayIndex1D(ndims,bounds,index,NULL,0     );
@@ -48,6 +48,7 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
         done = ArrayIncrementIndex(ndims,bounds,index);
       }
       MPI_Send(buf,size*nvars,MPI_DOUBLE,dest_rank,2211,mpi->world);
+      free(buf);
     } else if (mpi->rank == dest_rank) {
       MPI_Status status;
       MPI_Recv(xbuf,size*nvars,MPI_DOUBLE,source_rank,2211,mpi->world,&status);

@@ -6,6 +6,7 @@
 #include <tridiagLU.h>
 #include <boundaryconditions.h>
 #include <timeintegration.h>
+#include <interpolation.h>
 #include <hypar.h>
 
 /* include header files for each physical model */
@@ -54,6 +55,9 @@ int Cleanup(void *s,void *m)
   }
 
   /* Clean up any spatial reconstruction related allocations */
+  if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
+    ierr = WENOCleanup(solver->interp);
+  }
   if (solver->interp)   free(solver->interp);
   if (solver->lusolver) free(solver->lusolver);
 
@@ -68,6 +72,12 @@ int Cleanup(void *s,void *m)
   free(solver->hyp);
   free(solver->par);
   free(solver->source);
+  free(solver->fluxC);
+  free(solver->fluxI);
+  free(solver->uL);
+  free(solver->uR);
+  free(solver->fL);
+  free(solver->fR);
   free(solver->x);
   free(solver->dxinv);
   free(mpi->iproc);
@@ -75,6 +85,8 @@ int Cleanup(void *s,void *m)
   free(mpi->is);
   free(mpi->ie);
   free(mpi->bcperiodic);
+  free(mpi->sendbuf);
+  free(mpi->recvbuf);
 
   return(0);
 }

@@ -33,7 +33,10 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   }
 
   /* calculate dimensions of each of the send-receive regions */
-  int bufdim[ndims], maxbuf = 0;
+  double *sendbuf = mpi->sendbuf;
+  double *recvbuf = mpi->recvbuf;
+  int    stride   = mpi->maxbuf;
+  int bufdim[ndims];
   for (d = 0; d < ndims; d++) {
     bufdim[d] = 1;
     int i;
@@ -41,20 +44,16 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       if (i == d) bufdim[d] *= ghosts;
       else        bufdim[d] *= dim[i];
     }
-    if (bufdim[d] > maxbuf) maxbuf = bufdim[d];
   }
-  maxbuf *= nvars;
-  /* Allocate send and receive buffers */
-  double sendbuf[2*ndims][maxbuf], recvbuf[2*ndims][maxbuf];
 
   /* post the receive requests */
   for (d = 0; d < ndims; d++) {
     if (neighbor_rank[2*d  ] != -1) {
-      MPI_Irecv(recvbuf[2*d  ],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1630,
+      MPI_Irecv(&recvbuf[2*d*stride],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1630,
                 mpi->world,&rcvreq[2*d]);
     }
     if (neighbor_rank[2*d+1] != -1) {
-      MPI_Irecv(recvbuf[2*d+1],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1631,
+      MPI_Irecv(&recvbuf[(2*d+1)*stride],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1631,
                 mpi->world,&rcvreq[2*d+1]);
     }
   }
@@ -68,7 +67,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       while (!done) {
         int p1 = ArrayIndex1D(ndims,dim   ,index,offset,ghosts);
         int p2 = ArrayIndex1D(ndims,bounds,index,NULL  ,0     );
-        int v; for (v=0; v<nvars; v++) sendbuf[2*d][nvars*p2+v] = var[nvars*p1+v];
+        int v; for (v=0; v<nvars; v++) sendbuf[2*d*stride+nvars*p2+v] = var[nvars*p1+v];
         done = ArrayIncrementIndex(ndims,bounds,index);
       }
     }
@@ -78,7 +77,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       while (!done) {
         int p1 = ArrayIndex1D(ndims,dim   ,index,offset,ghosts);
         int p2 = ArrayIndex1D(ndims,bounds,index,NULL  ,0     );
-        int v; for (v=0; v<nvars; v++) sendbuf[2*d+1][nvars*p2+v] = var[nvars*p1+v];
+        int v; for (v=0; v<nvars; v++) sendbuf[(2*d+1)*stride+nvars*p2+v] = var[nvars*p1+v];
         done = ArrayIncrementIndex(ndims,bounds,index);
       }
     }
@@ -87,11 +86,11 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   /* send the data */
   for (d = 0; d < ndims; d++) {
     if (neighbor_rank[2*d  ] != -1) {
-      MPI_Isend(sendbuf[2*d  ],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1631,
+      MPI_Isend(&sendbuf[2*d*stride],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d  ],1631,
                 mpi->world,&sndreq[2*d]);
     }
     if (neighbor_rank[2*d+1] != -1) {
-      MPI_Isend(sendbuf[2*d+1],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1630,
+      MPI_Isend(&sendbuf[(2*d+1)*stride],bufdim[d]*nvars,MPI_DOUBLE,neighbor_rank[2*d+1],1630,
                 mpi->world,&sndreq[2*d+1]);
     }
   }
@@ -108,7 +107,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       while (!done) {
         int p1 = ArrayIndex1D(ndims,dim   ,index,offset,ghosts);
         int p2 = ArrayIndex1D(ndims,bounds,index,NULL  ,0     );
-        int v; for (v=0; v<nvars; v++) var[nvars*p1+v] = recvbuf[2*d][nvars*p2+v];
+        int v; for (v=0; v<nvars; v++) var[nvars*p1+v] = recvbuf[2*d*stride+nvars*p2+v];
         done = ArrayIncrementIndex(ndims,bounds,index);
       }
     }
@@ -118,7 +117,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       while (!done) {
         int p1 = ArrayIndex1D(ndims,dim   ,index,offset,ghosts);
         int p2 = ArrayIndex1D(ndims,bounds,index,NULL  ,0     );
-        int v; for (v=0; v<nvars; v++) var[nvars*p1+v] = recvbuf[2*d+1][nvars*p2+v];
+        int v; for (v=0; v<nvars; v++) var[nvars*p1+v] = recvbuf[(2*d+1)*stride+nvars*p2+v];
         done = ArrayIncrementIndex(ndims,bounds,index);
       }
     }

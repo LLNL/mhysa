@@ -20,7 +20,10 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
     else          size  *=  dim[d];
   }
   size *= nvars;
-  double uL[size], uR[size], fluxL[size], fluxR[size];
+  double *uL     = solver->uL;
+  double *uR     = solver->uR;
+  double *fluxL  = solver->fL;
+  double *fluxR  = solver->fR;
 
   /* Interpolation -> to calculate left and right-biased interface flux and state variable*/
   ierr = solver->InterpolateInterfacesHyp(uL   ,u    ,u, 1,dir,solver,mpi); CHECKERR(ierr);

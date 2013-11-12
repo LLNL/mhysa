@@ -11,16 +11,15 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           ierr    = 0, d, v, i, done;
-  double        *FluxI  = NULL; /* interface flux     */
-  double        *FluxC  = NULL; /* cell centered flux */
+  double        *FluxI  = solver->fluxI; /* interface flux     */
+  double        *FluxC  = solver->fluxC; /* cell centered flux */
 
   int     ndims  = solver->ndims;
   int     nvars  = solver->nvars;
   int     ghosts = solver->ghosts;
   int     *dim   = solver->dim_local;
   double  *dxinv = solver->dxinv;
-
-  int index[ndims], index1[ndims], index2[ndims], dim_interface[ndims];
+  int     index[ndims], index1[ndims], index2[ndims], dim_interface[ndims];
 
   int size = 1;
   for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
@@ -33,7 +32,6 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
     ierr = ArrayCopy1D_int(dim,dim_interface,ndims); CHECKERR(ierr); dim_interface[d]++;
     int size_cellcenter = 1; for (i = 0; i < ndims; i++) size_cellcenter *= (dim[i] + 2*ghosts);
     int size_interface = 1; for (i = 0; i < ndims; i++) size_interface *= dim_interface[i];
-    double FluxC[size_cellcenter*nvars], FluxI[size_interface*nvars];
 
     /* evaluate cell-centered flux */
     ierr = solver->FFunction(FluxC,u,d,solver,t); CHECKERR(ierr);

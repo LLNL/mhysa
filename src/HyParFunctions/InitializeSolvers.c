@@ -134,7 +134,7 @@ int InitializeSolvers(void *s, void *m)
       }
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
-    ierr = WENOInitialize(solver->interp,mpi); CHECKERR(ierr);
+    ierr = WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
     /* Fifth order CRWENO scheme */
     if (solver->nvars > 1) {
@@ -160,7 +160,7 @@ int InitializeSolvers(void *s, void *m)
       }
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
-    ierr = WENOInitialize(solver->interp,mpi); CHECKERR(ierr);
+    ierr = WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
     solver->lusolver = (TridiagLU*) calloc (1,sizeof(TridiagLU));
     ierr = tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
   } else {

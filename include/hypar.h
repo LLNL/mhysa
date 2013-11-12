@@ -28,6 +28,9 @@ typedef struct main_parameters {
   double *hyp;                        /* array to hold the hyperbolic terms               */
   double *par;                        /* array to hold the parabolic terms                */
   double *source;                     /* array to hold the source    terms                */
+  /* arrays to hold temporary data during computations */
+  double *fluxC, *fluxI;
+  double *uL, *uR, *fL, *fR;
 
   /* Boundary conditions */
   int   nBoundaryZones;               /* number of boundary zones                         */

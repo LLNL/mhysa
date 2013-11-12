@@ -22,7 +22,7 @@ int MPIGatherArray1D(void *m,double *xg,double *x,int istart,int iend,
   }
 
   /* create and copy data to a buffer to send to the root process */
-  double buffer[N_local];
+  double *buffer = (double*) calloc (N_local,sizeof(double));
   for (i=0; i<N_local; i++) buffer[i] = x[i+ghosts];
 
   if (!mpi->rank) {
@@ -42,9 +42,10 @@ int MPIGatherArray1D(void *m,double *xg,double *x,int istart,int iend,
       int size = ie - is;
       if (proc) {
 #ifndef serial
-        double recvbuf[size];
+        double *recvbuf = (double*) calloc (size,sizeof(double));
         MPI_Recv(recvbuf,size,MPI_DOUBLE,proc,1916,mpi->world,&status);
         for (i=0; i<size; i++) xg[is+i] = recvbuf[i];
+        free(recvbuf);
 #endif
       } else for (i=0; i<size; i++) xg[is+i] = buffer[i];
     }
@@ -57,5 +58,7 @@ int MPIGatherArray1D(void *m,double *xg,double *x,int istart,int iend,
     MPI_Send(buffer ,N_local,MPI_DOUBLE,0,1916,mpi->world);
 #endif
   }
+
+  free(buffer);
   return(ierr);
 }

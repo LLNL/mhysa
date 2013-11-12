@@ -34,7 +34,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
         size *= (ie[d]-is[d]);
         bounds[d] = ie[d] - is[d];
       }
-      double buffer[size*nvars];
+      double *buffer = (double*) calloc (size*nvars, sizeof(double));
       done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
       while (!done) {
         int p1 = ArrayIndex1D(ndims,dim_global,index,is  ,0);
@@ -55,6 +55,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
           done = ArrayIncrementIndex(ndims,dim_local,index);
         }
       }
+      free(buffer);
     }
 
   } else {
@@ -63,7 +64,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
     MPI_Status  status;
     int d, done, size;
     size = 1; for (d=0; d<ndims; d++) size *= dim_local[d];
-    double buffer[size*nvars];
+    double *buffer = (double*) calloc (size*nvars, sizeof(double));
     MPI_Recv(buffer,size*nvars,MPI_DOUBLE,0,1538,mpi->world,&status);
     done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
     while (!done) {
@@ -72,6 +73,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
       int v; for (v=0; v<nvars; v++) x[nvars*p1+v] = buffer[nvars*p2+v];
       done = ArrayIncrementIndex(ndims,dim_local,index);
     }
+    free(buffer);
 #endif
   }
   return(ierr);

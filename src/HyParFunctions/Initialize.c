@@ -8,7 +8,7 @@ int Initialize(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           i;
+  int           i,d;
 
   /* allocations */
   mpi->ip           = (int*) calloc (solver->ndims,sizeof(int));
@@ -82,6 +82,29 @@ int Initialize(void *s, void *m)
   for (i=0; i<solver->ndims; i++) size += (solver->dim_local[i]+2*solver->ghosts);
   solver->x     = (double*) calloc (size,sizeof(double));
   solver->dxinv = (double*) calloc (size,sizeof(double));
+  /* arrays needed to compute fluxes */
+  size = 1;  for (i=0; i<solver->ndims; i++) size *= (solver->dim_local[i]+2*solver->ghosts);
+  solver->fluxC = (double*) calloc (solver->nvars*size,sizeof(double));
+  size = 1;  for (i=0; i<solver->ndims; i++) size *= (solver->dim_local[i]+1);
+  solver->fluxI = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->uL    = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->uR    = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->fL    = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->fR    = (double*) calloc (solver->nvars*size,sizeof(double));
+  /* allocate MPI send/receive buffer arrays */
+  int bufdim[solver->ndims], maxbuf = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    bufdim[d] = 1;
+    for (i = 0; i < solver->ndims; i++) {
+      if (i == d) bufdim[d] *= solver->ghosts;
+      else        bufdim[d] *= solver->dim_local[i];
+    }
+    if (bufdim[d] > maxbuf) maxbuf = bufdim[d];
+  }
+  maxbuf *= solver->nvars;
+  mpi->maxbuf  = maxbuf;
+  mpi->sendbuf = (double*) calloc (2*solver->ndims*maxbuf,sizeof(double));
+  mpi->recvbuf = (double*) calloc (2*solver->ndims*maxbuf,sizeof(double));
 
   return(0);
 }

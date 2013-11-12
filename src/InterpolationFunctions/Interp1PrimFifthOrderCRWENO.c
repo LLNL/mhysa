@@ -52,10 +52,10 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   Nsys = 1; for (d=0; d<ndims; d++) Nsys *= bounds_outer[d]; Nsys *= nvars;
 
   /* Allocate arrays for tridiagonal system */
-  double A[Nsys*(dim[dir]+1)];
-  double B[Nsys*(dim[dir]+1)];
-  double C[Nsys*(dim[dir]+1)];
-  double R[Nsys*(dim[dir]+1)];
+  double *A = weno->A;
+  double *B = weno->B;
+  double *C = weno->C;
+  double *R = weno->R;
 
   int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
   sys = 0;
@@ -199,7 +199,8 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,lu,&mpi->comm[dir]);
 
   /* Now get the solution to the last interface from the next proc */
-  double sendbuf[Nsys], recvbuf[Nsys];
+  double *sendbuf = weno->sendbuf;
+  double *recvbuf = weno->recvbuf;
   MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
   if (mpi->ip[dir]) for (d=0; d<Nsys; d++) sendbuf[d] = R[d];
   if (mpi->ip[dir] != mpi->iproc[dir]-1) MPI_Irecv(recvbuf,Nsys,MPI_DOUBLE,mpi->ip[dir]+1,214,mpi->comm[dir],&req[0]);

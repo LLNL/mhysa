@@ -9,4 +9,5 @@ libInterpolationFunctions_a_SOURCES = \
   Interp1PrimFifthOrderWENOChar.c \
   Interp2PrimSecondOrder.c \
   MUSCLInitialize.c \
+  WENOCleanup.c \
   WENOInitialize.c 

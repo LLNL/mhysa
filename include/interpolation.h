@@ -96,6 +96,12 @@ typedef struct parameters_weno {
   int     no_limiting;  /* Remove limiting -> 5th order polynomial interpolation  */
   double  eps;		      /* epsilon parameter                                      */
   double	p;			      /* p parameter                                            */
+
+  /* data arrays for CRWENO scheme */
+  double *A, *B, *C, *R;
+  double *sendbuf, *recvbuf;
+
 } WENOParameters;
-int WENOInitialize(void*,void*);
+int WENOInitialize(void*,void*,char *scheme);
+int WENOCleanup(void*);
 

@@ -7,8 +7,7 @@ int BCDirichlet(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   int            ierr      = 0;
-
-  int var   = boundary->var;
+  int            var   = boundary->var;
 
   if (boundary->on_this_proc) {
     int bounds[ndims], indexb[ndims], indexi[ndims];
