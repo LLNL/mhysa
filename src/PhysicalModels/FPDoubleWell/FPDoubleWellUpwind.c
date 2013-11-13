@@ -24,8 +24,9 @@ int FPDoubleWellUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
     _ArrayCopy1D_(index_outer,index_inter,ndims);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D_(ndims,bounds_inter,index_inter,0,p);
-      double x = 0.5 * ( solver->GetCoordinate(0,index_inter[0]-1,dim,ghosts,solver->x) 
-                       + solver->GetCoordinate(0,index_inter[0]  ,dim,ghosts,solver->x) );
+      double x1; _GetCoordinate_(0,index_inter[0]-1,dim,ghosts,solver->x,x1);
+      double x2; _GetCoordinate_(0,index_inter[0]  ,dim,ghosts,solver->x,x2);
+      double x = 0.5 * ( x1 + x2 );
       for (v = 0; v < nvars; v++)  
         fI[nvars*p+v] = (drift(x) > 0 ? fL[nvars*p+v] : fR[nvars*p+v] );
     }

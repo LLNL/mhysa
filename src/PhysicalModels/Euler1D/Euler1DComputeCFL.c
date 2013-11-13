@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <basic.h>
 #include <math.h>
 #include <arrayfunctions.h>
 #include <mathfunctions.h>
@@ -23,8 +24,8 @@ int Euler1DComputeCFL(void *s,void *m,double dt,double t)
     double rho, v, e, P, c, dxinv, local_cfl;
     _Euler1DGetFlowVar_((u+_MODEL_NVARS_*p),rho,v,e,P,param);
 
+    _GetCoordinate_(0,index[0],dim,ghosts,solver->dxinv,dxinv); /* 1/dx */
     c         = sqrt(param->gamma*P/rho); /* speed of sound */
-    dxinv     = solver->GetCoordinate(0,index[0],dim,ghosts,solver->dxinv); /* 1/dx */
     local_cfl = (absolute(v)+c)*dt*dxinv; /* local cfl for this grid point */
     if (local_cfl > max_cfl) max_cfl = local_cfl;
 

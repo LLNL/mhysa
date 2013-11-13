@@ -24,10 +24,10 @@ double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
     double rho, vx, vy, vz, e, P, c, dxinv, dyinv, dzinv, local_cfl[3];
     _NavierStokes3DGetFlowVar_((u+_MODEL_NVARS_*p),rho,vx,vy,vz,e,P,param);
 
-    c         = sqrt(param->gamma*P/rho); /* speed of sound */
-    dxinv     = solver->GetCoordinate(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv); /* 1/dx */
-    dyinv     = solver->GetCoordinate(_YDIR_,index[_YDIR_],dim,ghosts,solver->dxinv); /* 1/dy */
-    dzinv     = solver->GetCoordinate(_ZDIR_,index[_ZDIR_],dim,ghosts,solver->dxinv); /* 1/dz */
+    c = sqrt(param->gamma*P/rho); /* speed of sound */
+    _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv,dxinv); /* 1/dx */
+    _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,solver->dxinv,dyinv); /* 1/dy */
+    _GetCoordinate_(_ZDIR_,index[_ZDIR_],dim,ghosts,solver->dxinv,dzinv); /* 1/dz */
 
     local_cfl[_XDIR_] = (absolute(vx)+c)*dt*dxinv; /* local cfl for this grid point (x) */
     local_cfl[_YDIR_] = (absolute(vy)+c)*dt*dyinv; /* local cfl for this grid point (y) */

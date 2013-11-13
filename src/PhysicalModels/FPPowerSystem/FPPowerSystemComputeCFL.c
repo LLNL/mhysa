@@ -21,10 +21,10 @@ double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
   int     index[ndims];
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    double x      = solver->GetCoordinate(0,index[0],dim,ghosts,solver->x);
-    double y      = solver->GetCoordinate(1,index[1],dim,ghosts,solver->x);
-    double dxinv  = solver->GetCoordinate(0,index[0],dim,ghosts,solver->dxinv);
-    double dyinv  = solver->GetCoordinate(1,index[1],dim,ghosts,solver->dxinv);
+    double x;     _GetCoordinate_(0,index[0],dim,ghosts,solver->x,x);
+    double y;     _GetCoordinate_(1,index[1],dim,ghosts,solver->x,y);
+    double dxinv; _GetCoordinate_(0,index[0],dim,ghosts,solver->dxinv,dxinv);
+    double dyinv; _GetCoordinate_(1,index[1],dim,ghosts,solver->dxinv,dyinv);
     double drift_x= FPPowerSystemDriftFunction(0,params,x,y,t);
     double drift_y= FPPowerSystemDriftFunction(1,params,x,y,t);
 

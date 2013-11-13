@@ -30,14 +30,18 @@ int FPPowerSystemUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
       double x = 0,y = 0; /* x,y coordinates of the interface */
       if (dir == 0) {
         /* x-interface */
-        x = 0.5 * ( solver->GetCoordinate(0,index_inter[0]-1,dim,ghosts,solver->x) 
-                  + solver->GetCoordinate(0,index_inter[0]  ,dim,ghosts,solver->x) );
-        y = solver->GetCoordinate(1,index_inter[1],dim,ghosts,solver->x);
+        double x1, x2;
+        _GetCoordinate_(0,index_inter[0]-1,dim,ghosts,solver->x,x1);
+        _GetCoordinate_(0,index_inter[0]  ,dim,ghosts,solver->x,x2);
+        x = 0.5 * ( x1 + x2 );
+        _GetCoordinate_(1,index_inter[1],dim,ghosts,solver->x,y);
       } else if (dir == 1) {
         /* y-interface */
-        x = solver->GetCoordinate(0,index_inter[0],dim,ghosts,solver->x);
-        y = 0.5 * ( solver->GetCoordinate(1,index_inter[1]-1,dim,ghosts,solver->x) 
-                  + solver->GetCoordinate(1,index_inter[1]  ,dim,ghosts,solver->x) );
+        _GetCoordinate_(0,index_inter[0],dim,ghosts,solver->x,x);
+        double y1, y2;
+        _GetCoordinate_(1,index_inter[1]-1,dim,ghosts,solver->x,y1);
+        _GetCoordinate_(1,index_inter[1]  ,dim,ghosts,solver->x,y2);
+        y = 0.5 * ( y1 + y2 );
       }
       double drift = FPPowerSystemDriftFunction(dir,params,x,y,t);
       for (v = 0; v < nvars; v++)  

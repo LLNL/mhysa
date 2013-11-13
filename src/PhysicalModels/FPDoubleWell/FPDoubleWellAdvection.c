@@ -25,7 +25,7 @@ int FPDoubleWellAdvection(double *f,double *u,int dir,void *s,double t)
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
-    double x = solver->GetCoordinate(0,index[0]-ghosts,dim,ghosts,solver->x);
+    double x; _GetCoordinate_(0,index[0]-ghosts,dim,ghosts,solver->x,x);
     for (v = 0; v < nvars; v++) f[nvars*p+v] = drift(x) * u[nvars*p+v];
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }

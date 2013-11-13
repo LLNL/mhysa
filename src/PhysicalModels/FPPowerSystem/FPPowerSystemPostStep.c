@@ -21,9 +21,9 @@ int FPPowerSystemPostStep(double *u,void* s,void *m,double t)
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-    double dx = 1.0 / solver->GetCoordinate(0,index[0],dim,ghosts,solver->dxinv);;
-    double dy = 1.0 / solver->GetCoordinate(1,index[1],dim,ghosts,solver->dxinv);;
-    local_sum     += (u[p] * dx * dy);
+    double dxinv; _GetCoordinate_(0,index[0],dim,ghosts,solver->dxinv,dxinv);
+    double dyinv; _GetCoordinate_(1,index[1],dim,ghosts,solver->dxinv,dyinv);
+    local_sum     += (u[p] / (dxinv * dyinv));
     _ArrayIncrementIndex_(ndims,dim,index,done);
   }
   double local_integral = local_sum;

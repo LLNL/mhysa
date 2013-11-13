@@ -9,3 +9,11 @@
   #define CHECKERR(ierr)
 #endif
 
+#define _GetCoordinate_(dir,i,dim,ghosts,x,coord) \
+  { \
+    int d,offset = 0; \
+    for (d = 0; d < dir; d++) offset += (dim[d]+2*ghosts); \
+    coord = (x[offset+ghosts+i]); \
+  }
+
+

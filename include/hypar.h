@@ -54,7 +54,6 @@ typedef struct main_parameters {
   int (*HyperbolicFunction)       (double*,double*,void*,void*,double);
   int (*ParabolicFunction)        (double*,double*,void*,void*,double);
   int (*SourceFunction)           (double*,double*,void*,void*,double);
-  double (*GetCoordinate)         (int,int,int*,int,double*);
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
@@ -102,8 +101,6 @@ int InitialSolution         (void*,void*);
 int OutputSolution          (void*,void*);
 int ReadInputs              (void*,void*);
 int Solve                   (void*,void*);
-
-/* function to get the grid coordinate at a given point along a given dimension */
 
 
 /* Some definitions - types of discretizations available 

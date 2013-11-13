@@ -18,9 +18,6 @@ int ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
 int ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
 int SourceFunction              (double*,double*,void*,void*,double);
 
-/* function to get the grid coordinate at a given point along a given dimension */
-double GetCoordinate(int,int,int*,int,double*);
-
 int InitializeSolvers(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
@@ -32,7 +29,6 @@ int InitializeSolvers(void *s, void *m)
   solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
   solver->HyperbolicFunction      = HyperbolicFunction;
   solver->SourceFunction          = SourceFunction;
-  solver->GetCoordinate           = GetCoordinate;
 
   /* choose the type of parabolic discretization */
   if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) {

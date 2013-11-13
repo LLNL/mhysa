@@ -17,7 +17,7 @@ double LinearADRComputeCFL(void *s,void *m,double dt,double t)
   for (d = 0; d < ndims; d++) {
     for (i = 0; i < dim[d]; i++) {
       for (v = 0; v < nvars; v++) {
-        double dxinv = solver->GetCoordinate(d,i,dim,ghosts,solver->dxinv);
+        double dxinv; _GetCoordinate_(d,i,dim,ghosts,solver->dxinv,dxinv);
         double local_cfl = params->a[nvars*d+v]*dt*dxinv;
         if (local_cfl > max_cfl) max_cfl = local_cfl;
       }
