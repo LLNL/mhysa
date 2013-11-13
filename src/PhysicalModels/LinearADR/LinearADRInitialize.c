@@ -20,14 +20,14 @@ int LinearADRInitialize(void *s,void *m)
   HyPar         *solver  = (HyPar*)         s;
   MPIVariables  *mpi     = (MPIVariables*)  m; 
   LinearADR     *physics = (LinearADR*)     solver->physics;
-  int           ierr     = 0,i;
+  int           i,ferr;
 
   physics->a = (double*) calloc (solver->ndims*solver->nvars,sizeof(double));
   physics->d = (double*) calloc (solver->ndims*solver->nvars,sizeof(double));
 
   /* default values are zero */
-  ierr = ArraySetValue_double(physics->a,solver->ndims*solver->nvars,0.0); CHECKERR(ierr);
-  ierr = ArraySetValue_double(physics->d,solver->ndims*solver->nvars,0.0); CHECKERR(ierr);
+  _ArraySetValue_(physics->a,solver->ndims*solver->nvars,0.0);
+  _ArraySetValue_(physics->d,solver->ndims*solver->nvars,0.0);
 
   /* reading physical model specific inputs - all processes */
   FILE *in;
@@ -38,21 +38,21 @@ int LinearADRInitialize(void *s,void *m)
     return(1);
   } else {
     char word[_MAX_STRING_SIZE_];
-    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
     if (!strcmp(word, "begin")){
 	    while (strcmp(word, "end")){
-		    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
         if (!strcmp(word, "advection")) {
           /* read advection coefficients */
-          for (i=0; i<solver->ndims*solver->nvars; i++) ierr = fscanf(in,"%lf",&physics->a[i]);
-          if (ierr != 1) return(1);
+          for (i=0; i<solver->ndims*solver->nvars; i++) ferr = fscanf(in,"%lf",&physics->a[i]);
+          if (ferr != 1) return(1);
         } else if (!strcmp(word, "diffusion")) {
           /* read diffusion coefficients */
-          for (i=0; i<solver->ndims*solver->nvars; i++) ierr = fscanf(in,"%lf",&physics->d[i]);
-          if (ierr != 1) return(1);
+          for (i=0; i<solver->ndims*solver->nvars; i++) ferr = fscanf(in,"%lf",&physics->d[i]);
+          if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
-          ierr = fscanf(in,"%s",useless); if (ierr != 1) return(ierr);
+          ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
           printf("Warning: keyword %s in file \"physics.inp\" with value %s not ",word,useless);
           printf("recognized or extraneous. Ignoring.\n");
         }

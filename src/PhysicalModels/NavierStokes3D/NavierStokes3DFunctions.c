@@ -58,17 +58,17 @@ int NavierStokes3DSetFlux(double *f,double rho,
 int NavierStokes3DRoeAverage(double *uavg,double *uL,double *uR,void *p)
 {
   NavierStokes3D *param  = (NavierStokes3D*) p;
-  int     ierr = 0;
   double  rho ,vx, vy, vz, e ,P ,H;
   double  rhoL,vxL,vyL,vzL,eL,PL,HL,cLsq;
   double  rhoR,vxR,vyR,vzR,eR,PR,HR,cRsq;
   double  gamma = param->gamma;
+  _DECLARE_IERR_;
 
-  ierr = NavierStokes3DGetFlowVar(uL,&rhoL,&vxL,&vyL,&vzL,&eL,&PL,param); CHECKERR(ierr);
+  IERR NavierStokes3DGetFlowVar(uL,&rhoL,&vxL,&vyL,&vzL,&eL,&PL,param); CHECKERR(ierr);
   cLsq = gamma * PL/rhoL;
   HL = 0.5*(vxL*vxL+vyL*vyL+vzL*vzL) + cLsq / (gamma-1.0);
 
-  ierr = NavierStokes3DGetFlowVar(uR,&rhoR,&vxR,&vyR,&vzR,&eR,&PR,param); CHECKERR(ierr);
+  IERR NavierStokes3DGetFlowVar(uR,&rhoR,&vxR,&vyR,&vzR,&eR,&PR,param); CHECKERR(ierr);
   cRsq = gamma * PR/rhoR;
   HR = 0.5*(vxR*vxR+vyR*vyR+vzR*vzR) + cRsq / (gamma-1.0);
 

@@ -38,17 +38,17 @@ int Euler2DSetFlux(double *f,double rho,double vx,double vy,
 int Euler2DRoeAverage(double *uavg,double *uL,double *uR,void *p)
 {
   Euler2D *param  = (Euler2D*) p;
-  int     ierr = 0;
   double  rho ,vx, vy, e ,P ,H ,csq, vsq;
   double  rhoL,vxL,vyL,eL,PL,HL,cLsq;
   double  rhoR,vxR,vyR,eR,PR,HR,cRsq;
   double  gamma = param->gamma;
+  _DECLARE_IERR_;
 
-  ierr = Euler2DGetFlowVar(uL,&rhoL,&vxL,&vyL,&eL,&PL,param); CHECKERR(ierr);
+  IERR Euler2DGetFlowVar(uL,&rhoL,&vxL,&vyL,&eL,&PL,param); CHECKERR(ierr);
   cLsq = gamma * PL/rhoL;
   HL = 0.5*(vxL*vxL+vyL*vyL) + cLsq / (gamma-1.0);
 
-  ierr = Euler2DGetFlowVar(uR,&rhoR,&vxR,&vyR,&eR,&PR,param); CHECKERR(ierr);
+  IERR Euler2DGetFlowVar(uR,&rhoR,&vxR,&vyR,&eR,&PR,param); CHECKERR(ierr);
   cRsq = gamma * PR/rhoR;
   HR = 0.5*(vxR*vxR+vyR*vyR) + cRsq / (gamma-1.0);
 

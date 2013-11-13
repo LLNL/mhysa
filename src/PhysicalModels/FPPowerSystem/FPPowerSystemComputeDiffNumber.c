@@ -12,7 +12,6 @@ double FPPowerSystemComputeDiffNumber(void *s,void *m,double dt,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   FPPowerSystem *params = (FPPowerSystem*)solver->physics;
-  int           ierr = 0;
 
   int     ndims  = solver->ndims;
   int     ghosts = solver->ghosts;
@@ -20,7 +19,7 @@ double FPPowerSystemComputeDiffNumber(void *s,void *m,double dt,double t)
 
   double  max_diff = 0;
   int     index[ndims];
-  int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     double dxinv  = solver->GetCoordinate(0,index[0],dim,ghosts,solver->dxinv);
     double dyinv  = solver->GetCoordinate(1,index[1],dim,ghosts,solver->dxinv);
@@ -33,7 +32,7 @@ double FPPowerSystemComputeDiffNumber(void *s,void *m,double dt,double t)
     if (local_diff_x > max_diff) max_diff = local_diff_x;
     if (local_diff_y > max_diff) max_diff = local_diff_y;
 
-    done = ArrayIncrementIndex(ndims,dim,index);
+    _ArrayIncrementIndex_(ndims,dim,index,done);
   }
 
   return(max_diff);

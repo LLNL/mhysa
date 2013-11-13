@@ -10,9 +10,10 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0, d, v, i, done;
+  int           d, v, i, done;
   double        *FluxI  = solver->fluxI; /* interface flux     */
   double        *FluxC  = solver->fluxC; /* cell centered flux */
+  _DECLARE_IERR_;
 
   int     ndims  = solver->ndims;
   int     nvars  = solver->nvars;
@@ -24,31 +25,32 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
   int size = 1;
   for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
 
-  ierr = ArraySetValue_double(hyp,size*nvars,0.0); CHECKERR(ierr);
+  _ArraySetValue_(hyp,size*nvars,0.0);
   if (!solver->FFunction) return(0); /* zero hyperbolic term */
 
   int offset = 0;
   for (d = 0; d < ndims; d++) {
-    ierr = ArrayCopy1D_int(dim,dim_interface,ndims); CHECKERR(ierr); dim_interface[d]++;
+    _ArrayCopy1D_(dim,dim_interface,ndims); dim_interface[d]++;
     int size_cellcenter = 1; for (i = 0; i < ndims; i++) size_cellcenter *= (dim[i] + 2*ghosts);
     int size_interface = 1; for (i = 0; i < ndims; i++) size_interface *= dim_interface[i];
 
     /* evaluate cell-centered flux */
-    ierr = solver->FFunction(FluxC,u,d,solver,t); CHECKERR(ierr);
+    IERR solver->FFunction(FluxC,u,d,solver,t); CHECKERR(ierr);
     /* compute interface fluxes */
-    ierr = ReconstructHyperbolic(FluxI,FluxC,u,d,solver,mpi,t); CHECKERR(ierr);
+    IERR ReconstructHyperbolic(FluxI,FluxC,u,d,solver,mpi,t); CHECKERR(ierr);
 
     /* calculate the first derivative */
-    done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+    done = 0; _ArraySetValue_(index,ndims,0);
+    int p, p1, p2;
     while (!done) {
-      ierr = ArrayCopy1D_int(index,index1,ndims); CHECKERR(ierr);
-      ierr = ArrayCopy1D_int(index,index2,ndims); CHECKERR(ierr); index2[d]++;
-      int p  = ArrayIndex1D(ndims,dim          ,index ,NULL,ghosts);
-      int p1 = ArrayIndex1D(ndims,dim_interface,index1,NULL,0     );
-      int p2 = ArrayIndex1D(ndims,dim_interface,index2,NULL,0     );
+      _ArrayCopy1D_(index,index1,ndims);
+      _ArrayCopy1D_(index,index2,ndims); index2[d]++;
+      _ArrayIndex1D_(ndims,dim          ,index ,ghosts,p);
+      _ArrayIndex1D_(ndims,dim_interface,index1,0     ,p1);
+      _ArrayIndex1D_(ndims,dim_interface,index2,0     ,p2);
       for (v=0; v<nvars; v++) hyp[nvars*p+v] += dxinv[offset+ghosts+index[d]] 
                                               * (FluxI[nvars*p2+v]-FluxI[nvars*p1+v]);
-      done = ArrayIncrementIndex(ndims,dim,index);
+      _ArrayIncrementIndex_(ndims,dim,index,done);
     }
 
     offset += dim[d] + 2*ghosts;

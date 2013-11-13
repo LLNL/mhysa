@@ -7,7 +7,7 @@ int MPIExchangeBoundaries1D(void *m,double *x,int N,int ghosts,int dir,int ndims
 {
 #ifndef serial
   MPIVariables  *mpi = (MPIVariables*) m;
-  int           ierr = 0, i;
+  int           i;
   
   int *ip     = mpi->ip;
   int *iproc  = mpi->iproc;
@@ -18,10 +18,10 @@ int MPIExchangeBoundaries1D(void *m,double *x,int N,int ghosts,int dir,int ndims
 
   /* each process has 2 neighbors (except at physical boundaries)       */
   /* calculate the rank of these neighbors (-1 -> none)                 */
-  ierr = ArrayCopy1D_int(ip,nip,ndims); CHECKERR(ierr); nip[dir]--;
+  _ArrayCopy1D_(ip,nip,ndims);  nip[dir]--;
   if (ip[dir] == 0)             neighbor_rank[0] = -1;
   else                          neighbor_rank[0] = MPIRank1D(ndims,iproc,nip);
-  ierr = ArrayCopy1D_int(ip,nip,ndims); CHECKERR(ierr); nip[dir]++;
+  _ArrayCopy1D_(ip,nip,ndims);  nip[dir]++;
   if (ip[dir] == (iproc[dir]-1))neighbor_rank[1] = -1;
   else                          neighbor_rank[1] = MPIRank1D(ndims,iproc,nip);
 

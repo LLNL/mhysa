@@ -12,7 +12,6 @@ double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   FPPowerSystem *params = (FPPowerSystem*)solver->physics;
-  int           ierr = 0;
 
   int     ndims  = solver->ndims;
   int     ghosts = solver->ghosts;
@@ -20,7 +19,7 @@ double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
 
   double  max_cfl = 0;
   int     index[ndims];
-  int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     double x      = solver->GetCoordinate(0,index[0],dim,ghosts,solver->x);
     double y      = solver->GetCoordinate(1,index[1],dim,ghosts,solver->x);
@@ -35,7 +34,7 @@ double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
     if (local_cfl_x > max_cfl) max_cfl = local_cfl_x;
     if (local_cfl_y > max_cfl) max_cfl = local_cfl_y;
 
-    done = ArrayIncrementIndex(ndims,dim,index);
+    _ArrayIncrementIndex_(ndims,dim,index,done);
   }
 
   return(max_cfl);

@@ -22,47 +22,48 @@ int Cleanup(void *s,void *m)
   HyPar           *solver   = (HyPar*)          s;
   MPIVariables    *mpi      = (MPIVariables*)   m;
   DomainBoundary  *boundary = (DomainBoundary*) solver->boundary;
-  int             ierr    = 0,i;
+  int             i;
+  _DECLARE_IERR_;
 
   if (!mpi->rank) printf("Deallocating arrays.\n");
 
   /* Clean up boundary zones */
   for (i = 0; i < solver->nBoundaryZones; i++) {
-    ierr = BCCleanup(&boundary[i]); CHECKERR(ierr);
+    IERR BCCleanup(&boundary[i]); CHECKERR(ierr);
   }
   free(solver->boundary);
 
   /* Clean up any allocations in physical model */
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
-    ierr = LinearADRCleanup(solver->physics); CHECKERR(ierr);
+    IERR LinearADRCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_FP_DOUBLE_WELL_)) {
-    ierr = FPDoubleWellCleanup(solver->physics); CHECKERR(ierr);
+    IERR FPDoubleWellCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_)) {
-    ierr = FPPowerSystemCleanup(solver->physics); CHECKERR(ierr);
+    IERR FPPowerSystemCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_EULER_1D_)) {
-    ierr = Euler1DCleanup(solver->physics); CHECKERR(ierr);
+    IERR Euler1DCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_EULER_2D_)) {
-    ierr = Euler2DCleanup(solver->physics); CHECKERR(ierr);
+    IERR Euler2DCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_NAVIER_STOKES_3D_)) {
-    ierr = NavierStokes3DCleanup(solver->physics); CHECKERR(ierr);
+    IERR NavierStokes3DCleanup(solver->physics); CHECKERR(ierr);
   }
   free(solver->physics);
 
   /* Clean up any allocations from time-integration */
   if (solver->msti) {
-    ierr = TimeMSTICleanup(solver->msti); CHECKERR(ierr);
+    IERR TimeMSTICleanup(solver->msti); CHECKERR(ierr);
     free(solver->msti);
   }
 
   /* Clean up any spatial reconstruction related allocations */
   if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-    ierr = WENOCleanup(solver->interp);
+    IERR WENOCleanup(solver->interp);
   }
   if (solver->interp)   free(solver->interp);
   if (solver->lusolver) free(solver->lusolver);
 
   /* Free the communicators created */
-  ierr = MPIFreeCommunicators(solver->ndims,mpi);
+  IERR MPIFreeCommunicators(solver->ndims,mpi);
 
   /* These variables are allocated in Initialize.c */
   free(solver->dim_global);

@@ -27,17 +27,17 @@ int Euler1DSetFlux(double *f,double rho,double v,double e,double P,void *p)
 int Euler1DRoeAverage(double *uavg,double *uL,double *uR,void *p)
 {
   Euler1D *param  = (Euler1D*) p;
-  int     ierr = 0;
   double  rho ,v ,e ,P ,H ,csq;
   double  rhoL,vL,eL,PL,HL,cLsq;
   double  rhoR,vR,eR,PR,HR,cRsq;
   double  gamma = param->gamma;
+  _DECLARE_IERR_;
 
-  ierr = Euler1DGetFlowVar(uL,&rhoL,&vL,&eL,&PL,param); CHECKERR(ierr);
+  IERR Euler1DGetFlowVar(uL,&rhoL,&vL,&eL,&PL,param); CHECKERR(ierr);
   cLsq = gamma * PL/rhoL;
   HL = 0.5*vL*vL + cLsq / (gamma-1.0);
 
-  ierr = Euler1DGetFlowVar(uR,&rhoR,&vR,&eR,&PR,param); CHECKERR(ierr);
+  IERR Euler1DGetFlowVar(uR,&rhoR,&vR,&eR,&PR,param); CHECKERR(ierr);
   cRsq = gamma * PR/rhoR;
   HR = 0.5*vR*vR + cRsq / (gamma-1.0);
 

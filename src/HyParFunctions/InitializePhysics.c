@@ -17,7 +17,7 @@ int InitializePhysics(void *s,void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0;
+  _DECLARE_IERR_;
 
   if (!mpi->rank) printf("Initializing physics. Model = \"%s\"\n",solver->model);
 
@@ -40,32 +40,32 @@ int InitializePhysics(void *s,void *m)
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
 
     solver->physics = (LinearADR*) calloc (1,sizeof(LinearADR));
-    ierr = LinearADRInitialize(solver,mpi); CHECKERR(ierr);
+    IERR LinearADRInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_FP_DOUBLE_WELL_)) {
 
     solver->physics = (FPDoubleWell*) calloc (1,sizeof(FPDoubleWell));
-    ierr = FPDoubleWellInitialize(solver,mpi); CHECKERR(ierr);
+    IERR FPDoubleWellInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_)) {
 
     solver->physics = (FPPowerSystem*) calloc (1,sizeof(FPPowerSystem));
-    ierr = FPPowerSystemInitialize(solver,mpi); CHECKERR(ierr);
+    IERR FPPowerSystemInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_EULER_1D_)) {
 
     solver->physics = (Euler1D*) calloc (1,sizeof(Euler1D));
-    ierr = Euler1DInitialize(solver,mpi); CHECKERR(ierr);
+    IERR Euler1DInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_EULER_2D_)) {
 
     solver->physics = (Euler2D*) calloc (1,sizeof(Euler2D));
-    ierr = Euler2DInitialize(solver,mpi); CHECKERR(ierr);
+    IERR Euler2DInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_NAVIER_STOKES_3D_)) {
 
     solver->physics = (NavierStokes3D*) calloc (1,sizeof(NavierStokes3D));
-    ierr = NavierStokes3DInitialize(solver,mpi); CHECKERR(ierr);
+    IERR NavierStokes3DInitialize(solver,mpi); CHECKERR(ierr);
 
   } else {
 

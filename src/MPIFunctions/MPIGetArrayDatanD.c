@@ -8,7 +8,7 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
                       int *dim,int ghosts,int ndims,int nvars,void *m)
 {
   MPIVariables *mpi  = (MPIVariables*) m;
-  int          ierr = 0, d;
+  int          d;
 
   int source_rank = MPIRank1D(ndims,mpi->iproc,source);
   int dest_rank   = MPIRank1D(ndims,mpi->iproc,dest  );
@@ -20,16 +20,16 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
     ie[d] =  limits[2*d+1];
     size  *= (ie[d] - is[d]);
   }
-  ierr = ArraySubtract1D_int(bounds,ie,is,ndims);
+  _ArraySubtract1D_(bounds,ie,is,ndims);
 
   if (source_rank == dest_rank) {
     /* source and dest are the same process */
-    int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+    int done = 0; _ArraySetValue_(index,ndims,0);
     while (!done) {
-      int p1 = ArrayIndex1D(ndims,bounds,index,NULL,0     );
-      int p2 = ArrayIndex1D(ndims,dim   ,index,is  ,ghosts);
+      int p1; _ArrayIndex1D_(ndims,bounds,index,0,p1);
+      int p2; _ArrayIndex1DWO_(ndims,dim,index,is,ghosts,p2);
       int v; for (v=0; v<nvars; v++) xbuf[nvars*p1+v] = x[nvars*p2+v];
-      done = ArrayIncrementIndex(ndims,bounds,index);
+      _ArrayIncrementIndex_(ndims,bounds,index,done);
     }
   } else {
 #ifdef serial
@@ -40,12 +40,12 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
 #else
     if (mpi->rank == source_rank) {
       double *buf = (double*) calloc (size*nvars, sizeof(double));
-      int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+      int done = 0; _ArraySetValue_(index,ndims,0);
       while (!done) {
-        int p1 = ArrayIndex1D(ndims,bounds,index,NULL,0     );
-        int p2 = ArrayIndex1D(ndims,dim   ,index,is  ,ghosts);
+        int p1; _ArrayIndex1D_(ndims,bounds,index,0,p1);
+        int p2; _ArrayIndex1DWO_(ndims,dim,index,is,ghosts,p2);
         int v; for (v=0; v<nvars; v++) buf[nvars*p1+v] = x[nvars*p2+v];
-        done = ArrayIncrementIndex(ndims,bounds,index);
+        _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
       MPI_Send(buf,size*nvars,MPI_DOUBLE,dest_rank,2211,mpi->world);
       free(buf);

@@ -18,11 +18,11 @@ int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,do
 int NavierStokes3DEigenvalues(double *u,double *D,void *p,int dir)
 {
   NavierStokes3D  *param  = (NavierStokes3D*)  p;
-  int             ierr    = 0;
   double          gamma   = param->gamma;
   double          rho,vx,vy,vz,e,P,c,vn;
+  _DECLARE_IERR_;
 
-  ierr = NavierStokes3DGetFlowVar(u,&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
+  IERR NavierStokes3DGetFlowVar(u,&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
   c    = sqrt(gamma*P/rho);
 
   if      (dir == _XDIR_) vn = vx;
@@ -42,12 +42,12 @@ int NavierStokes3DEigenvalues(double *u,double *D,void *p,int dir)
 int NavierStokes3DLeftEigenvectors(double *u,double *L,void *p,int dir)
 {
   NavierStokes3D *param  = (NavierStokes3D*)  p;
-  int     ierr  = 0;
   double  ga    = param->gamma, ga_minus_one=ga-1.0;
   double  rho,vx,vy,vz,e,P,a,un,ek;
   double  nx = 0,ny = 0,nz = 0;
+  _DECLARE_IERR_;
 
-  ierr = NavierStokes3DGetFlowVar(u,&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
+  IERR NavierStokes3DGetFlowVar(u,&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
 	ek = 0.5 * (vx*vx + vy*vy + vz*vz);
 	a = sqrt(ga * P / rho);
 
@@ -164,12 +164,12 @@ int NavierStokes3DLeftEigenvectors(double *u,double *L,void *p,int dir)
 int NavierStokes3DRightEigenvectors(double *u,double *R,void *p,int dir)
 {
   NavierStokes3D *param  = (NavierStokes3D*)  p;
-  int     ierr = 0;
   double  ga   = param->gamma, ga_minus_one = ga-1.0;
   double  rho,vx,vy,vz,e,P,un,ek,a,h0;
   double  nx = 0,ny = 0,nz = 0;
+  _DECLARE_IERR_;
 
-  ierr = NavierStokes3DGetFlowVar(u,&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
+  IERR NavierStokes3DGetFlowVar(u,&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
 	ek   = 0.5 * (vx*vx + vy*vy + vz*vz);
 	a    = sqrt(ga * P / rho);
   h0   = a*a / ga_minus_one + ek;

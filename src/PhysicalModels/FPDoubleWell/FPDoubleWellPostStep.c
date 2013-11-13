@@ -10,7 +10,7 @@ int FPDoubleWellPostStep(double *u,void* s,void *m,double t)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   FPDoubleWell  *params = (FPDoubleWell*) solver->physics;
-  int           ierr    = 0;
+  _DECLARE_IERR_;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
@@ -18,16 +18,16 @@ int FPDoubleWellPostStep(double *u,void* s,void *m,double t)
   int index[ndims];
 
   double local_sum = 0;
-  int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    int p = ArrayIndex1D(ndims,dim,index,NULL,ghosts);
+    int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
     double dx = 1.0 / solver->dxinv[index[0]+ghosts];
     local_sum     += (u[p] * dx);
-    done = ArrayIncrementIndex(ndims,dim,index);
+    _ArrayIncrementIndex_(ndims,dim,index,done);
   }
   double local_integral = local_sum;
   double global_integral = 0; 
-  ierr = MPISum_double(&global_integral,&local_integral,1,&mpi->world); CHECKERR(ierr);
+  IERR MPISum_double(&global_integral,&local_integral,1,&mpi->world); CHECKERR(ierr);
   params->pdf_integral = global_integral;
 
   return(0);

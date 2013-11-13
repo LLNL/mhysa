@@ -18,7 +18,7 @@ int Initialize(void *s, void *m)
   solver->dim_local = (int*) calloc (solver->ndims,sizeof(int));
 
 #ifndef serial
-  int ierr = 0;
+  _DECLARE_IERR_;
 
   /* Domain partitioning */
   if (!mpi->rank) printf("Partitioning domain.\n");
@@ -33,18 +33,18 @@ int Initialize(void *s, void *m)
   }
 
   /* calculate ndims-D rank of each process (ip[]) from rank in MPI_COMM_WORLD */
-  ierr = MPIRanknD(solver->ndims,mpi->rank,mpi->iproc,mpi->ip); CHECKERR(ierr);
+  IERR MPIRanknD(solver->ndims,mpi->rank,mpi->iproc,mpi->ip); CHECKERR(ierr);
 
   /* calculate local domain sizes along each dimension */
   for (i=0; i<solver->ndims; i++) 
     solver->dim_local[i] = MPIPartition1D(solver->dim_global[i],mpi->iproc[i],mpi->ip[i]);
 
   /* calculate local domain limits in terms of global domain */
-  ierr = MPILocalDomainLimits(solver->ndims,mpi->rank,mpi,solver->dim_global,mpi->is,mpi->ie);
+  IERR MPILocalDomainLimits(solver->ndims,mpi->rank,mpi,solver->dim_global,mpi->is,mpi->ie);
   CHECKERR(ierr);
 
   /* create sub-communicators for parallel computations along grid lines in each dimension */
-  ierr = MPICreateCommunicators(solver->ndims,mpi); CHECKERR(ierr);
+  IERR MPICreateCommunicators(solver->ndims,mpi); CHECKERR(ierr);
 
   /* initialize periodic BC flags to zero */
   for (i=0; i<solver->ndims; i++) mpi->bcperiodic[i] = 0;

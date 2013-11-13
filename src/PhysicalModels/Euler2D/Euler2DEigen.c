@@ -18,11 +18,11 @@ int Euler2DGetFlowVar (double*,double*,double*,double*,double*,double*,void*);
 int Euler2DEigenvalues(double *u,double *D,void *p,int dir)
 {
   Euler2D *param  = (Euler2D*)  p;
-  int     ierr    = 0;
   double  gamma   = param->gamma;
   double  rho,vx,vy,e,P,c,vn;
+  _DECLARE_IERR_;
 
-  ierr = Euler2DGetFlowVar(u,&rho,&vx,&vy,&e,&P,param); CHECKERR(ierr);
+  IERR Euler2DGetFlowVar(u,&rho,&vx,&vy,&e,&P,param); CHECKERR(ierr);
   c    = sqrt(gamma*P/rho);
 
   if      (dir == _XDIR_) vn = vx;
@@ -40,12 +40,12 @@ int Euler2DEigenvalues(double *u,double *D,void *p,int dir)
 int Euler2DLeftEigenvectors(double *u,double *L,void *p,int dir)
 {
   Euler2D *param  = (Euler2D*)  p;
-  int     ierr  = 0;
   double  ga    = param->gamma, ga_minus_one=ga-1.0;
   double  rho,vx,vy,e,P,a,un,ek;
   double  nx = 0,ny = 0;
+  _DECLARE_IERR_;
 
-  ierr = Euler2DGetFlowVar(u,&rho,&vx,&vy,&e,&P,param); CHECKERR(ierr);
+  IERR Euler2DGetFlowVar(u,&rho,&vx,&vy,&e,&P,param); CHECKERR(ierr);
 	ek = 0.5 * (vx*vx + vy*vy);
 	a = sqrt(ga * P / rho);
 
@@ -108,12 +108,12 @@ int Euler2DLeftEigenvectors(double *u,double *L,void *p,int dir)
 int Euler2DRightEigenvectors(double *u,double *R,void *p,int dir)
 {
   Euler2D *param  = (Euler2D*)  p;
-  int     ierr = 0;
   double  ga   = param->gamma, ga_minus_one = ga-1.0;
   double  rho,vx,vy,e,P,un,ek,a,h0;
   double  nx = 0,ny = 0;
+  _DECLARE_IERR_;
 
-  ierr = Euler2DGetFlowVar(u,&rho,&vx,&vy,&e,&P,param); CHECKERR(ierr);
+  IERR Euler2DGetFlowVar(u,&rho,&vx,&vy,&e,&P,param); CHECKERR(ierr);
 	ek   = 0.5 * (vx*vx + vy*vy);
 	a    = sqrt(ga * P / rho);
   h0   = a*a / ga_minus_one + ek;

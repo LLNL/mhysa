@@ -18,7 +18,6 @@ int Interp1PrimFifthOrderWENO(double *fI,double *fC,double *u,int upw,int dir,vo
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
-  int             ierr    = 0;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
@@ -42,28 +41,28 @@ int Interp1PrimFifthOrderWENO(double *fI,double *fC,double *u,int upw,int dir,vo
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
-  ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
-  ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
 
-  int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
-    ierr = ArrayCopy1D_int(index_outer,indexC,ndims); CHECKERR(ierr);
-    ierr = ArrayCopy1D_int(index_outer,indexI,ndims); CHECKERR(ierr);
+    _ArrayCopy1D_(index_outer,indexC,ndims);
+    _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
       int qm1,qm2,qm3,qp1,qp2,p;
-      p = ArrayIndex1D(ndims,bounds_inter,indexI,NULL,0);
+      _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
       if (upw > 0) {
-        indexC[dir] = indexI[dir]-3; qm3 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-2; qm2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-1; qm1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]  ; qp1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]+1; qp2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
+        indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
+        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
+        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
+        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
+        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       } else {
-        indexC[dir] = indexI[dir]+2; qm3 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]+1; qm2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]  ; qm1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-1; qp1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-2; qp2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
+        indexC[dir] = indexI[dir]+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
+        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
+        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
+        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
+        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       }
       int v; 
       for (v=0; v<nvars; v++)  {
@@ -144,7 +143,7 @@ int Interp1PrimFifthOrderWENO(double *fI,double *fC,double *u,int upw,int dir,vo
         fI[p*nvars+v] = w1*f1 + w2*f2 + w3*f3;
       }
     }
-    done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   return(0);

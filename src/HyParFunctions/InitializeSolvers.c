@@ -25,7 +25,7 @@ int InitializeSolvers(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0;
+  _DECLARE_IERR_;
 
   if (!mpi->rank) printf("Initializing solvers.\n");
 
@@ -109,7 +109,7 @@ int InitializeSolvers(void *s, void *m)
       }
     }
     solver->interp = (MUSCLParameters*) calloc(1,sizeof(MUSCLParameters));
-    ierr = MUSCLInitialize(solver->interp,mpi); CHECKERR(ierr);
+    IERR MUSCLInitialize(solver->interp,mpi); CHECKERR(ierr);
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_)) {
     /* Fifth order WENO scheme */
     if (solver->nvars > 1) {
@@ -134,7 +134,7 @@ int InitializeSolvers(void *s, void *m)
       }
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
-    ierr = WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
+    IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
     /* Fifth order CRWENO scheme */
     if (solver->nvars > 1) {
@@ -160,9 +160,9 @@ int InitializeSolvers(void *s, void *m)
       }
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
-    ierr = WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
+    IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
     solver->lusolver = (TridiagLU*) calloc (1,sizeof(TridiagLU));
-    ierr = tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
+    IERR tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
   } else {
     fprintf(stderr,"Error: %s is a not a supported spatial interpolation scheme.\n",
             solver->spatial_scheme_hyp);
@@ -176,7 +176,7 @@ int InitializeSolvers(void *s, void *m)
   } else if (!strcmp(solver->time_scheme,_RK_)) {
     solver->TimeIntegrate = TimeRK;
     solver->msti = (MSTIParameters*) calloc (1,sizeof(MSTIParameters));
-    ierr = TimeMSTIInitialize(solver->time_scheme,solver->time_scheme_type,
+    IERR TimeMSTIInitialize(solver->time_scheme,solver->time_scheme_type,
                               solver->msti); CHECKERR(ierr);
   } else {
     fprintf(stderr,"Error: %s is a not a supported time-integration scheme.\n",

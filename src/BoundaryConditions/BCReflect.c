@@ -6,7 +6,6 @@
 int BCReflect(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
-  int            ierr      = 0;
 
   int dim   = boundary->dim;
   int face  = boundary->face;
@@ -14,20 +13,20 @@ int BCReflect(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *p
 
   if (boundary->on_this_proc) {
     int bounds[ndims], indexb[ndims], indexi[ndims];
-    ierr = ArraySubtract1D_int(bounds,boundary->ie,boundary->is,ndims); CHECKERR(ierr);
-    ierr = ArraySetValue_int  (indexb,ndims,0);                         CHECKERR(ierr);
+    _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
+    _ArraySetValue_(indexb,ndims,0);
     int done = 0;
     while (!done) {
       int p1, p2;
-      ierr = ArrayCopy1D_int(indexb,indexi,ndims);              CHECKERR(ierr);
-      ierr = ArrayAdd1D_int (indexi,indexi,boundary->is,ndims); CHECKERR(ierr);
+      _ArrayCopy1D_(indexb,indexi,ndims);
+      _ArrayAdd1D_(indexi,indexi,boundary->is,ndims);
       if      (face ==  1) indexi[dim] = ghosts-1-indexb[dim];
       else if (face == -1) indexi[dim] = size[dim]-indexb[dim];
       else return(1);
-      p1 = ArrayIndex1D(ndims,size  ,indexb,boundary->is,ghosts);
-      p2 = ArrayIndex1D(ndims,size  ,indexi,NULL        ,ghosts);
+      _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
+      _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
       phi[nvars*p1+var] = -phi[nvars*p2+var];
-      done = ArrayIncrementIndex(ndims,bounds,indexb);
+      _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }
   return(0);

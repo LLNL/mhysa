@@ -7,7 +7,8 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0, d;
+  int           d;
+  _DECLARE_IERR_;
 
   int ndims = solver->ndims;
   int nvars = solver->nvars;
@@ -26,13 +27,13 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,int dir,void *s,
   double *fluxR  = solver->fR;
 
   /* Interpolation -> to calculate left and right-biased interface flux and state variable*/
-  ierr = solver->InterpolateInterfacesHyp(uL   ,u    ,u, 1,dir,solver,mpi); CHECKERR(ierr);
-  ierr = solver->InterpolateInterfacesHyp(uR   ,u    ,u,-1,dir,solver,mpi); CHECKERR(ierr);
-  ierr = solver->InterpolateInterfacesHyp(fluxL,fluxC,u, 1,dir,solver,mpi); CHECKERR(ierr);
-  ierr = solver->InterpolateInterfacesHyp(fluxR,fluxC,u,-1,dir,solver,mpi); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(uL   ,u    ,u, 1,dir,solver,mpi); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(uR   ,u    ,u,-1,dir,solver,mpi); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(fluxL,fluxC,u, 1,dir,solver,mpi); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(fluxR,fluxC,u,-1,dir,solver,mpi); CHECKERR(ierr);
 
   /* Upwind -> to calculate the final interface flux */
-  ierr = solver->Upwind(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 
+  IERR solver->Upwind(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 
 
   return(0);
 }

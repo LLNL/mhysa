@@ -16,7 +16,6 @@ int BCPeriodic(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   MPIVariables   *mpi      = (MPIVariables*)   m;
-  int            ierr      = 0;
 
   int dim   = boundary->dim;
   int face  = boundary->face;
@@ -24,23 +23,23 @@ int BCPeriodic(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
 
   if ((boundary->on_this_proc) && (mpi->iproc[dim] == 1)) {
     int bounds[ndims], index1[ndims], index2[ndims];
-    ierr = ArraySubtract1D_int(bounds,boundary->ie,boundary->is,ndims); CHECKERR(ierr);
-    ierr = ArraySetValue_int  (index1,ndims,0);                         CHECKERR(ierr);
-    ierr = ArraySetValue_int  (index2,ndims,0);                         CHECKERR(ierr);
+    _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
+    _ArraySetValue_(index1,ndims,0);
+    _ArraySetValue_(index2,ndims,0);
     int done = 0;
     while (!done) {
       int p1 = 0, p2 = 0;
-      ierr = ArrayCopy1D_int(index1,index2,ndims);CHECKERR(ierr);
+      _ArrayCopy1D_(index1,index2,ndims);
       if (face == 1) {
         index2[dim] = index1[dim] + size[dim]-ghosts;
-        p1 = ArrayIndex1D(ndims,size,index1,boundary->is,ghosts);
-        p2 = ArrayIndex1D(ndims,size,index2,NULL        ,ghosts);
+        _ArrayIndex1DWO_(ndims,size,index1,boundary->is,ghosts,p1);
+        _ArrayIndex1D_(ndims,size,index2,ghosts,p2);
       } else if (face == -1) {
-        p1 = ArrayIndex1D(ndims,size,index1,boundary->is,ghosts);
-        p2 = ArrayIndex1D(ndims,size,index1,NULL        ,ghosts);
+        _ArrayIndex1DWO_(ndims,size,index1,boundary->is,ghosts,p1);
+        _ArrayIndex1D_(ndims,size,index1,ghosts,p2);
       }
       phi[nvars*p1+var] = phi[nvars*p2+var];
-      done = ArrayIncrementIndex(ndims,bounds,index1);
+      _ArrayIncrementIndex_(ndims,bounds,index1,done);
     }
   }
   return(0);

@@ -7,7 +7,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
 {
 #ifndef serial
   MPIVariables  *mpi = (MPIVariables*) m;
-  int           ierr = 0, d;
+  int           d;
   
   int *ip     = mpi->ip;
   int *iproc  = mpi->iproc;
@@ -20,12 +20,12 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   /* each process has 2*ndims neighbors (except at non-periodic physical boundaries)  */
   /* calculate the rank of these neighbors (-1 -> none)                               */
   for (d = 0; d < ndims; d++) {
-    ierr = ArrayCopy1D_int(ip,nip,ndims); CHECKERR(ierr); 
+    _ArrayCopy1D_(ip,nip,ndims); 
     if (ip[d] == 0) nip[d] = iproc[d]-1;
     else            nip[d]--;
     if ((ip[d] == 0) && (!bcflag[d])) neighbor_rank[2*d]   = -1;
     else                              neighbor_rank[2*d]   = MPIRank1D(ndims,iproc,nip);
-    ierr = ArrayCopy1D_int(ip,nip,ndims); CHECKERR(ierr); 
+    _ArrayCopy1D_(ip,nip,ndims); 
     if (ip[d] == (iproc[d]-1)) nip[d] = 0;
     else                       nip[d]++;
     if ((ip[d] == (iproc[d]-1)) && (!bcflag[d]))  neighbor_rank[2*d+1] = -1;
@@ -36,7 +36,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
   double *sendbuf = mpi->sendbuf;
   double *recvbuf = mpi->recvbuf;
   int    stride   = mpi->maxbuf;
-  int bufdim[ndims];
+  int    bufdim[ndims];
   for (d = 0; d < ndims; d++) {
     bufdim[d] = 1;
     int i;
@@ -60,25 +60,25 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
 
   /* count number of neighbors and copy data to send buffers */
   for (d = 0; d < ndims; d++) {
-    ierr = ArrayCopy1D_int(dim,bounds,ndims); CHECKERR(ierr); bounds[d] = ghosts;
+    _ArrayCopy1D_(dim,bounds,ndims); bounds[d] = ghosts;
     if (neighbor_rank[2*d] != -1) {
-      ierr = ArraySetValue_int(offset,ndims,0); CHECKERR(ierr);
-      int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+      _ArraySetValue_(offset,ndims,0);
+      int done = 0; _ArraySetValue_(index,ndims,0);
       while (!done) {
-        int p1 = ArrayIndex1D(ndims,dim   ,index,offset,ghosts);
-        int p2 = ArrayIndex1D(ndims,bounds,index,NULL  ,0     );
+        int p1; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p1);
+        int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
         int v; for (v=0; v<nvars; v++) sendbuf[2*d*stride+nvars*p2+v] = var[nvars*p1+v];
-        done = ArrayIncrementIndex(ndims,bounds,index);
+        _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
     }
     if (neighbor_rank[2*d+1] != -1) {
-      ierr = ArraySetValue_int(offset,ndims,0); CHECKERR(ierr); offset[d] = dim[d]-ghosts;
-      int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+      _ArraySetValue_(offset,ndims,0);offset[d] = dim[d]-ghosts;
+      int done = 0; _ArraySetValue_(index,ndims,0);
       while (!done) {
-        int p1 = ArrayIndex1D(ndims,dim   ,index,offset,ghosts);
-        int p2 = ArrayIndex1D(ndims,bounds,index,NULL  ,0     );
+        int p1; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p1);
+        int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
         int v; for (v=0; v<nvars; v++) sendbuf[(2*d+1)*stride+nvars*p2+v] = var[nvars*p1+v];
-        done = ArrayIncrementIndex(ndims,bounds,index);
+        _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
     }
   }
@@ -100,25 +100,25 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
 
   /* copy received data to ghost points */
   for (d = 0; d < ndims; d++) {
-    ierr = ArrayCopy1D_int(dim,bounds,ndims); CHECKERR(ierr); bounds[d] = ghosts;
+    _ArrayCopy1D_(dim,bounds,ndims); bounds[d] = ghosts;
     if (neighbor_rank[2*d] != -1) {
-      ierr = ArraySetValue_int(offset,ndims,0); CHECKERR(ierr); offset[d] = -ghosts;
-      int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+      _ArraySetValue_(offset,ndims,0); offset[d] = -ghosts;
+      int done = 0; _ArraySetValue_(index,ndims,0);
       while (!done) {
-        int p1 = ArrayIndex1D(ndims,dim   ,index,offset,ghosts);
-        int p2 = ArrayIndex1D(ndims,bounds,index,NULL  ,0     );
+        int p1; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p1);
+        int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
         int v; for (v=0; v<nvars; v++) var[nvars*p1+v] = recvbuf[2*d*stride+nvars*p2+v];
-        done = ArrayIncrementIndex(ndims,bounds,index);
+        _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
     }
     if (neighbor_rank[2*d+1] != -1) {
-      ierr = ArraySetValue_int(offset,ndims,0); CHECKERR(ierr); offset[d] = dim[d];
-      int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+      _ArraySetValue_(offset,ndims,0); offset[d] = dim[d];
+      int done = 0; _ArraySetValue_(index,ndims,0);
       while (!done) {
-        int p1 = ArrayIndex1D(ndims,dim   ,index,offset,ghosts);
-        int p2 = ArrayIndex1D(ndims,bounds,index,NULL  ,0     );
+        int p1; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p1);
+        int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
         int v; for (v=0; v<nvars; v++) var[nvars*p1+v] = recvbuf[(2*d+1)*stride+nvars*p2+v];
-        done = ArrayIncrementIndex(ndims,bounds,index);
+        _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
     }
   }

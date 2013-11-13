@@ -21,7 +21,8 @@ int FPDoubleWellInitialize(void *s,void *m)
   HyPar         *solver  = (HyPar*)         s;
   MPIVariables  *mpi     = (MPIVariables*)  m; 
   FPDoubleWell  *physics = (FPDoubleWell*)  solver->physics;
-  int           ierr     = 0;
+  int           ferr     = 0;
+  _DECLARE_IERR_;
 
   if (solver->nvars != _MODEL_NVARS_) {
     fprintf(stderr,"Error in FPDoubleWellInitializeO(): nvars has to be %d.\n",_MODEL_NVARS_);
@@ -41,17 +42,17 @@ int FPDoubleWellInitialize(void *s,void *m)
     return(1);
   } else {
     char word[_MAX_STRING_SIZE_];
-    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
     if (!strcmp(word, "begin")){
 	    while (strcmp(word, "end")){
-		    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
         if (!strcmp(word, "q")) {
           /* read diffusion coefficient */
-          ierr = fscanf(in,"%lf",&physics->q);
-          if (ierr != 1) return(1);
+          ferr = fscanf(in,"%lf",&physics->q);
+          if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
-          ierr = fscanf(in,"%s",useless); if (ierr != 1) return(ierr);
+          ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
           printf("Warning: keyword %s in file \"physics.inp\" with value %s not ",word,useless);
           printf("recognized or extraneous. Ignoring.\n");
         }
@@ -73,8 +74,8 @@ int FPDoubleWellInitialize(void *s,void *m)
   solver->PrintStep          = FPDoubleWellPrintStep;
 
   /* Calculate and print the PDF integral of the initial solution */
-  ierr = FPDoubleWellPostStep(solver->u,solver,mpi,0.0);  CHECKERR(ierr);
-  ierr = FPDoubleWellPrintStep(solver,mpi,0.0);           CHECKERR(ierr);
+  IERR FPDoubleWellPostStep(solver->u,solver,mpi,0.0);  CHECKERR(ierr);
+  IERR FPDoubleWellPrintStep(solver,mpi,0.0);           CHECKERR(ierr);
   
   return(0);
 }

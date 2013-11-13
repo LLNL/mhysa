@@ -12,7 +12,7 @@ double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar             *solver = (HyPar*)   s;
   NavierStokes3D    *param  = (NavierStokes3D*) solver->physics;
-  int               ierr    = 0;
+  _DECLARE_IERR_;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
@@ -22,11 +22,11 @@ double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
   double *u   = solver->u;
 
   double max_cfl = 0;
-  int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    int p = ArrayIndex1D(ndims,dim,index,NULL,ghosts);
+    int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
     double rho, vx, vy, vz, e, P, c, dxinv, dyinv, dzinv, local_cfl[3];
-    ierr = NavierStokes3DGetFlowVar(&u[nvars*p],&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
+    IERR NavierStokes3DGetFlowVar(&u[nvars*p],&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
 
     c         = sqrt(param->gamma*P/rho); /* speed of sound */
     dxinv     = solver->GetCoordinate(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv); /* 1/dx */
@@ -40,7 +40,7 @@ double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
     if (local_cfl[_YDIR_] > max_cfl) max_cfl = local_cfl[_YDIR_];
     if (local_cfl[_ZDIR_] > max_cfl) max_cfl = local_cfl[_ZDIR_];
 
-    done = ArrayIncrementIndex(ndims,dim,index);
+    _ArrayIncrementIndex_(ndims,dim,index,done);
   }
 
   return(max_cfl);

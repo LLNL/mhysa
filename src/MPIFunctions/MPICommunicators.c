@@ -25,7 +25,7 @@ int MPICreateCommunicators(int ndims,void *m)
           tick++;
         }
       }
-      color = ArrayIndex1D(ndims-1,iproc,ip,NULL,0); 
+      _ArrayIndex1D_(ndims-1,iproc,ip,0,color); 
       key   = mpi->ip[n];
       MPI_Comm_split(mpi->world,color,key,&mpi->comm[n]);
     }

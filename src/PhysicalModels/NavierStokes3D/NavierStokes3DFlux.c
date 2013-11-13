@@ -11,7 +11,8 @@ int NavierStokes3DFlux(double *f,double *u,int dir,void *s,double t)
 {
   HyPar             *solver = (HyPar*)   s;
   NavierStokes3D    *param  = (NavierStokes3D*) solver->physics;
-  int               ierr    = 0, i;
+  int               i;
+  _DECLARE_IERR_;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
@@ -20,19 +21,19 @@ int NavierStokes3DFlux(double *f,double *u,int dir,void *s,double t)
   int index[ndims], bounds[ndims], offset[ndims];
 
   /* set bounds for array index to include ghost points */
-  ierr = ArrayCopy1D_int(dim,bounds,ndims); CHECKERR(ierr);
+  _ArrayCopy1D_(dim,bounds,ndims);
   for (i=0; i<ndims; i++) bounds[i] += 2*ghosts;
 
   /* set offset such that index is compatible with ghost point arrangement */
-  ierr = ArraySetValue_int(offset,ndims,-ghosts); CHECKERR(ierr);
+  _ArraySetValue_(offset,ndims,-ghosts);
 
-  int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    int p = ArrayIndex1D(ndims,dim,index,offset,ghosts);
+    int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
     double rho, vx, vy, vz, e, P;
-    ierr = NavierStokes3DGetFlowVar(&u[nvars*p],&rho,&vx,&vy,&vz,&e,&P,param);     CHECKERR(ierr);
-    ierr = NavierStokes3DSetFlux   (&f[nvars*p],rho ,vx ,vy ,vz ,e ,P ,param,dir); CHECKERR(ierr);
-    done = ArrayIncrementIndex(ndims,bounds,index);
+    IERR NavierStokes3DGetFlowVar(&u[nvars*p],&rho,&vx,&vy,&vz,&e,&P,param);     CHECKERR(ierr);
+    IERR NavierStokes3DSetFlux   (&f[nvars*p],rho ,vx ,vy ,vz ,e ,P ,param,dir); CHECKERR(ierr);
+    _ArrayIncrementIndex_(ndims,bounds,index,done);
   }
   
   return(0);

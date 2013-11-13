@@ -16,37 +16,38 @@ int Euler2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
 {
   HyPar    *solver = (HyPar*)    s;
   Euler2D  *param  = (Euler2D*)  solver->physics;
-  int      ierr    = 0,done,k,v;
+  int      done,k,v;
+  _DECLARE_IERR_;
 
   int ndims = solver->ndims;
   int nvars = solver->nvars;
   int *dim  = solver->dim_local;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
-  ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
-  ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
   double R[nvars*nvars], D[nvars*nvars], L[nvars*nvars], DL[nvars*nvars], modA[nvars*nvars];
 
-  done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
+  done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
-    ierr = ArrayCopy1D_int(index_outer,index_inter,ndims);
+    _ArrayCopy1D_(index_outer,index_inter,ndims);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
-      int p = ArrayIndex1D(ndims,bounds_inter,index_inter,NULL,0);
+      int p; _ArrayIndex1D_(ndims,bounds_inter,index_inter,0,p);
       double udiff[nvars], uavg[nvars],udiss[nvars];
 
       /* Roe's upwinding scheme */
 
       for (v=0; v<nvars; v++) udiff[v] = 0.5 * (uR[nvars*p+v] - uL[nvars*p+v]);
 
-      ierr = Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
+      IERR Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
 
-      ierr = Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
-      ierr = Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
-      ierr = Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
+      IERR Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
+      IERR Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
+      IERR Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
 
       for (k=0; k<nvars; k++) D[k*nvars+k] = absolute(D[k*nvars+k]);
-      ierr = MatMult(nvars,DL,D,L);    CHECKERR(ierr);
-      ierr = MatMult(nvars,modA,R,DL); CHECKERR(ierr);
+      IERR MatMult(nvars,DL,D,L);    CHECKERR(ierr);
+      IERR MatMult(nvars,modA,R,DL); CHECKERR(ierr);
 
       for (k=0; k<nvars; k++) {
         udiss[k] = 0; for (v=0; v<nvars; v++) udiss[k] += modA[k*nvars+v]*udiff[v];
@@ -54,7 +55,7 @@ int Euler2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       
       for (v=0; v<nvars; v++) fI[nvars*p+v] = 0.5 * (fL[nvars*p+v]+fR[nvars*p+v]) - udiss[v];
     }
-    done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   return(0);
@@ -64,45 +65,46 @@ int Euler2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
 {
   HyPar    *solver = (HyPar*)    s;
   Euler2D  *param  = (Euler2D*)  solver->physics;
-  int      ierr    = 0,done,k;
+  int      done,k;
+  _DECLARE_IERR_;
 
   int ndims = solver->ndims;
   int nvars = solver->nvars;
   int *dim  = solver->dim_local;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
-  ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
-  ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
   double R[nvars*nvars], D[nvars*nvars], L[nvars*nvars];
 
-  done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
+  done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
-    ierr = ArrayCopy1D_int(index_outer,index_inter,ndims);
+    _ArrayCopy1D_(index_outer,index_inter,ndims);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
-      int p = ArrayIndex1D(ndims,bounds_inter,index_inter,NULL,0);
+      int p; _ArrayIndex1D_(ndims,bounds_inter,index_inter,0,p);
       double uavg[nvars], fcL[nvars], fcR[nvars], ucL[nvars], ucR[nvars], fc[nvars];
 
       /* Roe-Fixed upwinding scheme */
 
-      ierr = Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
+      IERR Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
 
-      ierr = Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
-      ierr = Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
-      ierr = Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
+      IERR Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
+      IERR Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
+      IERR Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
 
       /* calculate characteristic fluxes and variables */
-      ierr = MatVecMult(nvars,ucL,L,&uL[nvars*p]);
-      ierr = MatVecMult(nvars,ucR,L,&uR[nvars*p]);
-      ierr = MatVecMult(nvars,fcL,L,&fL[nvars*p]);
-      ierr = MatVecMult(nvars,fcR,L,&fR[nvars*p]);
+      IERR MatVecMult(nvars,ucL,L,&uL[nvars*p]);CHECKERR(ierr);
+      IERR MatVecMult(nvars,ucR,L,&uR[nvars*p]);CHECKERR(ierr);
+      IERR MatVecMult(nvars,fcL,L,&fL[nvars*p]);CHECKERR(ierr);
+      IERR MatVecMult(nvars,fcR,L,&fR[nvars*p]);CHECKERR(ierr);
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
-        ierr = Euler2DEigenvalues(&uL[nvars*p],D,param,dir); CHECKERR(ierr);
+        IERR Euler2DEigenvalues(&uL[nvars*p],D,param,dir); CHECKERR(ierr);
         eigL = D[k*nvars+k];
-        ierr = Euler2DEigenvalues(&uR[nvars*p],D,param,dir); CHECKERR(ierr);
+        IERR Euler2DEigenvalues(&uR[nvars*p],D,param,dir); CHECKERR(ierr);
         eigR = D[k*nvars+k];
-        ierr = Euler2DEigenvalues(uavg        ,D,param,dir); CHECKERR(ierr);
+        IERR Euler2DEigenvalues(uavg        ,D,param,dir); CHECKERR(ierr);
         eigC = D[k*nvars+k];
 
         if ((eigL > 0) && (eigC > 0) && (eigR > 0)) {
@@ -116,9 +118,9 @@ int Euler2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
       }
 
       /* calculate the interface flux from the characteristic flux */
-      ierr = MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
+      IERR MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
     }
-    done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   return(0);
@@ -126,47 +128,48 @@ int Euler2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
 
 int Euler2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {
-  HyPar           *solver = (HyPar*)    s;
+  HyPar    *solver = (HyPar*)    s;
   Euler2D  *param  = (Euler2D*)  solver->physics;
-  int             ierr    = 0,done,k;
+  int      done,k;
+  _DECLARE_IERR_;
 
   int ndims = solver->ndims;
   int nvars = solver->nvars;
   int *dim  = solver->dim_local;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
-  ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
-  ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
   double R[nvars*nvars], D[nvars*nvars], L[nvars*nvars];
 
-  done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
+  done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
-    ierr = ArrayCopy1D_int(index_outer,index_inter,ndims);
+    _ArrayCopy1D_(index_outer,index_inter,ndims);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
-      int p = ArrayIndex1D(ndims,bounds_inter,index_inter,NULL,0);
+      int p; _ArrayIndex1D_(ndims,bounds_inter,index_inter,0,p);
       double uavg[nvars], fcL[nvars], fcR[nvars], ucL[nvars], ucR[nvars], fc[nvars];
 
       /* Local Lax-Friedrich upwinding scheme */
 
-      ierr = Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
+      IERR Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
 
-      ierr = Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
-      ierr = Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
-      ierr = Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
+      IERR Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
+      IERR Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
+      IERR Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
 
       /* calculate characteristic fluxes and variables */
-      ierr = MatVecMult(nvars,ucL,L,&uL[nvars*p]);
-      ierr = MatVecMult(nvars,ucR,L,&uR[nvars*p]);
-      ierr = MatVecMult(nvars,fcL,L,&fL[nvars*p]);
-      ierr = MatVecMult(nvars,fcR,L,&fR[nvars*p]);
+      IERR MatVecMult(nvars,ucL,L,&uL[nvars*p]);CHECKERR(ierr);
+      IERR MatVecMult(nvars,ucR,L,&uR[nvars*p]);CHECKERR(ierr);
+      IERR MatVecMult(nvars,fcL,L,&fL[nvars*p]);CHECKERR(ierr);
+      IERR MatVecMult(nvars,fcR,L,&fR[nvars*p]);CHECKERR(ierr);
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
-        ierr = Euler2DEigenvalues(&uL[nvars*p],D,param,dir); CHECKERR(ierr);
+        IERR Euler2DEigenvalues(&uL[nvars*p],D,param,dir); CHECKERR(ierr);
         eigL = D[k*nvars+k];
-        ierr = Euler2DEigenvalues(&uR[nvars*p],D,param,dir); CHECKERR(ierr);
+        IERR Euler2DEigenvalues(&uR[nvars*p],D,param,dir); CHECKERR(ierr);
         eigR = D[k*nvars+k];
-        ierr = Euler2DEigenvalues(uavg        ,D,param,dir); CHECKERR(ierr);
+        IERR Euler2DEigenvalues(uavg        ,D,param,dir); CHECKERR(ierr);
         eigC = D[k*nvars+k];
 
         double alpha = max3(absolute(eigL),absolute(eigC),absolute(eigR));
@@ -174,9 +177,9 @@ int Euler2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       }
 
       /* calculate the interface flux from the characteristic flux */
-      ierr = MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
+      IERR MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
     }
-    done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   return(0);

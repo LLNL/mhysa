@@ -20,7 +20,8 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   MPIVariables    *mpi    = (MPIVariables*)   m;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   TridiagLU       *lu     = (TridiagLU*)      solver->lusolver;
-  int             ierr    = 0,sys,Nsys,d;
+  int             sys,Nsys,d,done;
+  _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
@@ -45,8 +46,8 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
-  ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
-  ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
 
   /* calculate total number of tridiagonal systems to solve */
   Nsys = 1; for (d=0; d<ndims; d++) Nsys *= bounds_outer[d]; Nsys *= nvars;
@@ -57,25 +58,25 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
   double *C = weno->C;
   double *R = weno->R;
 
-  int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
+  done = 0; _ArraySetValue_(index_outer,ndims,0);
   sys = 0;
   while (!done) {
-    ierr = ArrayCopy1D_int(index_outer,indexC,ndims); CHECKERR(ierr);
-    ierr = ArrayCopy1D_int(index_outer,indexI,ndims); CHECKERR(ierr);
+    _ArrayCopy1D_(index_outer,indexC,ndims);
+    _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
       int qm1,qm2,qm3,qp1,qp2;
       if (upw > 0) {
-        indexC[dir] = indexI[dir]-3; qm3 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-2; qm2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-1; qm1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]  ; qp1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]+1; qp2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
+        indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
+        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
+        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
+        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
+        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       } else {
-        indexC[dir] = indexI[dir]+2; qm3 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]+1; qm2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]  ; qm1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-1; qp1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-2; qp2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
+        indexC[dir] = indexI[dir]+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
+        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
+        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
+        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
+        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       }
       int v; 
       for (v=0; v<nvars; v++)  {
@@ -183,20 +184,20 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
       }
     }
     sys++;
-    done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
 #ifdef serial
 
   /* Solve the tridiagonal system */
-  ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,lu,NULL);
+  IERR tridiagLU(A,B,C,R,dim[dir]+1,Nsys,lu,NULL); CHECKERR(ierr);
 
 #else
 
   /* Solve the tridiagonal system */
   /* all processes except the last will solve without the last interface to avoid overlap */
-  if (mpi->ip[dir] != mpi->iproc[dir]-1)  ierr = tridiagLU(A,B,C,R,dim[dir]  ,Nsys,lu,&mpi->comm[dir]);
-  else                                    ierr = tridiagLU(A,B,C,R,dim[dir]+1,Nsys,lu,&mpi->comm[dir]);
+  if (mpi->ip[dir] != mpi->iproc[dir]-1)  { IERR tridiagLU(A,B,C,R,dim[dir]  ,Nsys,lu,&mpi->comm[dir]); CHECKERR(ierr); }
+  else                                    { IERR tridiagLU(A,B,C,R,dim[dir]+1,Nsys,lu,&mpi->comm[dir]); CHECKERR(ierr); }
 
   /* Now get the solution to the last interface from the next proc */
   double *sendbuf = weno->sendbuf;
@@ -210,26 +211,17 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,
 
 #endif
 
-  if (ierr == -1) {
-    /* check if singular */
-    fprintf(stderr,"Error in Interp1PrimFifthOrderCRWENO(): Singular system!\n");
-    return(ierr);
-  } else if (ierr) {
-    /* if any other error */
-    return(ierr);
-  } else {
-    /* save the solution to fI */
-    int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
-    sys = 0;
-    while (!done) {
-      ierr = ArrayCopy1D_int(index_outer,indexI,ndims); CHECKERR(ierr);
-      for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
-        int p = ArrayIndex1D(ndims,bounds_inter,indexI,NULL,0);
-        int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = R[sys*nvars+v+Nsys*indexI[dir]];
-      }
-      done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
-      sys++;
+  /* save the solution to fI */
+  done = 0; _ArraySetValue_(index_outer,ndims,0);
+  sys = 0;
+  while (!done) {
+    _ArrayCopy1D_(index_outer,indexI,ndims);
+    for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
+      int p; _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
+      int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = R[sys*nvars+v+Nsys*indexI[dir]];
     }
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
+    sys++;
   }
 
   return(0);

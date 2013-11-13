@@ -18,7 +18,8 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,int upw,int d
 {
   HyPar           *solver = (HyPar*) s;
   MUSCLParameters  *muscl   = (MUSCLParameters*) solver->interp;
-  int             ierr    = 0, k, v;
+  int             k, v;
+  _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
@@ -54,37 +55,37 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,int upw,int d
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
-  ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
-  ierr = ArrayCopy1D_int(dim,bounds_inter,ndims); CHECKERR(ierr); bounds_inter[dir] += 1;
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
 
   /* allocate arrays for the averaged state, eigenvectors and characteristic interpolated f */
   double R[nvars*nvars], L[nvars*nvars], uavg[nvars], fchar[nvars];
 
-  int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index_outer,ndims,0);
   if (upw > 0) {
     while (!done) {
 
-      ierr = ArrayCopy1D_int(index_outer,indexC,ndims); CHECKERR(ierr);
-      ierr = ArrayCopy1D_int(index_outer,indexI,ndims); CHECKERR(ierr);
+      _ArrayCopy1D_(index_outer,indexC,ndims);
+      _ArrayCopy1D_(index_outer,indexI,ndims);
 
       for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
 
         /* 1D indices of the stencil grid points */
         int qm1,qm2,qp1;
-        indexC[dir] = indexI[dir]-2; qm2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]-1; qm1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]  ; qp1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
+        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
+        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
+        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
 
         int p; /* 1D index of the interface */
-        p = ArrayIndex1D(ndims,bounds_inter,indexI,NULL,0);
+        _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
 
         /* find averaged state at this interface */
-        ierr = solver->AveragingFunction(uavg,&u[nvars*qm1],&u[nvars*qp1],solver->physics);
+        IERR solver->AveragingFunction(uavg,&u[nvars*qm1],&u[nvars*qp1],solver->physics);
         CHECKERR(ierr);
 
         /* Get the left and right eigenvectors */
-        ierr = solver->GetLeftEigenvectors  (uavg,L,solver->physics,dir); CHECKERR(ierr);
-        ierr = solver->GetRightEigenvectors (uavg,R,solver->physics,dir); CHECKERR(ierr);
+        IERR solver->GetLeftEigenvectors  (uavg,L,solver->physics,dir); CHECKERR(ierr);
+        IERR solver->GetRightEigenvectors (uavg,R,solver->physics,dir); CHECKERR(ierr);
 
         /* For each characteristic field */
         for (v = 0; v < nvars; v++) {
@@ -104,34 +105,34 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,int upw,int d
         }
 
         /* calculate the interface u from the characteristic u */
-        ierr = MatVecMult(nvars,&fI[nvars*p],R,fchar); CHECKERR(ierr);
+        IERR MatVecMult(nvars,&fI[nvars*p],R,fchar); CHECKERR(ierr);
       }
-      done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+      _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
     }
   } else {
     while (!done) {
 
-      ierr = ArrayCopy1D_int(index_outer,indexC,ndims); CHECKERR(ierr);
-      ierr = ArrayCopy1D_int(index_outer,indexI,ndims); CHECKERR(ierr);
+      _ArrayCopy1D_(index_outer,indexC,ndims);
+      _ArrayCopy1D_(index_outer,indexI,ndims);
 
       for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
 
         /* 1D indices of the stencil grid points */
         int qm1,qp1,qp2;
-        indexC[dir] = indexI[dir]-1; qm1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]  ; qp1 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-        indexC[dir] = indexI[dir]+1; qp2 = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
+        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
+        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
+        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
 
         int p; /* 1D index of the interface */
-        p = ArrayIndex1D(ndims,bounds_inter,indexI,NULL,0);
+        _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
 
         /* find averaged state at this interface */
-        ierr = solver->AveragingFunction(uavg,&u[nvars*qm1],&u[nvars*qp1],solver->physics);
+        IERR solver->AveragingFunction(uavg,&u[nvars*qm1],&u[nvars*qp1],solver->physics);
         CHECKERR(ierr);
 
         /* Get the left and right eigenvectors */
-        ierr = solver->GetLeftEigenvectors  (uavg,L,solver->physics,dir); CHECKERR(ierr);
-        ierr = solver->GetRightEigenvectors (uavg,R,solver->physics,dir); CHECKERR(ierr);
+        IERR solver->GetLeftEigenvectors  (uavg,L,solver->physics,dir); CHECKERR(ierr);
+        IERR solver->GetRightEigenvectors (uavg,R,solver->physics,dir); CHECKERR(ierr);
 
         /* For each characteristic field */
         for (v = 0; v < nvars; v++) {
@@ -151,9 +152,9 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,int upw,int d
         }
 
         /* calculate the interface u from the characteristic u */
-        ierr = MatVecMult(nvars,&fI[nvars*p],R,fchar); CHECKERR(ierr);
+        IERR MatVecMult(nvars,&fI[nvars*p],R,fchar); CHECKERR(ierr);
       }
-      done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+      _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
     }
   }
 

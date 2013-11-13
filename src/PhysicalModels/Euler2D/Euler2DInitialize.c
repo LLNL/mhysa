@@ -21,7 +21,7 @@ int Euler2DInitialize(void *s,void *m)
   HyPar         *solver  = (HyPar*)          s;
   MPIVariables  *mpi     = (MPIVariables*)   m; 
   Euler2D       *physics = (Euler2D*) solver->physics;
-  int           ierr     = 0;
+  int           ferr     = 0;
 
   if (solver->nvars != _MODEL_NVARS_) {
     fprintf(stderr,"Error in Euler2DInitialize(): nvars has to be %d.\n",_MODEL_NVARS_);
@@ -44,17 +44,17 @@ int Euler2DInitialize(void *s,void *m)
     printf("Warning: File \"physics.inp\" not found. Using default values.\n");
   } else {
     char word[_MAX_STRING_SIZE_];
-    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
     if (!strcmp(word, "begin")){
 	    while (strcmp(word, "end")){
-		    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
         if (!strcmp(word, "gamma")) { 
-          ierr = fscanf(in,"%lf",&physics->gamma); if (ierr != 1) return(1);
+          ferr = fscanf(in,"%lf",&physics->gamma); if (ferr != 1) return(1);
         } else if (!strcmp(word,"upwinding")) {
-          ierr = fscanf(in,"%s",physics->upw_choice); if (ierr != 1) return(1);
+          ferr = fscanf(in,"%s",physics->upw_choice); if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
-          ierr = fscanf(in,"%s",useless); if (ierr != 1) return(ierr);
+          ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
           printf("Warning: keyword %s in file \"physics.inp\" with value %s not ",word,useless);
           printf("recognized or extraneous. Ignoring.\n");
         }

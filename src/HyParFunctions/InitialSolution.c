@@ -9,8 +9,9 @@ int InitialSolution(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0,i,d;
+  int           i,d, ferr;
   int           offset_global, offset_local;
+  _DECLARE_IERR_;
 
   /* Only root process reads in initial solution file */
   double *ug,*xg,*dxinvg; /* global solution vector and grid arrays */
@@ -35,7 +36,7 @@ int InitialSolution(void *s, void *m)
     /* read grid and calculate dxinv*/
     offset = 0;
     for (d = 0; d < solver->ndims; d++) {
-      for (i = 0; i < solver->dim_global[d]; i++) ierr = fscanf(in,"%lf",&xg[i+offset]);
+      for (i = 0; i < solver->dim_global[d]; i++) ferr = fscanf(in,"%lf",&xg[i+offset]);
       for (i = 0; i < solver->dim_global[d]; i++) {
         if      (i == 0)                        dxinvg[i+offset] = 1.0/(xg[i+1+offset]-xg[i  +offset]);
         else if (i == solver->dim_global[d]-1)  dxinvg[i+offset] = 1.0/(xg[i  +offset]-xg[i-1+offset]);
@@ -47,12 +48,12 @@ int InitialSolution(void *s, void *m)
     /* read solution */
     for (i = 0; i < solver->nvars; i++) {
       int *index = solver->index;
-      int done = 0; ierr = ArraySetValue_int(index,solver->ndims,0); CHECKERR(ierr);
+      int done = 0; _ArraySetValue_(index,solver->ndims,0);
       while (!done) {
-        int p = ArrayIndex1D(solver->ndims,solver->dim_global,index,NULL,0);
-        ierr = fscanf(in,"%lf",&ug[p*solver->nvars+i]);
-        if (ierr != 1) return(1);
-        done = ArrayIncrementIndex(solver->ndims,solver->dim_global,index);
+        int p; _ArrayIndex1D_(solver->ndims,solver->dim_global,index,0,p);
+        ferr = fscanf(in,"%lf",&ug[p*solver->nvars+i]);
+        if (ferr != 1) return(1);
+        _ArrayIncrementIndex_(solver->ndims,solver->dim_global,index,done);
       }
     }
 
@@ -65,17 +66,17 @@ int InitialSolution(void *s, void *m)
   }
 
   /* partition initial solution across the processes */
-  ierr = MPIPartitionArraynD(solver->ndims,mpi,(mpi->rank?NULL:ug),solver->u,
+  IERR MPIPartitionArraynD(solver->ndims,mpi,(mpi->rank?NULL:ug),solver->u,
                              solver->dim_global,solver->dim_local,
                              solver->ghosts,solver->nvars); CHECKERR(ierr);
 
   /* partition x vector across the processes */
   offset_global = offset_local = 0;
   for (d=0; d<solver->ndims; d++) {
-    ierr = MPIPartitionArray1D(mpi,(mpi->rank?NULL:&xg[offset_global]),
+    IERR MPIPartitionArray1D(mpi,(mpi->rank?NULL:&xg[offset_global]),
                                     &solver->x[offset_local+solver->ghosts],
                                     mpi->is[d],mpi->ie[d],solver->dim_local[d],0); CHECKERR(ierr);
-    ierr = MPIPartitionArray1D(mpi,(mpi->rank?NULL:&dxinvg[offset_global]),
+    IERR MPIPartitionArray1D(mpi,(mpi->rank?NULL:&dxinvg[offset_global]),
                                     &solver->dxinv[offset_local+solver->ghosts],
                                     mpi->is[d],mpi->ie[d],solver->dim_local[d],0); CHECKERR(ierr);
     offset_global += solver->dim_global[d];
@@ -85,9 +86,9 @@ int InitialSolution(void *s, void *m)
   /* exchange MPI-boundary values of x between processors */
   offset_local = 0;
   for (d = 0; d < solver->ndims; d++) {
-    ierr = MPIExchangeBoundaries1D(mpi,&solver->x[offset_local],solver->dim_local[d],
+    IERR MPIExchangeBoundaries1D(mpi,&solver->x[offset_local],solver->dim_local[d],
                                    solver->ghosts,d,solver->ndims); CHECKERR(ierr);
-    ierr = MPIExchangeBoundaries1D(mpi,&solver->dxinv[offset_local],solver->dim_local[d],
+    IERR MPIExchangeBoundaries1D(mpi,&solver->dxinv[offset_local],solver->dim_local[d],
                                    solver->ghosts,d,solver->ndims); CHECKERR(ierr);
     offset_local  += solver->dim_local [d] + 2*solver->ghosts;
   }

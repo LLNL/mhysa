@@ -1,10 +1,11 @@
+#include <basic.h>
 #include <timeintegration.h>
 
 int TimeStep(void *ts)
 {
   TimeIntegration *TS  = (TimeIntegration*) ts;
-  int             ierr = 0;
-  if (TS->TimeIntegrate) ierr = TS->TimeIntegrate(TS);
-  return(ierr);
+  _DECLARE_IERR_;
+  if (TS->TimeIntegrate) { IERR TS->TimeIntegrate(TS); CHECKERR(ierr); }
+  return(0);
 }
 
