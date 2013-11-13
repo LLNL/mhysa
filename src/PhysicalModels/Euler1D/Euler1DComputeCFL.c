@@ -1,18 +1,14 @@
 #include <stdlib.h>
 #include <math.h>
-#include <basic.h>
 #include <arrayfunctions.h>
 #include <mathfunctions.h>
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-int Euler1DGetFlowVar (double*,double*,double*,double*,double*,void*);
-
 int Euler1DComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar     *solver = (HyPar*)   s;
   Euler1D   *param  = (Euler1D*) solver->physics;
-  _DECLARE_IERR_;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
@@ -26,7 +22,7 @@ int Euler1DComputeCFL(void *s,void *m,double dt,double t)
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
     double rho, v, e, P, c, dxinv, local_cfl;
-    IERR Euler1DGetFlowVar(&u[nvars*p],&rho,&v,&e,&P,param); CHECKERR(ierr);
+    _Euler1DGetFlowVar_((u+nvars*p),rho,v,e,P,param);
 
     c         = sqrt(param->gamma*P/rho); /* speed of sound */
     dxinv     = solver->GetCoordinate(0,index[0],dim,ghosts,solver->dxinv); /* 1/dx */

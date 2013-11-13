@@ -6,12 +6,6 @@
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-int Euler1DGetFlowVar        (double*,double*,double*,double*,double*,void*);
-int Euler1DRoeAverage        (double*,double*,double*,void*);
-int Euler1DEigenvalues       (double*,double*,void*,int);
-int Euler1DLeftEigenvectors  (double*,double*,void*,int);
-int Euler1DRightEigenvectors (double*,double*,void*,int);
-
 int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {
   HyPar     *solver = (HyPar*)    s;
@@ -41,15 +35,15 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       udiff[1] = 0.5 * (uR[nvars*p+1] - uL[nvars*p+1]);
       udiff[2] = 0.5 * (uR[nvars*p+2] - uL[nvars*p+2]);
 
-      IERR Euler1DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param); 
+      _Euler1DRoeAverage_(uavg,(uL+nvars*p),(uR+nvars*p),param); 
 
-      IERR Euler1DEigenvalues       (uavg,D,param,0); CHECKERR(ierr);
-      IERR Euler1DLeftEigenvectors  (uavg,L,param,0); CHECKERR(ierr);
-      IERR Euler1DRightEigenvectors (uavg,R,param,0); CHECKERR(ierr);
+      _Euler1DEigenvalues_(uavg,D,param,0);
+      _Euler1DLeftEigenvectors_(uavg,L,param,0);
+      _Euler1DRightEigenvectors_ (uavg,R,param,0);
 
       for (k=0; k<nvars; k++) D[k*nvars+k] = absolute(D[k*nvars+k]);
-      IERR MatMult(3,DL,D,L);    CHECKERR(ierr);
-      IERR MatMult(3,modA,R,DL); CHECKERR(ierr);
+      MatMult(3,DL,D,L);
+      MatMult(3,modA,R,DL);
 
       udiss[0] = modA[0*nvars+0]*udiff[0] + modA[0*nvars+1]*udiff[1] + modA[0*nvars+2]*udiff[2];
       udiss[1] = modA[1*nvars+0]*udiff[0] + modA[1*nvars+1]*udiff[1] + modA[1*nvars+2]*udiff[2];
@@ -90,25 +84,25 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
 
       /* Roe-Fixed upwinding scheme */
 
-      IERR Euler1DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
+      _Euler1DRoeAverage_(uavg,(uL+nvars*p),(uR+nvars*p),param);
 
-      IERR Euler1DEigenvalues       (uavg,D,param,0); CHECKERR(ierr);
-      IERR Euler1DLeftEigenvectors  (uavg,L,param,0); CHECKERR(ierr);
-      IERR Euler1DRightEigenvectors (uavg,R,param,0); CHECKERR(ierr);
+      _Euler1DEigenvalues_(uavg,D,param,0);
+      _Euler1DLeftEigenvectors_(uavg,L,param,0);
+      _Euler1DRightEigenvectors_(uavg,R,param,0);
 
       /* calculate characteristic fluxes and variables */
-      IERR MatVecMult(nvars,ucL,L,&uL[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,ucR,L,&uR[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcL,L,&fL[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcR,L,&fR[nvars*p]); CHECKERR(ierr);
+      MatVecMult(nvars,ucL,L,(uL+nvars*p));
+      MatVecMult(nvars,ucR,L,(uR+nvars*p));
+      MatVecMult(nvars,fcL,L,(fL+nvars*p));
+      MatVecMult(nvars,fcR,L,(fR+nvars*p));
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
-        IERR Euler1DEigenvalues(&uL[nvars*p],D,param,0); CHECKERR(ierr);
+        _Euler1DEigenvalues_((uL+nvars*p),D,param,0);
         eigL = D[k*nvars+k];
-        IERR Euler1DEigenvalues(&uR[nvars*p],D,param,0); CHECKERR(ierr);
+        _Euler1DEigenvalues_((uR+nvars*p),D,param,0);
         eigR = D[k*nvars+k];
-        IERR Euler1DEigenvalues(uavg        ,D,param,0); CHECKERR(ierr);
+        _Euler1DEigenvalues_(uavg,D,param,0);
         eigC = D[k*nvars+k];
 
         if ((eigL > 0) && (eigC > 0) && (eigR > 0)) {
@@ -122,7 +116,7 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
       }
 
       /* calculate the interface flux from the characteristic flux */
-      IERR MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
+      MatVecMult(nvars,(fI+nvars*p),R,fc);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
@@ -153,27 +147,27 @@ int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       int p; _ArrayIndex1D_(ndims,bounds_inter,index_inter,0,p);
       double uavg[nvars], fcL[nvars], fcR[nvars], ucL[nvars], ucR[nvars], fc[nvars];
 
-      /* Roe-Fixed upwinding scheme */
+      /* Local Lax-Friedrich upwinding scheme */
 
-      IERR Euler1DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
+      _Euler1DRoeAverage_(uavg,(uL+nvars*p),(uR+nvars*p),param);
 
-      IERR Euler1DEigenvalues       (uavg,D,param,0); CHECKERR(ierr);
-      IERR Euler1DLeftEigenvectors  (uavg,L,param,0); CHECKERR(ierr);
-      IERR Euler1DRightEigenvectors (uavg,R,param,0); CHECKERR(ierr);
+      _Euler1DEigenvalues_(uavg,D,param,0);
+      _Euler1DLeftEigenvectors_(uavg,L,param,0);
+      _Euler1DRightEigenvectors_(uavg,R,param,0);
 
       /* calculate characteristic fluxes and variables */
-      IERR MatVecMult(nvars,ucL,L,&uL[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,ucR,L,&uR[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcL,L,&fL[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcR,L,&fR[nvars*p]); CHECKERR(ierr);
+      MatVecMult(nvars,ucL,L,(uL+nvars*p));
+      MatVecMult(nvars,ucR,L,(uR+nvars*p));
+      MatVecMult(nvars,fcL,L,(fL+nvars*p));
+      MatVecMult(nvars,fcR,L,(fR+nvars*p));
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
-        IERR Euler1DEigenvalues(&uL[nvars*p],D,param,0); CHECKERR(ierr);
+        _Euler1DEigenvalues_((uL+nvars*p),D,param,0);
         eigL = absolute(D[k*nvars+k]);
-        IERR Euler1DEigenvalues(&uR[nvars*p],D,param,0); CHECKERR(ierr);
+        _Euler1DEigenvalues_((uR+nvars*p),D,param,0);
         eigR = absolute(D[k*nvars+k]);
-        IERR Euler1DEigenvalues(uavg        ,D,param,0); CHECKERR(ierr);
+        _Euler1DEigenvalues_(uavg,D,param,0);
         eigC = absolute(D[k*nvars+k]);
 
         double alpha = max3(eigL,eigC,eigR);
@@ -181,7 +175,7 @@ int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       }
 
       /* calculate the interface flux from the characteristic flux */
-      IERR MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
+      IERR MatVecMult(nvars,(fI+nvars*p),R,fc); CHECKERR(ierr);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }

@@ -6,8 +6,6 @@
 #include <physicalmodels/euler2d.h>
 #include <hypar.h>
 
-int Euler2DGetFlowVar (double*,double*,double*,double*,double*,double*,void*);
-
 double Euler2DComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar   *solver = (HyPar*)   s;
@@ -26,7 +24,7 @@ double Euler2DComputeCFL(void *s,void *m,double dt,double t)
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
     double rho,vx,vy,e,P,c,dxinv,dyinv,local_cfl[2];
-    IERR Euler2DGetFlowVar(&u[nvars*p],&rho,&vx,&vy,&e,&P,param); CHECKERR(ierr);
+    _Euler2DGetFlowVar_((u+nvars*p),rho,vx,vy,e,P,param);
 
     c     = sqrt(param->gamma*P/rho); /* speed of sound */
     dxinv = solver->GetCoordinate(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv); /* 1/dx */

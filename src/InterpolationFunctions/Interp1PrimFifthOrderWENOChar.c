@@ -183,7 +183,7 @@ int Interp1PrimFifthOrderWENOChar(double *fI,double *fC,double *u,int upw,int di
       }
 
       /* calculate the interface u from the characteristic u */
-      IERR MatVecMult(nvars,&fI[nvars*p],R,fchar); CHECKERR(ierr);
+      IERR MatVecMult(nvars,(fI+nvars*p),R,fchar); CHECKERR(ierr);
 
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);

@@ -92,10 +92,10 @@ int NavierStokes3DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *u
       IERR NavierStokes3DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
 
       /* calculate characteristic fluxes and variables */
-      IERR MatVecMult(nvars,ucL,L,&uL[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,ucR,L,&uR[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcL,L,&fL[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcR,L,&fR[nvars*p]); CHECKERR(ierr);
+      IERR MatVecMult(nvars,ucL,L,(uL+nvars*p)); CHECKERR(ierr);
+      IERR MatVecMult(nvars,ucR,L,(uR+nvars*p)); CHECKERR(ierr);
+      IERR MatVecMult(nvars,fcL,L,(fL+nvars*p)); CHECKERR(ierr);
+      IERR MatVecMult(nvars,fcR,L,(fR+nvars*p)); CHECKERR(ierr);
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
@@ -117,7 +117,7 @@ int NavierStokes3DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *u
       }
 
       /* calculate the interface flux from the characteristic flux */
-      IERR MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
+      IERR MatVecMult(nvars,(fI+nvars*p),R,fc); CHECKERR(ierr);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
@@ -157,10 +157,10 @@ int NavierStokes3DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
       IERR NavierStokes3DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
 
       /* calculate characteristic fluxes and variables */
-      IERR MatVecMult(nvars,ucL,L,&uL[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,ucR,L,&uR[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcL,L,&fL[nvars*p]); CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcR,L,&fR[nvars*p]); CHECKERR(ierr);
+      IERR MatVecMult(nvars,ucL,L,(uL+nvars*p)); CHECKERR(ierr);
+      IERR MatVecMult(nvars,ucR,L,(uR+nvars*p)); CHECKERR(ierr);
+      IERR MatVecMult(nvars,fcL,L,(fL+nvars*p)); CHECKERR(ierr);
+      IERR MatVecMult(nvars,fcR,L,(fR+nvars*p)); CHECKERR(ierr);
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
@@ -176,7 +176,7 @@ int NavierStokes3DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
       }
 
       /* calculate the interface flux from the characteristic flux */
-      IERR MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
+      IERR MatVecMult(nvars,(fI+nvars*p),R,fc); CHECKERR(ierr);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }

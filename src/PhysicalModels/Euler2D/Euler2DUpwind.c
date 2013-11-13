@@ -6,18 +6,11 @@
 #include <physicalmodels/euler2d.h>
 #include <hypar.h>
 
-int Euler2DGetFlowVar        (double*,double*,double*,double*,double*,double*,void*);
-int Euler2DRoeAverage        (double*,double*,double*,void*);
-int Euler2DEigenvalues       (double*,double*,void*,int);
-int Euler2DLeftEigenvectors  (double*,double*,void*,int);
-int Euler2DRightEigenvectors (double*,double*,void*,int);
-
 int Euler2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {
   HyPar    *solver = (HyPar*)    s;
   Euler2D  *param  = (Euler2D*)  solver->physics;
   int      done,k,v;
-  _DECLARE_IERR_;
 
   int ndims = solver->ndims;
   int nvars = solver->nvars;
@@ -39,15 +32,15 @@ int Euler2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
 
       for (v=0; v<nvars; v++) udiff[v] = 0.5 * (uR[nvars*p+v] - uL[nvars*p+v]);
 
-      IERR Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
+      _Euler2DRoeAverage_(uavg,(uL+nvars*p),(uR+nvars*p),param);
 
-      IERR Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
-      IERR Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
-      IERR Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
+      _Euler2DEigenvalues_(uavg,D,param,dir);
+      _Euler2DLeftEigenvectors_(uavg,L,param,dir);
+      _Euler2DRightEigenvectors_(uavg,R,param,dir);
 
       for (k=0; k<nvars; k++) D[k*nvars+k] = absolute(D[k*nvars+k]);
-      IERR MatMult(nvars,DL,D,L);    CHECKERR(ierr);
-      IERR MatMult(nvars,modA,R,DL); CHECKERR(ierr);
+      MatMult(nvars,DL,D,L);
+      MatMult(nvars,modA,R,DL);
 
       for (k=0; k<nvars; k++) {
         udiss[k] = 0; for (v=0; v<nvars; v++) udiss[k] += modA[k*nvars+v]*udiff[v];
@@ -66,7 +59,6 @@ int Euler2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
   HyPar    *solver = (HyPar*)    s;
   Euler2D  *param  = (Euler2D*)  solver->physics;
   int      done,k;
-  _DECLARE_IERR_;
 
   int ndims = solver->ndims;
   int nvars = solver->nvars;
@@ -86,25 +78,25 @@ int Euler2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
 
       /* Roe-Fixed upwinding scheme */
 
-      IERR Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
+      _Euler2DRoeAverage_(uavg,(uL+nvars*p),(uR+nvars*p),param);
 
-      IERR Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
-      IERR Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
-      IERR Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
+      _Euler2DEigenvalues_(uavg,D,param,dir);
+      _Euler2DLeftEigenvectors_ (uavg,L,param,dir);
+      _Euler2DRightEigenvectors_(uavg,R,param,dir);
 
       /* calculate characteristic fluxes and variables */
-      IERR MatVecMult(nvars,ucL,L,&uL[nvars*p]);CHECKERR(ierr);
-      IERR MatVecMult(nvars,ucR,L,&uR[nvars*p]);CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcL,L,&fL[nvars*p]);CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcR,L,&fR[nvars*p]);CHECKERR(ierr);
+      MatVecMult(nvars,ucL,L,(uL+nvars*p));
+      MatVecMult(nvars,ucR,L,(uR+nvars*p));
+      MatVecMult(nvars,fcL,L,(fL+nvars*p));
+      MatVecMult(nvars,fcR,L,(fR+nvars*p));
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
-        IERR Euler2DEigenvalues(&uL[nvars*p],D,param,dir); CHECKERR(ierr);
+        _Euler2DEigenvalues_((uL+nvars*p),D,param,dir);
         eigL = D[k*nvars+k];
-        IERR Euler2DEigenvalues(&uR[nvars*p],D,param,dir); CHECKERR(ierr);
+        _Euler2DEigenvalues_((uR+nvars*p),D,param,dir);
         eigR = D[k*nvars+k];
-        IERR Euler2DEigenvalues(uavg        ,D,param,dir); CHECKERR(ierr);
+        _Euler2DEigenvalues_(uavg        ,D,param,dir);
         eigC = D[k*nvars+k];
 
         if ((eigL > 0) && (eigC > 0) && (eigR > 0)) {
@@ -118,7 +110,7 @@ int Euler2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
       }
 
       /* calculate the interface flux from the characteristic flux */
-      IERR MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
+      MatVecMult(nvars,(fI+nvars*p),R,fc);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
@@ -131,7 +123,6 @@ int Euler2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
   HyPar    *solver = (HyPar*)    s;
   Euler2D  *param  = (Euler2D*)  solver->physics;
   int      done,k;
-  _DECLARE_IERR_;
 
   int ndims = solver->ndims;
   int nvars = solver->nvars;
@@ -151,25 +142,25 @@ int Euler2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
 
       /* Local Lax-Friedrich upwinding scheme */
 
-      IERR Euler2DRoeAverage(uavg,&uL[nvars*p],&uR[nvars*p],param);  CHECKERR(ierr);
+      _Euler2DRoeAverage_(uavg,(uL+nvars*p),(uR+nvars*p),param);
 
-      IERR Euler2DEigenvalues       (uavg,D,param,dir); CHECKERR(ierr);
-      IERR Euler2DLeftEigenvectors  (uavg,L,param,dir); CHECKERR(ierr);
-      IERR Euler2DRightEigenvectors (uavg,R,param,dir); CHECKERR(ierr);
+      _Euler2DEigenvalues_(uavg,D,param,dir);
+      _Euler2DLeftEigenvectors_(uavg,L,param,dir);
+      _Euler2DRightEigenvectors_(uavg,R,param,dir);
 
       /* calculate characteristic fluxes and variables */
-      IERR MatVecMult(nvars,ucL,L,&uL[nvars*p]);CHECKERR(ierr);
-      IERR MatVecMult(nvars,ucR,L,&uR[nvars*p]);CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcL,L,&fL[nvars*p]);CHECKERR(ierr);
-      IERR MatVecMult(nvars,fcR,L,&fR[nvars*p]);CHECKERR(ierr);
+      MatVecMult(nvars,ucL,L,(uL+nvars*p));
+      MatVecMult(nvars,ucR,L,(uR+nvars*p));
+      MatVecMult(nvars,fcL,L,(fL+nvars*p));
+      MatVecMult(nvars,fcR,L,(fR+nvars*p));
 
       for (k = 0; k < nvars; k++) {
         double eigL,eigC,eigR;
-        IERR Euler2DEigenvalues(&uL[nvars*p],D,param,dir); CHECKERR(ierr);
+        _Euler2DEigenvalues_((uL+nvars*p),D,param,dir);
         eigL = D[k*nvars+k];
-        IERR Euler2DEigenvalues(&uR[nvars*p],D,param,dir); CHECKERR(ierr);
+        _Euler2DEigenvalues_((uR+nvars*p),D,param,dir);
         eigR = D[k*nvars+k];
-        IERR Euler2DEigenvalues(uavg        ,D,param,dir); CHECKERR(ierr);
+        _Euler2DEigenvalues_(uavg,D,param,dir);
         eigC = D[k*nvars+k];
 
         double alpha = max3(absolute(eigL),absolute(eigC),absolute(eigR));
@@ -177,7 +168,7 @@ int Euler2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       }
 
       /* calculate the interface flux from the characteristic flux */
-      IERR MatVecMult(nvars,&fI[nvars*p],R,fc); CHECKERR(ierr);
+      MatVecMult(nvars,(fI+nvars*p),R,fc);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
