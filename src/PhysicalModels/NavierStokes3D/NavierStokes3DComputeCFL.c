@@ -6,18 +6,14 @@
 #include <physicalmodels/navierstokes3d.h>
 #include <hypar.h>
 
-int NavierStokes3DGetFlowVar (double*,double*,double*,double*,double*,double*,double*,void*);
-
 double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar             *solver = (HyPar*)   s;
   NavierStokes3D    *param  = (NavierStokes3D*) solver->physics;
-  _DECLARE_IERR_;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
   int ndims   = solver->ndims;
-  int nvars   = solver->nvars;
   int index[ndims];
   double *u   = solver->u;
 
@@ -26,7 +22,7 @@ double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
     double rho, vx, vy, vz, e, P, c, dxinv, dyinv, dzinv, local_cfl[3];
-    IERR NavierStokes3DGetFlowVar(&u[nvars*p],&rho,&vx,&vy,&vz,&e,&P,param); CHECKERR(ierr);
+    _NavierStokes3DGetFlowVar_((u+_MODEL_NVARS_*p),rho,vx,vy,vz,e,P,param);
 
     c         = sqrt(param->gamma*P/rho); /* speed of sound */
     dxinv     = solver->GetCoordinate(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv); /* 1/dx */

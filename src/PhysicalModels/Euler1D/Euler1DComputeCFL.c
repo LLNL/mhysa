@@ -13,7 +13,6 @@ int Euler1DComputeCFL(void *s,void *m,double dt,double t)
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
   int ndims   = solver->ndims;
-  int nvars   = solver->nvars;
   int index[ndims];
   double *u   = solver->u;
 
@@ -22,7 +21,7 @@ int Euler1DComputeCFL(void *s,void *m,double dt,double t)
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
     double rho, v, e, P, c, dxinv, local_cfl;
-    _Euler1DGetFlowVar_((u+nvars*p),rho,v,e,P,param);
+    _Euler1DGetFlowVar_((u+_MODEL_NVARS_*p),rho,v,e,P,param);
 
     c         = sqrt(param->gamma*P/rho); /* speed of sound */
     dxinv     = solver->GetCoordinate(0,index[0],dim,ghosts,solver->dxinv); /* 1/dx */
