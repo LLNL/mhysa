@@ -25,29 +25,6 @@ int Interp1PrimFirstOrderUpwindChar(double *fI,double *fC,double *u,int upw,int 
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
 
-
-  /* checks */
-  if ((!fI) || (!fC) || (!u)) {
-    fprintf(stderr, "Error in Interp1PrimFirstOrderUpwindChar(): input arrays not allocated.\n");
-    return(1);
-  }
-  if (ghosts < _MINIMUM_GHOSTS_) {
-    fprintf(stderr, "Error in Interp1PrimFirstOrderUpwindChar(): insufficient number of ghosts.\n");
-    return(1);
-  }
-  if (nvars == 1) {
-    fprintf(stderr, "Error in Interp1PrimFirstOrderUpwindChar(): number of variables = 1.\n");
-    fprintf(stderr, "Code shouldn't have reached this function.\n");
-    return(1);
-  }
-  if (      (!solver->AveragingFunction) 
-        ||  (!solver->GetLeftEigenvectors)
-        ||  (!solver->GetRightEigenvectors) ) {
-    fprintf(stderr, "Error in Interp1PrimFirstOrderUpwindChar(): One of the required functions undefined.\n");
-    fprintf(stderr, "AveragingFunction(), GetLeftEigenvectors() or GetRightEigenvectors().\n");
-    return(1);
-  }
-
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];

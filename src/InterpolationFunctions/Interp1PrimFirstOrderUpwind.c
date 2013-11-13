@@ -22,16 +22,6 @@ int Interp1PrimFirstOrderUpwind(double *fI,double *fC,double *u,int upw,int dir,
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
 
-
-  if ((!fI) || (!fC)) {
-    fprintf(stderr, "Error in Interp1PrimFirstOrderUpwind(): input arrays not allocated.\n");
-    return(1);
-  }
-  if (ghosts < _MINIMUM_GHOSTS_) {
-    fprintf(stderr, "Error in Interp1PrimFirstOrderUpwind(): insufficient number of ghosts.\n");
-    return(1);
-  }
-
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];

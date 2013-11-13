@@ -28,15 +28,6 @@ int Interp1PrimThirdOrderMUSCL(double *fI,double *fC,double *u,int upw,int dir,v
   double one_third = 1.0/3.0;
   double one_sixth = 1.0/6.0;
 
-  if ((!fI) || (!fC)) {
-    fprintf(stderr, "Error in Interp1PrimThirdOrderMUSCL(): input arrays not allocated.\n");
-    return(1);
-  }
-  if (ghosts < _MINIMUM_GHOSTS_) {
-    fprintf(stderr, "Error in Interp1PrimThirdOrderMUSCL(): insufficient number of ghosts.\n");
-    return(1);
-  }
-
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];

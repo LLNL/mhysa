@@ -22,16 +22,6 @@ int Interp2PrimSecondOrder(double *fI,double *fC,int dir,void *s,void *m)
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
 
-
-  if ((!fI) || (!fC)) {
-    fprintf(stderr, "Error in Interp2PrimSecondOrder(): input arrays not allocated.\n");
-    return(1);
-  }
-  if (ghosts < _MINIMUM_GHOSTS_) {
-    fprintf(stderr, "Error in Interp2PrimSecondOrder(): insufficient number of ghosts.\n");
-    return(1);
-  }
-
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];

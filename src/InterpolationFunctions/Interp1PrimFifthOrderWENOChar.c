@@ -27,31 +27,9 @@ int Interp1PrimFifthOrderWENOChar(double *fI,double *fC,double *u,int upw,int di
   int *dim   = solver->dim_local;
 
   /* define some constants */
-  double one_sixth          = 1.0/6.0;
-  double thirteen_by_twelve = 13.0/12.0;
-  double one_fourth         = 1.0/4.0;
-
-  /* checks */
-  if ((!fI) || (!fC) || (!u)) {
-    fprintf(stderr, "Error in Interp1PrimFifthOrderWENOChar(): input arrays not allocated.\n");
-    return(1);
-  }
-  if (ghosts < _MINIMUM_GHOSTS_) {
-    fprintf(stderr, "Error in Interp1PrimFifthOrderWENOChar(): insufficient number of ghosts.\n");
-    return(1);
-  }
-  if (nvars == 1) {
-    fprintf(stderr, "Error in Interp1PrimFifthOrderWENOChar(): number of variables = 1.\n");
-    fprintf(stderr, "Code shouldn't have reached this function.\n");
-    return(1);
-  }
-  if (      (!solver->AveragingFunction) 
-        ||  (!solver->GetLeftEigenvectors)
-        ||  (!solver->GetRightEigenvectors) ) {
-    fprintf(stderr, "Error in Interp1PrimFifthOrderWENOChar(): One of the required functions undefined.\n");
-    fprintf(stderr, "AveragingFunction(), GetLeftEigenvectors() or GetRightEigenvectors().\n");
-    return(1);
-  }
+  static const double one_sixth          = 1.0/6.0;
+  static const double thirteen_by_twelve = 13.0/12.0;
+  static const double one_fourth         = 1.0/4.0;
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */

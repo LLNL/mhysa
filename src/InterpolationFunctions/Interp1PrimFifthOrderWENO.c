@@ -25,18 +25,9 @@ int Interp1PrimFifthOrderWENO(double *fI,double *fC,double *u,int upw,int dir,vo
   int *dim   = solver->dim_local;
 
   /* define some constants */
-  double one_sixth          = 1.0/6.0;
-  double thirteen_by_twelve = 13.0/12.0;
-  double one_fourth         = 1.0/4.0;
-
-  if ((!fI) || (!fC)) {
-    fprintf(stderr, "Error in Interp1PrimFifthOrderWENO(): input arrays not allocated.\n");
-    return(1);
-  }
-  if (ghosts < _MINIMUM_GHOSTS_) {
-    fprintf(stderr, "Error in Interp1PrimFifthOrderWENO(): insufficient number of ghosts.\n");
-    return(1);
-  }
+  static const double one_sixth          = 1.0/6.0;
+  static const double thirteen_by_twelve = 13.0/12.0;
+  static const double one_fourth         = 1.0/4.0;
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */

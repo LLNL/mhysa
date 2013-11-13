@@ -19,8 +19,8 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
-  double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_], 
-         DL[_MODEL_NVARS_*_MODEL_NVARS_], modA[_MODEL_NVARS_*_MODEL_NVARS_];
+  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_], 
+                DL[_MODEL_NVARS_*_MODEL_NVARS_], modA[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
@@ -72,7 +72,7 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
-  double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_];
+  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
@@ -137,7 +137,7 @@ int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
-  double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_];
+  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
