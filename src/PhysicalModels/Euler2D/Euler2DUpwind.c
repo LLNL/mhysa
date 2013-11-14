@@ -2,8 +2,8 @@
 #include <math.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <mathfunctions.h>
 #include <physicalmodels/euler2d.h>
+#include <mathfunctions.h>
 #include <hypar.h>
 
 int Euler2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
@@ -40,8 +40,8 @@ int Euler2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       _Euler2DRightEigenvectors_(uavg,R,param,dir);
 
       for (k=0; k<_MODEL_NVARS_; k++) D[k*_MODEL_NVARS_+k] = absolute(D[k*_MODEL_NVARS_+k]);
-      MatMult(_MODEL_NVARS_,DL,D,L);
-      MatMult(_MODEL_NVARS_,modA,R,DL);
+      MatMult4(_MODEL_NVARS_,DL,D,L);
+      MatMult4(_MODEL_NVARS_,modA,R,DL);
 
       for (k=0; k<_MODEL_NVARS_; k++) {
         udiss[k] = 0; for (v=0; v<_MODEL_NVARS_; v++) udiss[k] += modA[k*_MODEL_NVARS_+v]*udiff[v];
@@ -88,10 +88,10 @@ int Euler2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
       _Euler2DRightEigenvectors_(uavg,R,param,dir);
 
       /* calculate characteristic fluxes and variables */
-      MatVecMult(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
+      MatVecMult4(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
+      MatVecMult4(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
+      MatVecMult4(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
+      MatVecMult4(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 
       for (k = 0; k < _MODEL_NVARS_; k++) {
         double eigL,eigC,eigR;
@@ -113,7 +113,7 @@ int Euler2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
       }
 
       /* calculate the interface flux from the characteristic flux */
-      MatVecMult(_MODEL_NVARS_,(fI+_MODEL_NVARS_*p),R,fc);
+      MatVecMult4(_MODEL_NVARS_,(fI+_MODEL_NVARS_*p),R,fc);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
@@ -153,10 +153,10 @@ int Euler2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       _Euler2DRightEigenvectors_(uavg,R,param,dir);
 
       /* calculate characteristic fluxes and variables */
-      MatVecMult(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
+      MatVecMult4(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
+      MatVecMult4(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
+      MatVecMult4(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
+      MatVecMult4(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 
       for (k = 0; k < _MODEL_NVARS_; k++) {
         double eigL,eigC,eigR;
@@ -172,7 +172,7 @@ int Euler2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       }
 
       /* calculate the interface flux from the characteristic flux */
-      MatVecMult(_MODEL_NVARS_,(fI+_MODEL_NVARS_*p),R,fc);
+      MatVecMult4(_MODEL_NVARS_,(fI+_MODEL_NVARS_*p),R,fc);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }

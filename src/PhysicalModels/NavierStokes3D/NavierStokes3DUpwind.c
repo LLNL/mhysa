@@ -40,8 +40,8 @@ int NavierStokes3DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *
       _NavierStokes3DRightEigenvectors_(uavg,R,param,dir);
 
       for (k=0; k<_MODEL_NVARS_; k++) D[k*_MODEL_NVARS_+k] = absolute(D[k*_MODEL_NVARS_+k]);
-      MatMult(_MODEL_NVARS_,DL,D,L);
-      MatMult(_MODEL_NVARS_,modA,R,DL);
+      MatMult5(_MODEL_NVARS_,DL,D,L);
+      MatMult5(_MODEL_NVARS_,modA,R,DL);
 
       for (k=0; k<_MODEL_NVARS_; k++) {
         udiss[k] = 0; for (v=0; v<_MODEL_NVARS_; v++) udiss[k] += modA[k*_MODEL_NVARS_+v]*udiff[v];
@@ -87,10 +87,10 @@ int NavierStokes3DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *u
       _NavierStokes3DRightEigenvectors_(uavg,R,param,dir);
 
       /* calculate characteristic fluxes and variables */
-      MatVecMult(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
+      MatVecMult5(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
+      MatVecMult5(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
+      MatVecMult5(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
+      MatVecMult5(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 
       for (k = 0; k < _MODEL_NVARS_; k++) {
         double eigL,eigC,eigR;
@@ -109,7 +109,7 @@ int NavierStokes3DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *u
       }
 
       /* calculate the interface flux from the characteristic flux */
-      MatVecMult(_MODEL_NVARS_,(fI+_MODEL_NVARS_*p),R,fc);
+      MatVecMult5(_MODEL_NVARS_,(fI+_MODEL_NVARS_*p),R,fc);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
@@ -148,10 +148,10 @@ int NavierStokes3DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
       _NavierStokes3DRightEigenvectors_(uavg,R,param,dir);
 
       /* calculate characteristic fluxes and variables */
-      MatVecMult(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
-      MatVecMult(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
+      MatVecMult5(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
+      MatVecMult5(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
+      MatVecMult5(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
+      MatVecMult5(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 
       for (k = 0; k < _MODEL_NVARS_; k++) {
         double eigL,eigC,eigR;
@@ -164,7 +164,7 @@ int NavierStokes3DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
       }
 
       /* calculate the interface flux from the characteristic flux */
-      MatVecMult(_MODEL_NVARS_,(fI+_MODEL_NVARS_*p),R,fc);
+      MatVecMult5(_MODEL_NVARS_,(fI+_MODEL_NVARS_*p),R,fc);
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
