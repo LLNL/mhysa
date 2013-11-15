@@ -3,38 +3,64 @@
 #include <basic.h>
 #include <mathfunctions.h>
 
-#define _ArrayIndex1D_(N,imax,i,ghost,index)                                                                 \
-  {                                                                                                                 \
-    index = i[N-1]+(ghost);                                                                                         \
-    int arraycounter;                                                                                               \
-    for (arraycounter = (N)-2; arraycounter > -1; arraycounter--) {                                                 \
-      index = ((index*(imax[arraycounter]+2*(ghost))) + (i[arraycounter]+(ghost)));                                 \
-    }                                                                                                               \
+#define _ArrayIndex1D_(N,imax,i,ghost,index)  \
+  { \
+    index = i[N-1]+(ghost); \
+    int arraycounter; \
+    for (arraycounter = (N)-2; arraycounter > -1; arraycounter--) { \
+      index = ((index*(imax[arraycounter]+2*(ghost))) + (i[arraycounter]+(ghost))); \
+    } \
   }
 
-#define _ArrayIndex1DWO_(N,imax,i,offset,ghost,index)                                                               \
-  {                                                                                                                 \
-    index = i[N-1]+(ghost)+ offset[N-1];                                                                            \
-    int arraycounter;                                                                                               \
-    for (arraycounter = (N)-2; arraycounter > -1; arraycounter--) {                                                 \
-      index = ((index*(imax[arraycounter]+2*(ghost))) + (i[arraycounter]+(ghost)+offset[arraycounter]));            \
-    }                                                                                                               \
+#define _ArrayIndex1D2_(N,imax,i,ghost,index) \
+  { \
+    index = i[1]+(ghost); \
+    index = ((index*(imax[0]+2*(ghost))) + (i[0]+(ghost))); \
   }
 
-#define _ArrayIncrementIndex_(N,imax,i,done)                                                                        \
-  {                                                                                                                 \
-    int arraycounter = 0;                                                                                           \
-    while (arraycounter < (N)) {                                                                                    \
-      if (i[arraycounter] == imax[arraycounter]-1) {                                                                \
-        i[arraycounter] = 0;                                                                                        \
-        arraycounter++;                                                                                             \
-      } else {                                                                                                      \
-        i[arraycounter]++;                                                                                          \
-        break;                                                                                                      \
-      }                                                                                                             \
-    }                                                                                                               \
-    if (arraycounter == (N)) done = 1;                                                                              \
-    else          done = 0;                                                                                         \
+#define _ArrayIndex1D3_(N,imax,i,ghost,index)  \
+  { \
+    index = i[2]+(ghost); \
+    index = ((index*(imax[1]+2*(ghost))) + (i[1]+(ghost))); \
+    index = ((index*(imax[0]+2*(ghost))) + (i[0]+(ghost))); \
+  }
+
+#define _ArrayIndex1DWO_(N,imax,i,offset,ghost,index) \
+  { \
+    index = i[N-1]+(ghost)+ offset[N-1];\
+    int arraycounter; \
+    for (arraycounter = (N)-2; arraycounter > -1; arraycounter--) { \
+      index = ((index*(imax[arraycounter]+2*(ghost))) + (i[arraycounter]+(ghost)+offset[arraycounter]));\
+    } \
+  }
+
+#define _ArrayIndex1DWO2_(N,imax,i,offset,ghost,index) \
+  { \
+    index = i[1]+(ghost)+ offset[1];\
+    index = ((index*(imax[0]+2*(ghost))) + (i[0]+(ghost)+offset[0]));\
+  }
+
+#define _ArrayIndex1DWO3_(N,imax,i,offset,ghost,index) \
+  { \
+    index = i[2]+(ghost)+ offset[2];\
+    index = ((index*(imax[1]+2*(ghost))) + (i[1]+(ghost)+offset[1]));\
+    index = ((index*(imax[0]+2*(ghost))) + (i[0]+(ghost)+offset[0]));\
+  }
+
+#define _ArrayIncrementIndex_(N,imax,i,done) \
+  { \
+    int arraycounter = 0; \
+    while (arraycounter < (N)) { \
+      if (i[arraycounter] == imax[arraycounter]-1) { \
+        i[arraycounter] = 0; \
+        arraycounter++; \
+      } else { \
+        i[arraycounter]++; \
+        break; \
+      } \
+    } \
+    if (arraycounter == (N)) done = 1; \
+    else          done = 0; \
   }
 
 #define _ArraySetValue_(x,size,value)                                                                               \
@@ -61,10 +87,23 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) y[arraycounter] += a*x[arraycounter];                   \
   }
 
-#define _ArrayCopy1D_(x,y,size)                                                                                     \
-  {                                                                                                                 \
-    int arraycounter;                                                                                               \
-    for (arraycounter = 0; arraycounter < size; arraycounter++) y[arraycounter] = x[arraycounter];                  \
+#define _ArrayCopy1D_(x,y,size) \
+  { \
+    int arraycounter; \
+    for (arraycounter = 0; arraycounter < size; arraycounter++) y[arraycounter] = x[arraycounter]; \
+  }
+
+#define _ArrayCopy1D2_(x,y,size) \
+  { \
+    y[0] = x[0]; \
+    y[1] = x[1]; \
+  }
+
+#define _ArrayCopy1D3_(x,y,size) \
+  { \
+    y[0] = x[0]; \
+    y[1] = x[1]; \
+    y[2] = x[2]; \
   }
 
 #if !defined(INLINE)
