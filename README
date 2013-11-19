@@ -20,9 +20,9 @@ lower bounds of x_i) is discretized with a Cartesian grid.
 
 - Spatial Discretization of Hyperbolic Terms - Conservative:
   + First order upwind
-  + Third order MUSCL with Koren's limiter (coming soon)
+  + Third order MUSCL with Koren's limiter
   + Fifth order WENO 
-  + Fifth order CRWENO (coming soon)
+  + Fifth order CRWENO
 - Spatial Discretization of Parabolic Terms - Conservative and Non-Conservative
   + Second order central
   + Fourth order central (coming soon)
@@ -38,7 +38,7 @@ lower bounds of x_i) is discretized with a Cartesian grid.
   + Linear advection-diffusion-reaction
   + Fokker-Planck double well
   + Fokker-Planck model for Power Systems
-  + Euler equations (1D, 2D, 3D) (Coming soon)
+  + Euler equations (1D, 2D, 3D)
   + Porous Medium Equations (Coming soon)
 - Output options
   + Plain text
