@@ -50,7 +50,7 @@ int NavierStokes3DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *
 
       MatMult5(_MODEL_NVARS_,DL,D,L);
       MatMult5(_MODEL_NVARS_,modA,R,DL);
-      MatMult5(_MODEL_NVARS_,udiss,modA,udiff);
+      MatVecMult5(_MODEL_NVARS_,udiss,modA,udiff);
       
       fI[_MODEL_NVARS_*p+0] = 0.5 * (fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0]) - udiss[0];
       fI[_MODEL_NVARS_*p+1] = 0.5 * (fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1]) - udiss[1];
