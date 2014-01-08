@@ -38,8 +38,8 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   double local_max_diff = -1.0, max_diff = -1.0;
   if (solver->ComputeCFL       ) local_max_cfl  = solver->ComputeCFL        (solver,mpi,dt,waqt);
   if (solver->ComputeDiffNumber) local_max_diff = solver->ComputeDiffNumber (solver,mpi,dt,waqt);
-  ierr = MPIMax_double(&max_cfl ,&local_max_cfl ,1); CHECKERR(ierr);
-  ierr = MPIMax_double(&max_diff,&local_max_diff,1); CHECKERR(ierr);
+  ierr = MPIMax_double(&max_cfl ,&local_max_cfl ,1,&mpi->world); CHECKERR(ierr);
+  ierr = MPIMax_double(&max_diff,&local_max_diff,1,&mpi->world); CHECKERR(ierr);
 
   if ((!mpi->rank) && ((iter+1)%solver->screen_op_iter == 0)) {
     printf("Iteration: %6d  "       ,iter+1  );

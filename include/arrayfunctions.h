@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
-#include <mathfunctions.h>
+
+#define absolute(a) ((a)<0?-(a):(a))
 
 #define _ArrayIndex1D_(N,imax,i,ghost,index)  \
   { \

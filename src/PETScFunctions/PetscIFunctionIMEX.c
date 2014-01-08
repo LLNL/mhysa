@@ -28,20 +28,20 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
                                  solver->ghosts,mpi,u);               CHECKERR(ierr);
 
   /* initialize right-hand side to zero */
-  ierr = ArraySetValue_double(rhs,size*solver->nvars,0.0);            CHECKERR(ierr);
+  _ArraySetValue_(rhs,size*solver->nvars,0.0);
 
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
   if (solver->HyperbolicFunction && (context->flag_hyperbolic == _IMPLICIT_)) {
     ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t);    CHECKERR(ierr);
-    ierr = ArrayAXPY(solver->hyp    ,-1.0,rhs,size*solver->nvars);    CHECKERR(ierr);
+    _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
   }
   if (solver->ParabolicFunction && (context->flag_parabolic == _IMPLICIT_)) {
     ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);    CHECKERR(ierr);
-    ierr = ArrayAXPY(solver->par    , 1.0,rhs,size*solver->nvars);    CHECKERR(ierr);
+    _ArrayAXPY_(solver->par, 1.0,rhs,size*solver->nvars);
   }
   if (solver->SourceFunction && (context->flag_source == _IMPLICIT_)) {
     ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t); CHECKERR(ierr);
-    ierr = ArrayAXPY(solver->source , 1.0,rhs,size*solver->nvars);    CHECKERR(ierr);
+    _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
   }
 
   /* Transfer RHS to PETSc vector */

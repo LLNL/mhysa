@@ -93,22 +93,21 @@ int main(int argc,char **argv)
   }
 
   /* Run the solver */
-<<<<<<< HEAD
+#ifndef serial
+  MPI_Barrier(mpi.world);
+#endif
+  gettimeofday(&solve_start,NULL);
 #ifdef with_petsc
   if (solver.use_petscTS == PETSC_TRUE) {
     /* Use PETSc time-integration */
-    gettimeofday(&solve_start,NULL);
     ierr = SolvePETSc(&solver,&mpi);
-    gettimeofday(&solve_end,NULL);
     if (ierr) {
       printf("Error: SolvePETSc() returned with status %d on process %d.\n",ierr,mpi.rank);
       return(ierr);
     }
   } else {
     /* Use native time-integration */
-    gettimeofday(&solve_start,NULL);
     ierr = Solve(&solver,&mpi);
-    gettimeofday(&solve_end,NULL);
     if (ierr) {
       printf("Error: Solve() returned with status %d on process %d.\n",ierr,mpi.rank);
       return(ierr);
@@ -116,21 +115,15 @@ int main(int argc,char **argv)
   }
 #else 
   /* Use native time-integration */
-=======
-#ifndef serial
-  MPI_Barrier(mpi.world);
-#endif
->>>>>>> master
-  gettimeofday(&solve_start,NULL);
   ierr = Solve(&solver,&mpi);
-  gettimeofday(&solve_end,NULL);
-#ifndef serial
-  MPI_Barrier(mpi.world);
-#endif
   if (ierr) {
     printf("Error: Solve() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
   }
+#endif
+  gettimeofday(&solve_end,NULL);
+#ifndef serial
+  MPI_Barrier(mpi.world);
 #endif
 
   /* Write final solution file */
