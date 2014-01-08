@@ -1,8 +1,9 @@
-#define _MAX_STRING_SIZE_ 500
+#include <basic.h>
 
 #define _PERIODIC_    "periodic"
 #define _EXTRAPOLATE_ "extrapolate"
 #define _DIRICHLET_   "dirichlet"
+#define _REFLECT_     "reflect"
 
 typedef struct domain_boundaries {
   char    bctype [_MAX_STRING_SIZE_]; /* Type of boundary condition                           */
@@ -25,4 +26,5 @@ int BCCleanup   (void*);
 
 int BCPeriodic    (void*,void*,int,int,int*,int,double*);    /* Periodic boundary conditions    */
 int BCExtrapolate (void*,void*,int,int,int*,int,double*);    /* extrapolate boundary conditions */
-int BCDirichlet   (void*,void*,int,int,int*,int,double*);    /* extrapolate boundary conditions */
+int BCDirichlet   (void*,void*,int,int,int*,int,double*);    /* Dirichlet boundary conditions   */
+int BCReflect     (void*,void*,int,int,int*,int,double*);    /* Reflection boundary conditions  */

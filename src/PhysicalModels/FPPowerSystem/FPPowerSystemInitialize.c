@@ -12,7 +12,8 @@ double FPPowerSystemComputeCFL        (void*,void*,double,double);
 double FPPowerSystemComputeDiffNumber (void*,void*,double,double);
 int    FPPowerSystemAdvection         (double*,double*,int,void*,double);
 int    FPPowerSystemDiffusion         (double*,double*,int,void*,double);
-int    FPPowerSystemUpwind            (double*,double*,double*,double*,int,void*,double);
+int    FPPowerSystemUpwind            (double*,double*,double*,double*,
+                                       double*,double*,int,void*,double);
 int    FPPowerSystemPostStep          (double*,void*,void*,double);
 int    FPPowerSystemPrintStep         (void*,void*,double);
 
@@ -21,14 +22,15 @@ int FPPowerSystemInitialize(void *s,void *m)
   HyPar           *solver  = (HyPar*)         s;
   MPIVariables    *mpi     = (MPIVariables*)  m; 
   FPPowerSystem   *physics = (FPPowerSystem*) solver->physics;
-  int             ierr     = 0;
+  int             ferr;
+  _DECLARE_IERR_;
 
   if (solver->nvars != _MODEL_NVARS_) {
-    fprintf(stderr,"Error in FPPowerSystemInitializeO(): nvars has to be %d.\n",_MODEL_NVARS_);
+    fprintf(stderr,"Error in FPPowerSystemInitialize(): nvars has to be %d.\n",_MODEL_NVARS_);
     return(1);
   }
   if (solver->ndims != _MODEL_NDIMS_) {
-    fprintf(stderr,"Error in FPPowerSystemInitializeO(): ndims has to be %d.\n",_MODEL_NDIMS_);
+    fprintf(stderr,"Error in FPPowerSystemInitialize(): ndims has to be %d.\n",_MODEL_NDIMS_);
     return(1);
   }
 
@@ -55,22 +57,22 @@ int FPPowerSystemInitialize(void *s,void *m)
     return(1);
   } else {
     char word[_MAX_STRING_SIZE_];
-    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
     if (!strcmp(word, "begin")){
 	    while (strcmp(word, "end")){
-		    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
-        if      (!strcmp(word, "inertia")) {ierr=fscanf(in,"%lf",&physics->H  );if(ierr!=1)return(1);}
-        if      (!strcmp(word, "omega_s")) {ierr=fscanf(in,"%lf",&physics->O_s);if(ierr!=1)return(1);}
-        else if (!strcmp(word, "E"      )) {ierr=fscanf(in,"%lf",&physics->E  );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "V"      )) {ierr=fscanf(in,"%lf",&physics->V  );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "g1"     )) {ierr=fscanf(in,"%lf",&physics->g1 );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "g2"     )) {ierr=fscanf(in,"%lf",&physics->g2 );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "D"      )) {ierr=fscanf(in,"%lf",&physics->D  );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "PM_min" )) {ierr=fscanf(in,"%lf",&physics->Pm );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "lambda" )) {ierr=fscanf(in,"%lf",&physics->l  );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "q"      )) {ierr=fscanf(in,"%lf",&physics->q  );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "tf"     )) {ierr=fscanf(in,"%lf",&physics->tf );if(ierr!=1)return(1);}
-        else if (!strcmp(word, "tcl"    )) {ierr=fscanf(in,"%lf",&physics->tcl);if(ierr!=1)return(1);}
+		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+        if      (!strcmp(word, "inertia")) {ferr=fscanf(in,"%lf",&physics->H  );if(ferr!=1)return(1);}
+        if      (!strcmp(word, "omega_s")) {ferr=fscanf(in,"%lf",&physics->O_s);if(ferr!=1)return(1);}
+        else if (!strcmp(word, "E"      )) {ferr=fscanf(in,"%lf",&physics->E  );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "V"      )) {ferr=fscanf(in,"%lf",&physics->V  );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "g1"     )) {ferr=fscanf(in,"%lf",&physics->g1 );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "g2"     )) {ferr=fscanf(in,"%lf",&physics->g2 );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "D"      )) {ferr=fscanf(in,"%lf",&physics->D  );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "PM_min" )) {ferr=fscanf(in,"%lf",&physics->Pm );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "lambda" )) {ferr=fscanf(in,"%lf",&physics->l  );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "q"      )) {ferr=fscanf(in,"%lf",&physics->q  );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "tf"     )) {ferr=fscanf(in,"%lf",&physics->tf );if(ferr!=1)return(1);}
+        else if (!strcmp(word, "tcl"    )) {ferr=fscanf(in,"%lf",&physics->tcl);if(ferr!=1)return(1);}
       }
 	  } else {
     	fprintf(stderr,"Error: Illegal format in file \"physics.inp\".\n");
@@ -89,8 +91,8 @@ int FPPowerSystemInitialize(void *s,void *m)
   solver->PrintStep          = FPPowerSystemPrintStep;
 
   /* Calculate and print the PDF integral of the initial solution */
-  ierr = FPPowerSystemPostStep(solver->u,solver,mpi,0.0);        CHECKERR(ierr);
-  if (!mpi->rank) ierr = FPPowerSystemPrintStep(solver,mpi,0.0); CHECKERR(ierr);
+  IERR FPPowerSystemPostStep(solver->u,solver,mpi,0.0);        CHECKERR(ierr);
+  if (!mpi->rank) IERR FPPowerSystemPrintStep(solver,mpi,0.0); CHECKERR(ierr);
   
   return(0);
 }

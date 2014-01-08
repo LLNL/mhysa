@@ -15,8 +15,8 @@
 
 int SecondDerivativeSecondOrder(double *D2f,double *f,int dir,void *s,void *m)
 {
-  HyPar         *solver = (HyPar*)        s;
-  int           ierr    = 0, i, v;
+  HyPar         *solver = (HyPar*) s;
+  int           i, v;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
@@ -35,28 +35,22 @@ int SecondDerivativeSecondOrder(double *D2f,double *f,int dir,void *s,void *m)
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
-  int *indexC       = (int*) calloc (ndims,sizeof(int));
-  int *index_outer  = (int*) calloc (ndims,sizeof(int));
-  int *bounds_outer = (int*) calloc (ndims,sizeof(int));
-  ierr = ArrayCopy1D_int(dim,bounds_outer,ndims); CHECKERR(ierr); bounds_outer[dir] =  1;
+  int indexC[ndims], index_outer[ndims], bounds_outer[ndims];
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
 
-  int done = 0; ierr = ArraySetValue_int(index_outer,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
-    ierr = ArrayCopy1D_int(index_outer,indexC,ndims); CHECKERR(ierr);
+    _ArrayCopy1D_(index_outer,indexC,ndims);
     for (i = 0; i < dim[dir]; i++) {
       int p, qL, qC, qR;
-      indexC[dir] = i  ; p  = ArrayIndex1D(ndims,dim,indexC,NULL,0     );
-      indexC[dir] = i-1; qL = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-      indexC[dir] = i  ; qC = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
-      indexC[dir] = i+1; qR = ArrayIndex1D(ndims,dim,indexC,NULL,ghosts);
+      indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,0     ,p);
+      indexC[dir] = i-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qL);
+      indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qC);
+      indexC[dir] = i+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qR);
       for (v=0; v<nvars; v++)  D2f[p*nvars+v] = f[qL*nvars+v]-2*f[qC*nvars+v]+f[qR*nvars+v];
     }
-    done = ArrayIncrementIndex(ndims,bounds_outer,index_outer);
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
-
-  free(indexC);
-  free(index_outer);
-  free(bounds_outer);
   
   return(0);
 }

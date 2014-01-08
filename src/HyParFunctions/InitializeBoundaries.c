@@ -14,7 +14,8 @@ int InitializeBoundaries(void *s,void *m)
   HyPar           *solver   = (HyPar*)        s;
   MPIVariables    *mpi      = (MPIVariables*) m;
   DomainBoundary  *boundary = NULL;
-  int             n,ierr    = 0;
+  int             n, ferr;
+  _DECLARE_IERR_;
 
   /* root process reads boundary condition file */
   if (!mpi->rank) {
@@ -27,7 +28,7 @@ int InitializeBoundaries(void *s,void *m)
     }
 
     /* read number of boundary conditions and allocate */
-    ierr = fscanf(in,"%d",&solver->nBoundaryZones); if (ierr != 1) return(1);
+    ferr = fscanf(in,"%d",&solver->nBoundaryZones); if (ferr != 1) return(1);
     boundary = (DomainBoundary*) calloc (solver->nBoundaryZones,sizeof(DomainBoundary));
 
     /* read each boundary condition */
@@ -36,21 +37,33 @@ int InitializeBoundaries(void *s,void *m)
       boundary[n].xmin = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
       boundary[n].xmax = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
 
-      ierr = fscanf(in,"%s",boundary[n].bctype); if (ierr != 1) return(1);
-      ierr = fscanf(in,"%d",&boundary[n].var  ); if (ierr != 1) return(1);
-      ierr = fscanf(in,"%d",&boundary[n].dim  ); if (ierr != 1) return(1);
-      ierr = fscanf(in,"%d",&boundary[n].face ); if (ierr != 1) return(1);
+      ferr = fscanf(in,"%s",boundary[n].bctype); if (ferr != 1) return(1);
+      ferr = fscanf(in,"%d",&boundary[n].var  ); if (ferr != 1) return(1);
+      ferr = fscanf(in,"%d",&boundary[n].dim  ); if (ferr != 1) return(1);
+      ferr = fscanf(in,"%d",&boundary[n].face ); if (ferr != 1) return(1);
       for (d=0; d < solver->ndims; d++) {
-        ierr = fscanf(in,"%lf %lf", &boundary[n].xmin[d], &boundary[n].xmax[d]);
-        if (ierr != 2) return(1);
+        ferr = fscanf(in,"%lf %lf", &boundary[n].xmin[d], &boundary[n].xmax[d]);
+        if (ferr != 2) return(1);
       }
+
       /* read in boundary type-specific additional data if required */
       if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
         boundary[n].DirichletValue = (double*) calloc (solver->nvars,sizeof(double)); 
                                      /* deallocated in BCCleanup.c */
         /* read the Dirichlet value for each variable on this boundary */
-        for (v = 0; v < solver->nvars; v++) ierr = fscanf(in,"%lf",&boundary[n].DirichletValue[v]);
+        for (v = 0; v < solver->nvars; v++) ferr = fscanf(in,"%lf",&boundary[n].DirichletValue[v]);
       } else boundary[n].DirichletValue = NULL;
+
+      /* if boundary is periodic, let the MPI info know */
+      /* 
+        The MPI function to exchange internal (MPI) boundary information will handle
+        periodic boundaries ONLY IF number of process along that dimension is more 
+        than 1.
+      */
+      if ((!strcmp(boundary[n].bctype,_PERIODIC_)) && (mpi->iproc[boundary[n].dim] > 1)) {
+        mpi->bcperiodic[boundary[n].dim] = 1;
+      }
+
       /* some checks */
       if (boundary[n].dim >= solver->ndims) {
         fprintf(stderr,"Error in reading boundary condition %d: dim %d is invalid (ndims = %d).\n",
@@ -62,15 +75,16 @@ int InitializeBoundaries(void *s,void *m)
                 n,boundary[n].var,solver->nvars);
         return(1);
       }
-      printf("  Boundary %10s:  Variable %2d, along dimension %2d and face %+1d\n",
+      printf("  Boundary %15s:  Variable %2d, along dimension %2d and face %+1d\n",
                 boundary[n].bctype,boundary[n].var,boundary[n].dim,boundary[n].face);
     }
+
     fclose(in);
     printf("%d boundary condition(s) read.\n",solver->nBoundaryZones);
   }
 
   /* tell other processes how many BCs are there and let them allocate */
-  ierr = MPIBroadcast_integer(&solver->nBoundaryZones,1,0); CHECKERR(ierr);
+  IERR MPIBroadcast_integer(&solver->nBoundaryZones,1,0,&mpi->world); CHECKERR(ierr);
   if (mpi->rank) {
     boundary = (DomainBoundary*) calloc (solver->nBoundaryZones,sizeof(DomainBoundary));
     for (n = 0; n < solver->nBoundaryZones; n++) {
@@ -78,21 +92,26 @@ int InitializeBoundaries(void *s,void *m)
       boundary[n].xmax = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
     }
   }
+
   /* communicate BC data to other processes */
   for (n = 0; n < solver->nBoundaryZones; n++) {
-    ierr = MPIBroadcast_character(boundary[n].bctype,_MAX_STRING_SIZE_,0); CHECKERR(ierr);
-    ierr = MPIBroadcast_integer  (&boundary[n].var  ,1                ,0); CHECKERR(ierr);
-    ierr = MPIBroadcast_integer  (&boundary[n].dim  ,1                ,0); CHECKERR(ierr);
-    ierr = MPIBroadcast_integer  (&boundary[n].face ,1                ,0); CHECKERR(ierr);
-    ierr = MPIBroadcast_double   (boundary[n].xmin  ,solver->ndims    ,0); CHECKERR(ierr);
-    ierr = MPIBroadcast_double   (boundary[n].xmax  ,solver->ndims    ,0); CHECKERR(ierr);
+    IERR MPIBroadcast_character(boundary[n].bctype,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+    IERR MPIBroadcast_integer  (&boundary[n].var  ,1                ,0,&mpi->world); CHECKERR(ierr);
+    IERR MPIBroadcast_integer  (&boundary[n].dim  ,1                ,0,&mpi->world); CHECKERR(ierr);
+    IERR MPIBroadcast_integer  (&boundary[n].face ,1                ,0,&mpi->world); CHECKERR(ierr);
+    IERR MPIBroadcast_double   (boundary[n].xmin  ,solver->ndims    ,0,&mpi->world); CHECKERR(ierr);
+    IERR MPIBroadcast_double   (boundary[n].xmax  ,solver->ndims    ,0,&mpi->world); CHECKERR(ierr);
   }
+
+  /* broadcast periodic boundary info for MPI to all processes */
+  IERR MPIBroadcast_integer(mpi->bcperiodic,solver->ndims,0,&mpi->world);CHECKERR(ierr);
+
 
   /* On other processes, if necessary, allocate and receive boundary-type-specific data */
   for (n = 0; n < solver->nBoundaryZones; n++) {
     if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
       if (mpi->rank)  boundary[n].DirichletValue = (double*) calloc (solver->nvars,sizeof(double));
-      ierr = MPIBroadcast_double(boundary[n].DirichletValue,solver->nvars,0); CHECKERR(ierr);
+      IERR MPIBroadcast_double(boundary[n].DirichletValue,solver->nvars,0,&mpi->world); CHECKERR(ierr);
     } else {
       boundary[n].DirichletValue = NULL;
     }
@@ -101,11 +120,11 @@ int InitializeBoundaries(void *s,void *m)
   solver->boundary = boundary;
 
   /* each process calculates its own part of these boundaries */
-  ierr = CalculateLocalExtent(solver,mpi); CHECKERR(ierr);
+  IERR CalculateLocalExtent(solver,mpi); CHECKERR(ierr);
 
   /* initialize function pointers for each boundary condition */
   for (n = 0; n < solver->nBoundaryZones; n++) {
-    ierr = BCInitialize(&boundary[n]); CHECKERR(ierr);
+    IERR BCInitialize(&boundary[n]); CHECKERR(ierr);
   }
 
   return(0);

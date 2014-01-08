@@ -6,26 +6,25 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-inline double FPPowerSystemDriftFunction(int,void*,double,double,double);
+double FPPowerSystemDriftFunction(int,void*,double,double,double);
 
 double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   FPPowerSystem *params = (FPPowerSystem*)solver->physics;
-  int           ierr = 0;
 
   int     ndims  = solver->ndims;
   int     ghosts = solver->ghosts;
   int     *dim   = solver->dim_local;
 
   double  max_cfl = 0;
-  int *index  = (int*) calloc (ndims,sizeof(int));
-  int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+  int     index[ndims];
+  int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    double x      = solver->GetCoordinate(0,index[0],dim,ghosts,solver->x);
-    double y      = solver->GetCoordinate(1,index[1],dim,ghosts,solver->x);
-    double dxinv  = solver->GetCoordinate(0,index[0],dim,ghosts,solver->dxinv);
-    double dyinv  = solver->GetCoordinate(1,index[1],dim,ghosts,solver->dxinv);
+    double x;     _GetCoordinate_(0,index[0],dim,ghosts,solver->x,x);
+    double y;     _GetCoordinate_(1,index[1],dim,ghosts,solver->x,y);
+    double dxinv; _GetCoordinate_(0,index[0],dim,ghosts,solver->dxinv,dxinv);
+    double dyinv; _GetCoordinate_(1,index[1],dim,ghosts,solver->dxinv,dyinv);
     double drift_x= FPPowerSystemDriftFunction(0,params,x,y,t);
     double drift_y= FPPowerSystemDriftFunction(1,params,x,y,t);
 
@@ -35,9 +34,8 @@ double FPPowerSystemComputeCFL(void *s,void *m,double dt,double t)
     if (local_cfl_x > max_cfl) max_cfl = local_cfl_x;
     if (local_cfl_y > max_cfl) max_cfl = local_cfl_y;
 
-    done = ArrayIncrementIndex(ndims,dim,index);
+    _ArrayIncrementIndex_(ndims,dim,index,done);
   }
 
-  free(index);
   return(max_cfl);
 }

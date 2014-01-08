@@ -1,3 +1,4 @@
+#include <basic.h>
 #include <mathfunctions.h>
 #include <physicalmodels/fpdoublewell.h>
 #include <mpivars.h>
@@ -19,7 +20,7 @@ double FPDoubleWellComputeCFL(void *s,void *m,double dt,double t)
   for (d = 0; d < ndims; d++) {
     for (i = 0; i < dim[d]; i++) {
       for (v = 0; v < nvars; v++) {
-        double x = solver->GetCoordinate(0,i,dim,ghosts,solver->x);
+        double x; _GetCoordinate_(0,i,dim,ghosts,solver->x,x);
         double local_cfl =  absolute(drift(x)) * dt 
                           * dxinv[offset+ghosts+i];
         if (local_cfl > max_cfl) max_cfl = local_cfl;

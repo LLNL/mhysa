@@ -1,0 +1,4 @@
+begin
+  gamma       1.4
+  upwinding   rf-char
+end

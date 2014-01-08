@@ -19,25 +19,12 @@ if test "x$with_mpidir" != "x" ; then
     AC_MSG_RESULT([no])
   fi
 fi
-if test "x$with_mpidir" != "x" ; then
-  AC_MSG_CHECKING([for mpicxx in $with_mpidir/bin/])
-  if test -e $with_mpidir/bin/mpicxx ; then
-    AC_MSG_RESULT([yes])
-    MPICXX=$with_mpidir/bin/mpicxx
-  else
-    AC_MSG_RESULT([no])
-  fi
-fi
 
 if test "x$MPICC" = "x" ; then
   AC_CHECK_PROG(MPICC,mpicc,mpicc)
 fi
-if test "x$MPICXX" = "x" ; then
-  AC_CHECK_PROG(MPICXX,mpicxx,mpicxx)
-fi
 
 AC_PROG_CC
-AC_PROG_CXX
 
 if test "x$MPICC" = "x" ; then
   AC_MSG_WARN([Cannot find mpicc. Will compile with gcc. Use --with-mpidir to specify the location of mpicc.])
@@ -45,14 +32,8 @@ if test "x$MPICC" = "x" ; then
 else
   CC=$MPICC
 fi
-if test "x$MPICXX" = "x" ; then
-  AC_MSG_WARN([Cannot find mpicxx. Will compile with g++. Use --with-mpidir to specify the location of mpicxx.])
-else
-  CXX=$MPICXX
-fi
 
-CFLAGS="$CFLAGS -I/opt/local/include -I$includedir"
-CXXFLAGS=$CFLAGS
+CFLAGS="$CFLAGS -I/opt/local/include -I$includedir -std=c99"
 LDFLAGS="$LDFLAGS -L/opt/local/lib"
 LIBS="$LIBS -lm"
 
@@ -94,8 +75,12 @@ AC_CONFIG_FILES([
    src/PhysicalModels/LinearADR/Makefile
    src/PhysicalModels/FPDoubleWell/Makefile
    src/PhysicalModels/FPPowerSystem/Makefile
+   src/PhysicalModels/Euler1D/Makefile
+   src/PhysicalModels/Euler2D/Makefile
+   src/PhysicalModels/NavierStokes3D/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
+ src/TridiagLU/Makefile
 ])
 
 AC_OUTPUT

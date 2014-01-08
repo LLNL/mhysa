@@ -8,7 +8,6 @@
 int TimeMSTIInitialize(char *class,char *type,void *s)
 {
   MSTIParameters *params = (MSTIParameters*) s;
-  int            ierr    = 0;
 
   if (!strcmp(class,_RK_)) {
     if (!strcmp(type,_RK_1FE_)) {
@@ -16,18 +15,18 @@ int TimeMSTIInitialize(char *class,char *type,void *s)
       params->A = (double*) calloc (params->nstages*params->nstages,sizeof(double));
       params->b = (double*) calloc (params->nstages                ,sizeof(double));
       params->c = (double*) calloc (params->nstages                ,sizeof(double));
-      ierr = ArraySetValue_double(params->A,params->nstages*params->nstages,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->b,params->nstages                ,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->c,params->nstages                ,0.0); CHECKERR(ierr);
+      _ArraySetValue_(params->A,params->nstages*params->nstages,0.0);
+      _ArraySetValue_(params->b,params->nstages                ,0.0);
+      _ArraySetValue_(params->c,params->nstages                ,0.0);
       params->b[0] = 1.0;
     } else if (!strcmp(type,_RK_22_)) {
       params->nstages = 2;
       params->A = (double*) calloc (params->nstages*params->nstages,sizeof(double));
       params->b = (double*) calloc (params->nstages                ,sizeof(double));
       params->c = (double*) calloc (params->nstages                ,sizeof(double));
-      ierr = ArraySetValue_double(params->A,params->nstages*params->nstages,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->b,params->nstages                ,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->c,params->nstages                ,0.0); CHECKERR(ierr);
+      _ArraySetValue_(params->A,params->nstages*params->nstages,0.0);
+      _ArraySetValue_(params->b,params->nstages                ,0.0);
+      _ArraySetValue_(params->c,params->nstages                ,0.0);
       params->A[2] = 1.0;;
       params->c[1] = 1.0;;
       params->b[0] = params->b[1] = 0.5;
@@ -36,9 +35,9 @@ int TimeMSTIInitialize(char *class,char *type,void *s)
       params->A = (double*) calloc (params->nstages*params->nstages,sizeof(double));
       params->b = (double*) calloc (params->nstages                ,sizeof(double));
       params->c = (double*) calloc (params->nstages                ,sizeof(double));
-      ierr = ArraySetValue_double(params->A,params->nstages*params->nstages,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->b,params->nstages                ,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->c,params->nstages                ,0.0); CHECKERR(ierr);
+      _ArraySetValue_(params->A,params->nstages*params->nstages,0.0);
+      _ArraySetValue_(params->b,params->nstages                ,0.0);
+      _ArraySetValue_(params->c,params->nstages                ,0.0);
       params->A[3] = 2.0/3.0; params->A[6] = 2.0/3.0-1.0/4.0; params->A[7] = 1.0/4.0;
       params->c[1] = 2.0/3.0; params->c[2] = 2.0/3.0;
       params->b[0] = 1.0/4.0; params->b[1] = -1.0/4.0; params->b[2] = 1.0;
@@ -47,9 +46,9 @@ int TimeMSTIInitialize(char *class,char *type,void *s)
       params->A = (double*) calloc (params->nstages*params->nstages,sizeof(double));
       params->b = (double*) calloc (params->nstages                ,sizeof(double));
       params->c = (double*) calloc (params->nstages                ,sizeof(double));
-      ierr = ArraySetValue_double(params->A,params->nstages*params->nstages,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->b,params->nstages                ,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->c,params->nstages                ,0.0); CHECKERR(ierr);
+      _ArraySetValue_(params->A,params->nstages*params->nstages,0.0);
+      _ArraySetValue_(params->b,params->nstages                ,0.0);
+      _ArraySetValue_(params->c,params->nstages                ,0.0);
       params->A[4] = 0.5; params->A[9] = 0.5; params->A[14] = 1.0;
       params->c[1] = params->c[2] = 0.5; params->c[3] = 1.0;
       params->b[0] = 1.0/6.0; params->b[1] = 1.0/3.0; params->b[2] = 1.0/3.0; params->b[3] = 1.0/6.0;
@@ -58,9 +57,9 @@ int TimeMSTIInitialize(char *class,char *type,void *s)
       params->A = (double*) calloc (params->nstages*params->nstages,sizeof(double));
       params->b = (double*) calloc (params->nstages                ,sizeof(double));
       params->c = (double*) calloc (params->nstages                ,sizeof(double));
-      ierr = ArraySetValue_double(params->A,params->nstages*params->nstages,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->b,params->nstages                ,0.0); CHECKERR(ierr);
-      ierr = ArraySetValue_double(params->c,params->nstages                ,0.0); CHECKERR(ierr);
+      _ArraySetValue_(params->A,params->nstages*params->nstages,0.0);
+      _ArraySetValue_(params->b,params->nstages                ,0.0);
+      _ArraySetValue_(params->c,params->nstages                ,0.0);
       params->A[3] = 1.0; params->A[6] = 0.25; params->A[7] = 0.25;
       params->c[1] = 1.0; params->c[2] = 0.5;
       params->b[0] = params->b[1] = 1.0/6.0; params->b[2] = 2.0/3.0;

@@ -9,7 +9,7 @@ int ReadInputs(void *s,void *m)
 {
   HyPar         *solver = (HyPar*) s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           ierr    = 0;
+  int           ferr    = 0;
 
   /* set some default values for optional inputs */
   solver->ndims           = 1;
@@ -21,14 +21,15 @@ int ReadInputs(void *s,void *m)
   solver->screen_op_iter  = 1;
   solver->file_op_iter    = 1000;
   solver->write_residual  = 0;
-  strcpy(solver->time_scheme       ,"euler"    );
-  strcpy(solver->time_scheme_type  ," "        );
-  strcpy(solver->spatial_scheme_hyp,"1"        );
-  strcpy(solver->spatial_type_par  ,_NC_1STAGE_);
-  strcpy(solver->spatial_scheme_par,"2"        );
-  strcpy(solver->op_file_format    ,"text"     );
-  strcpy(solver->op_overwrite      ,"no"       );
-  strcpy(solver->model             ,"none"     );
+  strcpy(solver->time_scheme       ,"euler"         );
+  strcpy(solver->time_scheme_type  ," "             );
+  strcpy(solver->spatial_scheme_hyp,"1"             );
+  strcpy(solver->spatial_type_par  ,_NC_1STAGE_     );
+  strcpy(solver->spatial_scheme_par,"2"             );
+  strcpy(solver->interp_type       ,"characteristic");
+  strcpy(solver->op_file_format    ,"text"          );
+  strcpy(solver->op_overwrite      ,"no"            );
+  strcpy(solver->model             ,"none"          );
   /* reading solver inputs */
   FILE *in;
   if (!mpi->rank) printf("Reading solver inputs from file \"solver.inp\".\n");
@@ -38,15 +39,15 @@ int ReadInputs(void *s,void *m)
     return(1);
   } else {
 	  char word[_MAX_STRING_SIZE_];
-    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
     if (!strcmp(word, "begin")){
 	    while (strcmp(word, "end")){
-		    ierr = fscanf(in,"%s",word); if (ierr != 1) return(1);
+		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
         if (!strcmp(word, "ndims")) {
-          ierr = fscanf(in,"%d",&solver->ndims); if (ierr != 1) return(1);
+          ferr = fscanf(in,"%d",&solver->ndims); if (ferr != 1) return(1);
           solver->dim_global = (int*) calloc (solver->ndims,sizeof(int));
           mpi->iproc         = (int*) calloc (solver->ndims,sizeof(int));
-        }	else if (!strcmp(word, "nvars")) ierr = fscanf(in,"%d",&solver->nvars);
+        }	else if (!strcmp(word, "nvars")) ferr = fscanf(in,"%d",&solver->nvars);
   			else if   (!strcmp(word, "size")) {
           int i;
           if (!solver->dim_global) {
@@ -54,8 +55,8 @@ int ReadInputs(void *s,void *m)
             fprintf(stderr,"Please specify ndims before dimensions.\n"         );
             return(1);
           } else {
-            for (i=0; i<solver->ndims; i++) ierr = fscanf(in,"%d",&solver->dim_global[i]);
-            if (ierr != 1) return(1);
+            for (i=0; i<solver->ndims; i++) ferr = fscanf(in,"%d",&solver->dim_global[i]);
+            if (ferr != 1) return(1);
           }
         } else if (!strcmp(word, "iproc")) {
           int i;
@@ -64,30 +65,31 @@ int ReadInputs(void *s,void *m)
             fprintf(stderr,"Please specify ndims before iproc.\n"         );
             return(1);
           } else {
-            for (i=0; i<solver->ndims; i++) ierr = fscanf(in,"%d",&mpi->iproc[i]);
-            if (ierr != 1) return(1);
+            for (i=0; i<solver->ndims; i++) ferr = fscanf(in,"%d",&mpi->iproc[i]);
+            if (ferr != 1) return(1);
           }
-  			} else if (!strcmp(word, "ghost"            ))	ierr = fscanf(in,"%d",&solver->ghosts           );
-	    	else if   (!strcmp(word, "n_iter"           ))  ierr = fscanf(in,"%d",&solver->n_iter           );
-   			else if   (!strcmp(word, "time_scheme"      ))  ierr = fscanf(in,"%s",solver->time_scheme       );
-   			else if   (!strcmp(word, "time_scheme_type" ))  ierr = fscanf(in,"%s",solver->time_scheme_type  );
-   			else if   (!strcmp(word, "hyp_space_scheme" ))  ierr = fscanf(in,"%s",solver->spatial_scheme_hyp);
-   			else if   (!strcmp(word, "par_space_type"   ))  ierr = fscanf(in,"%s",solver->spatial_type_par  );
-   			else if   (!strcmp(word, "par_space_scheme" ))  ierr = fscanf(in,"%s",solver->spatial_scheme_par);
-   			else if   (!strcmp(word, "dt"               ))  ierr = fscanf(in,"%lf",&solver->dt              );
-   			else if   (!strcmp(word, "screen_op_iter"   ))  ierr = fscanf(in,"%d",&solver->screen_op_iter   );
-   			else if   (!strcmp(word, "file_op_iter"     ))  ierr = fscanf(in,"%d",&solver->file_op_iter     );
-   			else if   (!strcmp(word, "write_residual"   ))	ierr = fscanf(in,"%d",&solver->file_op_iter     );
-   			else if   (!strcmp(word, "op_file_format"   ))  ierr = fscanf(in,"%s",solver->op_file_format    );
-   			else if   (!strcmp(word, "op_overwrite"     ))  ierr = fscanf(in,"%s",solver->op_overwrite      );
-   			else if   (!strcmp(word, "model"            ))  ierr = fscanf(in,"%s",solver->model             );
+  			} else if (!strcmp(word, "ghost"            ))	ferr = fscanf(in,"%d",&solver->ghosts           );
+	    	else if   (!strcmp(word, "n_iter"           ))  ferr = fscanf(in,"%d",&solver->n_iter           );
+   			else if   (!strcmp(word, "time_scheme"      ))  ferr = fscanf(in,"%s",solver->time_scheme       );
+   			else if   (!strcmp(word, "time_scheme_type" ))  ferr = fscanf(in,"%s",solver->time_scheme_type  );
+   			else if   (!strcmp(word, "hyp_space_scheme" ))  ferr = fscanf(in,"%s",solver->spatial_scheme_hyp);
+   			else if   (!strcmp(word, "hyp_interp_type"  ))  ferr = fscanf(in,"%s",solver->interp_type       );
+   			else if   (!strcmp(word, "par_space_type"   ))  ferr = fscanf(in,"%s",solver->spatial_type_par  );
+   			else if   (!strcmp(word, "par_space_scheme" ))  ferr = fscanf(in,"%s",solver->spatial_scheme_par);
+   			else if   (!strcmp(word, "dt"               ))  ferr = fscanf(in,"%lf",&solver->dt              );
+   			else if   (!strcmp(word, "screen_op_iter"   ))  ferr = fscanf(in,"%d",&solver->screen_op_iter   );
+   			else if   (!strcmp(word, "file_op_iter"     ))  ferr = fscanf(in,"%d",&solver->file_op_iter     );
+   			else if   (!strcmp(word, "write_residual"   ))	ferr = fscanf(in,"%d",&solver->file_op_iter     );
+   			else if   (!strcmp(word, "op_file_format"   ))  ferr = fscanf(in,"%s",solver->op_file_format    );
+   			else if   (!strcmp(word, "op_overwrite"     ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
+   			else if   (!strcmp(word, "model"            ))  ferr = fscanf(in,"%s",solver->model             );
         else if   ( strcmp(word, "end"              )) {
           char useless[_MAX_STRING_SIZE_];
-          ierr = fscanf(in,"%s",useless);
+          ferr = fscanf(in,"%s",useless);
           printf("Warning: keyword %s in file \"solver.inp\" with value %s not recognized or extraneous. Ignoring.\n",
                   word,useless);
         }
-        if (ierr != 1) return(1);
+        if (ferr != 1) return(1);
       }
     } else {
    		fprintf(stderr,"Error: Illegal format in file \"solver.inp\".\n");
@@ -114,6 +116,7 @@ int ReadInputs(void *s,void *m)
              solver->time_scheme,solver->time_scheme_type                                         );
       printf("\tSpatial discretization scheme (hyperbolic) : %s\n"     ,solver->spatial_scheme_hyp);
       printf("\tSpatial discretization scheme (parabolic ) : %s\n"     ,solver->spatial_scheme_par);
+      printf("\tInterpolation type for hyperbolic term     : %s\n"     ,solver->interp_type       );
     	printf("\tTime Step                                  : %E\n"     ,solver->dt                );
       printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter    );
       printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter      );

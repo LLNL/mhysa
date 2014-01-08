@@ -5,10 +5,11 @@
 int MPILocalDomainLimits(int ndims,int p,void *m,int *dim_global,int *is, int *ie) 
 {
   MPIVariables *mpi = (MPIVariables*) m;
-  int          ierr = 0,i;
+  int          i;
+  _DECLARE_IERR_;
 
-  int *ip = (int*) calloc (ndims,sizeof(int));
-  ierr = MPIRanknD(ndims,p,mpi->iproc,ip); CHECKERR(ierr);
+  int ip[ndims];
+  IERR MPIRanknD(ndims,p,mpi->iproc,ip); CHECKERR(ierr);
 
   for (i=0; i<ndims; i++) {
     int imax_local, isize, root = 0;
@@ -17,6 +18,5 @@ int MPILocalDomainLimits(int ndims,int p,void *m,int *dim_global,int *is, int *i
     if (is)  is[i] = ip[i]*imax_local;
     if (ie)  ie[i] = ip[i]*imax_local + isize;
   }
-  free(ip);
   return(0);
 }

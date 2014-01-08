@@ -11,7 +11,7 @@ int WriteTecplot3D(int ndims,int nvars,int *dim,double *x,double *u,char *f,int 
     fprintf(stderr,"problems only. Instead, ndims=%d.\n",ndims);
     return(1);
   }
-  int i, ierr = 0;
+  int i;
   int imax = dim[0];
   int jmax = dim[1];
   int kmax = dim[2];
@@ -36,10 +36,10 @@ int WriteTecplot3D(int ndims,int nvars,int *dim,double *x,double *u,char *f,int 
   fprintf(out,"ZONE I=%d,J=%d,K=%d,F=POINT\n",imax,jmax,kmax);
 
   /* writing the data */
-  int done = 0; ierr = ArraySetValue_int(index,ndims,0); CHECKERR(ierr);
+  int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    int i;
-    int p = ArrayIndex1D(ndims,dim,index,NULL,0);
+    int i, p;
+    _ArrayIndex1D_(ndims,dim,index,0,p);
     for (i=0; i<ndims; i++) fprintf(out,"%4d ",index[i]);
     for (i=0; i<ndims; i++) {
       int j,offset = 0; for (j=0; j<i; j++) offset += dim[j];
@@ -47,7 +47,7 @@ int WriteTecplot3D(int ndims,int nvars,int *dim,double *x,double *u,char *f,int 
     }
     for (i=0; i<nvars; i++) fprintf(out,"%+E ",u[nvars*p+i]);
     fprintf(out,"\n");
-    done = ArrayIncrementIndex(ndims,dim,index);
+    _ArrayIncrementIndex_(ndims,dim,index,done);
   }
   fclose(out);
   return(0);

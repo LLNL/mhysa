@@ -18,7 +18,8 @@ typedef struct main_parameters {
   char    spatial_scheme_hyp[_MAX_STRING_SIZE_];/* spatial discretization scheme for hyperbolic term*/
   char    spatial_type_par  [_MAX_STRING_SIZE_];/* spatial discretization type for parabolic  term  */
   char    spatial_scheme_par[_MAX_STRING_SIZE_];/* spatial discretization scheme for parabolic  term*/
-
+  char    interp_type       [_MAX_STRING_SIZE_];/* type of interpolation - characteristic 
+                                                    or component-wise                               */
   /* Data arrays */
   int    *index;                      /* ndims-dimensional variable index                 */
   double *x;                          /* coordinate vector                                */
@@ -27,6 +28,9 @@ typedef struct main_parameters {
   double *hyp;                        /* array to hold the hyperbolic terms               */
   double *par;                        /* array to hold the parabolic terms                */
   double *source;                     /* array to hold the source    terms                */
+  /* arrays to hold temporary data during computations */
+  double *fluxC, *fluxI;
+  double *uL, *uR, *fL, *fR;
 
   /* Boundary conditions */
   int   nBoundaryZones;               /* number of boundary zones                         */
@@ -44,13 +48,12 @@ typedef struct main_parameters {
   int (*WriteOutput)              (int,int,int*,double*,double*,char*,int*);  
   int (*ApplyBoundaryConditions)  (void*,void*,double*);                     
   int (*TimeIntegrate)            (void*);                                  
-  int (*InterpolateInterfacesHyp) (double*,double*,int,int,void*,void*);
+  int (*InterpolateInterfacesHyp) (double*,double*,double*,int,int,void*,void*);
   int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
   int (*HyperbolicFunction)       (double*,double*,void*,void*,double);
   int (*ParabolicFunction)        (double*,double*,void*,void*,double);
   int (*SourceFunction)           (double*,double*,void*,void*,double);
-  double (*GetCoordinate)         (int,int,int*,int,double*);
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
@@ -63,7 +66,8 @@ typedef struct main_parameters {
   int    (*FFunction)          (double*,double*,int,void*,double);
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*SFunction)          ();
-  int    (*Upwind)             (double*,double*,double*,double*,int,void*,double);
+  int    (*Upwind)             (double*,double*,double*,double*,double*,double*,
+                                int,void*,double);
   /* physics-specific pre/post-time-step/stage functions */
   int    (*PreStage)           (int,double**,void*,void*,double);
   int    (*PostStage)          (int,double**,void*,void*,double);
@@ -71,9 +75,15 @@ typedef struct main_parameters {
   int    (*PostStep)           (double*,void*,void*,double);
   int    (*PrintStep)          (void*,void*,double);
 
+  /* Physics-specific functions for characteristic-based interpolation */
+  int   (*AveragingFunction)   (double*,double*,double*,void*);
+  int   (*GetLeftEigenvectors) (double*,double*,void*,int);
+  int   (*GetRightEigenvectors)(double*,double*,void*,int);
+
   /* Other parameters */
-  void *interp;                         /* Interpolation-related parameters         */
-  void *msti;                           /* Multi-stage time-integration parameters  */
+  void *interp;       /* Interpolation-related parameters         */
+  void *msti;         /* Multi-stage time-integration parameters  */
+  void *lusolver;     /* Tridiagonal LU solver parameters         */
 
   /* Errors */
   double error[3];                      /* L1,L2,Linf errors, if calculated         */
@@ -98,8 +108,6 @@ int Solve                   (void*,void*);
 #ifdef with_petsc
 int SolvePETSc            (void*,void*);
 #endif
-
-/* function to get the grid coordinate at a given point along a given dimension */
 
 
 /* Some definitions - types of discretizations available 

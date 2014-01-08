@@ -1,7 +1,7 @@
 #include <math.h>
 #include <physicalmodels/fppowersystem.h>
 
-inline double FPPowerSystemDriftFunction(int dir,void *p,double x,double y, double t)
+double FPPowerSystemDriftFunction(int dir,void *p,double x,double y, double t)
 {
   FPPowerSystem *params = (FPPowerSystem*) p;
 
@@ -17,7 +17,7 @@ inline double FPPowerSystemDriftFunction(int dir,void *p,double x,double y, doub
   return drift;
 }
 
-inline double FPPowerSystemDissipationFunction(int dir,void *p,double t)
+double FPPowerSystemDissipationFunction(int dir,void *p,double t)
 {
   FPPowerSystem *params = (FPPowerSystem*) p;
 

@@ -6,25 +6,18 @@
 int BCDirichlet(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
-  int            ierr      = 0;
-
-  int var   = boundary->var;
+  int            var       = boundary->var;
 
   if (boundary->on_this_proc) {
-    int *bounds = (int*) calloc (ndims,sizeof(int));
-    int *indexb = (int*) calloc (ndims,sizeof(int));  /* boundary index */
-    int *indexi = (int*) calloc (ndims,sizeof(int));  /* interior index */
-    ierr = ArraySubtract1D_int(bounds,boundary->ie,boundary->is,ndims); CHECKERR(ierr);
-    ierr = ArraySetValue_int  (indexb,ndims,0);                         CHECKERR(ierr);
+    int bounds[ndims], indexb[ndims];
+    _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
+    _ArraySetValue_(indexb,ndims,0); 
     int done = 0;
     while (!done) {
-      int p = ArrayIndex1D(ndims,size  ,indexb,boundary->is,ghosts);
+      int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
       phi[nvars*p+var] = boundary->DirichletValue[var];
-      done = ArrayIncrementIndex(ndims,bounds,indexb);
+      _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
-    free(bounds);
-    free(indexb);
-    free(indexi);
   }
   return(0);
 }

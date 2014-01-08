@@ -1,0 +1,18 @@
+begin
+  ndims             2
+  nvars             4
+  size              256 256
+  iproc             1 1
+  ghost             3
+  n_iter            500
+  time_scheme       rk
+  time_scheme_type  44
+  hyp_space_scheme  crweno5
+  hyp_interp_type   components 
+  dt                0.0002
+  screen_op_iter    999999
+  file_op_iter      999999
+  op_file_format    text
+  op_overwrite      yes
+  model             euler2d
+end

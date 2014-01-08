@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #ifdef with_petsc
 #include <petscinterface.h>
@@ -22,12 +23,15 @@ int main(int argc,char **argv)
 #ifdef serial
   mpi.rank  = 0;
   mpi.nproc = 1;
+  mpi.world = 0;
+  mpi.comm  = NULL;
   printf("HyPar - Serial Version\n");
 #else
   MPI_Init(&argc,&argv);
-  MPI_Comm_rank(MPI_COMM_WORLD,&mpi.rank );
-  MPI_Comm_size(MPI_COMM_WORLD,&mpi.nproc);
-  if (!mpi.rank) printf("HyPar - Parallel (MPI) version with %d processes ",mpi.nproc);
+  MPI_Comm_dup (MPI_COMM_WORLD,&mpi.world);
+  MPI_Comm_rank(mpi.world,&mpi.rank );
+  MPI_Comm_size(mpi.world,&mpi.nproc);
+  if (!mpi.rank) printf("HyPar - Parallel (MPI) version with %d processes\n",mpi.nproc);
 #endif
 
 #ifdef with_petsc
@@ -80,8 +84,16 @@ int main(int argc,char **argv)
     return(ierr);
   }
   /* Initializations complete */
+  
+  /* Write an initial solution file */
+  ierr = OutputSolution(&solver,&mpi);
+  if (ierr) {
+    printf("Error: OutputSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
+    return(ierr);
+  }
 
   /* Run the solver */
+<<<<<<< HEAD
 #ifdef with_petsc
   if (solver.use_petscTS == PETSC_TRUE) {
     /* Use PETSc time-integration */
@@ -104,16 +116,24 @@ int main(int argc,char **argv)
   }
 #else 
   /* Use native time-integration */
+=======
+#ifndef serial
+  MPI_Barrier(mpi.world);
+#endif
+>>>>>>> master
   gettimeofday(&solve_start,NULL);
   ierr = Solve(&solver,&mpi);
   gettimeofday(&solve_end,NULL);
+#ifndef serial
+  MPI_Barrier(mpi.world);
+#endif
   if (ierr) {
     printf("Error: Solve() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
   }
 #endif
 
-  /* Write output */
+  /* Write final solution file */
   ierr = OutputSolution(&solver,&mpi);
   if (ierr) {
     printf("Error: OutputSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
@@ -134,23 +154,24 @@ int main(int argc,char **argv)
   walltime = (  (main_end.tv_sec * 1000000   + main_end.tv_usec  ) 
               - (main_start.tv_sec * 1000000 + main_start.tv_usec));
   double main_runtime = (double) walltime / 1000000.0;
-  ierr = MPIMax_double(&main_runtime,&main_runtime,1); if(ierr) return(ierr);
+  ierr = MPIMax_double(&main_runtime,&main_runtime,1,&mpi.world); if(ierr) return(ierr);
   walltime = (  (solve_end.tv_sec * 1000000   + solve_end.tv_usec  ) 
               - (solve_start.tv_sec * 1000000 + solve_start.tv_usec));
   double solver_runtime = (double) walltime / 1000000.0;
-  ierr = MPIMax_double(&solver_runtime,&solver_runtime,1); if(ierr) return(ierr);
+  ierr = MPIMax_double(&solver_runtime,&solver_runtime,1,&mpi.world); if(ierr) return(ierr);
 
   /* print error and walltime to file and on screen */
   FILE *out; out = fopen("errors.dat","w");
   for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",solver.dim_global[d]);
-  fprintf(out,"%1.4E %1.4E %1.4E   ",solver.error[0],solver.error[1],solver.error[2]);
-  fprintf(out,"%1.4E %1.4E\n",solver_runtime,main_runtime);
+  for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",mpi.iproc[d]);
+  fprintf(out,"%1.16E %1.16E %1.16E   ",solver.error[0],solver.error[1],solver.error[2]);
+  fprintf(out,"%1.16E %1.16E\n",solver_runtime,main_runtime);
   fclose(out);
-  if (!mpi.rank) printf("L1         Error           : %E\n",solver.error[0]);
-  if (!mpi.rank) printf("L2         Error           : %E\n",solver.error[1]);
-  if (!mpi.rank) printf("Linfinity  Error           : %E\n",solver.error[2]);
-  if (!mpi.rank) printf("Solver runtime (in seconds): %E\n",solver_runtime);
-  if (!mpi.rank) printf("Total  runtime (in seconds): %E\n",main_runtime);
+  if (!mpi.rank) printf("L1         Error           : %1.16E\n",solver.error[0]);
+  if (!mpi.rank) printf("L2         Error           : %1.16E\n",solver.error[1]);
+  if (!mpi.rank) printf("Linfinity  Error           : %1.16E\n",solver.error[2]);
+  if (!mpi.rank) printf("Solver runtime (in seconds): %1.16E\n",solver_runtime);
+  if (!mpi.rank) printf("Total  runtime (in seconds): %1.16E\n",main_runtime);
 
   /* Cleaning up */
   ierr = Cleanup(&solver,&mpi);
@@ -162,6 +183,7 @@ int main(int argc,char **argv)
 
 
 #ifndef serial
+  MPI_Comm_free(&mpi.world);
   MPI_Finalize();
 #endif
   return(0);
