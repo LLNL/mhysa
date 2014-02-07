@@ -27,6 +27,7 @@ int ReadInputs(void *s,void *m)
   strcpy(solver->spatial_type_par  ,_NC_1STAGE_     );
   strcpy(solver->spatial_scheme_par,"2"             );
   strcpy(solver->interp_type       ,"characteristic");
+  strcpy(solver->ip_file_type      ,"ascii"         );
   strcpy(solver->op_file_format    ,"text"          );
   strcpy(solver->op_overwrite      ,"no"            );
   strcpy(solver->model             ,"none"          );
@@ -81,6 +82,7 @@ int ReadInputs(void *s,void *m)
    			else if   (!strcmp(word, "file_op_iter"     ))  ferr = fscanf(in,"%d",&solver->file_op_iter     );
    			else if   (!strcmp(word, "write_residual"   ))	ferr = fscanf(in,"%d",&solver->file_op_iter     );
    			else if   (!strcmp(word, "op_file_format"   ))  ferr = fscanf(in,"%s",solver->op_file_format    );
+   			else if   (!strcmp(word, "ip_file_type"     ))  ferr = fscanf(in,"%s",solver->ip_file_type      );
    			else if   (!strcmp(word, "op_overwrite"     ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
    			else if   (!strcmp(word, "model"            ))  ferr = fscanf(in,"%s",solver->model             );
         else if   ( strcmp(word, "end"              )) {
