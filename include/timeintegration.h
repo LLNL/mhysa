@@ -7,6 +7,7 @@
 #define _RK_33_         "33"      /* 3 stage, 3rd order                   */
 #define _RK_44_         "44"      /* 4 stage, 4th order                   */
 #define _RK_SSP3_       "ssprk3"  /* 3 stage, 3rd order SSP               */
+#define _RK_TVD3_       "tvdrk3"  /* Same as ssprk3                       */
 
 typedef struct time_integration_variables {
   int     iter;     /* iteration number                     */
