@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
@@ -10,7 +11,7 @@ int InitialSolution(void *s, void *m)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           i,d, ferr;
-  int           offset_global, offset_local;
+  int           offset_global, offset_local, total_size;
   _DECLARE_IERR_;
 
   /* Only root process reads in initial solution file */
@@ -25,39 +26,75 @@ int InitialSolution(void *s, void *m)
     xg      = (double*) calloc(size,sizeof(double));
     dxinvg  = (double*) calloc(size,sizeof(double));
 
-    /* Reading grid and initial solution */
-    printf("Reading grid and initial conditions from file \"initial.inp\".\n");
-    FILE *in; in = fopen("initial.inp","r");
-    if (!in) {
-      fprintf(stderr,"Error: initial solution file \"initial.inp\" not found.\n");
-      return(1);
-    }
+    if (!strcmp(solver->ip_file_type,"ascii")) {
 
-    /* read grid and calculate dxinv*/
-    offset = 0;
-    for (d = 0; d < solver->ndims; d++) {
-      for (i = 0; i < solver->dim_global[d]; i++) ferr = fscanf(in,"%lf",&xg[i+offset]);
-      for (i = 0; i < solver->dim_global[d]; i++) {
-        if      (i == 0)                        dxinvg[i+offset] = 1.0/(xg[i+1+offset]-xg[i  +offset]);
-        else if (i == solver->dim_global[d]-1)  dxinvg[i+offset] = 1.0/(xg[i  +offset]-xg[i-1+offset]);
-        else                                    dxinvg[i+offset] = 2.0/(xg[i+1+offset]-xg[i-1+offset]);
+      /* Reading grid and initial solution */
+      printf("Reading grid and initial conditions from ASCII file \"initial.inp\".\n");
+      FILE *in; in = fopen("initial.inp","r");
+      if (!in) {
+        fprintf(stderr,"Error: initial solution file \"initial.inp\" not found.\n");
+        return(1);
       }
-      offset += solver->dim_global[d];
-    }
 
-    /* read solution */
-    for (i = 0; i < solver->nvars; i++) {
-      int *index = solver->index;
-      int done = 0; _ArraySetValue_(index,solver->ndims,0);
-      while (!done) {
-        int p; _ArrayIndex1D_(solver->ndims,solver->dim_global,index,0,p);
-        ferr = fscanf(in,"%lf",&ug[p*solver->nvars+i]);
-        if (ferr != 1) return(1);
-        _ArrayIncrementIndex_(solver->ndims,solver->dim_global,index,done);
+      /* read grid and calculate dxinv*/
+      offset = 0;
+      for (d = 0; d < solver->ndims; d++) {
+        for (i = 0; i < solver->dim_global[d]; i++) ferr = fscanf(in,"%lf",&xg[i+offset]);
+        for (i = 0; i < solver->dim_global[d]; i++) {
+          if      (i == 0)                        dxinvg[i+offset] = 1.0/(xg[i+1+offset]-xg[i  +offset]);
+          else if (i == solver->dim_global[d]-1)  dxinvg[i+offset] = 1.0/(xg[i  +offset]-xg[i-1+offset]);
+          else                                    dxinvg[i+offset] = 2.0/(xg[i+1+offset]-xg[i-1+offset]);
+        }
+        offset += solver->dim_global[d];
       }
-    }
 
-    fclose(in);
+      /* read solution */
+      for (i = 0; i < solver->nvars; i++) {
+        int *index = solver->index;
+        int done = 0; _ArraySetValue_(index,solver->ndims,0);
+        while (!done) {
+          int p; _ArrayIndex1D_(solver->ndims,solver->dim_global,index,0,p);
+          ferr = fscanf(in,"%lf",&ug[p*solver->nvars+i]);
+          if (ferr != 1) return(1);
+          _ArrayIncrementIndex_(solver->ndims,solver->dim_global,index,done);
+        }
+      }
+
+      fclose(in);
+
+    } else if ((!strcmp(solver->ip_file_type,"bin")) || (!strcmp(solver->ip_file_type,"binary"))) {
+
+      /* Reading grid and initial solution */
+      printf("Reading grid and initial conditions from binary file \"initial.inp\".\n");
+      FILE *in; in = fopen("initial.inp","rb");
+      if (!in) {
+        fprintf(stderr,"Error: initial solution file \"initial.inp\" not found.\n");
+        return(1);
+      }
+
+      /* read grid */
+      total_size = 0;
+      for (d = 0; d < solver->ndims; d++) total_size += solver->dim_global[d];
+      fread(xg, sizeof(double), total_size, in);
+
+      /* read solution */
+      total_size = 1;
+      for (d = 0; d < solver->ndims; d++) total_size *= solver->dim_global[d]; total_size *= solver->nvars;
+      fread(ug, sizeof(double), total_size, in);
+
+      /* calculate dxinv*/
+      offset = 0;
+      for (d = 0; d < solver->ndims; d++) {
+        for (i = 0; i < solver->dim_global[d]; i++) {
+          if      (i == 0)                        dxinvg[i+offset] = 1.0/(xg[i+1+offset]-xg[i  +offset]);
+          else if (i == solver->dim_global[d]-1)  dxinvg[i+offset] = 1.0/(xg[i  +offset]-xg[i-1+offset]);
+          else                                    dxinvg[i+offset] = 2.0/(xg[i+1+offset]-xg[i-1+offset]);
+        }
+        offset += solver->dim_global[d];
+      }
+
+      fclose(in);
+    }
 
   } else {
     ug      = NULL;

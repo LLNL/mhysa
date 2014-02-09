@@ -40,6 +40,7 @@ typedef struct main_parameters {
   int screen_op_iter;                     /* frequency of screen output                   */
   int file_op_iter;                       /* frequency of file output                     */
   int write_residual;                     /* write residual to file                       */
+  char ip_file_type  [_MAX_STRING_SIZE_]; /* whether initial solution file is ascii or bin*/
   char op_file_format[_MAX_STRING_SIZE_]; /* output file format                           */
   char op_overwrite  [_MAX_STRING_SIZE_]; /* overwrite output file?                       */
   char op_filename   [_MAX_STRING_SIZE_]; /* output filename                              */
