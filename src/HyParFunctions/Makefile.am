@@ -16,6 +16,7 @@ libHyParFunctions_a_SOURCES = \
   ReconstructHyperbolic.c \
   Solve.c \
   SourceFunction.c \
+  WriteBinary.c \
   WriteTecplot2D.c \
   WriteTecplot3D.c \
   WriteText.c

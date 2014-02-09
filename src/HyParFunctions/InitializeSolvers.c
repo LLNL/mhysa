@@ -9,6 +9,7 @@
 #include <secondderivative.h>
 
 /* Function declarations */
+int WriteBinary                 (int,int,int*,double*,double*,char*,int*);
 int WriteText                   (int,int,int*,double*,double*,char*,int*);
 int WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
 int WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
@@ -193,6 +194,9 @@ int InitializeSolvers(void *s, void *m)
   } else if (!strcmp(solver->op_file_format,"tecplot3d")) {
     solver->WriteOutput = WriteTecplot3D;
     strcat(solver->op_filename,".dat");
+  } else if ((!strcmp(solver->op_file_format,"binary")) || (!strcmp(solver->op_file_format,"bin"))) {
+    solver->WriteOutput = WriteBinary;
+    strcat(solver->op_filename,".bin");
   } else if (!strcmp(solver->op_file_format,"none")) {
     solver->WriteOutput = NULL;
   } else {
