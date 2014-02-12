@@ -12,6 +12,7 @@ begin
   dt                0.001
   screen_op_iter    1
   file_op_iter      100
+  ip_file_type      binary
   op_file_format    tecplot3d
   op_overwrite      no
   model             navierstokes3d

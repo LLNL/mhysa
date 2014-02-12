@@ -142,6 +142,8 @@ files in the Examples for a better idea):
     screen_op_iter      -> frequency of screen output
     file_op_iter        -> frequency of file output
     write_residual      -> write residual information to file ? (1/0)
+    ip_file_type        -> specify whether initial solution file is
+                           ASCII text or binary.
     op_file_format      -> format of output file
                            ("text", "tecplot2d", "tecplot3d")
     op_overwrite        -> Overwrite output file ? ("yes"/"no")
@@ -189,11 +191,13 @@ files in the Examples for a better idea):
                          conditions (or use different codes as long as it 
                          outputs the initial conditions in the same format 
                          as "init.C")
+  This file can be ASCII or binary.
 
 - exact.inp (**Optional**)
 
   The exact solution, if available - used to calculate the numerical errors. 
   The format of this file is same  as that of "initial.inp"
+  This file can be ASCII or binary.
 
 - physics.inp
   

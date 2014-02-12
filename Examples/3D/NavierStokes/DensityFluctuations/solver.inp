@@ -12,7 +12,8 @@ begin
   dt                0.001
   screen_op_iter    9999999
   file_op_iter      9999999
-  op_file_format    text
+  ip_file_type      binary
+  op_file_format    binary
   op_overwrite      yes
   model             navierstokes3d
 end

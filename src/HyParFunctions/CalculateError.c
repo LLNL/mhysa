@@ -98,7 +98,7 @@ int CalculateError(void *s,void *m)
         /* write the exact solution to file in the same format as the computed solution */
         /* to enable comparisons and plotting together                                  */
         if (solver->WriteOutput) {
-          char filename[_MAX_STRING_SIZE_] = "op_exact.dat";
+          char filename[_MAX_STRING_SIZE_] = "op_exact.bin";
           IERR solver->WriteOutput(solver->ndims,solver->nvars,solver->dim_global,xg,ug,
                                    filename,solver->index); CHECKERR(ierr);
         }

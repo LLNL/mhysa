@@ -19,6 +19,8 @@ int main(){
 	std::ofstream out;
 
 	int NI,NJ,NK,ndims;
+  char ip_file_type[50];
+  strcpy(ip_file_type,"ascii");
   std::ifstream in;
   std::cout << "Reading file \"solver.inp\"...\n";
   in.open("solver.inp");
@@ -32,6 +34,7 @@ int main(){
         in >> word;
         if (!strcmp(word, "ndims"))     in >> ndims;
         else if (!strcmp(word, "size")) in >> NI >> NJ >> NK;
+        else if (!strcmp(word, "ip_file_type")) in >> ip_file_type;
       }
     }else{ 
       std::cout << "Error: Illegal format in solver.inp. Crash and burn!\n";
@@ -105,12 +108,8 @@ int main(){
 	y    = (double*) calloc (N, sizeof(double));
 	z    = (double*) calloc (N, sizeof(double));
 
-	double *rho, *rhou, *rhov, *rhow, *e;
-	rho  = (double*) calloc (N3, sizeof(double));
-	rhou = (double*) calloc (N3, sizeof(double));
-	rhov = (double*) calloc (N3, sizeof(double));
-	rhow = (double*) calloc (N3, sizeof(double));
-	e    = (double*) calloc (N3, sizeof(double));
+	double *U;
+	U  = (double*) calloc (5*N3, sizeof(double));
 
 	for (i = 0; i < N; i++){
 		for (j = 0; j < N; j++){
@@ -118,19 +117,19 @@ int main(){
   		  x[i] = -0.5 + i*dx;
 	  	  y[j] = -0.5 + j*dx;
 	  	  z[k] = -0.5 + k*dx;
-        int p = (i*N+j)*N+k;
-        double RHO,U,V,W,P;
+        double RHO, uvel, vvel, wvel, P;
         RHO = 1.0 + factor * u[k+N*(j+N*i)][0];
         if (RHO < 0) std::cout << "Warning: negative density calculated!\n";
-        U   = 1.0;
-        V   = 1.0;
-        W   = 1.0;
+        uvel   = 1.0;
+        vvel   = 1.0;
+        wvel   = 1.0;
         P   = 1.0/1.4;
-        rho[p]  = RHO;
-        rhou[p] = RHO*U;
-        rhov[p] = RHO*V;
-        rhow[p] = RHO*W;
-        e[p]    = P/0.4 + 0.5*RHO*(U*U+V*V+W*W);
+        int p = i + N*j + N*N*k;
+        U[5*p+0] = RHO;
+        U[5*p+1] = RHO*uvel;
+        U[5*p+2] = RHO*vvel;
+        U[5*p+3] = RHO*wvel;
+        U[5*p+4] = P/0.4 + 0.5*RHO*(uvel*uvel+vvel*vvel+wvel*wvel);
       }
 		}
 	}
@@ -139,67 +138,79 @@ int main(){
 	fftw_free(u);
 
   FILE *op;
-	op = fopen("initial.inp","w");
-  for (i = 0; i < N; i++)  fprintf(op,"%1.16E ",x[i]);
-  fprintf(op,"\n");
-  for (j = 0; j < N; j++)  fprintf(op,"%1.16E ",y[j]);
-  fprintf(op,"\n");
-  for (k = 0; k < N; k++)  fprintf(op,"%1.16E ",z[k]);
-  fprintf(op,"\n");
-	for (i = 0; i < N; i++) {
-	  for (j = 0; j < N; j++) {
-	    for (k = 0; k < N; k++) {
-        int p = (i*N+j)*N+k;
-        fprintf(op,"%1.16E ",rho[p]);
+  if (!strcmp(ip_file_type,"ascii")) {
+
+    printf("Writing ASCII initial solution file initial.inp\n");
+  	op = fopen("initial.inp","w");
+    for (i = 0; i < N; i++)  fprintf(op,"%1.16E ",x[i]);
+    fprintf(op,"\n");
+    for (j = 0; j < N; j++)  fprintf(op,"%1.16E ",y[j]);
+    fprintf(op,"\n");
+    for (k = 0; k < N; k++)  fprintf(op,"%1.16E ",z[k]);
+    fprintf(op,"\n");
+	  for (i = 0; i < N; i++) {
+	    for (j = 0; j < N; j++) {
+	      for (k = 0; k < N; k++) {
+          int p = i + N*j + N*N+k;
+          fprintf(op,"%1.16E ",U[5*p+0]);
+        }
       }
     }
-  }
-  fprintf(op,"\n");
-	for (i = 0; i < N; i++) {
-	  for (j = 0; j < N; j++) {
-	    for (k = 0; k < N; k++) {
-        int p = (i*N+j)*N+k;
-        fprintf(op,"%1.16E ",rhou[p]);
+    fprintf(op,"\n");
+  	for (i = 0; i < N; i++) {
+	    for (j = 0; j < N; j++) {
+	      for (k = 0; k < N; k++) {
+          int p = i + N*j + N*N+k;
+          fprintf(op,"%1.16E ",U[5*p+1]);
+        }
       }
     }
-  }
-  fprintf(op,"\n");
-	for (i = 0; i < N; i++) {
-	  for (j = 0; j < N; j++) {
-	    for (k = 0; k < N; k++) {
-        int p = (i*N+j)*N+k;
-        fprintf(op,"%1.16E ",rhov[p]);
+    fprintf(op,"\n");
+  	for (i = 0; i < N; i++) {
+	    for (j = 0; j < N; j++) {
+	      for (k = 0; k < N; k++) {
+          int p = i + N*j + N*N+k;
+          fprintf(op,"%1.16E ",U[5*p+2]);
+        }
       }
     }
-  }
-  fprintf(op,"\n");
-	for (i = 0; i < N; i++) {
-	  for (j = 0; j < N; j++) {
-	    for (k = 0; k < N; k++) {
-        int p = (i*N+j)*N+k;
-        fprintf(op,"%1.16E ",rhow[p]);
+    fprintf(op,"\n");
+	  for (i = 0; i < N; i++) {
+	    for (j = 0; j < N; j++) {
+	      for (k = 0; k < N; k++) {
+          int p = i + N*j + N*N+k;
+          fprintf(op,"%1.16E ",U[5*p+3]);
+        }
       }
     }
-  }
-  fprintf(op,"\n");
-	for (i = 0; i < N; i++) {
-	  for (j = 0; j < N; j++) {
-	    for (k = 0; k < N; k++) {
-        int p = (i*N+j)*N+k;
-        fprintf(op,"%1.16E ",e[p]);
+    fprintf(op,"\n");
+  	for (i = 0; i < N; i++) {
+	    for (j = 0; j < N; j++) {
+	      for (k = 0; k < N; k++) {
+          int p = i + N*j + N*N+k;
+          fprintf(op,"%1.16E ",U[5*p+4]);
+        }
       }
     }
+    fprintf(op,"\n");
+	  fclose(op);
+
+  } else if ((!strcmp(ip_file_type,"binary")) || (!strcmp(ip_file_type,"bin"))) {
+
+    printf("Writing binary initial solution file initial.inp\n");
+  	op = fopen("initial.inp","wb");
+    fwrite(x,sizeof(double),N,op);
+    fwrite(y,sizeof(double),N,op);
+    fwrite(z,sizeof(double),N,op);
+    fwrite(U,sizeof(double),5*N3,op);
+    fclose(op);
+
   }
-  fprintf(op,"\n");
-	fclose(op);
+
 	free(x);
 	free(y);
 	free(z);
-	free(rho);
-	free(rhou);
-	free(rhov);
-	free(rhow);
-	free(e);
+  free(U);
 
 	return(0);
 }
