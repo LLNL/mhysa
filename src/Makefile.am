@@ -19,6 +19,7 @@ HyPar_LDADD = \
   PhysicalModels/LinearADR/libLinearADR.a \
   PhysicalModels/FPDoubleWell/libFPDoubleWell.a \
   PhysicalModels/FPPowerSystem/libFPPowerSystem.a \
+  PhysicalModels/FPPowerSystem3Bus/libFPPowerSystem3Bus.a \
   PhysicalModels/Euler1D/libEuler1D.a \
   PhysicalModels/Euler2D/libEuler2D.a \
   PhysicalModels/NavierStokes3D/libNavierStokes3D.a \

@@ -9,6 +9,7 @@
 #include <physicalmodels/linearadr.h>
 #include <physicalmodels/fpdoublewell.h>
 #include <physicalmodels/fppowersystem.h>
+#include <physicalmodels/fppowersystem3bus.h>
 #include <physicalmodels/euler1d.h>
 #include <physicalmodels/euler2d.h>
 #include <physicalmodels/navierstokes3d.h>
@@ -51,6 +52,11 @@ int InitializePhysics(void *s,void *m)
 
     solver->physics = (FPPowerSystem*) calloc (1,sizeof(FPPowerSystem));
     IERR FPPowerSystemInitialize(solver,mpi); CHECKERR(ierr);
+
+  } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_3BUS_)) {
+
+    solver->physics = (FPPowerSystem3Bus*) calloc (1,sizeof(FPPowerSystem3Bus));
+    IERR FPPowerSystem3BusInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_EULER_1D_)) {
 

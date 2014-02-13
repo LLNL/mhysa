@@ -13,6 +13,7 @@
 #include <physicalmodels/linearadr.h>
 #include <physicalmodels/fpdoublewell.h>
 #include <physicalmodels/fppowersystem.h>
+#include <physicalmodels/fppowersystem3bus.h>
 #include <physicalmodels/euler1d.h>
 #include <physicalmodels/euler2d.h>
 #include <physicalmodels/navierstokes3d.h>
@@ -40,6 +41,8 @@ int Cleanup(void *s,void *m)
     IERR FPDoubleWellCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_)) {
     IERR FPPowerSystemCleanup(solver->physics); CHECKERR(ierr);
+  } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_3BUS_)) {
+    IERR FPPowerSystem3BusCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_EULER_1D_)) {
     IERR Euler1DCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_EULER_2D_)) {
