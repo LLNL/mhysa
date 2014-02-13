@@ -64,6 +64,7 @@ int InitialSolution(void *s, void *m)
 
     } else if ((!strcmp(solver->ip_file_type,"bin")) || (!strcmp(solver->ip_file_type,"binary"))) {
 
+      size_t bytes;
       /* Reading grid and initial solution */
       printf("Reading grid and initial conditions from binary file \"initial.inp\".\n");
       FILE *in; in = fopen("initial.inp","rb");
@@ -75,12 +76,20 @@ int InitialSolution(void *s, void *m)
       /* read grid */
       total_size = 0;
       for (d = 0; d < solver->ndims; d++) total_size += solver->dim_global[d];
-      fread(xg, sizeof(double), total_size, in);
+      bytes = fread(xg, sizeof(double), total_size, in);
+      if ((int)bytes != total_size) {
+        fprintf(stderr,"Error in InitialSolution(): Unable to read grid. Expected %d, Read %d.\n",
+                total_size, (int)bytes);
+      }
 
       /* read solution */
       total_size = 1;
       for (d = 0; d < solver->ndims; d++) total_size *= solver->dim_global[d]; total_size *= solver->nvars;
-      fread(ug, sizeof(double), total_size, in);
+      bytes = fread(ug, sizeof(double), total_size, in);
+      if ((int)bytes != total_size) {
+        fprintf(stderr,"Error in InitialSolution(): Unable to read solution. Expected %d, Read %d.\n",
+                total_size, (int)bytes);
+      }
 
       /* calculate dxinv*/
       offset = 0;

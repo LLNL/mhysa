@@ -68,6 +68,7 @@ int CalculateError(void *s,void *m)
     } else if ((!strcmp(solver->ip_file_type,"bin")) || (!strcmp(solver->ip_file_type,"binary"))) {
 
       FILE *in; in = fopen("exact.inp","rb");
+      size_t bytes;
       if (!in) {
         solver->error[0] = solver->error[1] = solver->error[2] = 0;
         exact_flag = 0;
@@ -86,12 +87,20 @@ int CalculateError(void *s,void *m)
         /* read grid, though not necessary (so that file format is consistent) */
         total_size = 0;
         for (d = 0; d < solver->ndims; d++) total_size += solver->dim_global[d];
-        fread(xg, sizeof(double), total_size, in);
+        bytes = fread(xg, sizeof(double), total_size, in); 
+        if ((int)bytes != total_size) {
+          fprintf(stderr, "Error in CalculateError(): unable to read in grid. Expected %d, Read %d.\n",
+                  total_size, (int)bytes);
+        }
 
         /* read solution */
         total_size = 1;
         for (d = 0; d < solver->ndims; d++) total_size *= solver->dim_global[d]; total_size *= solver->nvars;
-        fread(ug, sizeof(double), total_size, in);
+        bytes = fread(ug, sizeof(double), total_size, in);
+        if ((int)bytes != total_size) {
+          fprintf(stderr, "Error in CalculateError(): unable to read in solution. Expected %d, Read %d.\n",
+                  total_size, (int)bytes);
+        }
 
         fclose(in);
 
