@@ -1,0 +1,34 @@
+3D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+Isotropic Turbulence Decay (Implicit Large-Eddy Simulation)
+
+References:
++ Thornber, B., Mosedale, A., and Drikakis, D., "On the implicit
+  large eddy simulation of homogenous decaying turbulence", Journal
+  of Computational Physics, 226, 2007, 1902-1929
+
+Domain:
+
+  0 <= x,y,z < 2pi
+  "periodic" boundary conditions
+
+The initial solution is specified in the Fourier space (with an energy
+distribution similar to that of turbulent flow), and then transformed 
+to the physical space through an inverse transform.
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physics-related parameters
++ initial.inp   -   Initial solution
+
+Notes:-
+The code aux/init.C is an example to generate the initial solution
+file in the correct format required by the solver.  
+
+The code aux/fourier.C can be used to calculate the initial and
+final spectrum of the solution. 
+
+** Both these codes need the fftw3 library (http://www.fftw.org). 
+To compile:
+g++ -I/path/to/fftw3.h -L/path/to/libfftw3.a -lfftw3 fourier.C 
