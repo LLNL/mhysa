@@ -16,7 +16,7 @@ int CalculateError(void *s,void *m)
   _DECLARE_IERR_;
 
   /* Allocate arrays for reading in the exact solution */
-  double *ug,*xg; 
+  double *ug = NULL, *xg = NULL; 
   if (!mpi->rank) {
     int size,offset;
 

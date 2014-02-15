@@ -21,7 +21,7 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
 {
   HyPar               *solver  = (HyPar*)             s;
   MPIVariables        *mpi     = (MPIVariables*)      m; 
-  FPPowerSystem3Bus   *physics = (FPPowerSystem3Bus*) solver->physics;
+//  FPPowerSystem3Bus   *physics = (FPPowerSystem3Bus*) solver->physics;
   int                 ferr;
   _DECLARE_IERR_;
 
