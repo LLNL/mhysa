@@ -41,7 +41,7 @@ int tridiagIterJacobi(double *a,double *b,double *c,double *x,
     }
   }
 
-  double rhs[ns*n];
+  double *rhs = (double*) calloc (ns*n, sizeof(double));
   for (i=0; i<n; i++) {
     for (d=0; d<ns; d++) {
       rhs[i*ns+d] = x[i*ns+d]; /* save a copy of the rhs */
@@ -49,7 +49,11 @@ int tridiagIterJacobi(double *a,double *b,double *c,double *x,
     }
   }
 
-  double recvbufL[ns], recvbufR[ns], sendbufL[ns], sendbufR[ns];
+  double *recvbufL, *recvbufR, *sendbufL, *sendbufR;
+  recvbufL = (double*) calloc (ns, sizeof(double));
+  recvbufR = (double*) calloc (ns, sizeof(double));
+  sendbufL = (double*) calloc (ns, sizeof(double));
+  sendbufR = (double*) calloc (ns, sizeof(double));
 
   /* total number of points */
 #ifdef serial
@@ -159,6 +163,12 @@ int tridiagIterJacobi(double *a,double *b,double *c,double *x,
   /* save convergence information */
   context->exitnorm = (context->evaluate_norm ? global_norm : -1.0);
   context->exititer = iter;
+
+  free(rhs);
+  free(sendbufL);
+  free(sendbufR);
+  free(recvbufL);
+  free(recvbufR);
 
   return(0);
 }

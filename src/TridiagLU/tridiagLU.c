@@ -41,7 +41,9 @@ int tridiagLU(double *a,double *b,double *c,double *x,
   gettimeofday(&start,NULL);
 
   if ((ns == 0) || (n == 0)) return(0);
-  double xs1[ns], xp1[ns];
+  double *xs1, *xp1;
+  xs1 = (double*) calloc (ns, sizeof(double));
+  xp1 = (double*) calloc (ns, sizeof(double));
   for (i=0; i<ns; i++) xs1[i] = xp1[i] = 0;
 
   /* Stage 1 - Parallel elimination of subdiagonal entries */
@@ -69,7 +71,9 @@ int tridiagLU(double *a,double *b,double *c,double *x,
   /* Stage 2 - Eliminate the first sub- & super-diagonal entries */
   /* This needs the last (a,b,c,x) from the previous process     */
 #ifndef serial
-  double sendbuf[ns*nvar], recvbuf[ns*nvar];
+  double *sendbuf, *recvbuf;
+  sendbuf = (double*) calloc (ns*nvar, sizeof(double));
+  recvbuf = (double*) calloc (ns*nvar, sizeof(double));
   for (d=0; d<ns; d++) {
     sendbuf[d*nvar+0] = a[(n-1)*ns+d]; 
     sendbuf[d*nvar+1] = b[(n-1)*ns+d]; 
@@ -103,6 +107,8 @@ int tridiagLU(double *a,double *b,double *c,double *x,
       x[d]  -=  factor * x[(n-1)*ns+d];
     }
   }
+  free(sendbuf);
+  free(recvbuf);
 #endif
 
   /* end of stage 2 */
@@ -111,7 +117,9 @@ int tridiagLU(double *a,double *b,double *c,double *x,
   /* Stage 3 - Solve the reduced (nproc-1) X (nproc-1) tridiagonal system   */
 #ifndef serial
   if (nproc > 1) {
-    double zero[ns],one[ns];
+    double *zero, *one;
+    zero = (double*) calloc (ns, sizeof(double));
+    one  = (double*) calloc (ns, sizeof(double));
     for (d=0; d<ns; d++) {
       zero[d] = 0.0;
       one [d] = 1.0;
@@ -126,6 +134,8 @@ int tridiagLU(double *a,double *b,double *c,double *x,
       if (rank) ierr = tridiagIterJacobi(a,b,c,x,1,ns,params,comm);
       else      ierr = tridiagIterJacobi(zero,one,zero,zero,1,ns,params,comm);
     }
+    free(zero);
+    free(one);
 
     /* Each process, get the first x of the next process */
     MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
@@ -162,6 +172,8 @@ int tridiagLU(double *a,double *b,double *c,double *x,
   gettimeofday(&stage4,NULL);
 
   /* Done - now x contains the solution */
+  free(xs1);
+  free(xp1);
 
   /* save runtimes if needed */
   long long walltime;
