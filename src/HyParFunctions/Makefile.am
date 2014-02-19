@@ -3,6 +3,7 @@ libHyParFunctions_a_SOURCES = \
   ApplyBoundaryConditions.c \
   CalculateError.c \
   Cleanup.c \
+  ExactSolution.c \
   HyperbolicFunction.c \
   Initialize.c \
   InitialSolution.c \
