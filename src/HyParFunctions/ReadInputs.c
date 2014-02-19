@@ -28,6 +28,7 @@ int ReadInputs(void *s,void *m)
   strcpy(solver->spatial_scheme_par,"2"             );
   strcpy(solver->interp_type       ,"characteristic");
   strcpy(solver->ip_file_type      ,"ascii"         );
+  strcpy(solver->input_mode        ,"serial"        );
   strcpy(solver->op_file_format    ,"text"          );
   strcpy(solver->op_overwrite      ,"no"            );
   strcpy(solver->model             ,"none"          );
@@ -83,6 +84,7 @@ int ReadInputs(void *s,void *m)
    			else if   (!strcmp(word, "write_residual"   ))	ferr = fscanf(in,"%d",&solver->file_op_iter     );
    			else if   (!strcmp(word, "op_file_format"   ))  ferr = fscanf(in,"%s",solver->op_file_format    );
    			else if   (!strcmp(word, "ip_file_type"     ))  ferr = fscanf(in,"%s",solver->ip_file_type      );
+   			else if   (!strcmp(word, "input_mode"       ))  ferr = fscanf(in,"%s",solver->input_mode        );
    			else if   (!strcmp(word, "op_overwrite"     ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
    			else if   (!strcmp(word, "model"            ))  ferr = fscanf(in,"%s",solver->model             );
         else if   ( strcmp(word, "end"              )) {
@@ -122,6 +124,8 @@ int ReadInputs(void *s,void *m)
     	printf("\tTime Step                                  : %E\n"     ,solver->dt                );
       printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter    );
       printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter      );
+      printf("\tInitial solution file type                 : %d\n"     ,solver->ip_file_type      );
+      printf("\tInitial solution read mode                 : %d\n"     ,solver->input_mode        );
       printf("\tSolution file format                       : %s\n"     ,solver->op_file_format    );
       printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite      );
       printf("\tPhysical model                             : %s\n"     ,solver->model             );
