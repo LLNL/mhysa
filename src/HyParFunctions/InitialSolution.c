@@ -208,7 +208,7 @@ int InitialSolutionParallel(void *s, void *m)
 
     int myrank = mpi->rank;
     int ndims  = solver->ndims;
-    int rank[ndims+1], size[ndims], flag = 0, nvars;
+    int rank[ndims+1], size[ndims], nvars;
     int ferr, total, n;
     FILE *in;
 
@@ -218,26 +218,27 @@ int InitialSolutionParallel(void *s, void *m)
     total = solver->nvars; for (n = 0; n < ndims; n++) total *= solver->dim_local[n];
     u = (double*) calloc (total, sizeof(double));
 
-    in = fopen("initial.inp","rb");
+    in = fopen("initial_par.inp","rb");
     if (!in) {
-      fprintf(stderr,"Error in InitialSolutionParallel(): Could not open file initial.inp for reading.\n");
+      fprintf(stderr,"Error in InitialSolutionParallel(): Could not open file initial_par.inp for reading.\n");
       return(1);
     }
-    printf("Reading grid and initial conditions from binary file \"initial.inp\" (Parallel mode).\n");
-    while(!feof(in)) {
+    printf("Reading grid and initial conditions from binary file \"initial_par.inp\" (Parallel mode).\n");
+    int done = 0;
+    while((!feof(in) && (!done))) {
       ferr = fread(rank,sizeof(int),ndims+1,in); 
       if (ferr != (ndims+1)) {
-        fprintf(stderr,"Error in reading binary file initial.inp in parallel mode on rank %d.\n", myrank);
+        fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
         return(1);
       }
       ferr = fread(size,sizeof(int),ndims,in);
       if (ferr != (ndims+1)) {
-        fprintf(stderr,"Error in reading binary file initial.inp in parallel mode on rank %d.\n", myrank);
+        fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
         return(1);
       }
       ferr = fread(&nvars,sizeof(int),1,in);
       if (ferr != 1) {
-        fprintf(stderr,"Error in reading binary file initial.inp in parallel mode on rank %d.\n", myrank);
+        fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
         return(1);
       }
       if (rank[ndims] == myrank) {
@@ -256,17 +257,17 @@ int InitialSolutionParallel(void *s, void *m)
         total = 0; for (n = 0; n < ndims; n++) total += size[n];
         ferr = fread(x,sizeof(double),total,in);
         if (ferr != total) {
-          fprintf(stderr,"Error in reading binary file initial.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
         /* read initial solution */
         total = nvars; for (n = 0; n < ndims; n++) total *= size[n];
         ferr = fread(u,sizeof(double),total,in);
         if (ferr != total) {
-          fprintf(stderr,"Error in reading binary file initial.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
-        flag = 1;
+        done = 1;
       } else {
         int n, offset1 = 0, offset2 = nvars;
         for (n = 0; n < ndims; n++) {
@@ -275,12 +276,17 @@ int InitialSolutionParallel(void *s, void *m)
         }
         ferr = fseek(in,sizeof(double)*(offset1+offset2),SEEK_CUR);
         if (ferr) {
-          fprintf(stderr,"Error in reading binary file initial.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
       }
     }
     fclose(in);
+
+    if (!done) {
+      fprintf("Error in InitialSolutionParallel(): data for rank %d not found!\n",myrank);
+      return(1);
+    }
 
     int offset1 = 0, offset2 = 0;
     for (n = 0; n < ndims; n++) {

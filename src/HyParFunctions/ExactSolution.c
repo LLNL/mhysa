@@ -146,7 +146,7 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
 
   } else if ((!strcmp(solver->ip_file_type,"binary")) || (!strcmp(solver->ip_file_type,"bin"))) {
 
-    FILE *in; in = fopen("exact.inp","rb");
+    FILE *in; in = fopen("exact_par.inp","rb");
     if (!in) *exact_flag = 0;
     else {
       *exact_flag = 1;
@@ -159,22 +159,22 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
       total = solver->nvars; for (n = 0; n < ndims; n++) total *= solver->dim_local[n];
       u = (double*) calloc (total, sizeof(double));
 
-      printf("Reading exact solution from binary file \"exact.inp\" (Parallel mode).\n");
+      printf("Reading exact solution from binary file \"exact_par.inp\" (Parallel mode).\n");
       int done = 0;
       while((!feof(in)) && (!done)) {
         ferr = fread(rank,sizeof(int),ndims+1,in); 
         if (ferr != (ndims+1)) {
-          fprintf(stderr,"Error in reading binary file exact.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error in reading binary file exact_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
         ferr = fread(size,sizeof(int),ndims,in);
         if (ferr != (ndims+1)) {
-          fprintf(stderr,"Error in reading binary file exact.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error in reading binary file exact_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
         ferr = fread(&nvars,sizeof(int),1,in);
         if (ferr != 1) {
-          fprintf(stderr,"Error in reading binary file exact.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error in reading binary file exact_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
         if (rank[ndims] == myrank) {
@@ -193,14 +193,14 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
           total = 0; for (n = 0; n < ndims; n++) total += size[n];
           ferr = fread(x,sizeof(double),total,in);
           if (ferr != total) {
-            fprintf(stderr,"Error in reading binary file exact.inp in parallel mode on rank %d.\n", myrank);
+            fprintf(stderr,"Error in reading binary file exact_par.inp in parallel mode on rank %d.\n", myrank);
             return(1);
           }
           /* read exact solution */
           total = nvars; for (n = 0; n < ndims; n++) total *= size[n];
           ferr = fread(u,sizeof(double),total,in);
           if (ferr != total) {
-            fprintf(stderr,"Error in reading binary file exact.inp in parallel mode on rank %d.\n", myrank);
+            fprintf(stderr,"Error in reading binary file exact_par.inp in parallel mode on rank %d.\n", myrank);
             return(1);
           }
           flag = 1;
@@ -213,7 +213,7 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
           }
           ferr = fseek(in,sizeof(double)*(offset1+offset2),SEEK_CUR);
           if (ferr) {
-            fprintf(stderr,"Error in reading binary file exact.inp in parallel mode on rank %d.\n", myrank);
+            fprintf(stderr,"Error in reading binary file exact_par.inp in parallel mode on rank %d.\n", myrank);
             return(1);
           }
         }
