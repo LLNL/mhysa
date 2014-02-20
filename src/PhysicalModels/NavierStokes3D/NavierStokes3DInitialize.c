@@ -41,7 +41,7 @@ int NavierStokes3DInitialize(void *s,void *m)
   if (!mpi->rank) printf("Reading physical model inputs from file \"physics.inp\".\n");
   in = fopen("physics.inp","r");
   if (!in) {
-    printf("Warning: File \"physics.inp\" not found. Using default values.\n");
+    if (!mpi->rank) printf("Warning: File \"physics.inp\" not found. Using default values.\n");
   } else {
     char word[_MAX_STRING_SIZE_];
     ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
