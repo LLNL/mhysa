@@ -124,8 +124,8 @@ int ReadInputs(void *s,void *m)
     	printf("\tTime Step                                  : %E\n"     ,solver->dt                );
       printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter    );
       printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter      );
-      printf("\tInitial solution file type                 : %d\n"     ,solver->ip_file_type      );
-      printf("\tInitial solution read mode                 : %d\n"     ,solver->input_mode        );
+      printf("\tInitial solution file type                 : %s\n"     ,solver->ip_file_type      );
+      printf("\tInitial solution read mode                 : %s\n"     ,solver->input_mode        );
       printf("\tSolution file format                       : %s\n"     ,solver->op_file_format    );
       printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite      );
       printf("\tPhysical model                             : %s\n"     ,solver->model             );

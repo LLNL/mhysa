@@ -18,9 +18,10 @@ int CalculateError(void *s,void *m)
   double        *uex        = NULL;
   _DECLARE_IERR_;
 
-  size = 1;
+  size = solver->nvars;
   for (i = 0; i < solver->ndims; i++) 
     size *= (solver->dim_local[i]+2*solver->ghosts);
+  uex = (double*) calloc (size, sizeof(double));
 
 
   IERR ExactSolution(solver,mpi,uex,&exact_flag); CHECKERR(ierr);
@@ -31,7 +32,7 @@ int CalculateError(void *s,void *m)
   }
 
   /* compute error = difference between exact and numerical solution */
-  _ArrayAXPY_(solver->u,-1.0,uex,size*solver->nvars);
+  _ArrayAXPY_(solver->u,-1.0,uex,size);
 
   /* calculate L1 norm of error */
   sum = ArraySumAbsnD   (solver->nvars,solver->ndims,solver->dim_local,

@@ -170,8 +170,8 @@ void SplitDomain(char *fnamein, char *fnameout)
 	  printf("\tProcesses along each dimension             : ");
     for (i=0; i<ndims; i++) printf ("%d ",iproc[i]);
     printf("\n");
-    printf("\tInitial solution file type                 : %d\n",ip_file_type);
-    printf("\tInitial solution read mode                 : %d\n",input_mode  );
+    printf("\tInitial solution file type                 : %s\n",ip_file_type);
+    printf("\tInitial solution read mode                 : %s\n",input_mode  );
   }
 
   /* checks */
@@ -210,8 +210,11 @@ void SplitDomain(char *fnamein, char *fnameout)
 
   int nproc = 1;
   for (i=0; i<ndims; i++) nproc *= iproc[i];
+  printf("Splitting data into %d processes.\n",nproc);
 
   int proc;
+  FILE *out;
+  out = fopen(fnameout,"wb");
   for (proc=0; proc<nproc; proc++) {
     int ip[ndims],is[ndims],ie[ndims];
     double *Xl, *Ul;
@@ -239,8 +242,6 @@ void SplitDomain(char *fnamein, char *fnameout)
       _ArrayIncrementIndex_(ndims,dim_local,index,done);
     }
 
-    FILE *out;
-    out = fopen(fnameout,"wb");
     bytes = fwrite(ip,sizeof(int),ndims,out); 
     if (bytes != ndims) printf("Error: Unable to write data to file %s.\n",fnameout);
     bytes = fwrite(&proc,sizeof(int),1,out);
@@ -255,12 +256,12 @@ void SplitDomain(char *fnamein, char *fnameout)
     size = nvars; for (i=0; i<ndims; i++) size *= dim_local[i];
     bytes = fwrite(Ul,sizeof(double),size,out);
     if (bytes != size) printf("Error: Unable to write data to file %s.\n",fnameout);
-    fclose(out);
 
     free(Xl);
     free(Ul);
 
   }
+  fclose(out);
 
   free(Xg);
   free(Ug);

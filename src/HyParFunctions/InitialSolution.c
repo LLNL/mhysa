@@ -180,7 +180,6 @@ int InitialSolutionSerial(void *s, void *m)
     }
     offset_local  += dim[d] + 2*ghosts;
   }
-  
 
   if (!mpi->rank) {
     free(ug);
@@ -223,22 +222,22 @@ int InitialSolutionParallel(void *s, void *m)
       fprintf(stderr,"Error in InitialSolutionParallel(): Could not open file initial_par.inp for reading.\n");
       return(1);
     }
-    printf("Reading grid and initial conditions from binary file \"initial_par.inp\" (Parallel mode).\n");
+    if (!myrank) printf("Reading grid and initial conditions from binary file \"initial_par.inp\" (Parallel mode).\n");
     int done = 0;
     while((!feof(in) && (!done))) {
       ferr = fread(rank,sizeof(int),ndims+1,in); 
       if (ferr != (ndims+1)) {
-        fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
+        fprintf(stderr,"Error (1) in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
         return(1);
       }
       ferr = fread(size,sizeof(int),ndims,in);
-      if (ferr != (ndims+1)) {
-        fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
+      if (ferr != ndims) {
+        fprintf(stderr,"Error (2) in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
         return(1);
       }
       ferr = fread(&nvars,sizeof(int),1,in);
       if (ferr != 1) {
-        fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
+        fprintf(stderr,"Error (3) in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
         return(1);
       }
       if (rank[ndims] == myrank) {
@@ -257,14 +256,14 @@ int InitialSolutionParallel(void *s, void *m)
         total = 0; for (n = 0; n < ndims; n++) total += size[n];
         ferr = fread(x,sizeof(double),total,in);
         if (ferr != total) {
-          fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error (4) in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
         /* read initial solution */
         total = nvars; for (n = 0; n < ndims; n++) total *= size[n];
         ferr = fread(u,sizeof(double),total,in);
         if (ferr != total) {
-          fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error (5) in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
         done = 1;
@@ -276,7 +275,7 @@ int InitialSolutionParallel(void *s, void *m)
         }
         ferr = fseek(in,sizeof(double)*(offset1+offset2),SEEK_CUR);
         if (ferr) {
-          fprintf(stderr,"Error in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
+          fprintf(stderr,"Error (6) in reading binary file initial_par.inp in parallel mode on rank %d.\n", myrank);
           return(1);
         }
       }
@@ -315,7 +314,29 @@ int InitialSolutionParallel(void *s, void *m)
   for (d = 0; d < solver->ndims; d++) {
     IERR MPIExchangeBoundaries1D(mpi,&solver->x[offset],solver->dim_local[d],
                                    ghosts,d,solver->ndims); CHECKERR(ierr);
-    offset  += solver->dim_local [d] + 2*ghosts;
+    offset  += (solver->dim_local [d] + 2*ghosts);
+  }
+  /* fill in ghost values of x at physical boundaries by extrapolation */
+  offset = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    double *x     = &solver->x    [offset];
+    int    *dim   = solver->dim_local;
+    if (mpi->ip[d] == 0) {
+      /* fill left boundary along this dimension */
+      for (i = 0; i < ghosts; i++) {
+        int delta = ghosts - i;
+        x[i] = x[ghosts] + ((double) delta) * (x[ghosts]-x[ghosts+1]);
+      }
+    }
+    if (mpi->ip[d] == mpi->iproc[d]-1) {
+      /* fill right boundary along this dimension */
+      for (i = dim[d]+ghosts; i < dim[d]+2*ghosts; i++) {
+        int delta = i - (dim[d]+ghosts-1);
+        x[i] =  x[dim[d]+ghosts-1] 
+              + ((double) delta) * (x[dim[d]+ghosts-1]-x[dim[d]+ghosts-2]);
+      }
+    }
+    offset  += (dim[d] + 2*ghosts);
   }
 
   /* calculate dxinv */
@@ -331,33 +352,23 @@ int InitialSolutionParallel(void *s, void *m)
   for (d = 0; d < solver->ndims; d++) {
     IERR MPIExchangeBoundaries1D(mpi,&solver->dxinv[offset],solver->dim_local[d],
                                    ghosts,d,solver->ndims); CHECKERR(ierr);
-    offset  += solver->dim_local [d] + 2*ghosts;
+    offset  += (solver->dim_local[d] + 2*ghosts);
   }
 
-  /* fill in ghost values of x and dxinv at physical boundaries by extrapolation */
+  /* fill in ghost values of dxinv at physical boundaries by extrapolation */
   offset = 0;
   for (d = 0; d < solver->ndims; d++) {
-    double *x     = &solver->x    [offset];
     double *dxinv = &solver->dxinv[offset];
     int    *dim   = solver->dim_local;
     if (mpi->ip[d] == 0) {
       /* fill left boundary along this dimension */
-      for (i = 0; i < ghosts; i++) {
-        int delta = ghosts - i;
-        dxinv[i] = dxinv[ghosts];
-        x[i] = x[ghosts] + ((double) delta) * (x[ghosts]-x[ghosts+1]);
-      }
+      for (i = 0; i < ghosts; i++) dxinv[i] = dxinv[ghosts];
     }
     if (mpi->ip[d] == mpi->iproc[d]-1) {
       /* fill right boundary along this dimension */
-      for (i = dim[d]+ghosts; i < dim[d]+2*ghosts; i++) {
-        int delta = i - (dim[d]+ghosts-1);
-        dxinv[i] = dxinv[dim[d]+ghosts-1];
-        x[i] =  x[dim[d]+ghosts-1] 
-              + ((double) delta) * (x[dim[d]+ghosts-1]-x[dim[d]+ghosts-2]);
-      }
+      for (i = dim[d]+ghosts; i < dim[d]+2*ghosts; i++) dxinv[i] = dxinv[dim[d]+ghosts-1];
     }
-    offset  += dim[d] + 2*ghosts;
+    offset  += (dim[d] + 2*ghosts);
   }
   
   return(0);
