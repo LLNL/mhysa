@@ -78,7 +78,7 @@ int ExactSolutionSerial(void *s, void *m, double *uex, int *exact_flag)
         *exact_flag = 1;
         printf("Reading exact solution from binary file \"exact.inp\" (Serial mode).\n");
         size_t bytes;
-        int size,offset;
+        int size;
         /* allocate global solution array */
         size = solver->npoints_global*solver->nvars;
         ug = (double*) calloc(size,sizeof(double));

@@ -193,8 +193,7 @@ int InitialSolutionParallel(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           i,d, ferr;
-  int           offset, total_size;
+  int           i,d,offset;
   int           ghosts = solver->ghosts;
   _DECLARE_IERR_;
 
