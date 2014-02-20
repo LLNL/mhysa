@@ -284,7 +284,7 @@ int InitialSolutionParallel(void *s, void *m)
     fclose(in);
 
     if (!done) {
-      fprintf("Error in InitialSolutionParallel(): data for rank %d not found!\n",myrank);
+      fprintf(stderr,"Error in InitialSolutionParallel(): data for rank %d not found!\n",myrank);
       return(1);
     }
 
