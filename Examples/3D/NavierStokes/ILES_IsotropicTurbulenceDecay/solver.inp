@@ -13,6 +13,7 @@ begin
   screen_op_iter    5
   file_op_iter      50
   ip_file_type      binary
+  input_mode        parallel
   op_file_format    binary
   op_overwrite      no
   model             navierstokes3d

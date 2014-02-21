@@ -104,6 +104,7 @@ In general, the following input files are needed by the solver (See also sample 
 files in the Examples for a better idea):
 
 - solver.inp - Solver inputs
+  ** If any of the keywords listed below is absent, default values will be used.**
 
   Format:
     begin
@@ -143,9 +144,13 @@ files in the Examples for a better idea):
     file_op_iter        -> frequency of file output
     write_residual      -> write residual information to file ? (1/0)
     ip_file_type        -> specify whether initial solution file is
-                           ASCII text or binary.
+                           ASCII text (default) or binary.
+    input_mode          -> specify if the initial (and exact) solution is 
+                           read in serial (by rank 0) or by all processes.
+                           (** see the discussion below on "initial.inp" for
+                               more details)
     op_file_format      -> format of output file
-                           ("text", "tecplot2d", "tecplot3d")
+                           ("none", "text", "tecplot2d", "tecplot3d")
     op_overwrite        -> Overwrite output file ? ("yes"/"no")
     model               -> Physical model to use
                            ("linear-advection-diffusion-reaction", 
@@ -183,7 +188,7 @@ files in the Examples for a better idea):
                     This needs to be specified for all the dimensions 
                     0 <= N < ndims
 
-- initial.inp
+- initial.inp / initial_par.inp
   
   The initial solution - The cases in Examples contain codes "init.C" to 
                          generate this input file in the correct format. 
@@ -191,13 +196,37 @@ files in the Examples for a better idea):
                          conditions (or use different codes as long as it 
                          outputs the initial conditions in the same format 
                          as "init.C")
-  This file can be ASCII or binary.
 
-- exact.inp (**Optional**)
+  If the keyword "ip_file_type" is not specified or specified as "ascii", this
+  file needs to be an ASCII file.
+  If the keyword "ip_file_type" is specified as "bin" or "binary", this file 
+  needs to be a binary file.
+  For some examples, the provided "init.C" reads in the value of "ip_file_type"
+  and accordingly generates an ASCII or binary file.
+
+  If the keyword "input_mode" is not specified, or specified as "serial", the
+  root processor allocates the global domain, reads in the complete initial 
+  solution, chops it up and sends it to other ranks.
+
+  If the keyword "input_mode" is specified as "parallel", the code reads in the 
+  file "initial_par.inp". This file contains the initial solution divided into
+  blocks corresponding to each processor. All the ranks open the file, and read
+  in the part containing the initial solution for their part of the domain. Thus
+  the global domain is not allocated (useful for memory-limited machines and/or
+  big domains). 
+
+  To generate "initial_par.inp", compile and run hypar/Extras/ParallelInput.c 
+  after generating "initial.inp" and specifying the number of processors "iproc"
+  in solver.inp.
+  ** This option is available only for binary initial solution file.
+
+- exact.inp / exact_par.inp (**Optional**)
 
   The exact solution, if available - used to calculate the numerical errors. 
   The format of this file is same  as that of "initial.inp"
-  This file can be ASCII or binary.
+
+  The above discussion on ASCII/binary files and serial/parallel input modes apply
+  to "exact.inp" ("exact_par.inp") as well.
 
 - physics.inp
   
