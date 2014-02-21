@@ -11,7 +11,7 @@ int Solve(void *s,void *m)
 
   /* Define and initialize the time-integration object */
   TimeIntegration TS;
-  if (!mpi->rank) printf("Initializing time integration.\n",TS.n_iter);
+  if (!mpi->rank) printf("Setting up time integration.\n");
   IERR TimeInitialize(solver,mpi,&TS); CHECKERR(ierr);
 
   if (!mpi->rank) printf("Solving in time (%d iterations)\n",TS.n_iter);
