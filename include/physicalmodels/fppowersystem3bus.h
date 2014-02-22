@@ -21,8 +21,17 @@ To be added
 typedef struct fp_power_system__3bus_parameters {
 
   /* input parameters */
+  double PM1, PM2,
+         H1, H2,
+         omegaB,
+         D1, D2,
+         E1, E2,
+         Xd1, Xd2;
+  double *a, *b;
 
   /* computed/constant parameters */
+  int N;
+  double *Ainv;
 
   double pdf_integral; /* not an input          */
 } FPPowerSystem3Bus;
