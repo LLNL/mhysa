@@ -4,8 +4,8 @@
 int FPPowerSystem3BusCleanup(void *s)
 {
   FPPowerSystem3Bus *physics = (FPPowerSystem3Bus*) s;
-  free(physics->a);
-  free(physics->b);
+  free(physics->G);
+  free(physics->B);
   free(physics->Ainv);
   return(0);
 }

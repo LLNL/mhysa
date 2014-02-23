@@ -73,43 +73,57 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
     return(1);
   }
 
+  double PI = 4.0*atan(1.0);
+
   physics->N    = N = 6;
-  physics->a    = (double*) calloc ((N/2)*(N/2),sizeof(double));
-  physics->b    = (double*) calloc ((N/2)*(N/2),sizeof(double));
+  physics->G    = (double*) calloc ((N/2)*(N/2),sizeof(double));
+  physics->B    = (double*) calloc ((N/2)*(N/2),sizeof(double));
   physics->Ainv = (double*) calloc (N*N        ,sizeof(double));
 
   /* default values of model parameters */
-  physics->PM1     = 0;
-  physics->PM2     = 0;
-  physics->H1      = 0;
-  physics->H2      = 0;
-  physics->omegaB  = 0;
-  physics->D1      = 0;
-  physics->D2      = 0;
-  physics->E1      = 0;
-  physics->E2      = 0;
-  physics->Xd1     = 0;
-  physics->Xd2     = 0;
+  physics->PM1     = 3.109260511864138;
+  physics->PM2     = 1.0;
+  physics->H1      = 1000.640;
+  physics->H2      = 3.64;
+  physics->omegaB  = 2*PI*60;
+  physics->D1      = 450;
+  physics->D2      = 1.0;
+  physics->E1      = 1.044225672060674;
+  physics->E2      = 1.034543707656856;
+  physics->Xd1     = 0.02;
+  physics->Xd2     = 0.2;
+  physics->alpha   = 4.386890097147679;
+  physics->beta    = -1.096722524286920;
 
-  physics->a[0*N/2+0] = 0;
-  physics->a[0*N/2+1] = 0;
-  physics->a[0*N/2+2] = 0;
-  physics->a[1*N/2+0] = 0;
-  physics->a[1*N/2+1] = 0;
-  physics->a[1*N/2+2] = 0;
-  physics->a[2*N/2+0] = 0;
-  physics->a[2*N/2+1] = 0;
-  physics->a[2*N/2+2] = 0;
+  physics->lambda[0][0] = 0.1;
+  physics->lambda[0][1] = 0.1;
+  physics->lambda[1][0] = 0.1;
+  physics->lambda[1][1] = 0.1;
 
-  physics->b[0*N/2+0] = 0;
-  physics->b[0*N/2+1] = 0;
-  physics->b[0*N/2+2] = 0;
-  physics->b[1*N/2+0] = 0;
-  physics->b[1*N/2+1] = 0;
-  physics->b[1*N/2+2] = 0;
-  physics->b[2*N/2+0] = 0;
-  physics->b[2*N/2+1] = 0;
-  physics->b[2*N/2+2] = 0;
+  physics->sigma[0][0] = 1.0;
+  physics->sigma[0][1] = 1.0;
+  physics->sigma[1][0] = 1.0;
+  physics->sigma[1][1] = 1.0;
+
+  physics->G[0*N/2+0] =  7.631257631257632;
+  physics->G[0*N/2+1] = -3.815628815628816;
+  physics->G[0*N/2+2] = -3.815628815628816;
+  physics->G[1*N/2+0] = -3.815628815628816;
+  physics->G[1*N/2+1] =  6.839334669523348;
+  physics->G[1*N/2+2] = -3.023705853894533;
+  physics->G[2*N/2+0] = -3.815628815628816;
+  physics->G[2*N/2+1] = -3.023705853894533;
+  physics->G[2*N/2+2] =  6.839334669523348;
+
+  physics->B[0*N/2+0] = -38.053788156288157;
+  physics->B[0*N/2+1] =  19.078144078144078;
+  physics->B[0*N/2+2] =  19.078144078144078;
+  physics->B[1*N/2+0] =  19.078144078144078;
+  physics->B[1*N/2+1] = -34.081673347616743;
+  physics->B[1*N/2+2] =  15.118529269472663;
+  physics->B[2*N/2+0] =  19.078144078144078;
+  physics->B[2*N/2+1] =  15.118529269472663;
+  physics->B[2*N/2+2] = -34.081673347616743;
 
 
   /* reading physical model specific inputs - all processes */
@@ -148,42 +162,42 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
 
   /* Some initial calculations of the physical parameters */
   double A[N*N];
-  A[0*N+0] =  physics->a[0*N/2+0];
-  A[0*N+1] = -physics->b[0*N/2+0];
-  A[1*N+0] =  physics->b[0*N/2+0];
-  A[1*N+1] =  physics->a[0*N/2+0];
-  A[0*N+2] =  physics->a[0*N/2+1];
-  A[0*N+3] = -physics->b[0*N/2+1];
-  A[1*N+2] =  physics->b[0*N/2+1];
-  A[1*N+3] =  physics->a[0*N/2+1];
-  A[0*N+4] =  physics->a[0*N/2+2];
-  A[0*N+5] = -physics->b[0*N/2+2];
-  A[1*N+4] =  physics->b[0*N/2+2];
-  A[1*N+5] =  physics->a[0*N/2+2];
-  A[2*N+0] =  physics->a[1*N/2+0];
-  A[2*N+1] = -physics->b[1*N/2+0];
-  A[3*N+0] =  physics->b[1*N/2+0];
-  A[3*N+1] =  physics->a[1*N/2+0];
-  A[2*N+2] =  physics->a[1*N/2+1];
-  A[2*N+3] = -physics->b[1*N/2+1];
-  A[3*N+2] =  physics->b[1*N/2+1];
-  A[3*N+3] =  physics->a[1*N/2+1];
-  A[2*N+4] =  physics->a[1*N/2+2];
-  A[2*N+5] = -physics->b[1*N/2+2];
-  A[3*N+4] =  physics->b[1*N/2+2];
-  A[3*N+5] =  physics->a[1*N/2+2];
-  A[4*N+0] =  physics->a[2*N/2+0];
-  A[4*N+1] = -physics->b[2*N/2+0];
-  A[5*N+0] =  physics->b[2*N/2+0];
-  A[5*N+1] =  physics->a[2*N/2+0];
-  A[4*N+2] =  physics->a[2*N/2+1];
-  A[4*N+3] = -physics->b[2*N/2+1];
-  A[5*N+2] =  physics->b[2*N/2+1];
-  A[5*N+3] =  physics->a[2*N/2+1];
-  A[4*N+4] =  physics->a[2*N/2+2];
-  A[4*N+5] = -physics->b[2*N/2+2];
-  A[5*N+4] =  physics->b[2*N/2+2];
-  A[5*N+5] =  physics->a[2*N/2+2];
+  A[0*N+0] =  physics->G[0*N/2+0];
+  A[0*N+1] = -physics->B[0*N/2+0] + 1.0/physics->Xd1;
+  A[1*N+0] =  physics->B[0*N/2+0] - 1.0/physics->Xd1;
+  A[1*N+1] =  physics->G[0*N/2+0];
+  A[0*N+2] =  physics->G[0*N/2+1];
+  A[0*N+3] = -physics->B[0*N/2+1];
+  A[1*N+2] =  physics->B[0*N/2+1];
+  A[1*N+3] =  physics->G[0*N/2+1];
+  A[0*N+4] =  physics->G[0*N/2+2];
+  A[0*N+5] = -physics->B[0*N/2+2];
+  A[1*N+4] =  physics->B[0*N/2+2];
+  A[1*N+5] =  physics->G[0*N/2+2];
+  A[2*N+0] =  physics->G[1*N/2+0];
+  A[2*N+1] = -physics->B[1*N/2+0];
+  A[3*N+0] =  physics->B[1*N/2+0];
+  A[3*N+1] =  physics->G[1*N/2+0];
+  A[2*N+2] =  physics->G[1*N/2+1];
+  A[2*N+3] = -physics->B[1*N/2+1] + 1.0/physics->Xd2;
+  A[3*N+2] =  physics->B[1*N/2+1] - 1.0/physics->Xd2;
+  A[3*N+3] =  physics->G[1*N/2+1];
+  A[2*N+4] =  physics->G[1*N/2+2];
+  A[2*N+5] = -physics->B[1*N/2+2];
+  A[3*N+4] =  physics->B[1*N/2+2];
+  A[3*N+5] =  physics->G[1*N/2+2];
+  A[4*N+0] =  physics->G[2*N/2+0];
+  A[4*N+1] = -physics->B[2*N/2+0];
+  A[5*N+0] =  physics->B[2*N/2+0];
+  A[5*N+1] =  physics->G[2*N/2+0];
+  A[4*N+2] =  physics->G[2*N/2+1];
+  A[4*N+3] = -physics->B[2*N/2+1];
+  A[5*N+2] =  physics->B[2*N/2+1];
+  A[5*N+3] =  physics->G[2*N/2+1];
+  A[4*N+4] =  physics->G[2*N/2+2] + physics->alpha;
+  A[4*N+5] = -physics->B[2*N/2+2] - physics->beta;
+  A[5*N+4] =  physics->B[2*N/2+2] + physics->beta;
+  A[5*N+5] =  physics->G[2*N/2+2] + physics->alpha;
   
   int inverr = MatInverse(A,physics->Ainv,N);
   if (inverr) {
