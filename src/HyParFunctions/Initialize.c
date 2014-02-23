@@ -84,7 +84,9 @@ int Initialize(void *s, void *m)
   solver->dxinv = (double*) calloc (size,sizeof(double));
   /* arrays needed to compute fluxes */
   size = 1;  for (i=0; i<solver->ndims; i++) size *= (solver->dim_local[i]+2*solver->ghosts);
-  solver->fluxC = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->fluxC  = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->Deriv1 = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->Deriv2 = (double*) calloc (solver->nvars*size,sizeof(double));
   size = 1;  for (i=0; i<solver->ndims; i++) size *= (solver->dim_local[i]+1);
   solver->fluxI = (double*) calloc (solver->nvars*size,sizeof(double));
   solver->uL    = (double*) calloc (solver->nvars*size,sizeof(double));

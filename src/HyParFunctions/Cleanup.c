@@ -77,6 +77,8 @@ int Cleanup(void *s,void *m)
   free(solver->par);
   free(solver->source);
   free(solver->fluxC);
+  free(solver->Deriv1);
+  free(solver->Deriv2);
   free(solver->fluxI);
   free(solver->uL);
   free(solver->uR);

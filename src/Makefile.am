@@ -1,6 +1,7 @@
 SUBDIRS = \
   ArrayFunctions \
   BoundaryConditions\
+  FirstDerivative \
   HyParFunctions \
   InterpolationFunctions \
   PhysicalModels \
@@ -24,6 +25,7 @@ HyPar_LDADD = \
   PhysicalModels/Euler2D/libEuler2D.a \
   PhysicalModels/NavierStokes3D/libNavierStokes3D.a \
   InterpolationFunctions/libInterpolationFunctions.a \
+  FirstDerivative/libFirstDerivative.a \
   SecondDerivative/libSecondDerivative.a \
   TridiagLU/libTridiagLU.a \
   MPIFunctions/libMPIFunctions.a \

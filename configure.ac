@@ -44,6 +44,7 @@ AC_CONFIG_FILES([
  src/Makefile
  src/ArrayFunctions/Makefile
  src/BoundaryConditions/Makefile
+ src/FirstDerivative/Makefile
  src/HyParFunctions/Makefile
  src/InterpolationFunctions/Makefile
  src/MathFunctions/Makefile

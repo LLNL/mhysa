@@ -6,6 +6,7 @@
 #include <tridiagLU.h>
 #include <timeintegration.h>
 #include <interpolation.h>
+#include <firstderivative.h>
 #include <secondderivative.h>
 
 /* Function declarations */
@@ -16,6 +17,7 @@ int WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
 int ApplyBoundaryConditions     (void*,void*,double*);
 int HyperbolicFunction          (double*,double*,void*,void*,double);
 int ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
+int ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
 int ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
 int SourceFunction              (double*,double*,void*,void*,double);
 
@@ -36,6 +38,15 @@ int InitializeSolvers(void *s, void *m)
     solver->ParabolicFunction = ParabolicFunctionNC1Stage;
     if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_)) {
       solver->SecondDerivativePar = SecondDerivativeSecondOrder; 
+    } else {
+      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+              solver->spatial_type_par);
+    }
+  } else if (!strcmp(solver->spatial_type_par,_NC_2STAGE_)) {
+    solver->ParabolicFunction = ParabolicFunctionNC2Stage;
+    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_)) {
+      solver->FirstDerivativePar = FirstDerivativeSecondOrder; 
     } else {
       fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
       fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",

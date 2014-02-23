@@ -29,7 +29,7 @@ typedef struct main_parameters {
   double *par;                        /* array to hold the parabolic terms                */
   double *source;                     /* array to hold the source    terms                */
   /* arrays to hold temporary data during computations */
-  double *fluxC, *fluxI;
+  double *fluxC, *fluxI, *Deriv1, *Deriv2;
   double *uL, *uR, *fL, *fR;
 
   /* Boundary conditions */
@@ -52,6 +52,7 @@ typedef struct main_parameters {
   int (*TimeIntegrate)            (void*);                                  
   int (*InterpolateInterfacesHyp) (double*,double*,double*,int,int,void*,void*);
   int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
+  int (*FirstDerivativePar)       (double*,double*,int,void*,void*);
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
   int (*HyperbolicFunction)       (double*,double*,void*,void*,double);
   int (*ParabolicFunction)        (double*,double*,void*,void*,double);
@@ -67,6 +68,7 @@ typedef struct main_parameters {
   double (*ComputeDiffNumber)  (void*,void*,double,double);
   int    (*FFunction)          (double*,double*,int,void*,double);
   int    (*GFunction)          (double*,double*,int,void*,double);
+  int    (*HFunction)          (double*,double*,int,int,void*,double);
   int    (*SFunction)          ();
   int    (*Upwind)             (double*,double*,double*,double*,double*,double*,
                                 int,void*,double);
@@ -108,5 +110,6 @@ int Solve                   (void*,void*);
 /* Some definitions - types of discretizations available 
    for the parabolic (2nd derivative) term                */
 #define _NC_1STAGE_   "nonconservative-1stage"/* Non-conservative, direct evaluation of the 2nd deriv  */
+#define _NC_2STAGE_   "nonconservative-2stage"/* Non-conservative, two-stage evaluation of the 2nd deriv  */
 #define _CONS_1STAGE_ "conservative-1stage"   /* Conservative, direct evaluation of the 2nd deriv      */
 
