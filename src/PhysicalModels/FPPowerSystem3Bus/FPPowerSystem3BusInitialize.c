@@ -11,7 +11,7 @@
 double FPPowerSystem3BusComputeCFL        (void*,void*,double,double);
 double FPPowerSystem3BusComputeDiffNumber (void*,void*,double,double);
 int    FPPowerSystem3BusAdvection         (double*,double*,int,void*,double);
-int    FPPowerSystem3BusDiffusion         (double*,double*,int,void*,double);
+int    FPPowerSystem3BusDiffusion         (double*,double*,int,int,void*,double);
 int    FPPowerSystem3BusUpwind            (double*,double*,double*,double*,
                                            double*,double*,int,void*,double);
 int    FPPowerSystem3BusPostStep          (double*,void*,void*,double);
@@ -137,7 +137,7 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
   solver->ComputeCFL         = FPPowerSystem3BusComputeCFL;
   solver->ComputeDiffNumber  = FPPowerSystem3BusComputeDiffNumber;
   solver->FFunction          = FPPowerSystem3BusAdvection;
-  solver->GFunction          = FPPowerSystem3BusDiffusion;
+  solver->HFunction          = FPPowerSystem3BusDiffusion;
   solver->Upwind             = FPPowerSystem3BusUpwind;
   solver->PostStep           = FPPowerSystem3BusPostStep;
   solver->PrintStep          = FPPowerSystem3BusPrintStep;

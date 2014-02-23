@@ -43,14 +43,33 @@ int FPPowerSystem3BusDriftFunction(int dir,void *p,double *x, double t, double *
   return(0);
 }
 
-int FPPowerSystem3BusDissipationFunction(int dir,void *p,double t, double *dissp)
+int FPPowerSystem3BusDissipationFunction(int dir1,int dir2,void *p,double t, double *dissp)
 {
-//  FPPowerSystem3Bus *params = (FPPowerSystem3Bus*) p;
+  FPPowerSystem3Bus *params = (FPPowerSystem3Bus*) p;
+  int i; for (i=0; i<_MODEL_NDIMS_*_MODEL_NDIMS_; i++) dissp[i] = 0.0;
 
-  dissp[0] = 0;
-  dissp[1] = 0;
-  dissp[2] = 0;
-  dissp[3] = 0;
+  double sigma11 = params->sigma[0][0];
+  double sigma12 = params->sigma[0][1];
+  double sigma21 = params->sigma[1][0];
+  double sigma22 = params->sigma[1][1];
+
+  double lambda11 = params->lambda[0][0];
+  double lambda12 = params->lambda[0][1];
+  double lambda21 = params->lambda[1][0];
+  double lambda22 = params->lambda[1][1];
+
+  double gamma1 = params->D1 / (2*params->H1*params->omegaB);
+  double gamma2 = params->D2 / (2*params->H2*params->omegaB);
+
+  double term11 = 1.0 - exp((lambda11*t)/(1-lambda11*(gamma1+gamma2)));
+  double term12 = 1.0 - exp((lambda12*t)/(1-lambda12*(gamma1+gamma2)));
+  double term21 = 1.0 - exp((lambda21*t)/(1-lambda21*(gamma1+gamma2)));
+  double term22 = 1.0 - exp((lambda22*t)/(1-lambda22*(gamma1+gamma2)));
+
+  dissp[2*_MODEL_NDIMS_+2] = (sigma11*sigma11*lambda11)/(1-lambda11*(gamma1+gamma2))*term11;
+  dissp[2*_MODEL_NDIMS_+3] = (sigma12*sigma12*lambda12)/(1-lambda12*(gamma1+gamma2))*term12;
+  dissp[3*_MODEL_NDIMS_+2] = (sigma21*sigma21*lambda21)/(1-lambda21*(gamma1+gamma2))*term21;
+  dissp[3*_MODEL_NDIMS_+3] = (sigma22*sigma22*lambda22)/(1-lambda22*(gamma1+gamma2))*term22;
 
   return(0);
 }

@@ -4,9 +4,9 @@
 #include <physicalmodels/fppowersystem3bus.h>
 #include <hypar.h>
 
-int FPPowerSystem3BusDissipationFunction(int,void*,double,double*);
+int FPPowerSystem3BusDissipationFunction(int,int,void*,double,double*);
 
-int FPPowerSystem3BusDiffusion(double *f,double *u,int dir,void *s,double t)
+int FPPowerSystem3BusDiffusion(double *f,double *u,int dir1,int dir2,void *s,double t)
 {
   HyPar             *solver = (HyPar*)              s;
   FPPowerSystem3Bus *params = (FPPowerSystem3Bus*)  solver->physics;
@@ -28,8 +28,8 @@ int FPPowerSystem3BusDiffusion(double *f,double *u,int dir,void *s,double t)
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
-    double dissipation[ndims]; FPPowerSystem3BusDissipationFunction(dir,params,t,dissipation);
-    for (v = 0; v < nvars; v++) f[nvars*p+v] = dissipation[dir] * u[nvars*p+v];
+    double dissipation[ndims*ndims]; FPPowerSystem3BusDissipationFunction(dir1,dir2,params,t,dissipation);
+    for (v = 0; v < nvars; v++) f[nvars*p+v] = dissipation[dir1*ndims+dir2] * u[nvars*p+v];
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }
 
