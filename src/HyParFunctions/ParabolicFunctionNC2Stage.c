@@ -11,7 +11,7 @@ int ParabolicFunctionNC2Stage(double *par,double *u,void *s,void *m,double t)
   double        *Func   = solver->fluxC;
   double        *Deriv1 = solver->Deriv1;
   double        *Deriv2 = solver->Deriv2;
-  int           d, d1, d2, v, i, p, done;
+  int           d, d1, d2, v, p, done;
   double        dxinv1, dxinv2;
   _DECLARE_IERR_;
 

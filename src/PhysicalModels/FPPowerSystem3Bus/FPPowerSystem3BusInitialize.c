@@ -42,7 +42,7 @@ int LUDecomp(double *A, double *rhs, int N)
 
 int MatInverse(double *A, double *B, int N)
 {
-	int i, j, k;
+	int i, j;
 	double *r = (double*) calloc(N,sizeof(double));
 	for (i = 0; i < N; i++){
 		for (j = 0; j < N; j++){
