@@ -96,13 +96,13 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
   physics->beta    = -1.096722524286920;
 
   physics->lambda[0][0] = 0.1;
-  physics->lambda[0][1] = 0.1;
-  physics->lambda[1][0] = 0.1;
+  physics->lambda[0][1] = 0.0;
+  physics->lambda[1][0] = 0.0;
   physics->lambda[1][1] = 0.1;
 
   physics->sigma[0][0] = 1.0;
-  physics->sigma[0][1] = 1.0;
-  physics->sigma[1][0] = 1.0;
+  physics->sigma[0][1] = 0.0;
+  physics->sigma[1][0] = 0.0;
   physics->sigma[1][1] = 1.0;
 
   physics->G[0*N/2+0] =  7.631257631257632;
@@ -139,6 +139,50 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
     if (!strcmp(word, "begin")){
 	    while (strcmp(word, "end")){
 		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+        if      (!strcmp(word,"PM1"    ))  {ferr=fscanf(in,"%lf",&physics->PM1   ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"H1"     ))  {ferr=fscanf(in,"%lf",&physics->H1    ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"D1"     ))  {ferr=fscanf(in,"%lf",&physics->D1    ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"E1"     ))  {ferr=fscanf(in,"%lf",&physics->E1    ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"Xd1"    ))  {ferr=fscanf(in,"%lf",&physics->Xd1   ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"PM2"    ))  {ferr=fscanf(in,"%lf",&physics->PM2   ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"H2"     ))  {ferr=fscanf(in,"%lf",&physics->H2    ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"D2"     ))  {ferr=fscanf(in,"%lf",&physics->D2    ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"E2"     ))  {ferr=fscanf(in,"%lf",&physics->E2    ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"Xd2"    ))  {ferr=fscanf(in,"%lf",&physics->Xd2   ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"omegaB" ))  {ferr=fscanf(in,"%lf",&physics->omegaB) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"alpha"  ))  {ferr=fscanf(in,"%lf",&physics->alpha ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"beta"   ))  {ferr=fscanf(in,"%lf",&physics->beta  ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"sigma"  ))  {
+          ferr=fscanf(in,"%lf",&physics->sigma[0][0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->sigma[0][1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->sigma[1][0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->sigma[1][1]) ;if(ferr!=1)return(1);
+        } else if (!strcmp(word,"lambda"))  {
+          ferr=fscanf(in,"%lf",&physics->lambda[0][0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->lambda[0][1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->lambda[1][0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->lambda[1][1]) ;if(ferr!=1)return(1);
+        } else if (!strcmp(word,"G"))  {
+          ferr=fscanf(in,"%lf",&physics->G[0*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[0*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[0*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[1*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[1*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[1*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[2*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[2*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[2*N/2+2]) ;if(ferr!=1)return(1);
+        } else if (!strcmp(word,"B"))  {
+          ferr=fscanf(in,"%lf",&physics->B[0*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[0*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[0*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[1*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[1*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[1*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[2*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[2*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[2*N/2+2]) ;if(ferr!=1)return(1);
+        }
       }
 	  } else {
     	if (!mpi->rank) fprintf(stderr,"Error: Illegal format in file \"physics.inp\".\n");
