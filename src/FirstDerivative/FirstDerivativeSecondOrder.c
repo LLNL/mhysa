@@ -36,29 +36,27 @@ int FirstDerivativeSecondOrder(double *Df,double *f,int dir,void *s,void *m)
     _ArrayCopy1D_(index_outer,indexC,ndims);
     /* left boundary */
     for (i = -ghosts; i < -ghosts+1; i++) {
-      int p, qC, qR, qRR;
-      indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,0     ,p  );
+      int qC, qR, qRR;
       indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qC );
       indexC[dir] = i+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qR );
       indexC[dir] = i+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qRR);
-      for (v=0; v<nvars; v++)  Df[p*nvars+v] = -3*f[qC*nvars+v]+4*f[qR*nvars+v]-f[qRR*nvars+v];
+      for (v=0; v<nvars; v++)  Df[qC*nvars+v] = -3*f[qC*nvars+v]+4*f[qR*nvars+v]-f[qRR*nvars+v];
     }
     /* interior */
     for (i = -ghosts+1; i < dim[dir]+ghosts-1; i++) {
-      int p, qL, qR;
-      indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,0     ,p);
+      int qC, qL, qR;
+      indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qC );
       indexC[dir] = i-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qL);
       indexC[dir] = i+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qR);
-      for (v=0; v<nvars; v++)  Df[p*nvars+v] = f[qR*nvars+v]-f[qL*nvars+v];
+      for (v=0; v<nvars; v++)  Df[qC*nvars+v] = f[qR*nvars+v]-f[qL*nvars+v];
     }
     /* right boundary */
     for (i = dim[dir]+ghosts-1; i < dim[dir]+ghosts; i++) {
-      int p, qLL, qL, qC;
-      indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,0     ,p );
+      int qLL, qL, qC;
       indexC[dir] = i-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qLL);
       indexC[dir] = i-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qL );
       indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qC );
-      for (v=0; v<nvars; v++)  Df[p*nvars+v] = 3*f[qC*nvars+v]-4*f[qL*nvars+v]+f[qLL*nvars+v];
+      for (v=0; v<nvars; v++)  Df[qC*nvars+v] = 3*f[qC*nvars+v]-4*f[qL*nvars+v]+f[qLL*nvars+v];
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
