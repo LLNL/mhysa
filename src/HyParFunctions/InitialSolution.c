@@ -227,6 +227,7 @@ int InitialSolutionParallel(void *s, void *m)
         return(1);
       }
       int count = 0;
+      printf("Reading initial solution from binary file initial_par.inp (parallel mode).\n");
       while ((!feof(in)) && (count < mpi->nproc)) {
         int rank[ndims+1],size[ndims],nvars;
         ferr = fread(rank,sizeof(int),ndims+1,in);

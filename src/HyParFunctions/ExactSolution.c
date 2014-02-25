@@ -176,6 +176,7 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
         in = fopen("exact_par.inp","rb");
 
         int count = 0;
+        printf("Reading exact solution from binary file exact_par.inp (parallel mode).\n");
         while ((!feof(in)) && (count < mpi->nproc)) {
           int rank[ndims+1],size[ndims],nvars;
           ferr = fread(rank,sizeof(int),ndims+1,in);
