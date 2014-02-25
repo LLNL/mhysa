@@ -243,6 +243,7 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
           }
         }
         if (!check) return(1);
+        free(flag);
 
         fclose(in);
 

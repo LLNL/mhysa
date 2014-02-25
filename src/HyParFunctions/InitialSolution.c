@@ -295,6 +295,7 @@ int InitialSolutionParallel(void *s, void *m)
         }
       }
       if (!check) return(1);
+      free(flag);
 
     } else {
 
