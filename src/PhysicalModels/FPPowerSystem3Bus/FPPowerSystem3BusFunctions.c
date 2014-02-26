@@ -23,22 +23,22 @@ int FPPowerSystem3BusDriftFunction(int dir,void *p,double *x, double t, double *
   VI2 = params->Ainv[3*N+0]*params->E1*sin(theta1) - params->Ainv[3*N+1]*params->E1*cos(theta1) 
       + params->Ainv[3*N+2]*params->E2*sin(theta2) - params->Ainv[3*N+3]*params->E2*cos(theta2);
 
-  F1 = params->PM1 / (2.0*params->H1*params->omegaB);
-  F2 = params->PM2 / (2.0*params->H2*params->omegaB);
+  F1 = params->PM1 / (2.0*params->H1);
+  F2 = params->PM2 / (2.0*params->H2);
 
   Tau1 = 0.0;
   Tau2 = 0.0;
 
-  gamma1 = params->D1 / (2*params->H1*params->omegaB);
-  gamma2 = params->D2 / (2*params->H2*params->omegaB);
+  gamma1 = params->D1 / (2*params->H1);
+  gamma2 = params->D2 / (2*params->H2);
 
-  S1 = params->E1/(2.0*params->H1*params->omegaB*params->Xd1) * (VR1*sin(theta1) - VI1*cos(theta1));
-  S2 = params->E2/(2.0*params->H2*params->omegaB*params->Xd2) * (VR2*sin(theta2) - VI2*cos(theta2));
+  S1 = params->E1/(2.0*params->H1*params->Xd1) * (VR1*sin(theta1) - VI1*cos(theta1));
+  S2 = params->E2/(2.0*params->H2*params->Xd2) * (VR2*sin(theta2) - VI2*cos(theta2));
 
-  drift[0] = Omega1;
-  drift[1] = Omega2;
-  drift[2] = F1 + Tau1 - gamma1*Omega1 - S1;
-  drift[3] = F2 + Tau2 - gamma2*Omega2 - S2;
+  drift[0] = params->omegaB * (Omega1-1.0);
+  drift[1] = params->omegaB * (Omega2-1.0);
+  drift[2] = F1 + Tau1 - gamma1*(Omega1-1.0) - S1;
+  drift[3] = F2 + Tau2 - gamma2*(Omega2-1.0) - S2;
 
   return(0);
 }
