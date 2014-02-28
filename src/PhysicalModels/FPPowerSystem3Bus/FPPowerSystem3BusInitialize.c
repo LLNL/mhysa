@@ -43,16 +43,19 @@ int LUDecomp(double *A, double *rhs, int N)
 int MatInverse(double *A, double *B, int N)
 {
 	int i, j;
-	double *r = (double*) calloc(N,sizeof(double));
+	double *r  = (double*) calloc(N  ,sizeof(double));
+	double *AA = (double*) calloc(N*N,sizeof(double));
 	for (i = 0; i < N; i++){
+		for (j = 0; j < N*N; j++) AA[j] = A[j];
 		for (j = 0; j < N; j++){
 			if (j == i)	r[j] = 1.0;
 			else		    r[j] = 0.0;
 		}
-		int ierr = LUDecomp(A,r,N); if (ierr) return(ierr);
+		int ierr = LUDecomp(AA,r,N); if (ierr) return(ierr);
 		for (j = 0; j < N; j++)	B[j*N+i] = r[j];
 	}
   free(r);
+  free(AA);
 	return(0);
 }
 
@@ -249,6 +252,25 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
     return(inverr);
   }
 
+#if 0
+  /* Verifying Ainv is correct */
+  int M = N, i, j, k ;
+  double *Ainv = physics->Ainv;
+  double eye[M*M];
+  for (j=0; j<M; j++) {
+    for (k=0; k<M; k++) {
+      eye[j*M+k] = 0.0;
+      for (i=0; i<M; i++) eye[j*M+k] += (A[j*M+i] * Ainv[i*M+k]);
+    }
+  }
+  printf("\n");
+  printf("Verifying Ainv is correct. A*Ainv = \n");
+  for (j=0; j<M; j++) {
+    for (k=0; k<M; k++) printf("%+1.16E  ",eye[j*M+k]);
+    printf("\n");
+  }
+  printf("\n");
+#endif
   return(0);
 }
 

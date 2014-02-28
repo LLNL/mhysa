@@ -14,14 +14,14 @@ int FPPowerSystem3BusDriftFunction(int dir,void *p,double *x, double t, double *
   Omega1 = x[2];
   Omega2 = x[3];
 
-  VR1 = params->Ainv[0*N+0]*params->E1*sin(theta1) - params->Ainv[0*N+1]*params->E1*cos(theta1) 
-      + params->Ainv[0*N+2]*params->E2*sin(theta2) - params->Ainv[0*N+3]*params->E2*cos(theta2);
-  VI1 = params->Ainv[1*N+0]*params->E1*sin(theta1) - params->Ainv[1*N+1]*params->E1*cos(theta1) 
-      + params->Ainv[1*N+2]*params->E2*sin(theta2) - params->Ainv[1*N+3]*params->E2*cos(theta2);
-  VR2 = params->Ainv[2*N+0]*params->E1*sin(theta1) - params->Ainv[2*N+1]*params->E1*cos(theta1) 
-      + params->Ainv[2*N+2]*params->E2*sin(theta2) - params->Ainv[2*N+3]*params->E2*cos(theta2);
-  VI2 = params->Ainv[3*N+0]*params->E1*sin(theta1) - params->Ainv[3*N+1]*params->E1*cos(theta1) 
-      + params->Ainv[3*N+2]*params->E2*sin(theta2) - params->Ainv[3*N+3]*params->E2*cos(theta2);
+  VR1 = params->Ainv[0*N+0]*params->E1*sin(theta1)/params->Xd1 - params->Ainv[0*N+1]*params->E1*cos(theta1)/params->Xd1 
+      + params->Ainv[0*N+2]*params->E2*sin(theta2)/params->Xd2 - params->Ainv[0*N+3]*params->E2*cos(theta2)/params->Xd2;
+  VI1 = params->Ainv[1*N+0]*params->E1*sin(theta1)/params->Xd1 - params->Ainv[1*N+1]*params->E1*cos(theta1)/params->Xd1 
+      + params->Ainv[1*N+2]*params->E2*sin(theta2)/params->Xd2 - params->Ainv[1*N+3]*params->E2*cos(theta2)/params->Xd2;
+  VR2 = params->Ainv[2*N+0]*params->E1*sin(theta1)/params->Xd1 - params->Ainv[2*N+1]*params->E1*cos(theta1)/params->Xd1 
+      + params->Ainv[2*N+2]*params->E2*sin(theta2)/params->Xd2 - params->Ainv[2*N+3]*params->E2*cos(theta2)/params->Xd2;
+  VI2 = params->Ainv[3*N+0]*params->E1*sin(theta1)/params->Xd1 - params->Ainv[3*N+1]*params->E1*cos(theta1)/params->Xd1 
+      + params->Ainv[3*N+2]*params->E2*sin(theta2)/params->Xd2 - params->Ainv[3*N+3]*params->E2*cos(theta2)/params->Xd2;
 
   F1 = params->PM1 / (2.0*params->H1);
   F2 = params->PM2 / (2.0*params->H2);
