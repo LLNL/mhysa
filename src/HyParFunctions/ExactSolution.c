@@ -157,9 +157,8 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
     if (!mpi->rank) {
       FILE *in;
       in = fopen("exact_par.inp","rb");
-      if (in) *exact_flag = 1;
+      if (in) { *exact_flag = 1; fclose(in); }
       else    *exact_flag = 0;
-      fclose(in);
     }
     /* Broadcast exact_flag to all processes */
     IERR MPIBroadcast_integer(exact_flag,1,0,&mpi->world); CHECKERR(ierr);
