@@ -1,0 +1,21 @@
+begin
+  ndims             4
+  nvars             1
+  size              40 40 40 40
+  iproc             2 2 2 4
+  ghost             3
+  n_iter            10
+  time_scheme       rk
+  time_scheme_type  ssprk3
+  hyp_space_scheme  weno5
+  par_space_type    nonconservative-2stage
+  par_space_scheme  2
+  dt                0.001
+  screen_op_iter    1
+  file_op_iter      40
+  ip_file_type      binary
+  input_mode        parallel
+  op_file_format    binary
+  op_overwrite      no
+  model             fp-power-system-3bus
+end
