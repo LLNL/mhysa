@@ -150,8 +150,6 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
     int sizex = 0;             for (d=0; d<ndims; d++) sizex += solver->dim_local[d];
     int sizeu = solver->nvars; for (d=0; d<ndims; d++) sizeu *= solver->dim_local[d];
     int total_size = sizex + sizeu;
-    recv_int    = (int*)    calloc (2*(ndims+1),sizeof(int  ));
-    recv_double = (double*) calloc (total_size,sizeof(double));
 
     /* check if exact solution file exists */
     if (!mpi->rank) {
@@ -164,6 +162,9 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
     IERR MPIBroadcast_integer(exact_flag,1,0,&mpi->world); CHECKERR(ierr);
 
     if (*exact_flag) {
+
+      recv_int    = (int*)    calloc (2*(ndims+1),sizeof(int  ));
+      recv_double = (double*) calloc (total_size,sizeof(double));
 
       if (!mpi->rank) {
 
