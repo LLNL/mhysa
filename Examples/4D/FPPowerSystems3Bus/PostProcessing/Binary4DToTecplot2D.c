@@ -168,7 +168,7 @@ int main()
 
       /* some checks */
       if (ndims != 4) {
-        printf("Error: ndims in %s not equal to 3!\n",filename);
+        printf("Error: ndims in %s not equal to 4!\n",filename);
         return(0);
       }
       if (nvars != 1) {
