@@ -116,6 +116,55 @@ void WriteTecplot2D(int ndims,int nvars,int *dim,double *x,double *u,char *f,int
   return;
 }
 
+int WriteTecplot3D(int ndims,int nvars,int *dim,double *x,double *u,char *f,int *index)
+{
+  if (ndims !=3) {
+    fprintf(stderr,"Error in WriteTecplot3D(): This functions is hardcoded for 3-dimensional ");
+    fprintf(stderr,"problems only. Instead, ndims=%d.\n",ndims);
+    return(1);
+  }
+  int i;
+  int imax = dim[0];
+  int jmax = dim[1];
+  int kmax = dim[2];
+
+  printf("Writing tecplot solution file %s.\n",f);
+  FILE *out;
+  out = fopen(f,"w");
+  if (!out) {
+    fprintf(stderr,"Error: could not open %s for writing.\n",f);
+    return(1);
+  }
+
+  /* writing tecplot data file headers */
+  fprintf(out,"VARIABLES=\"I\",\"J\",\"K\",\"X\",\"Y\",\"Z\",");
+  char varname[3] = "00";
+  for (i = 0; i < nvars; i++) {
+    fprintf(out,"\"%s\",",varname);
+    if (varname[1] == '9') { varname[0]++; varname[1] = '0'; }
+    else                     varname[1]++;
+  }
+  fprintf(out,"\n");
+  fprintf(out,"ZONE I=%d,J=%d,K=%d,F=POINT\n",imax,jmax,kmax);
+
+  /* writing the data */
+  int done = 0; _ArraySetValue_(index,ndims,0);
+  while (!done) {
+    int i, p;
+    _ArrayIndex1D_(ndims,dim,index,0,p);
+    for (i=0; i<ndims; i++) fprintf(out,"%4d ",index[i]);
+    for (i=0; i<ndims; i++) {
+      int j,offset = 0; for (j=0; j<i; j++) offset += dim[j];
+      fprintf(out,"%+E ",x[offset+index[i]]);
+    }
+    for (i=0; i<nvars; i++) fprintf(out,"%+E ",u[nvars*p+i]);
+    fprintf(out,"\n");
+    _ArrayIncrementIndex_(ndims,dim,index,done);
+  }
+  fclose(out);
+  return(0);
+}
+
 int main()
 {
   FILE *out1, *out2, *in, *inputs;
@@ -154,7 +203,7 @@ int main()
       break;
     } else {
       printf("Reading file %s.\n",filename);
-      int ndims, nvars, dims[2];
+      int ndims, nvars;
       double *U,*x;
 
       /* read the file headers */
@@ -162,19 +211,21 @@ int main()
       fread(&nvars,sizeof(int),1,in);
 
       /* some checks */
-      if (ndims != 2) {
-        printf("Error: ndims in %s not equal to 2!\n",filename);
+      if ((ndims != 2) && (ndims != 3)) {
+        printf("Error: ndims in %s not equal to 2 or 3!\n",filename);
         return(0);
       }
 
       /* read dimensions */
+      int dims[ndims];
       fread(dims,sizeof(int),ndims,in);
       printf("Dimensions: %d x %d\n",dims[0],dims[1]);
       printf("Nvars     : %d\n",nvars);
 
       /* allocate grid and solution arrays */
-      int sizex = dims[0] + dims[1];
-      int sizeu = dims[0] * dims[1] * nvars;
+      int d;
+      int sizex = 0;      for (d=0; d<ndims; d++) sizex += dims[d];
+      int sizeu = nvars;  for (d=0; d<ndims; d++) sizeu *= dims[d];
       x = (double*) calloc (sizex,sizeof(double));
       U = (double*) calloc (sizeu,sizeof(double));
 
@@ -191,9 +242,9 @@ int main()
       tecfile[11] = 't';
 
       /* write Tecplot file */
-      int ind[2];
-      printf("\tWriting file %s.\n",tecfile);
-      WriteTecplot2D(2,nvars,dims,x,U,tecfile,&ind[0]);
+      int ind[ndims];
+      if      (ndims == 2) WriteTecplot2D(2,nvars,dims,x,U,tecfile,&ind[0]);
+      else if (ndims == 3) WriteTecplot3D(3,nvars,dims,x,U,tecfile,&ind[0]);
 
       /* clean up */
       free(U);
