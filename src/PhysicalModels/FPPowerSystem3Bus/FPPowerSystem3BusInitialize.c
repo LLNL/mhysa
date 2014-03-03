@@ -16,48 +16,7 @@ int    FPPowerSystem3BusUpwind            (double*,double*,double*,double*,
                                            double*,double*,int,void*,double);
 int    FPPowerSystem3BusPostStep          (double*,void*,void*,double);
 int    FPPowerSystem3BusPrintStep         (void*,void*,double);
-
-int LUDecomp(double *A, double *rhs, int N)
-{
-	int i, j, k;
-  for (i = 0; i < N; i++) {
-    if (A[i*N+i] == 0){
-      fprintf(stderr,"Error in FPPowerSystem3BusInitialize(): Zero encountered on main diagonal!\n");
-			return(1);
-		}
-		for (j = i+1; j < N; j++){
-			double factor = A[j*N+i] / A[i*N+i];
-			A[j*N+i] = 0;
-			for (k = i+1; k < N; k++) A[j*N+k] -= factor * A[i*N+k];
-			rhs[j] -= factor * rhs[i];
-		}
-	}
-	for (i = N-1; i >=0; i--){
-		double sum = 0;
-		for (j = i+1; j < N; j++) sum += A[i*N+j] * rhs[j];
-		rhs[i] = (rhs[i] - sum) / A[i*N+i];
-	}
-	return(0);
-}
-
-int MatInverse(double *A, double *B, int N)
-{
-	int i, j;
-	double *r  = (double*) calloc(N  ,sizeof(double));
-	double *AA = (double*) calloc(N*N,sizeof(double));
-	for (i = 0; i < N; i++){
-		for (j = 0; j < N*N; j++) AA[j] = A[j];
-		for (j = 0; j < N; j++){
-			if (j == i)	r[j] = 1.0;
-			else		    r[j] = 0.0;
-		}
-		int ierr = LUDecomp(AA,r,N); if (ierr) return(ierr);
-		for (j = 0; j < N; j++)	B[j*N+i] = r[j];
-	}
-  free(r);
-  free(AA);
-	return(0);
-}
+int    FPPowerSystem3BusCalculateAInv     (double*,double*,void*,double*);
 
 int FPPowerSystem3BusInitialize(void *s,void *m)
 {
@@ -81,6 +40,8 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
   physics->N    = N = 6;
   physics->G    = (double*) calloc ((N/2)*(N/2),sizeof(double));
   physics->B    = (double*) calloc ((N/2)*(N/2),sizeof(double));
+  physics->Gf   = (double*) calloc ((N/2)*(N/2),sizeof(double));
+  physics->Bf   = (double*) calloc ((N/2)*(N/2),sizeof(double));
   physics->Ainv = (double*) calloc (N*N        ,sizeof(double));
 
   /* default values of model parameters */
@@ -128,6 +89,28 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
   physics->B[2*N/2+1] =  15.118529269472663;
   physics->B[2*N/2+2] = -34.081673347616743;
 
+  physics->Gf[0*N/2+0] =  7.631257631257632;
+  physics->Gf[0*N/2+1] = -3.815628815628816;
+  physics->Gf[0*N/2+2] = -3.815628815628816;
+  physics->Gf[1*N/2+0] = -3.815628815628816;
+  physics->Gf[1*N/2+1] =  6.839334669523348;
+  physics->Gf[1*N/2+2] = -3.023705853894533;
+  physics->Gf[2*N/2+0] = -3.815628815628816;
+  physics->Gf[2*N/2+1] = -3.023705853894533;
+  physics->Gf[2*N/2+2] =  1006.839334669523348;
+
+  physics->Bf[0*N/2+0] = -38.053788156288157;
+  physics->Bf[0*N/2+1] =  19.078144078144078;
+  physics->Bf[0*N/2+2] =  19.078144078144078;
+  physics->Bf[1*N/2+0] =  19.078144078144078;
+  physics->Bf[1*N/2+1] = -34.081673347616743;
+  physics->Bf[1*N/2+2] =  15.118529269472663;
+  physics->Bf[2*N/2+0] =  19.078144078144078;
+  physics->Bf[2*N/2+1] =  15.118529269472663;
+  physics->Bf[2*N/2+2] = -34.081673347616743;
+
+  physics->tf  = 0.1;
+  physics->tcl = 0.3;
 
   /* reading physical model specific inputs - all processes */
   FILE *in;
@@ -155,6 +138,8 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
         else if (!strcmp(word,"omegaB" ))  {ferr=fscanf(in,"%lf",&physics->omegaB) ;if(ferr!=1)return(1);}
         else if (!strcmp(word,"alpha"  ))  {ferr=fscanf(in,"%lf",&physics->alpha ) ;if(ferr!=1)return(1);}
         else if (!strcmp(word,"beta"   ))  {ferr=fscanf(in,"%lf",&physics->beta  ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"tf"     ))  {ferr=fscanf(in,"%lf",&physics->tf    ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"tcl"    ))  {ferr=fscanf(in,"%lf",&physics->tcl   ) ;if(ferr!=1)return(1);}
         else if (!strcmp(word,"sigma"  ))  {
           ferr=fscanf(in,"%lf",&physics->sigma[0][0]) ;if(ferr!=1)return(1);
           ferr=fscanf(in,"%lf",&physics->sigma[0][1]) ;if(ferr!=1)return(1);
@@ -185,6 +170,26 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
           ferr=fscanf(in,"%lf",&physics->B[2*N/2+0]) ;if(ferr!=1)return(1);
           ferr=fscanf(in,"%lf",&physics->B[2*N/2+1]) ;if(ferr!=1)return(1);
           ferr=fscanf(in,"%lf",&physics->B[2*N/2+2]) ;if(ferr!=1)return(1);
+        } else if (!strcmp(word,"Gf"))  {
+          ferr=fscanf(in,"%lf",&physics->Gf[0*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Gf[0*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Gf[0*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Gf[1*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Gf[1*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Gf[1*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Gf[2*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Gf[2*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Gf[2*N/2+2]) ;if(ferr!=1)return(1);
+        } else if (!strcmp(word,"Bf"))  {
+          ferr=fscanf(in,"%lf",&physics->Bf[0*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Bf[0*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Bf[0*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Bf[1*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Bf[1*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Bf[1*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Bf[2*N/2+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Bf[2*N/2+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->Bf[2*N/2+2]) ;if(ferr!=1)return(1);
         }
       }
 	  } else {
@@ -207,70 +212,9 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
   IERR FPPowerSystem3BusPostStep(solver->u,solver,mpi,0.0);        CHECKERR(ierr);
   if (!mpi->rank) IERR FPPowerSystem3BusPrintStep(solver,mpi,0.0); CHECKERR(ierr);
 
-  /* Some initial calculations of the physical parameters */
-  double A[N*N];
-  A[0*N+0] =  physics->G[0*N/2+0];
-  A[0*N+1] = -physics->B[0*N/2+0] + 1.0/physics->Xd1;
-  A[1*N+0] =  physics->B[0*N/2+0] - 1.0/physics->Xd1;
-  A[1*N+1] =  physics->G[0*N/2+0];
-  A[0*N+2] =  physics->G[0*N/2+1];
-  A[0*N+3] = -physics->B[0*N/2+1];
-  A[1*N+2] =  physics->B[0*N/2+1];
-  A[1*N+3] =  physics->G[0*N/2+1];
-  A[0*N+4] =  physics->G[0*N/2+2];
-  A[0*N+5] = -physics->B[0*N/2+2];
-  A[1*N+4] =  physics->B[0*N/2+2];
-  A[1*N+5] =  physics->G[0*N/2+2];
-  A[2*N+0] =  physics->G[1*N/2+0];
-  A[2*N+1] = -physics->B[1*N/2+0];
-  A[3*N+0] =  physics->B[1*N/2+0];
-  A[3*N+1] =  physics->G[1*N/2+0];
-  A[2*N+2] =  physics->G[1*N/2+1];
-  A[2*N+3] = -physics->B[1*N/2+1] + 1.0/physics->Xd2;
-  A[3*N+2] =  physics->B[1*N/2+1] - 1.0/physics->Xd2;
-  A[3*N+3] =  physics->G[1*N/2+1];
-  A[2*N+4] =  physics->G[1*N/2+2];
-  A[2*N+5] = -physics->B[1*N/2+2];
-  A[3*N+4] =  physics->B[1*N/2+2];
-  A[3*N+5] =  physics->G[1*N/2+2];
-  A[4*N+0] =  physics->G[2*N/2+0];
-  A[4*N+1] = -physics->B[2*N/2+0];
-  A[5*N+0] =  physics->B[2*N/2+0];
-  A[5*N+1] =  physics->G[2*N/2+0];
-  A[4*N+2] =  physics->G[2*N/2+1];
-  A[4*N+3] = -physics->B[2*N/2+1];
-  A[5*N+2] =  physics->B[2*N/2+1];
-  A[5*N+3] =  physics->G[2*N/2+1];
-  A[4*N+4] =  physics->G[2*N/2+2] + physics->alpha;
-  A[4*N+5] = -physics->B[2*N/2+2] - physics->beta;
-  A[5*N+4] =  physics->B[2*N/2+2] + physics->beta;
-  A[5*N+5] =  physics->G[2*N/2+2] + physics->alpha;
-  
-  int inverr = MatInverse(A,physics->Ainv,N);
-  if (inverr) {
-    if (!mpi->rank) fprintf(stderr,"Error in FPPowerSystem3BusInitialize(): Unable to invert matrix!\n");
-    return(inverr);
-  }
+  /* calculate the inverse of the impedance matrix */
+  IERR FPPowerSystem3BusCalculateAInv(physics->G,physics->B,physics,physics->Ainv); CHECKERR(ierr);
 
-#if 0
-  /* Verifying Ainv is correct */
-  int M = N, i, j, k ;
-  double *Ainv = physics->Ainv;
-  double eye[M*M];
-  for (j=0; j<M; j++) {
-    for (k=0; k<M; k++) {
-      eye[j*M+k] = 0.0;
-      for (i=0; i<M; i++) eye[j*M+k] += (A[j*M+i] * Ainv[i*M+k]);
-    }
-  }
-  printf("\n");
-  printf("Verifying Ainv is correct. A*Ainv = \n");
-  for (j=0; j<M; j++) {
-    for (k=0; k<M; k++) printf("%+1.16E  ",eye[j*M+k]);
-    printf("\n");
-  }
-  printf("\n");
-#endif
   return(0);
 }
 

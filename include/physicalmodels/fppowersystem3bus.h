@@ -29,11 +29,13 @@ typedef struct fp_power_system__3bus_parameters {
          Xd1, Xd2,
          sigma[2][2],
          lambda[2][2],
-         alpha,beta;
+         alpha,beta,
+         tf, tcl;
   double *G, *B;
+  double *Gf, *Bf;
 
   /* computed/constant parameters */
-  int N;
+  int N, flagf, flagcl;
   double *Ainv;
 
   double pdf_integral; /* not an input          */
