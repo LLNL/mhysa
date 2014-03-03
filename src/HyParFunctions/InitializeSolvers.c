@@ -10,16 +10,17 @@
 #include <secondderivative.h>
 
 /* Function declarations */
-int WriteBinary                 (int,int,int*,double*,double*,char*,int*);
-int WriteText                   (int,int,int*,double*,double*,char*,int*);
-int WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
-int WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
-int ApplyBoundaryConditions     (void*,void*,double*);
-int HyperbolicFunction          (double*,double*,void*,void*,double);
-int ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
-int ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
-int ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
-int SourceFunction              (double*,double*,void*,void*,double);
+int  WriteBinary                 (int,int,int*,double*,double*,char*,int*);
+int  WriteText                   (int,int,int*,double*,double*,char*,int*);
+int  WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
+int  WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
+int  ApplyBoundaryConditions     (void*,void*,double*);
+int  HyperbolicFunction          (double*,double*,void*,void*,double);
+int  ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
+int  ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
+int  ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
+int  SourceFunction              (double*,double*,void*,void*,double);
+void IncrementFilename          (char*);
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -193,7 +194,7 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Solution output function */
-  solver->WriteOutput = WriteText;
+  solver->WriteOutput = NULL; /* default - no output */
   if (!strcmp(solver->op_overwrite,"no")) strcpy(solver->op_filename,"op_00000");
   else                                    strcpy(solver->op_filename,"op");
   if (!strcmp(solver->op_file_format,"text")) {
@@ -213,6 +214,12 @@ int InitializeSolvers(void *s, void *m)
   } else {
     fprintf(stderr,"Error: %s is not a supported file format.\n",solver->op_file_format);
     return(1);
+  }
+  if ((!strcmp(solver->op_overwrite,"no")) && solver->restart_iter) {
+    /* if it's a restart run, fast-forward the filename */
+    int t;
+    for (t=0; t<solver->restart_iter; t++) 
+      if ((t+1)%solver->file_op_iter == 0) IncrementFilename(solver->op_filename);
   }
 
   return(0);

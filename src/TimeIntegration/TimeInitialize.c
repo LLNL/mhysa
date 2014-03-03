@@ -17,13 +17,14 @@ int TimeInitialize(void *s,void *m,void *ts)
   int             d;
   if (!solver) return(1);
 
-  TS->solver = solver;
-  TS->mpi    = mpi;
-  TS->n_iter = solver->n_iter;
-  TS->waqt   = 0.0;
-  TS->dt     = solver->dt;
-  TS->max_cfl= 0.0;
-  TS->norm   = 0.0;
+  TS->solver        = solver;
+  TS->mpi           = mpi;
+  TS->n_iter        = solver->n_iter;
+  TS->restart_iter  = solver->restart_iter;
+  TS->dt            = solver->dt;
+  TS->waqt          = (double) TS->restart_iter * TS->dt;
+  TS->max_cfl       = 0.0;
+  TS->norm          = 0.0;
   TS->TimeIntegrate = solver->TimeIntegrate;
 
   int size = 1;

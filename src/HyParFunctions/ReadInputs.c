@@ -18,6 +18,8 @@ int ReadInputs(void *s,void *m)
   solver->dim_local       = NULL;
   mpi->iproc              = NULL;
   solver->dt              = 0.0;
+  solver->n_iter          = 0;
+  solver->restart_iter    = 0;
   solver->screen_op_iter  = 1;
   solver->file_op_iter    = 1000;
   solver->write_residual  = 0;
@@ -72,6 +74,7 @@ int ReadInputs(void *s,void *m)
           }
   			} else if (!strcmp(word, "ghost"            ))	ferr = fscanf(in,"%d",&solver->ghosts           );
 	    	else if   (!strcmp(word, "n_iter"           ))  ferr = fscanf(in,"%d",&solver->n_iter           );
+	    	else if   (!strcmp(word, "restart_iter"     ))  ferr = fscanf(in,"%d",&solver->restart_iter     );
    			else if   (!strcmp(word, "time_scheme"      ))  ferr = fscanf(in,"%s",solver->time_scheme       );
    			else if   (!strcmp(word, "time_scheme_type" ))  ferr = fscanf(in,"%s",solver->time_scheme_type  );
    			else if   (!strcmp(word, "hyp_space_scheme" ))  ferr = fscanf(in,"%s",solver->spatial_scheme_hyp);
@@ -116,6 +119,7 @@ int ReadInputs(void *s,void *m)
 #endif
 	    printf("\tNo. of ghosts pts                          : %d\n"     ,solver->ghosts            );
 	    printf("\tNo. of iter.                               : %d\n"     ,solver->n_iter            );
+	    printf("\tRestart iteration                          : %d\n"     ,solver->restart_iter      );
       printf("\tTime integration scheme                    : %s (%s)\n",
              solver->time_scheme,solver->time_scheme_type                                         );
       printf("\tSpatial discretization scheme (hyperbolic) : %s\n"     ,solver->spatial_scheme_hyp);
@@ -129,6 +133,11 @@ int ReadInputs(void *s,void *m)
       printf("\tSolution file format                       : %s\n"     ,solver->op_file_format    );
       printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite      );
       printf("\tPhysical model                             : %s\n"     ,solver->model             );
+    }
+    /* checks - restart only supported for binary output files */
+    if ((solver->restart_iter != 0) && strcmp(solver->op_file_format,"binary")) {
+      if (!mpi->rank) fprintf(stderr,"Error in ReadInputs(): Restart is supported only for binary output files.\n");
+      return(1);
     }
   }
   return(0);

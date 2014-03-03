@@ -11,6 +11,7 @@ typedef struct main_parameters {
   int     npoints_local;              /* total number of points (= product of dim_local ) */
   int     ghosts;                     /* number of ghost points                           */
   int     n_iter;                     /* number of time iterations                        */
+  int     restart_iter;               /* restart from this iteration number               */
   double  dt;                         /* time step size                                   */
 
   char    time_scheme       [_MAX_STRING_SIZE_];/* time-integration scheme class (eg. RK)           */
