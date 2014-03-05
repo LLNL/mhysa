@@ -219,7 +219,8 @@ int main()
       /* read dimensions */
       int dims[ndims];
       fread(dims,sizeof(int),ndims,in);
-      printf("Dimensions: %d x %d\n",dims[0],dims[1]);
+      if      (ndims == 2) printf("Dimensions: %d x %d\n",dims[0],dims[1]);
+      else if (ndims == 3) printf("Dimensions: %d x %d x %d\n",dims[0],dims[1],dims[2]);
       printf("Nvars     : %d\n",nvars);
 
       /* allocate grid and solution arrays */
