@@ -4,6 +4,7 @@
 #define _THIRD_ORDER_MUSCL_     "muscl3"
 #define _FIFTH_ORDER_WENO_      "weno5"
 #define _FIFTH_ORDER_CRWENO_    "crweno5"
+#define _FIFTH_ORDER_HCWENO_    "hcweno5"
 
 /* interpolation type definitions */
 #define _CHARACTERISTIC_        "characteristic"
@@ -70,6 +71,7 @@ int Interp1PrimFirstOrderUpwind (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimThirdOrderMUSCL  (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderWENO   (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderCRWENO (double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderHCWENO (double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) */
@@ -87,7 +89,7 @@ typedef struct paramters_muscl {
 } MUSCLParameters;
 int MUSCLInitialize(void*,void*);
 
-/* WENO scheme related parameters and functions */
+/* WENO/CRWENO/HCWENO schemes related parameters and functions */
 typedef struct parameters_weno {
   /* Options related to the type of WENO scheme */
   int     mapped;		    /* Use mapped weights?                                    */
@@ -96,6 +98,10 @@ typedef struct parameters_weno {
   int     no_limiting;  /* Remove limiting -> 5th order polynomial interpolation  */
   double  eps;		      /* epsilon parameter                                      */
   double	p;			      /* p parameter                                            */
+
+  /* hybrid compact-WENO scheme related parameters */
+  double  rc;
+  double  xi;
 
   /* data arrays for CRWENO scheme */
   double *A, *B, *C, *R;

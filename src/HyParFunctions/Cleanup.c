@@ -59,14 +59,15 @@ int Cleanup(void *s,void *m)
   }
 
   /* Clean up any spatial reconstruction related allocations */
-  if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-    IERR WENOCleanup(solver->interp);
+  if (   (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) 
+      || (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_HCWENO_))){
+    IERR WENOCleanup(solver->interp); CHECKERR(ierr);
   }
   if (solver->interp)   free(solver->interp);
   if (solver->lusolver) free(solver->lusolver);
 
   /* Free the communicators created */
-  IERR MPIFreeCommunicators(solver->ndims,mpi);
+  IERR MPIFreeCommunicators(solver->ndims,mpi); CHECKERR(ierr);
 
   /* These variables are allocated in Initialize.c */
   free(solver->dim_global);

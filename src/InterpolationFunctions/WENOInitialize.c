@@ -18,7 +18,11 @@ int WENOInitialize(void *s,void *m, char *scheme)
   weno->eps         = 1e-6;
   weno->p           = 2.0;
 
-  if (!strcmp(scheme,_FIFTH_ORDER_CRWENO_)) {
+  weno->rc          = 0.3;
+  weno->xi          = 0.001;
+
+  if (   (!strcmp(scheme,_FIFTH_ORDER_CRWENO_))
+      || (!strcmp(scheme,_FIFTH_ORDER_HCWENO_)) ) {
     int size = 1, d;
     for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+1);
     size *= solver->nvars;
