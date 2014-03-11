@@ -78,6 +78,8 @@ int Interp1PrimFifthOrderHCWENO (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFirstOrderUpwindChar (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimThirdOrderMUSCLChar  (double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderWENOChar   (double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderCRWENOChar (double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderHCWENOChar (double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the second primitive 
    (for conservative discretization of the 2nd derivative) */

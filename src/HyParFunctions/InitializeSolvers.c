@@ -147,10 +147,9 @@ int InitializeSolvers(void *s, void *m)
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
     /* Fifth order CRWENO scheme */
     if (solver->nvars > 1) {
-      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) {
-        fprintf(stderr,"Error in InitializeSolvers(): Characteristic CRWENO not yet available.\n");
-        return(1);
-      } else if (!strcmp(solver->interp_type,_COMPONENTS_))
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderCRWENOChar;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
         solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderCRWENO;
       else {
         fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
@@ -175,10 +174,9 @@ int InitializeSolvers(void *s, void *m)
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_HCWENO_)) {
     /* Fifth order HCWENO scheme */
     if (solver->nvars > 1) {
-      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) {
-        fprintf(stderr,"Error in InitializeSolvers(): Characteristic HCWENO not yet available.\n");
-        return(1);
-      } else if (!strcmp(solver->interp_type,_COMPONENTS_))
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderHCWENOChar;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
         solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderHCWENO;
       else {
         fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);

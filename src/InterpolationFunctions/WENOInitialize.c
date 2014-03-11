@@ -26,6 +26,7 @@ int WENOInitialize(void *s,void *m, char *scheme)
     int size = 1, d;
     for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+1);
     size *= solver->nvars;
+    if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) size *= solver->nvars;
 
     weno->A = (double*) calloc (size, sizeof(double));
     weno->B = (double*) calloc (size, sizeof(double));
