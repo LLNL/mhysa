@@ -95,3 +95,7 @@ int tridiagLU         (double*,double*,double*,double*,int,int,void*,void*);
 int tridiagLUGS       (double*,double*,double*,double*,int,int,void*,void*);
 int tridiagIterJacobi (double*,double*,double*,double*,int,int,void*,void*);
 int tridiagLUInit     (void*,void*);
+
+/* Block solvers */
+int blocktridiagLU         (double*,double*,double*,double*,int,int,int,void*,void*);
+int blocktridiagIterJacobi (double*,double*,double*,double*,int,int,int,void*,void*);
