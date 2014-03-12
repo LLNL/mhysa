@@ -81,11 +81,11 @@ int blocktridiagLU(double *a,double *b,double *c,double *x,
   recvbuf = (double*) calloc (size, sizeof(double));
   for (d=0; d<ns; d++) {
     for (i=0; i<bs2; i++) {
-      sendbuf[(d*nvar+0)*bs2+i] = a[((n-1)*ns+d)*bs2+i]; 
-      sendbuf[(d*nvar+1)*bs2+i] = b[((n-1)*ns+d)*bs2+i]; 
-      sendbuf[(d*nvar+2)*bs2+i] = c[((n-1)*ns+d)*bs2+i];
+      sendbuf[(0*ns+d)*bs2+i] = a[((n-1)*ns+d)*bs2+i]; 
+      sendbuf[(1*ns+d)*bs2+i] = b[((n-1)*ns+d)*bs2+i]; 
+      sendbuf[(2*ns+d)*bs2+i] = c[((n-1)*ns+d)*bs2+i];
     }
-    for (i=0; i<bs; i++) sendbuf[(d*nvar+3)*bs2+i] = x[((n-1)*ns+d)*bs+i];
+    for (i=0; i<bs; i++) sendbuf[3*ns*bs2+d*bs+i] = x[((n-1)*ns+d)*bs+i];
   }
   if (nproc > 1) {
     MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
@@ -98,11 +98,11 @@ int blocktridiagLU(double *a,double *b,double *c,double *x,
     for (d = 0; d < ns; d++) {
       double am1[bs2], bm1[bs2], cm1[bs2], xm1[bs];
       for (i=0; i<bs2; i++) {
-        am1[i] = recvbuf[(d*nvar+0)*bs2+i]; 
-        bm1[i] = recvbuf[(d*nvar+1)*bs2+i]; 
-        cm1[i] = recvbuf[(d*nvar+2)*bs2+i]; 
+        am1[i] = recvbuf[(0*ns+d)*bs2+i]; 
+        bm1[i] = recvbuf[(1*ns+d)*bs2+i]; 
+        cm1[i] = recvbuf[(2*ns+d)*bs2+i]; 
       }
-      for (i=0; i<bs; i++) xm1[i] = recvbuf[(d*nvar+3)*bs2+i];
+      for (i=0; i<bs; i++) xm1[i] = recvbuf[3*ns*bs2+d*bs+i];
       double factor[bs2], binv[bs2];
       _MatrixInvert_           (bm1,binv,bs);
       _MatrixMultiply_         (a+d*bs2,binv,factor,bs);
