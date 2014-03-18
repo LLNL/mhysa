@@ -34,6 +34,7 @@
 #define _ROE_   "roe"
 #define _RF_    "rf-char"
 #define _LLF_   "llf-char"
+#define _SWFS_  "steger-warming"
 
 /* directions */
 #define _XDIR_ 0
