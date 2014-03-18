@@ -46,7 +46,7 @@ int main()
 {
   FILE *out, *in, *inputs;
   double dt, samay;
-  int file_op_iter, restart_iter, t, count;
+  int file_op_iter, restart_iter=0, t, count;
   char filename[50], op_file_format[50];
 
   inputs = fopen("solver.inp","r");
