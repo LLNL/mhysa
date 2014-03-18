@@ -31,9 +31,10 @@
 #define _MODEL_NVARS_ 3
 
 /* choices for upwinding schemes */
-#define _ROE_   "roe"
-#define _RF_    "rf-char"
-#define _LLF_   "llf-char"
+#define _ROE_     "roe"
+#define _RF_      "rf-char"
+#define _LLF_     "llf-char"
+#define _SWFS_    "steger-warming"
 
 #define _Euler1DGetFlowVar_(u,rho,v,e,P,p) \
   { \
