@@ -228,7 +228,7 @@ files in the Examples for a better idea):
   The above discussion on ASCII/binary files and serial/parallel input modes apply
   to "exact.inp" ("exact_par.inp") as well.
 
-- physics.inp
+- physics.inp (**optional**)
   
   Format
     begin
@@ -242,7 +242,29 @@ files in the Examples for a better idea):
   etc). Keywords are specific to the physical model, so consult an example 
   of a specific physical model to see the required parameters for that model.
 
-- lusolver.inp
+- weno.inp (**optional**)
+  When using any of the WENO-based schemes (WENO5, CRWENO5, HCWENO5), this file
+  specifies the parameters related to calculating the non-linear WENO weights.
+  If no present, default values will be used.
+
+  Format
+    begin
+      <keyword>       <value>
+      ...
+      <keyword>       <value>
+    end
+
+  Keywords
+    mapped       (1 or 0)        Use Mapped-WENO weights (Henrick & Aslam, JCP)
+    borges       (1 or 0)        Use WENO-Z weights      (Borges, et al, JCP)
+    yc           (1 or 0)        Use ESWENO weights      (Yamaleev & Carpenter, JCP)
+    no_limiting  (1 or 0)        Use optimal weights (no WENO limiting)
+    epsilon      (double)        epsilon parameter in WENO weights
+    p            (double)        p parameter in WENO weights
+    rc           (double)        rc paramter in hybrid compact WENO scheme (HCWENO5 only)
+    xi           (double)        xi paramter in hybrid compact WENO scheme (HCWENO5 only)
+
+- lusolver.inp (**optional**)
   When using compact schemes (for hyperbolic or parabolic discretization), this
   is used to specify the tridiagonal solver related parameters. If not present,
   default values are used.
@@ -251,6 +273,8 @@ files in the Examples for a better idea):
   Format
     begin
       <keyword>     <value>
+      ...
+      <keyword>       <value>
     end
 
   Keywords

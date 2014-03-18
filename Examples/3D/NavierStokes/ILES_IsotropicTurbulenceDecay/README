@@ -22,6 +22,8 @@ The following input files are required:
 + physics.inp   -   Physics-related parameters
 + initial.inp   -   Initial solution
 
+** See hypar/README for other (optional) input files
+
 ** In solver.inp, the field "input_mode" is set to "parallel". Thus, 
 the code would need the initial solution in a file called 
 "initial_par.inp". This file contains the initial solution split into

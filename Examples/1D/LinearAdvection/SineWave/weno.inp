@@ -1,0 +1,10 @@
+begin
+  mapped        1
+  borges        0
+  yc            0
+  no_limiting   0
+  epsilon       0.000001
+  p             2.0
+  rc            0.3
+  xi            0.001
+end
