@@ -196,11 +196,6 @@ int Euler1DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double *uR,dou
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
-#if 0
-  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_];
-  static double Dp[_MODEL_NVARS_*_MODEL_NVARS_], Dm[_MODEL_NVARS_*_MODEL_NVARS_];
-  static double Ap[_MODEL_NVARS_*_MODEL_NVARS_], Am[_MODEL_NVARS_*_MODEL_NVARS_], AT[_MODEL_NVARS_*_MODEL_NVARS_];
-#endif
   static double fp[_MODEL_NVARS_], fm[_MODEL_NVARS_],uavg[_MODEL_NVARS_];
 
   done = 0; _ArraySetValue_(index_outer,ndims,0);
