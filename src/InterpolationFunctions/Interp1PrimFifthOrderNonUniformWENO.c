@@ -22,17 +22,22 @@ int Interp1PrimFifthOrderNonUniformWENO(double *fI,double *fC,double *u,double *
   return(Interp1PrimFifthOrderNonUniformWENO_N(fI,fC,u,x,upw,dir,s,m));
 }
 
-int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double *y,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
+  int             i;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
 
-  double *x; x = y + ghosts; /* x[0] is the first interior point */
+  /* create an array of interface x values */
+  double *x_int = (double*) calloc (dim[dir]+1+2*ghosts,sizeof(double));
+  for (i = 1; i < dim[dir]+2*ghosts; i++) x_int[i] = 0.5 * (x[i-1]+x[i]);
+  x_int[0] = 1.5*x[0] - 0.5 * x[1];
+  x_int[dim[dir]+2*ghosts] = 1.5*x[dim[dir]+2*ghosts-1] - 0.5*x[dim[dir]+2*ghosts-2];
 
   /* define some constants */
   static const double one_sixth          = 1.0/6.0;
@@ -73,12 +78,12 @@ int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double
         /* Defining stencil points */
         double fm3, fm2, fm1, fp1, fp2;
         double xm3, xm2, xm1, xp1, xp2, xp3;
-        fm3 = fC[qm3*nvars+v]; xm3 = x[im3];
-        fm2 = fC[qm2*nvars+v]; xm2 = x[im2];
-        fm1 = fC[qm1*nvars+v]; xm1 = x[im1];
-        fp1 = fC[qp1*nvars+v]; xp1 = x[ip1];
-        fp2 = fC[qp2*nvars+v]; xp2 = x[ip2];
-                               xp3 = x[ip3];
+        fm3 = fC[qm3*nvars+v]; xm3 = *(x_int+ghosts+im3);
+        fm2 = fC[qm2*nvars+v]; xm2 = *(x_int+ghosts+im2);
+        fm1 = fC[qm1*nvars+v]; xm1 = *(x_int+ghosts+im1);
+        fp1 = fC[qp1*nvars+v]; xp1 = *(x_int+ghosts+ip1);
+        fp2 = fC[qp2*nvars+v]; xp2 = *(x_int+ghosts+ip2);
+                               xp3 = *(x_int+ghosts+ip3);
 
         /* 3rd order reconstruction values */
         double f1, f2, f3, c1, c2, c3;
@@ -169,5 +174,6 @@ int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
+  free(x_int);
   return(0);
 }
