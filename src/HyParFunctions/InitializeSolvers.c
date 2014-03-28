@@ -144,6 +144,32 @@ int InitializeSolvers(void *s, void *m)
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
     IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
+  } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_NONUNIFORM_WENO_)) {
+    /* Fifth order WENO scheme for non-uniform grid */
+    if (solver->nvars > 1) {
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) {
+        fprintf(stderr,"Error in InitializeSolvers(): Characteristic-based non-uniform WENO scheme not yet implemented.\n");
+        return(1);
+      } else if (!strcmp(solver->interp_type,_COMPONENTS_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderNonUniformWENO;
+      else {
+        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
+        fprintf(stderr,"supported interpolation type.\n");
+        return(1);
+      }
+    } else {
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) 
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderNonUniformWENO;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderNonUniformWENO;
+      else {
+        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
+        fprintf(stderr,"supported interpolation type.\n");
+        return(1);
+      }
+    }
+    solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
+    IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
     /* Fifth order CRWENO scheme */
     if (solver->nvars > 1) {

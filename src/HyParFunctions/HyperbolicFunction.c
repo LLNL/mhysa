@@ -4,7 +4,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int ReconstructHyperbolic (double*,double*,double*,int,void*,void*,double);
+int ReconstructHyperbolic (double*,double*,double*,double*,int,void*,void*,double);
 
 int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
 {
@@ -19,6 +19,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
   int     nvars  = solver->nvars;
   int     ghosts = solver->ghosts;
   int     *dim   = solver->dim_local;
+  double  *x     = solver->x;
   double  *dxinv = solver->dxinv;
   int     index[ndims], index1[ndims], index2[ndims], dim_interface[ndims];
 
@@ -37,7 +38,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
     /* evaluate cell-centered flux */
     IERR solver->FFunction(FluxC,u,d,solver,t); CHECKERR(ierr);
     /* compute interface fluxes */
-    IERR ReconstructHyperbolic(FluxI,FluxC,u,d,solver,mpi,t); CHECKERR(ierr);
+    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t); CHECKERR(ierr);
 
     /* calculate the first derivative */
     done = 0; _ArraySetValue_(index,ndims,0);

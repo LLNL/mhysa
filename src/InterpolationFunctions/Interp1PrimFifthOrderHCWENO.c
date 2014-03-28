@@ -15,18 +15,18 @@
 #define _MINIMUM_GHOSTS_ 3
 
 /*
-static int Interp1PrimFifthOrderHCWENO_2(double*,double*,double*,int,int,void*,void*);
-static int Interp1PrimFifthOrderHCWENO_3(double*,double*,double*,int,int,void*,void*);
+static int Interp1PrimFifthOrderHCWENO_2(double*,double*,double*,double*,int,int,void*,void*);
+static int Interp1PrimFifthOrderHCWENO_3(double*,double*,double*,double*,int,int,void*,void*);
 */
-static int Interp1PrimFifthOrderHCWENO_N(double*,double*,double*,int,int,void*,void*);
+static int Interp1PrimFifthOrderHCWENO_N(double*,double*,double*,double*,int,int,void*,void*);
 
-int Interp1PrimFifthOrderHCWENO(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderHCWENO(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   /* HyPar           *solver = (HyPar*) s; */
-  return(Interp1PrimFifthOrderHCWENO_N(fI,fC,u,upw,dir,s,m));
+  return(Interp1PrimFifthOrderHCWENO_N(fI,fC,u,x,upw,dir,s,m));
 }
 
-int Interp1PrimFifthOrderHCWENO_N(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderHCWENO_N(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
@@ -239,7 +239,7 @@ int Interp1PrimFifthOrderHCWENO_N(double *fI,double *fC,double *u,int upw,int di
 #if 0
 #undef _NDIMS_
 #define _NDIMS_ 2
-int Interp1PrimFifthOrderHCWENO_2(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderHCWENO_2(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
@@ -444,7 +444,7 @@ int Interp1PrimFifthOrderHCWENO_2(double *fI,double *fC,double *u,int upw,int di
 
 #undef _NDIMS_
 #define _NDIMS_ 3
-int Interp1PrimFifthOrderHCWENO_3(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderHCWENO_3(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;

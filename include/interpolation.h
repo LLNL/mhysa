@@ -6,6 +6,8 @@
 #define _FIFTH_ORDER_CRWENO_    "crweno5"
 #define _FIFTH_ORDER_HCWENO_    "hcweno5"
 
+#define _FIFTH_ORDER_NONUNIFORM_WENO_ "non-uniform-weno5"
+
 /* interpolation type definitions */
 #define _CHARACTERISTIC_        "characteristic"
 #define _COMPONENTS_            "components"  
@@ -30,6 +32,11 @@
                         array of size (N+2*ghosts) in the interpolation direction of the
                         cell centered conserved variable (needed to calculate the eigen-
                         decomposition at the interfaces)
+
+    x         double*   grid point locations along the 1D line on which the interpolation
+                        is being carried out
+                        array of size (N+2*ghosts) 
+                        Used only by non-uniform-grid interpolation schemes
 
     upw       int       upwind direction for non-central schemes
                         (1 -> left biased, -1 -> right biased)
@@ -66,20 +73,24 @@
 */
 
 /* functions to interpolate the first primitive in a component-wise way
-   (for conservative discretization of the 1st derivative) */
-int Interp1PrimFirstOrderUpwind (double*,double*,double*,int,int,void*,void*);
-int Interp1PrimThirdOrderMUSCL  (double*,double*,double*,int,int,void*,void*);
-int Interp1PrimFifthOrderWENO   (double*,double*,double*,int,int,void*,void*);
-int Interp1PrimFifthOrderCRWENO (double*,double*,double*,int,int,void*,void*);
-int Interp1PrimFifthOrderHCWENO (double*,double*,double*,int,int,void*,void*);
+   (for conservative discretization of the 1st derivative) on a uniform grid */
+int Interp1PrimFirstOrderUpwind           (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimThirdOrderMUSCL            (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderCRWENO           (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderHCWENO           (double*,double*,double*,double*,int,int,void*,void*);
+
+/* functions to interpolate the first primitive in a component-wise way
+   (for conservative discretization of the 1st derivative) on a non-uniform grid */
+int Interp1PrimFifthOrderNonUniformWENO   (double*,double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the first primitive in a characteristic-based way
-   (for conservative discretization of the 1st derivative) */
-int Interp1PrimFirstOrderUpwindChar (double*,double*,double*,int,int,void*,void*);
-int Interp1PrimThirdOrderMUSCLChar  (double*,double*,double*,int,int,void*,void*);
-int Interp1PrimFifthOrderWENOChar   (double*,double*,double*,int,int,void*,void*);
-int Interp1PrimFifthOrderCRWENOChar (double*,double*,double*,int,int,void*,void*);
-int Interp1PrimFifthOrderHCWENOChar (double*,double*,double*,int,int,void*,void*);
+   (for conservative discretization of the 1st derivative) on a uniform grid */
+int Interp1PrimFirstOrderUpwindChar       (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimThirdOrderMUSCLChar        (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderWENOChar         (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderCRWENOChar       (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the second primitive 
    (for conservative discretization of the 2nd derivative) */
