@@ -35,37 +35,25 @@ int InitializeSolvers(void *s, void *m)
   solver->SourceFunction          = SourceFunction;
 
   /* choose the type of parabolic discretization */
-  if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) {
+  if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) 
     solver->ParabolicFunction = ParabolicFunctionNC1Stage;
-    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_)) {
-      solver->SecondDerivativePar = SecondDerivativeSecondOrder; 
-    } else {
-      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
-      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
-              solver->spatial_type_par);
-    }
-  } else if (!strcmp(solver->spatial_type_par,_NC_2STAGE_)) {
+  else if (!strcmp(solver->spatial_type_par,_NC_2STAGE_))
     solver->ParabolicFunction = ParabolicFunctionNC2Stage;
-    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_)) {
-      solver->FirstDerivativePar = FirstDerivativeSecondOrder; 
-    } else {
-      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
-      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
-              solver->spatial_type_par);
-    }
-  } else if (!strcmp(solver->spatial_type_par,_CONS_1STAGE_)) {
+  else if (!strcmp(solver->spatial_type_par,_CONS_1STAGE_))
     solver->ParabolicFunction = ParabolicFunctionCons1Stage;
-    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
-      solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
-    } else {
-      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
-      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
-              solver->spatial_type_par);
-    }
-  } else {
+  else {
     fprintf(stderr,"Error: %s is not a supported ",solver->spatial_type_par);
     fprintf(stderr,"spatial discretization type for the parabolic terms.\n");
     return(1);
+  }
+  if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
+    solver->SecondDerivativePar      = SecondDerivativeSecondOrderCentral; 
+    solver->FirstDerivativePar       = FirstDerivativeSecondOrderCentral; 
+    solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
+  } else {
+    fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+    fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+            solver->spatial_type_par);
   }
 
   /* Spatial interpolation for hyperbolic term */

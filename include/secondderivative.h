@@ -1,4 +1,4 @@
-#define _SECOND_ORDER_  "2"
+#define _SECOND_ORDER_CENTRAL_  "2"
 
 /* Second derivative functions */
-int SecondDerivativeSecondOrder (double*,double*,int,void*,void*);
+int SecondDerivativeSecondOrderCentral (double*,double*,int,void*,void*);

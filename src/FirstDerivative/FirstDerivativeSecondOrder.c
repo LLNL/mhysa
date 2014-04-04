@@ -10,7 +10,7 @@
   Second order central differencing
 */
 
-int FirstDerivativeSecondOrder(double *Df,double *f,int dir,void *s,void *m)
+int FirstDerivativeSecondOrderCentral(double *Df,double *f,int dir,void *s,void *m)
 {
   HyPar         *solver = (HyPar*) s;
   int           i, v;

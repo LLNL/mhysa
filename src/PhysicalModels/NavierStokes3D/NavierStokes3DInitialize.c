@@ -7,6 +7,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+int    NavierStokes3DParabolicFunction   (double*,double*,void*,void*,double);
 double NavierStokes3DComputeCFL        (void*,void*,double,double);
 int    NavierStokes3DFlux              (double*,double*,int,void*,double);
 int    NavierStokes3DUpwindRoe         (double*,double*,double*,double*,double*,double*,int,void*,double);
@@ -33,7 +34,11 @@ int NavierStokes3DInitialize(void *s,void *m)
   }
 
   /* default values */
-  physics->gamma = 1.4; 
+  physics->gamma  = 1.4; 
+  physics->C      = 110.5;
+  physics->T0     = 273.1;
+  physics->mu0    = 1.716E-05;
+  physics->Pr     = 0.72;
   strcpy(physics->upw_choice,"roe");
 
   /* reading physical model specific inputs - all processes */
@@ -52,6 +57,14 @@ int NavierStokes3DInitialize(void *s,void *m)
           ferr = fscanf(in,"%lf",&physics->gamma); if (ferr != 1) return(1);
         } else if (!strcmp(word,"upwinding")) {
           ferr = fscanf(in,"%s",physics->upw_choice); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"mu0")) {
+          ferr = fscanf(in,"%s",physics->mu0); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"T0")) {
+          ferr = fscanf(in,"%s",physics->T0); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"C")) {
+          ferr = fscanf(in,"%s",physics->C); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"Pr")) {
+          ferr = fscanf(in,"%s",physics->Pr); if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
           ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
@@ -80,6 +93,11 @@ int NavierStokes3DInitialize(void *s,void *m)
   solver->AveragingFunction     = NavierStokes3DRoeAverage;
   solver->GetLeftEigenvectors   = NavierStokes3DLeftEigenvectors;
   solver->GetRightEigenvectors  = NavierStokes3DRightEigenvectors;
+
+  /* finally, hijack the main solver's dissipation function pointer
+   * to this model's own function, since it's difficult to express 
+   * the dissipation terms in the general form                      */
+  solver->ParabolicFunction = NavierStokes3DParabolicFunction;
 
   return(0);
 }
