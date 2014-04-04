@@ -43,7 +43,7 @@ int ParabolicFunctionNC2Stage(double *par,double *u,void *s,void *m,double t)
         _ArrayIndex1D_(ndims,dim,index,ghosts,p);
         _GetCoordinate_(d1,index[d1],dim,ghosts,dxinv,dxinv1);
         _GetCoordinate_(d2,index[d2],dim,ghosts,dxinv,dxinv2);
-        for (v=0; v<nvars; v++) par[nvars*p+v] = dxinv1*dxinv2 * Deriv2[nvars*p+v];
+        for (v=0; v<nvars; v++) par[nvars*p+v] += (dxinv1*dxinv2 * Deriv2[nvars*p+v]);
         _ArrayIncrementIndex_(ndims,dim,index,done);
       }
 
