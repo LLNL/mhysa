@@ -13,6 +13,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   int             i,j,k,v,d;
   _DECLARE_IERR_;
 
+
   int ghosts = solver->ghosts;
   int imax   = solver->dim_local[0];
   int jmax   = solver->dim_local[1];
@@ -23,6 +24,9 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   int size   = (imax+2*ghosts)*(jmax+2*ghosts)*(kmax+2*ghosts)*nvars;
 
   static double two_third = 2.0/3.0;
+
+  _ArraySetValue_(par,size,0.0);
+  if (physics->Re <= 0) return(0); /* inviscid flow */
 
   double *Q; /* primitive variables */
   Q = (double*) calloc (size,sizeof(double));
@@ -95,8 +99,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        double mu =   physics->mu0 * ((physics->T0+physics->C)/(T+physics->C))
-                    * raiseto((T/physics->T0),(1.5)); 
+        double mu =   1.0/physics->Re; 
 
         double tau_xx, tau_xy, tau_xz, qx;
         tau_xx = two_third * mu * (2*ux - vy - wz);
@@ -150,8 +153,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        double mu =   physics->mu0 * ((physics->T0+physics->C)/(T+physics->C))
-                    * raiseto((T/physics->T0),(1.5)); 
+        double mu =   1.0/physics->Re; 
 
         double tau_yx, tau_yy, tau_yz, qy;
         tau_yx = mu * (uy + vx);
@@ -205,8 +207,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        double mu =   physics->mu0 * ((physics->T0+physics->C)/(T+physics->C))
-                    * raiseto((T/physics->T0),(1.5)); 
+        double mu =   1.0/physics->Re; 
 
         double tau_zx, tau_zy, tau_zz, qz;
         tau_zx = mu * (uz + wx);

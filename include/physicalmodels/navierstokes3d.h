@@ -304,11 +304,8 @@
 typedef struct navierstokes3d_parameters {
   double  gamma;  /* Ratio of heat capacities */
   char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */
-
-  double  mu0;    /* reference viscosity coefficient */
-  double  T0;     /* reference temperature           */
-  double  C;      /* a constant in Sutherland's law  */
-  double  Pr;     /* Prandtl number                  */
+  double  Re;     /* Reynolds number */
+  double  Pr;     /* Prandtl  number */
 } NavierStokes3D;
 
 int    NavierStokes3DInitialize (void*,void*);

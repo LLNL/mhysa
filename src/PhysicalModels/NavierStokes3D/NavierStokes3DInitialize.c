@@ -35,10 +35,8 @@ int NavierStokes3DInitialize(void *s,void *m)
 
   /* default values */
   physics->gamma  = 1.4; 
-  physics->C      = 110.5;
-  physics->T0     = 273.1;
-  physics->mu0    = 1.716E-05;
   physics->Pr     = 0.72;
+  physics->Re     = -1;
   strcpy(physics->upw_choice,"roe");
 
   /* reading physical model specific inputs - all processes */
@@ -57,14 +55,10 @@ int NavierStokes3DInitialize(void *s,void *m)
           ferr = fscanf(in,"%lf",&physics->gamma); if (ferr != 1) return(1);
         } else if (!strcmp(word,"upwinding")) {
           ferr = fscanf(in,"%s",physics->upw_choice); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"mu0")) {
-          ferr = fscanf(in,"%s",physics->mu0); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"T0")) {
-          ferr = fscanf(in,"%s",physics->T0); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"C")) {
-          ferr = fscanf(in,"%s",physics->C); if (ferr != 1) return(1);
         } else if (!strcmp(word,"Pr")) {
           ferr = fscanf(in,"%s",physics->Pr); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"Re")) {
+          ferr = fscanf(in,"%s",physics->Re); if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
           ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
