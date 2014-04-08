@@ -5,6 +5,13 @@
 #define _DIRICHLET_   "dirichlet"
 #define _REFLECT_     "reflect"
 
+/* some BC types unique to the euler/navier-stokes systems */
+#define _NOSLIP_WALL_       "noslip_wall"
+#define _SLIP_WALL_         "slip_wall"
+#define _SUBSONIC_INFLOW_   "subsonic_inflow"
+#define _SUBSONIC_OUTFLOW_  "subsonic_outflow"
+/* note: supersonic inflow/outflow can be enforced by dirichlet/extrapolate bcs */
+
 typedef struct domain_boundaries {
   char    bctype [_MAX_STRING_SIZE_]; /* Type of boundary condition                           */
   int     var;                        /* variable to apply this BC on                         */
@@ -28,3 +35,7 @@ int BCPeriodic    (void*,void*,int,int,int*,int,double*);    /* Periodic boundar
 int BCExtrapolate (void*,void*,int,int,int*,int,double*);    /* extrapolate boundary conditions */
 int BCDirichlet   (void*,void*,int,int,int*,int,double*);    /* Dirichlet boundary conditions   */
 int BCReflect     (void*,void*,int,int,int*,int,double*);    /* Reflection boundary conditions  */
+
+/* BCs specified for Euler/Navier-Stokes equations */
+int BCNoslipWall  (void*,void*,int,int,int*,int,double*);    /* No-slip wall (viscous) boundary conditions  */
+int BCSlipWall    (void*,void*,int,int,int*,int,double*);    /* Slip (inviscid) wall   boundary conditions  */

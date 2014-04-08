@@ -4,5 +4,7 @@ libBoundaryConditions_a_SOURCES = \
   BCDirichlet.c \
   BCExtrapolate.c \
   BCInitialize.c \
+  BCNoslipWall.c \
   BCPeriodic.c \
-  BCReflect.c
+  BCReflect.c \
+  BCSlipWall.c 
