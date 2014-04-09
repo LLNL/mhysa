@@ -44,7 +44,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
                                     energy,
                                     pressure,
                                     physics);
-        Q[p+4] = pressure/Q[p+0]; /* temperature */
+        Q[p+4] = physics->gamma*pressure/Q[p+0]; /* temperature */
       }
     }
   }
@@ -99,13 +99,13 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        double mu =   1.0/physics->Re; 
+        double mu = physics->C1 * raiseto(T,1.5) / (T + physics->C2); 
 
         double tau_xx, tau_xy, tau_xz, qx;
-        tau_xx = two_third * mu * (2*ux - vy - wz);
-        tau_xy = mu * (uy + vx);
-        tau_xz = mu * (uz + wx);
-        qx     = ((physics->gamma*mu)/(physics->Pr*(physics->gamma-1.0))) * Tx;
+        tau_xx = two_third * (mu/physics->Re) * (2*ux - vy - wz);
+        tau_xy = (mu/physics->Re) * (uy + vx);
+        tau_xz = (mu/physics->Re) * (uz + wx);
+        qx     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * mu * Tx;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_xx;
@@ -153,13 +153,13 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        double mu =   1.0/physics->Re; 
+        double mu = physics->C1 * raiseto(T,1.5) / (T + physics->C2); 
 
         double tau_yx, tau_yy, tau_yz, qy;
-        tau_yx = mu * (uy + vx);
-        tau_yy = two_third * mu * (-ux + 2*vy - wz);
-        tau_yz = mu * (vz + wy);
-        qy     = ((physics->gamma*mu)/(physics->Pr*(physics->gamma-1.0))) * Ty;
+        tau_yx = (mu/physics->Re) * (uy + vx);
+        tau_yy = two_third * (mu/physics->Re) * (-ux + 2*vy - wz);
+        tau_yz = (mu/physics->Re) * (vz + wy);
+        qy     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * mu * Ty;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_yx;
@@ -207,13 +207,13 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        double mu =   1.0/physics->Re; 
+        double mu = physics->C1 * raiseto(T,1.5) / (T + physics->C2); 
 
         double tau_zx, tau_zy, tau_zz, qz;
-        tau_zx = mu * (uz + wx);
-        tau_zy = mu * (vz + wy);
-        tau_zz = two_third * mu * (-ux - vy + 2*wz);
-        qz     = ((physics->gamma*mu)/(physics->Pr*(physics->gamma-1.0))) * Tz;
+        tau_zx = (mu/physics->Re) * (uz + wx);
+        tau_zy = (mu/physics->Re) * (vz + wy);
+        tau_zz = two_third * (mu/physics->Re) * (-ux - vy + 2*wz);
+        qz     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * mu * Tz;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_zx;

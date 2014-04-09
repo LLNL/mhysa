@@ -306,6 +306,8 @@ typedef struct navierstokes3d_parameters {
   char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */
   double  Re;     /* Reynolds number */
   double  Pr;     /* Prandtl  number */
+  double  Minf;   /* Freestream Mach number */
+  double  C1,C2;  /* Sutherlands law constants */
 } NavierStokes3D;
 
 int    NavierStokes3DInitialize (void*,void*);

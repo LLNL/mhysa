@@ -37,6 +37,9 @@ int NavierStokes3DInitialize(void *s,void *m)
   physics->gamma  = 1.4; 
   physics->Pr     = 0.72;
   physics->Re     = -1;
+  physics->Minf   = 1.0;
+  physics->C1     = 1.458e-6;
+  physics->C2     = 110.4;
   strcpy(physics->upw_choice,"roe");
 
   /* reading physical model specific inputs - all processes */
@@ -59,6 +62,8 @@ int NavierStokes3DInitialize(void *s,void *m)
           ferr = fscanf(in,"%s",physics->Pr); if (ferr != 1) return(1);
         } else if (!strcmp(word,"Re")) {
           ferr = fscanf(in,"%s",physics->Re); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"Minf")) {
+          ferr = fscanf(in,"%s",physics->Minf); if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
           ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
@@ -72,6 +77,9 @@ int NavierStokes3DInitialize(void *s,void *m)
 	  }
   }
   fclose(in);
+
+  /* Scaling Reynolds number by the freestream Mach number */
+  physics->Re /= physics->Minf;
 
   /* initializing physical model-specific functions */
   solver->ComputeCFL  = NavierStokes3DComputeCFL;
