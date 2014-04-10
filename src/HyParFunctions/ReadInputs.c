@@ -84,7 +84,6 @@ int ReadInputs(void *s,void *m)
    			else if   (!strcmp(word, "dt"               ))  ferr = fscanf(in,"%lf",&solver->dt              );
    			else if   (!strcmp(word, "screen_op_iter"   ))  ferr = fscanf(in,"%d",&solver->screen_op_iter   );
    			else if   (!strcmp(word, "file_op_iter"     ))  ferr = fscanf(in,"%d",&solver->file_op_iter     );
-   			else if   (!strcmp(word, "write_residual"   ))	ferr = fscanf(in,"%d",&solver->file_op_iter     );
    			else if   (!strcmp(word, "op_file_format"   ))  ferr = fscanf(in,"%s",solver->op_file_format    );
    			else if   (!strcmp(word, "ip_file_type"     ))  ferr = fscanf(in,"%s",solver->ip_file_type      );
    			else if   (!strcmp(word, "input_mode"       ))  ferr = fscanf(in,"%s",solver->input_mode        );
