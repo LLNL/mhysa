@@ -6,10 +6,10 @@
 #define _REFLECT_     "reflect"
 
 /* some BC types unique to the euler/navier-stokes systems */
-#define _NOSLIP_WALL_       "noslip_wall"
-#define _SLIP_WALL_         "slip_wall"
-#define _SUBSONIC_INFLOW_   "subsonic_inflow"
-#define _SUBSONIC_OUTFLOW_  "subsonic_outflow"
+#define _NOSLIP_WALL_       "noslip-wall"
+#define _SLIP_WALL_         "slip-wall"
+#define _SUBSONIC_INFLOW_   "subsonic-inflow"
+#define _SUBSONIC_OUTFLOW_  "subsonic-outflow"
 /* note: supersonic inflow/outflow can be enforced by dirichlet/extrapolate bcs */
 
 typedef struct domain_boundaries {

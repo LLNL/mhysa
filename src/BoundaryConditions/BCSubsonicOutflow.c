@@ -17,7 +17,7 @@
  * it once with an arbitrary value for boundary->var 
 */
 
-int BCNoslipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCSubsonicOutflow(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
