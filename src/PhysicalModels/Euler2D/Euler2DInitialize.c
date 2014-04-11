@@ -3,6 +3,7 @@
 #include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <boundaryconditions.h>
 #include <physicalmodels/euler2d.h>
 #include <mpivars.h>
 #include <hypar.h>
@@ -82,6 +83,11 @@ int Euler2DInitialize(void *s,void *m)
   solver->AveragingFunction     = Euler2DRoeAverage;
   solver->GetLeftEigenvectors   = Euler2DLeftEigenvectors;
   solver->GetRightEigenvectors  = Euler2DRightEigenvectors;
+
+  /* set the value of gamma in all the boundary objects */
+  int n;
+  DomainBoundary  *boundary = (DomainBoundary*) solver->boundary;
+  for (n = 0; n < solver->nBoundaryZones; n++)  boundary[n].gamma = physics->gamma;
 
   return(0);
 }

@@ -53,6 +53,24 @@ int InitializeBoundaries(void *s,void *m)
         /* read the Dirichlet value for each variable on this boundary */
         for (v = 0; v < solver->nvars; v++) ferr = fscanf(in,"%lf",&boundary[n].DirichletValue[v]);
       } else boundary[n].DirichletValue = NULL;
+      if (    (!strcmp(boundary[n].bctype,_SLIP_WALL_)) 
+          ||  (!strcmp(boundary[n].bctype,_NOSLIP_WALL_)) ) {
+        boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+                                     /* deallocated in BCCleanup.c */
+        /* read the wall velocity */
+        for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
+      }
+      if (!strcmp(boundary[n].bctype,_SUBSONIC_INFLOW_)) {
+        boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+                                     /* deallocated in BCCleanup.c */
+        /* read in the inflow density and velocity */
+        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
+      }
+      if (!strcmp(boundary[n].bctype,_SUBSONIC_OUTFLOW_)) {
+        /* read in the outflow pressure */
+        ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
+      }
 
       /* if boundary is periodic, let the MPI info know */
       /* 

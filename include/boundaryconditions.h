@@ -25,6 +25,11 @@ typedef struct domain_boundaries {
   int (*BCFunction)(void*,void*,int,int,int*,int,double*); /* the boundary condition function */
 
   double *DirichletValue;   /* specified value for steady Dirichlet BC */
+
+  /* variables specific to Navier-Stokes/Euler equations BCs */
+  double gamma,                                   /* ratio of specific heats  */
+         FlowDensity,*FlowVelocity,FlowPressure;  /* boundary flow conditions */
+
 } DomainBoundary;
 
 /* Functions */
@@ -37,5 +42,7 @@ int BCDirichlet   (void*,void*,int,int,int*,int,double*);    /* Dirichlet bounda
 int BCReflect     (void*,void*,int,int,int*,int,double*);    /* Reflection boundary conditions  */
 
 /* BCs specified for Euler/Navier-Stokes equations */
-int BCNoslipWall  (void*,void*,int,int,int*,int,double*);    /* No-slip wall (viscous) boundary conditions  */
-int BCSlipWall    (void*,void*,int,int,int*,int,double*);    /* Slip (inviscid) wall   boundary conditions  */
+int BCNoslipWall      (void*,void*,int,int,int*,int,double*);    /* No-slip wall (viscous) boundary conditions  */
+int BCSlipWall        (void*,void*,int,int,int*,int,double*);    /* Slip (inviscid) wall   boundary conditions  */
+int BCSubsonicInflow  (void*,void*,int,int,int*,int,double*);    /* Subsonic inflow        boundary conditions  */
+int BCSubsonicOutflow (void*,void*,int,int,int*,int,double*);    /* Subsonic outflow       boundary conditions  */

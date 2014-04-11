@@ -7,15 +7,17 @@
 #include <physicalmodels/navierstokes3d.h>
 
 /* 
- * Slip Wall BC - specific to Euler2D / Navier-Stokes 3D
- * Used for inviscid walls or symmetry boundaries
+ * Subsonic Inflow BC - specific to Euler2D/NavierStokes3D
+ * Used for subsonic inflow into the domain.
+ * Density and velocities are specified, pressure is extrapolated
+ * for inside the domain.
  *
  * boundary->var is irrelevant, it acts on on the components
  * so no need to specify it for each component, just specify
  * it once with an arbitrary value for boundary->var 
 */
 
-int BCSlipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCNoslipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -26,7 +28,7 @@ int BCSlipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
 
     /* create a fake physics object */
     Euler2D physics; 
-    double gamma; 
+    double gamma;
     gamma = physics.gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
 
@@ -50,16 +52,11 @@ int BCSlipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
         double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
         _Euler2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
         /* set the ghost point values */
-        rho_gpt = rho;
+        rho_gpt = boundary->FlowDensity;
         pressure_gpt = pressure;
-        if (dim == _XDIR_) {
-          uvel_gpt = 2.0*boundary->FlowVelocity[_XDIR_] - uvel;
-          vvel_gpt = vvel;
-        } else if (dim == _YDIR_) {
-          uvel_gpt = uvel;
-          vvel_gpt = 2.0*boundary->FlowVelocity[_YDIR_] - vvel;
-        }
-        energy_gpt = inv_gamma_m1*pressure_gpt 
+        uvel_gpt = boundary->FlowVelocity[0];
+        vvel_gpt = boundary->FlowVelocity[1];
+        energy_gpt = inv_gamma_m1*pressure_gpt
                     + 0.5 * rho_gpt * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt);
 
         phi[nvars*p1+0] = rho_gpt;
@@ -74,8 +71,8 @@ int BCSlipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
   } else if (ndims == 3) {
 
     /* create a fake physics object */
-    NavierStokes3D physics; 
-    double gamma; 
+    NavierStokes3D physics;
+    double gamma;
     gamma = physics.gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
 
@@ -99,22 +96,12 @@ int BCSlipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
         double rho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, energy_gpt, pressure_gpt;
         _NavierStokes3DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,wvel,energy,pressure,(&physics));
         /* set the ghost point values */
-        rho_gpt = rho;
+        rho_gpt = boundary->FlowDensity;
         pressure_gpt = pressure;
-        if (dim == _XDIR_) {
-          uvel_gpt = 2.0*boundary->FlowVelocity[_XDIR_] - uvel;
-          vvel_gpt = vvel;
-          wvel_gpt = wvel;
-        } else if (dim == _YDIR_) {
-          uvel_gpt = uvel;
-          vvel_gpt = 2.0*boundary->FlowVelocity[_YDIR_] - vvel;
-          wvel_gpt = wvel;
-        } else if (dim == _ZDIR_) {
-          uvel_gpt = uvel;
-          vvel_gpt = vvel;
-          wvel_gpt = 2.0*boundary->FlowVelocity[_ZDIR_] - wvel;
-        }
-        energy_gpt = inv_gamma_m1*pressure_gpt 
+        uvel_gpt = boundary->FlowVelocity[0];
+        vvel_gpt = boundary->FlowVelocity[1];
+        wvel_gpt = boundary->FlowVelocity[2];
+        energy_gpt = inv_gamma_m1*pressure_gpt
                     + 0.5 * rho_gpt 
                     * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt + wvel_gpt*wvel_gpt);
 
