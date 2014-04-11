@@ -170,7 +170,7 @@ int main()
   FILE *out1, *out2, *in, *inputs;
   double dt;
   int file_op_iter;
-  char filename[50], op_file_format[50], tecfile[50];
+  char filename[50], op_file_format[50], tecfile[50], overwrite[50];
 
   inputs = fopen("solver.inp","r");
   if (!in) {
@@ -185,6 +185,7 @@ int main()
    			if      (!strcmp(word, "dt"               ))  fscanf(inputs,"%lf",&dt           );
    			else if (!strcmp(word, "op_file_format"   ))  fscanf(inputs,"%s" ,op_file_format);
    			else if (!strcmp(word, "file_op_iter"     ))  fscanf(inputs,"%d" ,&file_op_iter  );
+   			else if (!strcmp(word, "op_overwrite"     ))  fscanf(inputs,"%s" ,overwrite      );
       }
     }
     fclose(inputs);
@@ -194,13 +195,72 @@ int main()
     return(0);
   }
 
-  strcpy(filename,"op_00000.bin");
-  while(1) {
-    in = fopen(filename,"rb");
+  if (!strcmp(overwrite,"no")) {
+    strcpy(filename,"op_00000.bin");
+    while(1) {
+      in = fopen(filename,"rb");
 
+      if (!in) {
+        printf("No more files found. Exiting.\n");
+        break;
+      } else {
+        printf("Reading file %s.\n",filename);
+        int ndims, nvars;
+        double *U,*x;
+
+        /* read the file headers */
+        fread(&ndims,sizeof(int),1,in);
+        fread(&nvars,sizeof(int),1,in);
+
+        /* some checks */
+        if ((ndims != 2) && (ndims != 3)) {
+          printf("Error: ndims in %s not equal to 2 or 3!\n",filename);
+          return(0);
+        }
+
+        /* read dimensions */
+        int dims[ndims];
+        fread(dims,sizeof(int),ndims,in);
+        if      (ndims == 2) printf("Dimensions: %d x %d\n",dims[0],dims[1]);
+        else if (ndims == 3) printf("Dimensions: %d x %d x %d\n",dims[0],dims[1],dims[2]);
+        printf("Nvars     : %d\n",nvars);
+
+        /* allocate grid and solution arrays */
+        int d;
+        int sizex = 0;      for (d=0; d<ndims; d++) sizex += dims[d];
+        int sizeu = nvars;  for (d=0; d<ndims; d++) sizeu *= dims[d];
+        x = (double*) calloc (sizex,sizeof(double));
+        U = (double*) calloc (sizeu,sizeof(double));
+
+        /* read grid and solution */
+        fread(x,sizeof(double),sizex,in);
+        fread(U,sizeof(double),sizeu,in);
+        /* done reading */
+        fclose(in);
+
+        /* set filename */
+        strcpy(tecfile,filename);
+        tecfile[9]  = 'd';
+        tecfile[10] = 'a';
+        tecfile[11] = 't';
+
+        /* write Tecplot file */
+        int ind[ndims];
+        if      (ndims == 2) WriteTecplot2D(2,nvars,dims,x,U,tecfile,&ind[0]);
+        else if (ndims == 3) WriteTecplot3D(3,nvars,dims,x,U,tecfile,&ind[0]);
+
+        /* clean up */
+        free(U);
+        free(x);
+      }
+
+      IncrementFilename(filename);
+    }
+  } else if (!strcmp(overwrite,"yes")) {
+    strcpy(filename,"op.bin");
+    in = fopen(filename,"rb");
     if (!in) {
-      printf("No more files found. Exiting.\n");
-      break;
+      printf("File no found. Exiting.\n");
     } else {
       printf("Reading file %s.\n",filename);
       int ndims, nvars;
@@ -238,9 +298,9 @@ int main()
 
       /* set filename */
       strcpy(tecfile,filename);
-      tecfile[9]  = 'd';
-      tecfile[10] = 'a';
-      tecfile[11] = 't';
+      tecfile[3] = 'd';
+      tecfile[4] = 'a';
+      tecfile[5] = 't';
 
       /* write Tecplot file */
       int ind[ndims];
@@ -251,8 +311,6 @@ int main()
       free(U);
       free(x);
     }
-
-    IncrementFilename(filename);
   }
 
   return(0);
