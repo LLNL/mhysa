@@ -129,7 +129,6 @@ int InitializeBoundaries(void *s,void *m)
   /* broadcast periodic boundary info for MPI to all processes */
   IERR MPIBroadcast_integer(mpi->bcperiodic,solver->ndims,0,&mpi->world);CHECKERR(ierr);
 
-
   /* On other processes, if necessary, allocate and receive boundary-type-specific data */
   for (n = 0; n < solver->nBoundaryZones; n++) {
     if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
@@ -144,7 +143,7 @@ int InitializeBoundaries(void *s,void *m)
     }
 
     if (!strcmp(boundary[n].bctype,_SUBSONIC_INFLOW_)) {
-      boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+      if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
       IERR MPIBroadcast_double(&boundary[n].FlowDensity,1            ,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(boundary[n].FlowVelocity,solver->ndims,0,&mpi->world); CHECKERR(ierr);
     }
