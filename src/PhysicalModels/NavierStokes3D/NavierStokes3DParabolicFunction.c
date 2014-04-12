@@ -55,6 +55,12 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   IERR solver->FirstDerivativePar(QDerivX,Q,_XDIR_,solver,mpi); CHECKERR(ierr);
   IERR solver->FirstDerivativePar(QDerivY,Q,_YDIR_,solver,mpi); CHECKERR(ierr);
   IERR solver->FirstDerivativePar(QDerivZ,Q,_ZDIR_,solver,mpi); CHECKERR(ierr);
+  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,QDerivX); CHECKERR(ierr);
+  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,QDerivY); CHECKERR(ierr);
+  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,QDerivY); CHECKERR(ierr);
   for (i=-ghosts; i<(imax+ghosts); i++) {
     for (j=-ghosts; j<(jmax+ghosts); j++) {
       for (k=-ghosts; k<(kmax+ghosts); k++) {
