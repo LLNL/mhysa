@@ -1,6 +1,6 @@
 /*
 
-  1D Euler Equations for Inviscid, Compressible Flows
+  2D Euler Equations for Inviscid, Compressible Flows
 
     
   d   [ rho   ]   d   [   rho*u    ]    d  [   rho*v   ]
