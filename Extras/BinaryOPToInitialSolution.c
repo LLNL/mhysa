@@ -40,7 +40,7 @@ int main()
   in = fopen(filename,"rb");
 
   if (!in) {
-    printf("Error: File %s not found.\n");
+    printf("Error: File %s not found.\n",filename);
     return(1);
   } else {
     printf("Reading file %s.\n",filename);
