@@ -56,6 +56,7 @@ AC_CONFIG_FILES([
    src/PhysicalModels/FPPowerSystem3Bus/Makefile
    src/PhysicalModels/Euler1D/Makefile
    src/PhysicalModels/Euler2D/Makefile
+   src/PhysicalModels/NavierStokes2D/Makefile
    src/PhysicalModels/NavierStokes3D/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
