@@ -7,11 +7,8 @@
 #include <physicalmodels/navierstokes3d.h>
 
 /* 
- * No-Slip Wall BC - specific to Euler2D/NavierStokes3D
+ * No-Slip Wall BC - specific to NavierStokes2D/NavierStokes3D
  * Used for viscous walls
- * (Euler 2D is inviscid, so this is of no use. But it is 
- * still implemented if someday one wants to add viscous terms
- * to Euler 2D and make it NavierStokes2D
  *
  * boundary->var is irrelevant, it acts on on the components
  * so no need to specify it for each component, just specify
