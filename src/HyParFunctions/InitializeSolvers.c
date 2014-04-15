@@ -50,6 +50,10 @@ int InitializeSolvers(void *s, void *m)
     solver->SecondDerivativePar      = SecondDerivativeSecondOrderCentral; 
     solver->FirstDerivativePar       = FirstDerivativeSecondOrderCentral; 
     solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
+  } else if (!strcmp(solver->spatial_scheme_par,_FOURTH_ORDER_CENTRAL_)) {
+    solver->SecondDerivativePar      = SecondDerivativeFourthOrderCentral; 
+    solver->FirstDerivativePar       = FirstDerivativeFourthOrderCentral; 
+    solver->InterpolateInterfacesPar = NULL; /* not yet coded, setting to NULL so that the code crashes */
   } else {
     fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
     fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
