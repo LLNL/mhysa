@@ -20,7 +20,6 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   int             i,j,k,v,d;
   _DECLARE_IERR_;
 
-
   int ghosts = solver->ghosts;
   int imax   = solver->dim_local[0];
   int jmax   = solver->dim_local[1];
@@ -30,10 +29,14 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   int ndims  = solver->ndims;
   int size   = (imax+2*ghosts)*(jmax+2*ghosts)*(kmax+2*ghosts)*nvars;
 
-  static double two_third = 2.0/3.0;
-
   _ArraySetValue_(par,size,0.0);
   if (physics->Re <= 0) return(0); /* inviscid flow */
+
+  static double two_third    = 2.0/3.0;
+  double        inv_gamma_m1 = 1.0 / (physics->gamma-1.0);
+  double        inv_Re       = 1.0 / physics->Re;
+  double        inv_Pr       = 1.0 / physics->Pr;
+  double        inv_Minf_sq  = 1.0 / (physics->Minf*physics->Minf);
 
   double *Q; /* primitive variables */
   Q = (double*) calloc (size,sizeof(double));
@@ -59,15 +62,18 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   double *QDerivX = (double*) calloc (size,sizeof(double));
   double *QDerivY = (double*) calloc (size,sizeof(double));
   double *QDerivZ = (double*) calloc (size,sizeof(double));
+
   IERR solver->FirstDerivativePar(QDerivX,Q,_XDIR_,solver,mpi); CHECKERR(ierr);
   IERR solver->FirstDerivativePar(QDerivY,Q,_YDIR_,solver,mpi); CHECKERR(ierr);
   IERR solver->FirstDerivativePar(QDerivZ,Q,_ZDIR_,solver,mpi); CHECKERR(ierr);
+
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,QDerivX); CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,QDerivY); CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,QDerivY); CHECKERR(ierr);
+
   for (i=-ghosts; i<(imax+ghosts); i++) {
     for (j=-ghosts; j<(jmax+ghosts); j++) {
       for (k=-ghosts; k<(kmax+ghosts); k++) {
@@ -116,10 +122,10 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         double mu = 1.0; 
 
         double tau_xx, tau_xy, tau_xz, qx;
-        tau_xx = two_third * (mu/physics->Re) * (2*ux - vy - wz);
-        tau_xy = (mu/physics->Re) * (uy + vx);
-        tau_xz = (mu/physics->Re) * (uz + wx);
-        qx     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) * (1.0/(physics->Minf*physics->Minf)) ) * mu * Tx;
+        tau_xx = two_third * (mu*inv_Re) * (2*ux - vy - wz);
+        tau_xy = (mu*inv_Re) * (uy + vx);
+        tau_xz = (mu*inv_Re) * (uz + wx);
+        qx     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Tx;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_xx;
@@ -171,10 +177,10 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         double mu = 1.0; 
 
         double tau_yx, tau_yy, tau_yz, qy;
-        tau_yx = (mu/physics->Re) * (uy + vx);
-        tau_yy = two_third * (mu/physics->Re) * (-ux + 2*vy - wz);
-        tau_yz = (mu/physics->Re) * (vz + wy);
-        qy     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) * (1.0/(physics->Minf*physics->Minf)) ) * mu * Ty;
+        tau_yx = (mu*inv_Re) * (uy + vx);
+        tau_yy = two_third * (mu*inv_Re) * (-ux + 2*vy - wz);
+        tau_yz = (mu*inv_Re) * (vz + wy);
+        qy     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Ty;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_yx;
@@ -226,10 +232,10 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         double mu = 1.0; 
 
         double tau_zx, tau_zy, tau_zz, qz;
-        tau_zx = (mu/physics->Re) * (uz + wx);
-        tau_zy = (mu/physics->Re) * (vz + wy);
-        tau_zz = two_third * (mu/physics->Re) * (-ux - vy + 2*wz);
-        qz     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) * (1.0/(physics->Minf*physics->Minf)) ) * mu * Tz;
+        tau_zx = (mu*inv_Re) * (uz + wx);
+        tau_zy = (mu*inv_Re) * (vz + wy);
+        tau_zz = two_third * (mu*inv_Re) * (-ux - vy + 2*wz);
+        qz     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Tz;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_zx;

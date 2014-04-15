@@ -20,7 +20,6 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
   int             i,j,v,d;
   _DECLARE_IERR_;
 
-
   int ghosts = solver->ghosts;
   int imax   = solver->dim_local[0];
   int jmax   = solver->dim_local[1];
@@ -29,10 +28,14 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
   int ndims  = solver->ndims;
   int size   = (imax+2*ghosts)*(jmax+2*ghosts)*nvars;
 
-  static double two_third = 2.0/3.0;
-
   _ArraySetValue_(par,size,0.0);
   if (physics->Re <= 0) return(0); /* inviscid flow */
+
+  static double two_third = 2.0/3.0;
+  double        inv_gamma_m1 = 1.0 / (physics->gamma-1.0);
+  double        inv_Re       = 1.0 / physics->Re;
+  double        inv_Pr       = 1.0 / physics->Pr;
+  double        inv_Minf_sq  = 1.0 / (physics->Minf*physics->Minf);
 
   double *Q; /* primitive variables */
   Q = (double*) calloc (size,sizeof(double));
@@ -49,12 +52,15 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
 
   double *QDerivX = (double*) calloc (size,sizeof(double));
   double *QDerivY = (double*) calloc (size,sizeof(double));
+
   IERR solver->FirstDerivativePar(QDerivX,Q,_XDIR_,solver,mpi); CHECKERR(ierr);
   IERR solver->FirstDerivativePar(QDerivY,Q,_YDIR_,solver,mpi); CHECKERR(ierr);
+
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,dim,
                                solver->ghosts,mpi,QDerivX);     CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,dim,
                                solver->ghosts,mpi,QDerivY);     CHECKERR(ierr);
+
   for (i=-ghosts; i<(imax+ghosts); i++) {
     for (j=-ghosts; j<(jmax+ghosts); j++) {
       int p,index[2]; index[0]=i; index[1]=j;
@@ -91,9 +97,9 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       double mu = 1.0; 
 
       double tau_xx, tau_xy, qx;
-      tau_xx = two_third * (mu/physics->Re) * (2*ux - vy);
-      tau_xy = (mu/physics->Re) * (uy + vx);
-      qx     = ( (mu/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * (1.0/(physics->Minf*physics->Minf)) * Tx;
+      tau_xx = two_third * (mu*inv_Re) * (2*ux - vy);
+      tau_xy = (mu*inv_Re) * (uy + vx);
+      qx     = ( (mu*inv_Re) * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Tx;
 
       (FViscous+p)[0] = 0.0;
       (FViscous+p)[1] = tau_xx;
@@ -133,9 +139,9 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       double mu = 1.0; 
 
       double tau_yx, tau_yy, qy;
-      tau_yx = (mu/physics->Re) * (uy + vx);
-      tau_yy = two_third * (mu/physics->Re) * (-ux + 2*vy);
-      qy     = ( (mu/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * (1.0/(physics->Minf*physics->Minf)) * Ty;
+      tau_yx = (mu*inv_Re) * (uy + vx);
+      tau_yy = two_third * (mu*inv_Re) * (-ux + 2*vy);
+      qy     = ( (mu*inv_Re) * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Ty;
 
       (FViscous+p)[0] = 0.0;
       (FViscous+p)[1] = tau_yx;
