@@ -3,7 +3,7 @@
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
-#include <physicalmodels/euler2d.h>
+#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 /* 
@@ -25,7 +25,7 @@ int BCNoslipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
   if (ndims == 2) {
 
     /* create a fake physics object */
-    Euler2D physics; 
+    NavierStokes2D physics; 
     double gamma;
     gamma = physics.gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
@@ -48,7 +48,7 @@ int BCNoslipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
         /* flow variables in the interior */
         double rho, uvel, vvel, energy, pressure;
         double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
-        _Euler2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
         /* set the ghost point values */
         rho_gpt = rho;
         pressure_gpt = pressure;
