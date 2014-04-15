@@ -79,9 +79,6 @@ int NavierStokes3DInitialize(void *s,void *m)
   }
   fclose(in);
 
-  /* Scaling Reynolds number by the freestream Mach number */
-  physics->Re /= physics->Minf;
-
   /* initializing physical model-specific functions */
   solver->ComputeCFL  = NavierStokes3DComputeCFL;
   solver->FFunction   = NavierStokes3DFlux;

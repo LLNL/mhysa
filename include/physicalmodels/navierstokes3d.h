@@ -7,6 +7,10 @@
   "rf-char"   Roe-fixed
   "llf-char"  Local Lax-Friedrich
 
+  Refer: Computational Fluid Mechanics and Heat Transfer
+         by Tannehill, Anderson and Pletcher
+         Chapter 5, Section 5.1.7 for the non-dimensional
+         form of the NS equations.
 */
 
 #include <basic.h>

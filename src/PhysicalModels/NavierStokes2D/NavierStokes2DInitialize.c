@@ -80,9 +80,6 @@ int NavierStokes2DInitialize(void *s,void *m)
   }
   fclose(in);
 
-  /* Scaling Reynolds number by the freestream Mach number */
-  physics->Re /= physics->Minf;
-
   /* initializing physical model-specific functions */
   solver->ComputeCFL  = NavierStokes2DComputeCFL;
   solver->FFunction   = NavierStokes2DFlux;

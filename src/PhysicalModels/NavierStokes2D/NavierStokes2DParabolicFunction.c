@@ -5,6 +5,13 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+/*
+  Refer: Computational Fluid Mechanics and Heat Transfer
+         by Tannehill, Anderson and Pletcher
+         Chapter 5, Section 5.1.7 for the non-dimensional
+         form of the NS equations.
+*/
+
 int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
 {
   HyPar           *solver   = (HyPar*) s;
@@ -36,7 +43,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
       _NavierStokes2DGetFlowVar_( (u+p),Q[p+0],Q[p+1],Q[p+2],energy,
                                   pressure,physics);
-      Q[p+3] = physics->gamma*pressure/Q[p+0]; /* temperature */
+      Q[p+3] = physics->gamma*(physics->Minf*physics->Minf)*pressure/Q[p+0]; /* temperature */
     }
   }
 
@@ -86,7 +93,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       double tau_xx, tau_xy, qx;
       tau_xx = two_third * (mu/physics->Re) * (2*ux - vy);
       tau_xy = (mu/physics->Re) * (uy + vx);
-      qx     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * mu * Tx;
+      qx     = ( (mu/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * (1.0/(physics->Minf*physics->Minf)) * Tx;
 
       (FViscous+p)[0] = 0.0;
       (FViscous+p)[1] = tau_xx;
@@ -95,8 +102,8 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
     }
   }
   IERR solver->FirstDerivativePar(FDeriv,FViscous,_XDIR_,solver,mpi); CHECKERR(ierr);
-  for (i=-ghosts; i<(imax+ghosts); i++) {
-    for (j=-ghosts; j<(jmax+ghosts); j++) {
+  for (i=0; i<imax; i++) {
+    for (j=0; j<jmax; j++) {
       int p,index[2]; index[0]=i; index[1]=j;
       double dxinv;
       _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
@@ -128,7 +135,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       double tau_yx, tau_yy, qy;
       tau_yx = (mu/physics->Re) * (uy + vx);
       tau_yy = two_third * (mu/physics->Re) * (-ux + 2*vy);
-      qy     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * mu * Ty;
+      qy     = ( (mu/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * (1.0/(physics->Minf*physics->Minf)) * Ty;
 
       (FViscous+p)[0] = 0.0;
       (FViscous+p)[1] = tau_yx;
@@ -137,8 +144,8 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
     }
   }
   IERR solver->FirstDerivativePar(FDeriv,FViscous,_YDIR_,solver,mpi); CHECKERR(ierr);
-  for (i=-ghosts; i<(imax+ghosts); i++) {
-    for (j=-ghosts; j<(jmax+ghosts); j++) {
+  for (i=0; i<imax; i++) {
+    for (j=0; j<jmax; j++) {
       int p,index[2]; index[0]=i; index[1]=j;
       double dyinv;
       _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;

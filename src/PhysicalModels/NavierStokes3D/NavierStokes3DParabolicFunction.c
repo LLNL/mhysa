@@ -5,6 +5,13 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+/*
+  Refer: Computational Fluid Mechanics and Heat Transfer
+         by Tannehill, Anderson and Pletcher
+         Chapter 5, Section 5.1.7 for the non-dimensional
+         form of the NS equations.
+*/
+
 int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double t)
 {
   HyPar           *solver   = (HyPar*) s;
@@ -44,7 +51,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
                                     energy,
                                     pressure,
                                     physics);
-        Q[p+4] = physics->gamma*pressure/Q[p+0]; /* temperature */
+        Q[p+4] = physics->gamma*(physics->Minf*physics->Minf)*pressure/Q[p+0]; /* temperature */
       }
     }
   }
@@ -112,7 +119,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         tau_xx = two_third * (mu/physics->Re) * (2*ux - vy - wz);
         tau_xy = (mu/physics->Re) * (uy + vx);
         tau_xz = (mu/physics->Re) * (uz + wx);
-        qx     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * mu * Tx;
+        qx     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) * (1.0/(physics->Minf*physics->Minf)) ) * mu * Tx;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_xx;
@@ -123,9 +130,9 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
     }
   }
   IERR solver->FirstDerivativePar(FDeriv,FViscous,_XDIR_,solver,mpi); CHECKERR(ierr);
-  for (i=-ghosts; i<(imax+ghosts); i++) {
-    for (j=-ghosts; j<(jmax+ghosts); j++) {
-      for (k=-ghosts; k<(kmax+ghosts); k++) {
+  for (i=0; i<imax; i++) {
+    for (j=0; j<jmax; j++) {
+      for (k=0; k<kmax; k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
         double dxinv;
         _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
@@ -167,7 +174,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         tau_yx = (mu/physics->Re) * (uy + vx);
         tau_yy = two_third * (mu/physics->Re) * (-ux + 2*vy - wz);
         tau_yz = (mu/physics->Re) * (vz + wy);
-        qy     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * mu * Ty;
+        qy     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) * (1.0/(physics->Minf*physics->Minf)) ) * mu * Ty;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_yx;
@@ -178,9 +185,9 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
     }
   }
   IERR solver->FirstDerivativePar(FDeriv,FViscous,_YDIR_,solver,mpi); CHECKERR(ierr);
-  for (i=-ghosts; i<(imax+ghosts); i++) {
-    for (j=-ghosts; j<(jmax+ghosts); j++) {
-      for (k=-ghosts; k<(kmax+ghosts); k++) {
+  for (i=0; i<imax; i++) {
+    for (j=0; j<jmax; j++) {
+      for (k=0; k<kmax; k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
         double dyinv;
         _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
@@ -222,7 +229,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         tau_zx = (mu/physics->Re) * (uz + wx);
         tau_zy = (mu/physics->Re) * (vz + wy);
         tau_zz = two_third * (mu/physics->Re) * (-ux - vy + 2*wz);
-        qz     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) ) * mu * Tz;
+        qz     = ( (1.0/physics->Re) * (1.0/(physics->gamma-1.0)) * (1.0/physics->Pr) * (1.0/(physics->Minf*physics->Minf)) ) * mu * Tz;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_zx;
@@ -233,9 +240,9 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
     }
   }
   IERR solver->FirstDerivativePar(FDeriv,FViscous,_ZDIR_,solver,mpi); CHECKERR(ierr);
-  for (i=-ghosts; i<(imax+ghosts); i++) {
-    for (j=-ghosts; j<(jmax+ghosts); j++) {
-      for (k=-ghosts; k<(kmax+ghosts); k++) {
+  for (i=0; i<imax; i++) {
+    for (j=0; j<jmax; j++) {
+      for (k=0; k<kmax; k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
         double dzinv;
         _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
