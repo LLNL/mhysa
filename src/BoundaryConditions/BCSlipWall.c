@@ -15,7 +15,7 @@
  * it once with an arbitrary value for boundary->var 
 */
 
-int BCSlipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCSlipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -132,3 +132,21 @@ int BCSlipWall(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
   return(0);
 }
 
+int BCSlipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+{
+  DomainBoundary *boundary = (DomainBoundary*) b;
+  int            var       = boundary->var;
+
+  if (boundary->on_this_proc) {
+    int bounds[ndims], indexb[ndims];
+    _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
+    _ArraySetValue_(indexb,ndims,0); 
+    int done = 0;
+    while (!done) {
+      int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
+      phi[nvars*p+var] = 0.0;
+      _ArrayIncrementIndex_(ndims,bounds,indexb,done);
+    }
+  }
+  return(0);
+}

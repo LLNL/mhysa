@@ -17,7 +17,7 @@
  * it once with an arbitrary value for boundary->var 
 */
 
-int BCSubsonicInflow(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCSubsonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -119,3 +119,21 @@ int BCSubsonicInflow(void *b,void *m,int ndims,int nvars,int *size,int ghosts,do
   return(0);
 }
 
+int BCSubsonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+{
+  DomainBoundary *boundary = (DomainBoundary*) b;
+  int            var       = boundary->var;
+
+  if (boundary->on_this_proc) {
+    int bounds[ndims], indexb[ndims];
+    _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
+    _ArraySetValue_(indexb,ndims,0); 
+    int done = 0;
+    while (!done) {
+      int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
+      phi[nvars*p+var] = 0.0;
+      _ArrayIncrementIndex_(ndims,bounds,indexb,done);
+    }
+  }
+  return(0);
+}
