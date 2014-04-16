@@ -35,7 +35,6 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
   double        inv_gamma_m1 = 1.0 / (physics->gamma-1.0);
   double        inv_Re       = 1.0 / physics->Re;
   double        inv_Pr       = 1.0 / physics->Pr;
-  double        inv_Minf_sq  = 1.0 / (physics->Minf*physics->Minf);
 
   double *Q; /* primitive variables */
   Q = (double*) calloc (size,sizeof(double));
@@ -46,7 +45,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
       _NavierStokes2DGetFlowVar_( (u+p),Q[p+0],Q[p+1],Q[p+2],energy,
                                   pressure,physics);
-      Q[p+3] = physics->gamma*(physics->Minf*physics->Minf)*pressure/Q[p+0]; /* temperature */
+      Q[p+3] = physics->gamma*pressure/Q[p+0]; /* temperature */
     }
   }
 
@@ -99,7 +98,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       double tau_xx, tau_xy, qx;
       tau_xx = two_third * (mu*inv_Re) * (2*ux - vy);
       tau_xy = (mu*inv_Re) * (uy + vx);
-      qx     = ( (mu*inv_Re) * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Tx;
+      qx     = ( (mu*inv_Re) * inv_gamma_m1 * inv_Pr ) * Tx;
 
       (FViscous+p)[0] = 0.0;
       (FViscous+p)[1] = tau_xx;
@@ -141,7 +140,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       double tau_yx, tau_yy, qy;
       tau_yx = (mu*inv_Re) * (uy + vx);
       tau_yy = two_third * (mu*inv_Re) * (-ux + 2*vy);
-      qy     = ( (mu*inv_Re) * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Ty;
+      qy     = ( (mu*inv_Re) * inv_gamma_m1 * inv_Pr ) * Ty;
 
       (FViscous+p)[0] = 0.0;
       (FViscous+p)[1] = tau_yx;

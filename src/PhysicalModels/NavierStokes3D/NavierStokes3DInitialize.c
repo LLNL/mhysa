@@ -8,7 +8,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int    NavierStokes3DParabolicFunction   (double*,double*,void*,void*,double);
+int    NavierStokes3DParabolicFunction (double*,double*,void*,void*,double);
 double NavierStokes3DComputeCFL        (void*,void*,double,double);
 int    NavierStokes3DFlux              (double*,double*,int,void*,double);
 int    NavierStokes3DUpwindRoe         (double*,double*,double*,double*,double*,double*,int,void*,double);
@@ -78,6 +78,9 @@ int NavierStokes3DInitialize(void *s,void *m)
 	  }
   }
   fclose(in);
+
+  /* Scaling Re by M_inf */
+  physics->Re /= physics->Minf;
 
   /* initializing physical model-specific functions */
   solver->ComputeCFL  = NavierStokes3DComputeCFL;

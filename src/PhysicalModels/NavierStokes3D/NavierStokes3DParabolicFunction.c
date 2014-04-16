@@ -36,7 +36,6 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   double        inv_gamma_m1 = 1.0 / (physics->gamma-1.0);
   double        inv_Re       = 1.0 / physics->Re;
   double        inv_Pr       = 1.0 / physics->Pr;
-  double        inv_Minf_sq  = 1.0 / (physics->Minf*physics->Minf);
 
   double *Q; /* primitive variables */
   Q = (double*) calloc (size,sizeof(double));
@@ -54,7 +53,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
                                     energy,
                                     pressure,
                                     physics);
-        Q[p+4] = physics->gamma*(physics->Minf*physics->Minf)*pressure/Q[p+0]; /* temperature */
+        Q[p+4] = physics->gamma*pressure/Q[p+0]; /* temperature */
       }
     }
   }
@@ -125,7 +124,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         tau_xx = two_third * (mu*inv_Re) * (2*ux - vy - wz);
         tau_xy = (mu*inv_Re) * (uy + vx);
         tau_xz = (mu*inv_Re) * (uz + wx);
-        qx     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Tx;
+        qx     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr ) * Tx;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_xx;
@@ -180,7 +179,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         tau_yx = (mu*inv_Re) * (uy + vx);
         tau_yy = two_third * (mu*inv_Re) * (-ux + 2*vy - wz);
         tau_yz = (mu*inv_Re) * (vz + wy);
-        qy     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Ty;
+        qy     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr ) * Ty;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_yx;
@@ -235,7 +234,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         tau_zx = (mu*inv_Re) * (uz + wx);
         tau_zy = (mu*inv_Re) * (vz + wy);
         tau_zz = two_third * (mu*inv_Re) * (-ux - vy + 2*wz);
-        qz     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr * inv_Minf_sq ) * Tz;
+        qz     = ( mu*inv_Re * inv_gamma_m1 * inv_Pr ) * Tz;
 
         (FViscous+p)[0] = 0.0;
         (FViscous+p)[1] = tau_zx;
