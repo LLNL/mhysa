@@ -32,7 +32,7 @@ int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
   return(0);
 }
 
-int BCReflectDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCReflectDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

@@ -45,7 +45,7 @@ int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
   return(0);
 }
 
-int BCPeriodicDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCPeriodicDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   MPIVariables   *mpi      = (MPIVariables*)   m;

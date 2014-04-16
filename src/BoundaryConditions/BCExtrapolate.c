@@ -32,7 +32,7 @@ int BCExtrapolateU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,doub
   return(0);
 }
 
-int BCExtrapolateDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCExtrapolateDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

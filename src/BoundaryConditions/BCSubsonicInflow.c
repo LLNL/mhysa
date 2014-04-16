@@ -119,21 +119,137 @@ int BCSubsonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,d
   return(0);
 }
 
-int BCSubsonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCSubsonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
-  int            var       = boundary->var;
 
-  if (boundary->on_this_proc) {
-    int bounds[ndims], indexb[ndims];
-    _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
-    _ArraySetValue_(indexb,ndims,0); 
-    int done = 0;
-    while (!done) {
-      int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
-      phi[nvars*p+var] = 0.0;
-      _ArrayIncrementIndex_(ndims,bounds,indexb,done);
+  int dim   = boundary->dim;
+  int face  = boundary->face;
+  int v;
+
+  if (ndims == 2) {
+
+    /* create a fake physics object */
+    Euler2D physics; 
+    double gamma;
+    gamma = physics.gamma = boundary->gamma;
+    double inv_gamma_m1 = 1.0/(gamma-1.0);
+
+    if (boundary->on_this_proc) {
+      int bounds[ndims], indexb[ndims], indexi[ndims];
+      _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
+      _ArraySetValue_(indexb,ndims,0);
+      int done = 0;
+      while (!done) {
+        int p1, p2;
+        _ArrayCopy1D_(indexb,indexi,ndims);
+        _ArrayAdd1D_(indexi,indexi,boundary->is,ndims);
+        if      (face ==  1) indexi[dim] = ghosts-1-indexb[dim];
+        else if (face == -1) indexi[dim] = size[dim]-indexb[dim]-1;
+        else return(1);
+        _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
+        _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
+        
+        /* flow in the interior is phi + phi_ref (since phi is DU) */
+        double phi_total[nvars]; 
+        for (v=0; v<nvars; v++) phi_total[v] = phi[nvars*p2+v]+phi_ref[nvars*p2+v];
+
+        /* flow variables in the interior */
+        double rho, uvel, vvel, energy, pressure;
+        double rho0, uvel0, vvel0, energy0, pressure0;
+        _Euler2DGetFlowVar_(phi_total,rho,uvel,vvel,energy,pressure,(&physics));
+        _Euler2DGetFlowVar_((phi_ref+nvars*p2),rho0,uvel0,vvel0,energy0,pressure0,(&physics));
+        /* set the ghost point values */
+        double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
+        double rho0_gpt, uvel0_gpt, vvel0_gpt, energy0_gpt, pressure0_gpt;
+        /* setting the ghost point values of the total flow variables */
+        rho_gpt      = boundary->FlowDensity;
+        pressure_gpt = pressure;
+        uvel_gpt     = boundary->FlowVelocity[0];
+        vvel_gpt     = boundary->FlowVelocity[1];
+        energy_gpt   = inv_gamma_m1*pressure_gpt
+                       + 0.5 * rho_gpt * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt);
+        /* setting the ghost point values of the reference flow variables */
+        rho0_gpt      = boundary->FlowDensity;
+        pressure0_gpt = pressure0;
+        uvel0_gpt     = boundary->FlowVelocity[0];
+        vvel0_gpt     = boundary->FlowVelocity[1];
+        energy0_gpt   = inv_gamma_m1*pressure0_gpt
+                       + 0.5 * rho0_gpt * (uvel0_gpt*uvel0_gpt + vvel0_gpt*vvel0_gpt);
+
+        phi[nvars*p1+0] = rho_gpt            - rho0_gpt;
+        phi[nvars*p1+1] = rho_gpt * uvel_gpt - rho0_gpt * uvel0_gpt;
+        phi[nvars*p1+2] = rho_gpt * vvel_gpt - rho0_gpt * vvel0_gpt;
+        phi[nvars*p1+3] = energy_gpt         - energy0_gpt;
+
+        _ArrayIncrementIndex_(ndims,bounds,indexb,done);
+      }
     }
+
+  } else if (ndims == 3) {
+
+    /* create a fake physics object */
+    NavierStokes3D physics;
+    double gamma;
+    gamma = physics.gamma = boundary->gamma;
+    double inv_gamma_m1 = 1.0/(gamma-1.0);
+
+    if (boundary->on_this_proc) {
+      int bounds[ndims], indexb[ndims], indexi[ndims];
+      _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
+      _ArraySetValue_(indexb,ndims,0);
+      int done = 0;
+      while (!done) {
+        int p1, p2;
+        _ArrayCopy1D_(indexb,indexi,ndims);
+        _ArrayAdd1D_(indexi,indexi,boundary->is,ndims);
+        if      (face ==  1) indexi[dim] = ghosts-1-indexb[dim];
+        else if (face == -1) indexi[dim] = size[dim]-indexb[dim]-1;
+        else return(1);
+        _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
+        _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
+        
+        /* flow in the interior is phi + phi_ref (since phi is DU) */
+        double phi_total[nvars]; 
+        for (v=0; v<nvars; v++) phi_total[v] = phi[nvars*p2+v]+phi_ref[nvars*p2+v];
+
+        /* flow variables in the interior */
+        double rho, uvel, vvel, wvel, energy, pressure;
+        double rho0, uvel0, vvel0, wvel0, energy0, pressure0;
+        _NavierStokes3DGetFlowVar_(phi_total,rho,uvel,vvel,wvel,energy,pressure,(&physics));
+        _NavierStokes3DGetFlowVar_((phi_ref+nvars*p2),rho0,uvel0,vvel0,wvel0,energy0,pressure0,(&physics));
+        /* set the ghost point values */
+        double rho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, energy_gpt, pressure_gpt;
+        double rho0_gpt, uvel0_gpt, vvel0_gpt, wvel0_gpt, energy0_gpt, pressure0_gpt;
+        /* setting the ghost point values of the total flow variables */
+        rho_gpt      = boundary->FlowDensity;
+        pressure_gpt = pressure;
+        uvel_gpt     = boundary->FlowVelocity[0];
+        vvel_gpt     = boundary->FlowVelocity[1];
+        wvel_gpt     = boundary->FlowVelocity[2];
+        energy_gpt   = inv_gamma_m1*pressure_gpt
+                       + 0.5 * rho_gpt 
+                       * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt + wvel_gpt*wvel_gpt);
+        /* setting the ghost point values of the reference flow variables */
+        rho0_gpt      = boundary->FlowDensity;
+        pressure0_gpt = pressure0;
+        uvel0_gpt     = boundary->FlowVelocity[0];
+        vvel0_gpt     = boundary->FlowVelocity[1];
+        wvel0_gpt     = boundary->FlowVelocity[2];
+        energy0_gpt   = inv_gamma_m1*pressure0_gpt
+                       + 0.5 * rho0_gpt 
+                       * (uvel0_gpt*uvel0_gpt + vvel0_gpt*vvel0_gpt + wvel0_gpt*wvel0_gpt);
+
+        phi[nvars*p1+0] = rho_gpt            - rho0_gpt;
+        phi[nvars*p1+1] = rho_gpt * uvel_gpt - rho0_gpt * uvel0_gpt;
+        phi[nvars*p1+2] = rho_gpt * vvel_gpt - rho0_gpt * vvel0_gpt;
+        phi[nvars*p1+3] = rho_gpt * wvel_gpt - rho0_gpt * wvel0_gpt;
+        phi[nvars*p1+4] = energy_gpt         - energy0_gpt;
+
+        _ArrayIncrementIndex_(ndims,bounds,indexb,done);
+      }
+    }
+
   }
   return(0);
 }

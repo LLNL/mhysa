@@ -25,7 +25,7 @@ typedef struct domain_boundaries {
   /* the boundary condition function for the solution vector U */
   int (*BCFunctionU) (void*,void*,int,int,int*,int,double*);
   /* the boundary condition function for the vector \Delta U (needed for implicit time-integration */
-  int (*BCFunctionDU)(void*,void*,int,int,int*,int,double*);
+  int (*BCFunctionDU)(void*,void*,int,int,int*,int,double*,double*);
 
   double *DirichletValue;   /* specified value for steady Dirichlet BC */
 
@@ -50,11 +50,11 @@ int BCSubsonicInflowU   (void*,void*,int,int,int*,int,double*);    /* Subsonic i
 int BCSubsonicOutflowU  (void*,void*,int,int,int*,int,double*);    /* Subsonic outflow       boundary conditions  */
 
 /* Boundary condition implementations for the (\Delta U) */
-int BCPeriodicDU        (void*,void*,int,int,int*,int,double*);    /* Periodic boundary conditions    */
-int BCExtrapolateDU     (void*,void*,int,int,int*,int,double*);    /* extrapolate boundary conditions */
-int BCDirichletDU       (void*,void*,int,int,int*,int,double*);    /* Dirichlet boundary conditions   */
-int BCReflectDU         (void*,void*,int,int,int*,int,double*);    /* Reflection boundary conditions  */
-int BCNoslipWallDU      (void*,void*,int,int,int*,int,double*);    /* No-slip wall (viscous) boundary conditions  */
-int BCSlipWallDU        (void*,void*,int,int,int*,int,double*);    /* Slip (inviscid) wall   boundary conditions  */
-int BCSubsonicInflowDU  (void*,void*,int,int,int*,int,double*);    /* Subsonic inflow        boundary conditions  */
-int BCSubsonicOutflowDU (void*,void*,int,int,int*,int,double*);    /* Subsonic outflow       boundary conditions  */
+int BCPeriodicDU        (void*,void*,int,int,int*,int,double*,double*);    /* Periodic boundary conditions    */
+int BCExtrapolateDU     (void*,void*,int,int,int*,int,double*,double*);    /* extrapolate boundary conditions */
+int BCDirichletDU       (void*,void*,int,int,int*,int,double*,double*);    /* Dirichlet boundary conditions   */
+int BCReflectDU         (void*,void*,int,int,int*,int,double*,double*);    /* Reflection boundary conditions  */
+int BCNoslipWallDU      (void*,void*,int,int,int*,int,double*,double*);    /* No-slip wall (viscous) boundary conditions  */
+int BCSlipWallDU        (void*,void*,int,int,int*,int,double*,double*);    /* Slip (inviscid) wall   boundary conditions  */
+int BCSubsonicInflowDU  (void*,void*,int,int,int*,int,double*,double*);    /* Subsonic inflow        boundary conditions  */
+int BCSubsonicOutflowDU (void*,void*,int,int,int*,int,double*,double*);    /* Subsonic outflow       boundary conditions  */

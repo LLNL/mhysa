@@ -22,7 +22,7 @@ int BCDirichletU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
   return(0);
 }
 
-int BCDirichletDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCDirichletDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   int            var       = boundary->var;
