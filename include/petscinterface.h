@@ -35,7 +35,7 @@ PetscErrorCode PetscRHSFunctionIMEX (TS,PetscReal,Vec,Vec,void*);
 PetscErrorCode PetscIFunctionIMEX   (TS,PetscReal,Vec,Vec,Vec,void*);
 
 /* Jacobian functions for left-hand side */
-PetscErrorCode PetscIJacobianIMEX         (TS,PetscReal,Vec,Vec,PetscReal,Mat*,Mat*,MatStructure*,void*);                            
+PetscErrorCode PetscIJacobianIMEX         (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);                            
 PetscErrorCode PetscJacobianFunctionIMEX  (Mat,Vec,Vec);             
 
 /* Other functions */

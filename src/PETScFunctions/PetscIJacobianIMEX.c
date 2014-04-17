@@ -7,8 +7,8 @@
 #include <hypar.h>
 #include <petscinterface.h>
 
-PetscErrorCode PetscIJacobianIMEX(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,Mat *A,Mat *B,
-                              MatStructure *struc,void *ctxt)
+PetscErrorCode PetscIJacobianIMEX(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
+                                  Mat A,Mat B,void *ctxt)
 {
   PETScContext *context = (PETScContext*) ctxt;
   context->shift = a;
@@ -38,7 +38,7 @@ PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
   /* copy solution from PETSc vector */
   ierr = TransferFromPETSc(u,Y,context);                              CHECKERR(ierr);
   /* apply boundary conditions and exchange data over MPI interfaces */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u);               CHECKERR(ierr);
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,1);        CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,u);               CHECKERR(ierr);
 

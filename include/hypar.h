@@ -49,7 +49,7 @@ typedef struct main_parameters {
 
   /* Functions */
   int (*WriteOutput)              (int,int,int*,double*,double*,char*,int*);  
-  int (*ApplyBoundaryConditions)  (void*,void*,double*);                     
+  int (*ApplyBoundaryConditions)  (void*,void*,double*,double*,int);                     
   int (*TimeIntegrate)            (void*);                                  
   int (*InterpolateInterfacesHyp) (double*,double*,double*,double*,int,int,void*,void*);
   int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
