@@ -4,9 +4,9 @@ HyPar - Hyperbolic-Parabolic Partial Differential Equations Solver
 A finite-difference algorithm to solve hyperbolic-parabolic equations 
 of the following form:
 
-    du        d [f_i(u)]         d^2 [g_i(u)]
-   ----   +  ------------   =  ---------------- + S(u)  ;   0 < i <= ndims
-    dt           dx_i             d (x_i)^2                 (implied summation)
+    du        d [f_i(u)]          d    [  d [g_ij(u)] ]
+   ----   +  ------------   =  --------[ ------------ ]  + S(u)  ;   0 < i,j <= ndims
+    dt           dx_i          d (x_j) [    d (x_i)   ]             
 
 where
   u     -> state vector of size nvar
@@ -24,27 +24,32 @@ lower bounds of x_i) is discretized with a Cartesian grid.
   + Third order MUSCL with Koren's limiter
   + Fifth order WENO 
   + Fifth order CRWENO
+
 - Spatial Discretization of Parabolic Terms - Conservative and Non-Conservative
   + Second order central
-  + Fourth order central (coming soon)
+  + Fourth order central
   + Fourth order compact (coming soon)
   + Sixth order compact (coming soon)
-  + Sixth order WENO (coming soon)
+
 - Time integration
   + With PETSc (http://www.mcs.anl.gov/petsc/)
   + Without PETSc
     - Forward Euler
     - Multi-stage explicit Runge Kutta scheme
       (First, second, third, fourth order schemes)
+
 - Physics models
   + Linear advection-diffusion-reaction
   + Fokker-Planck double well
   + Fokker-Planck model for Power Systems
-  + Euler equations (1D, 2D, 3D)
-  + Porous Medium Equations (Coming soon)
+  + Euler equations (1D, 2D)
+  + Navier-Stokes equations (2D, 3D)
+
 - Output options
+  + Binary
   + Plain text
   + Tecplot (2D and 3D problems only)
+
 - Serial as well as parallel (MPI)
 
 The solver provides a standardized template for discretization schemes and 
@@ -56,6 +61,7 @@ the following functions for them:-
 - Upwinding function if hyperbolic function present
 - CFL and Diffusion number computation functions
 Existing physical models provide a template.
+
 Similarly, new discretization schemes can be added easily by following the 
 existing template. The only restriction is that any new discretization scheme
 for the hyperbolic terms needs to be conservative (i.e., only the function to
@@ -73,12 +79,22 @@ PETSc's time-integration (TS) module:
 
 PETSc INSTALLATION:-
 
-The code uses some PETSc features that are *NOT* available yet in the official release. 
-The appropriate copy of PETSc can be obtained from the following source:
-  git@bitbucket.org:dog5011/petsc-debo.git (with SSH keys and a Bitbucket account)
-  https://dog5011@bitbucket.org/dog5011/petsc-debo.git (otherwise)
-The branch "debo/main" should be compiled using the same instructions as provided
-in the official PETSc documentation. 
+Get PETSc:
+git clone git@bitbucket.org:petsc/petsc.git (with Bitbucket account and SSH keys)
+git clone https://bitbucket.org/petsc/petsc.git (without Bitbucket accoun)
+
+Set up environment variables (these should also be available when compiling HyPar):
+export PETSC_DIR=/path/to/petsc/ (Eg. PETSC_DIR=/home/ghosh/petsc)
+export PETSC_ARCH=(name of build) (Eg. arch-debug or arch-opt. It can be anything)
+
+Compile PETSc:
+./configure --with-cc=/path/to/mpicc --with-fc=/path/to/mpif90 -with-cxx=/path/to/mpicxx --with-shared-libraries --with-debugging=1
+make all
+make test
+
+For more details:
+http://www.mcs.anl.gov/~ghosh/codes/petsc.html
+http://www.mcs.anl.gov/petsc/documentation/installation.html
 
 -------------------------------------------------------------------------------------
 
@@ -122,11 +138,11 @@ See section "INPUT FILES" for a list of required input files and their explanati
 
 RUNNING WITH PETSc TIME INTEGRATION:-
 - To run with PETSc time-integration, use the flag "-use-petscts"
-  Example: [$MPIEXEC -n $NPROC] /path/to/IBCARTINS3D -use-petscts
+  Example: [$MPIEXEC -n $NPROC] /path/to/HyPar -use-petscts
 - In addition to the regular inputs, PETSc inputs can be provided through
   command line arguments or in a file ".petscrc". See PETSc documentation
   or use the "-help" argument to get a list of available arguments.
-  > [$MPIEXEC -n $NPROC] /path/to/IBCARTINS3D -use-petscts -help
+  > [$MPIEXEC -n $NPROC] /path/to/HyPar -use-petscts -help
 
 Time integration inputs:-
 - When running with PETSc, the inputs "time_scheme" and "time_scheme_type" in 
@@ -138,7 +154,7 @@ Time integration inputs:-
   -ts_final_time
 
 Screen output:-
-- The inputs "screen_op_iter" and "print_ls" are redundant. Instead use
+- The inputs "screen_op_iter" is redundant. Instead use
   -ts_monitor, -snes_monitor, -ksp_monitor, etc to print what you need.
   See PETSc documentation for more details.
 
