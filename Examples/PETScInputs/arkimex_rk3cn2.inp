@@ -1,0 +1,38 @@
+1
+begin
+  name        lsdrk3cn2
+  class       arkimex
+  nstages     4
+  order       1
+  A
+    0                                 0                               0                         0
+    0.53333333333333333333333333333   0                               0                         0
+    0.25                              0.416666666666666666666666667   0                         0
+    0.25                              0                               0.75                      0
+  b
+    0.25                              0                               0.75                      0
+  At
+    0                                 0                               0                         0
+    0.26666666666666666666666666667   0.2666666666666666666666666667  0                         0
+    0.125                             0.3333333333333333333333333333  0.208333333333333333333   0
+    0.125                             0.125                           0.375                     0.375     
+  bt
+    0.125                             0.125                           0.375                     0.375     
+end
+
+# This is an example of an input file to register a custom 
+# ARKIMEX scheme.
+
+# This particular scheme results from using the Low-Storage
+# 3rd order Runge-Kutta scheme for the explicit terms and
+# the 2nd order Crank-Nicholson scheme for the implicit 
+# terms.
+
+# The name ("lsdrk3cn2" here) is what the custom method is
+# registered as. To use it, specify the flag
+# -ts_arkimex_type <name>
+# Note: It should not conflict with the names of existing
+# methods in PETSc.
+
+# For non-recurring and irrational numbers (1/3, pi, etc), 
+# write them out to 16 decimal places.
