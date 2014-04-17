@@ -201,9 +201,11 @@ int PetscRegisterTIMethods(int rank)
             if (bt)  for (j = 0; j < s; j++) printf(" %+1.5lf :",bt[j]);
             else     for (j = 0; j < s; j++) printf("          :");
             printf("\n\n");
-          } else {
-            if (!rank) fprintf(stderr,"Warning in PetscRegisterTIMethods(): Failed to register method ");
-            if (!rank) fprintf(stderr,"(A or At not defined).\n");
+          }
+        } else {
+          if (!rank) {
+            fprintf(stderr,"Warning in PetscRegisterTIMethods(): Failed to register method ");
+            fprintf(stderr,"(A or At not defined).\n");
           }
         }
       } else if (!strcmp(type,"rk")) {
@@ -225,9 +227,11 @@ int PetscRegisterTIMethods(int rank)
             if (b)   for (j = 0; j < s; j++) printf(" %+1.5lf :",b[j]);
             else     for (j = 0; j < s; j++) printf("          :");
             printf("\n\n");
-          } else {
-            if (!rank) fprintf(stderr,"Warning in PetscRegisterTIMethods(): Failed to register method ");
-            if (!rank) fprintf(stderr,"(A or At not defined).\n");
+          }
+        } else {
+          if (!rank) {
+            fprintf(stderr,"Warning in PetscRegisterTIMethods(): Failed to register method ");
+            fprintf(stderr,"(A or At not defined).\n");
           }
         }
       } else {
