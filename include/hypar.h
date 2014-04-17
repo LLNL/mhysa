@@ -91,10 +91,11 @@ typedef struct main_parameters {
   void *lusolver;     /* Tridiagonal LU solver parameters         */
 
   /* Errors */
-  double error[3];                      /* L1,L2,Linf errors, if calculated         */
+  double error[3];   /* L1,L2,Linf errors, if calculated         */
 #ifdef with_petsc
   /* PETSc */
-  int use_petscTS;                      /* Use PETSc time-integration? */
+  int     use_petscTS;  /* Use PETSc time-integration? */
+  double  *uref;        /* copy of state vector        */
 #endif
 
 } HyPar;

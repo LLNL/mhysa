@@ -30,15 +30,16 @@ PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
   int size = 1;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
 
-  double *u   = solver->u;
-  double *rhs = (double*) calloc (size*solver->nvars,sizeof(double));
+  double *u    = solver->u;
+  double *uref = solver->uref;
+  double *rhs  = (double*) calloc (size*solver->nvars,sizeof(double));
 
   double t = context->waqt; /* current stage/step time */
 
   /* copy solution from PETSc vector */
   ierr = TransferFromPETSc(u,Y,context);                              CHECKERR(ierr);
   /* apply boundary conditions and exchange data over MPI interfaces */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,1);        CHECKERR(ierr);
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,uref,1);        CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,u);               CHECKERR(ierr);
 

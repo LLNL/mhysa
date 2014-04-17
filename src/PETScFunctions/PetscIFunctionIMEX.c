@@ -23,9 +23,12 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
   /* copy solution from PETSc vector */
   ierr = TransferFromPETSc(u,Y,context);                              CHECKERR(ierr);
   /* apply boundary conditions and exchange data over MPI interfaces */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0);             CHECKERR(ierr);
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0);        CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,u);               CHECKERR(ierr);
+
+  /* save a copy of the solution for use in BC application in IJacobian */
+  _ArrayCopy1D_(u,solver->uref,(size*solver->nvars));
 
   /* initialize right-hand side to zero */
   _ArraySetValue_(rhs,size*solver->nvars,0.0);

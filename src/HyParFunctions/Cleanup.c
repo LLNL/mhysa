@@ -77,6 +77,9 @@ int Cleanup(void *s,void *m)
   free(solver->dim_local);
   free(solver->index);
   free(solver->u);
+#ifdef with_petsc
+  if (solver->uref) free(solver->uref);
+#endif
   free(solver->hyp);
   free(solver->par);
   free(solver->source);

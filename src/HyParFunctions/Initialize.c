@@ -74,6 +74,11 @@ int Initialize(void *s, void *m)
   size = 1;
   for (i=0; i<solver->ndims; i++) size *= (solver->dim_local[i]+2*solver->ghosts);
   solver->u       = (double*) calloc (solver->nvars*size,sizeof(double));
+#ifdef with_petsc
+  if (solver->use_petscTS) {
+    solver->uref  = (double*) calloc (solver->nvars*size,sizeof(double));
+  } else solver->uref = NULL;
+#endif
   solver->hyp     = (double*) calloc (solver->nvars*size,sizeof(double));
   solver->par     = (double*) calloc (solver->nvars*size,sizeof(double));
   solver->source  = (double*) calloc (solver->nvars*size,sizeof(double));
