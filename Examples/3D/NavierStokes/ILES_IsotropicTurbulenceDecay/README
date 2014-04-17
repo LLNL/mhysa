@@ -1,0 +1,47 @@
+3D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+Isotropic Turbulence Decay (Implicit Large-Eddy Simulation)
+
+References:
++ Thornber, B., Mosedale, A., and Drikakis, D., "On the implicit
+  large eddy simulation of homogenous decaying turbulence", Journal
+  of Computational Physics, 226, 2007, 1902-1929
+
+Domain:
+
+  0 <= x,y,z < 2pi
+  "periodic" boundary conditions
+
+The initial solution is specified in the Fourier space (with an energy
+distribution similar to that of turbulent flow), and then transformed 
+to the physical space through an inverse transform.
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physics-related parameters
++ initial.inp   -   Initial solution
+
+** See hypar/README for other (optional) input files
+
+** In solver.inp, the field "input_mode" is set to "parallel". Thus, 
+the code would need the initial solution in a file called 
+"initial_par.inp". This file contains the initial solution split into
+the MPI subdomains. All the MPI processes read it, thus bypassing the
+allocation of the global domain on the root process and then distrib-
+uting the solution to other ranks.
+
+"initial_par.inp" can be generated from "initial.inp" by compiling and
+running "hypar/Extras/ParallelInput.c" after specifying the number of
+processors ("iproc") in "solver.inp".
+
+Notes:-
+The code aux/init.C is an example to generate the initial solution
+file in the correct format required by the solver.  
+
+The code aux/fourier.C can be used to calculate the initial and
+final spectrum of the solution. 
+
+** Both these codes need the fftw3 library (http://www.fftw.org). 
+To compile:
+g++ -I/path/to/fftw3.h -L/path/to/libfftw3.a -lfftw3 fourier.C 

@@ -61,6 +61,8 @@ The following input files are required:
 + boundary.inp  -   Boundary conditions
 + physics.inp   -   Physical parameters (advection speed)
 
+** See hypar/README for other (optional) input files
+
 Due to file sizes, the required file initial.inp for 
 initial solution are not provided. It can be generated 
 by compiling aux/init.C running the executable in the 

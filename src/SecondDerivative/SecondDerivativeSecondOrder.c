@@ -13,7 +13,7 @@
 #undef  _MINIMUM_GHOSTS_
 #define _MINIMUM_GHOSTS_ 1
 
-int SecondDerivativeSecondOrder(double *D2f,double *f,int dir,void *s,void *m)
+int SecondDerivativeSecondOrderCentral(double *D2f,double *f,int dir,void *s,void *m)
 {
   HyPar         *solver = (HyPar*) s;
   int           i, v;

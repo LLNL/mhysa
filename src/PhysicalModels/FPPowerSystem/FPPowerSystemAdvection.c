@@ -4,8 +4,6 @@
 #include <physicalmodels/fppowersystem.h>
 #include <hypar.h>
 
-double FPPowerSystemDriftFunction(int,void*,double,double,double);
-
 int FPPowerSystemAdvection(double *f,double *u,int dir,void *s,double t)
 {
   HyPar         *solver = (HyPar*)        s;
@@ -28,10 +26,6 @@ int FPPowerSystemAdvection(double *f,double *u,int dir,void *s,double t)
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
-//    double x     = solver->GetCoordinate(0,index[0],dim,ghosts,solver->x);
-//    double y     = solver->GetCoordinate(1,index[1],dim,ghosts,solver->x);
-//    double drift = FPPowerSystemDriftFunction(dir,params,x,y,t);
-//    for (v = 0; v < nvars; v++) f[nvars*p+v] = drift * u[nvars*p+v];
     for (v = 0; v < nvars; v++) f[nvars*p+v] = u[nvars*p+v];
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }

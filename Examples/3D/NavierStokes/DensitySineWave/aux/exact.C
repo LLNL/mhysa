@@ -11,6 +11,8 @@ const double GAMMA  = 1.4;
 int main(){
   
 	int NI,NJ,NK,ndims;
+  char ip_file_type[50];
+  strcpy(ip_file_type,"ascii");
   int n_iter;
   double tf, dt;
   std::ifstream in;
@@ -28,6 +30,7 @@ int main(){
         else if (!strcmp(word, "size")) in >> NI >> NJ >> NK;
         else if (!strcmp(word, "n_iter")) in >> n_iter;
         else if (!strcmp(word, "dt")) in >> dt;
+        else if (!strcmp(word, "ip_file_type")) in >> ip_file_type;
       }
     }else{ 
       std::cout << "Error: Illegal format in solver.inp. Crash and burn!\n";
@@ -54,109 +57,21 @@ int main(){
   double rho_inf = 1.0, drho = 0.1;
   double p_inf = 1.0/GAMMA;
 
-	double *x, *y, *z, *u0, *u1, *u2, *u3, *u4;
+	double *x, *y, *z, *U;
   FILE *out;
 
- 	x   = (double*) calloc (NI      , sizeof(double));
-	y   = (double*) calloc (NJ      , sizeof(double));
-	z   = (double*) calloc (NK      , sizeof(double));
-	u0  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	u1  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	u2  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	u3  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	u4  = (double*) calloc (NI*NJ*NK, sizeof(double));
+ 	x   = (double*) calloc (NI        , sizeof(double));
+	y   = (double*) calloc (NJ        , sizeof(double));
+	z   = (double*) calloc (NK        , sizeof(double));
+	U   = (double*) calloc (5*NI*NJ*NK, sizeof(double));
+
 	for (i = 0; i < NI; i++){
   	for (j = 0; j < NJ; j++){
   	  for (k = 0; k < NK; k++){
   	  	x[i] = i*dx;
 	    	y[j] = j*dy;
 	    	z[k] = k*dz;
-        int p = NJ*NK*i + NK*j + k;
-
-        double rho, u, v, w, P;
-        rho = rho_inf + drho * sin(2*pi*x[i]-2*pi*u_inf*tf) * sin(2*pi*y[j]-2*pi*v_inf*tf) * sin(2*pi*z[k]-2*pi*w_inf*tf);
-        P   = p_inf;
-        u   = u_inf;
-        v   = v_inf;
-        w   = w_inf;
-
-        u0[p] = rho;
-        u1[p] = rho*u;
-        u2[p] = rho*v;
-        u3[p] = rho*w;
-        u4[p] = P/(GAMMA-1.0) + 0.5*rho*(u*u+v*v+w*w);
-      }
-	  }
-	}
-	out = fopen("exact.inp","w");
-  for (i = 0; i < NI; i++)  fprintf(out,"%1.16E ",x[i]);
-  fprintf(out,"\n");
-  for (j = 0; j < NJ; j++)  fprintf(out,"%1.16E ",y[j]);
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)  fprintf(out,"%1.16E ",z[k]);
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u0[p]);
-      }
-    }
-  }
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u1[p]);
-      }
-    }
-  }
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u2[p]);
-      }
-    }
-  }
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u3[p]);
-      }
-    }
-  }
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u4[p]);
-      }
-    }
-  }
-  fprintf(out,"\n");
-	fclose(out);
-
- 	x   = (double*) calloc (NI      , sizeof(double));
-	y   = (double*) calloc (NJ      , sizeof(double));
-	z   = (double*) calloc (NK      , sizeof(double));
-	u0  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	u1  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	u2  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	u3  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	u4  = (double*) calloc (NI*NJ*NK, sizeof(double));
-	for (i = 0; i < NI; i++){
-  	for (j = 0; j < NJ; j++){
-  	  for (k = 0; k < NK; k++){
-  	  	x[i] = i*dx;
-	    	y[j] = j*dy;
-	    	z[k] = k*dz;
-        int p = NJ*NK*i + NK*j + k;
+        int p = i + NK*j + NI*NJ*k;
 
         double rho, u, v, w, P;
         rho = rho_inf + drho * sin(2*pi*x[i]) * sin(2*pi*y[j]) * sin(2*pi*z[k]);
@@ -165,75 +80,177 @@ int main(){
         v   = v_inf;
         w   = w_inf;
 
-        u0[p] = rho;
-        u1[p] = rho*u;
-        u2[p] = rho*v;
-        u3[p] = rho*w;
-        u4[p] = P/(GAMMA-1.0) + 0.5*rho*(u*u+v*v+w*w);
+        U[5*p+0] = rho;
+        U[5*p+1] = rho*u;
+        U[5*p+2] = rho*v;
+        U[5*p+3] = rho*w;
+        U[5*p+4] = P/(GAMMA-1.0) + 0.5*rho*(u*u+v*v+w*w);
       }
 	  }
 	}
-	out = fopen("initial.inp","w");
-  for (i = 0; i < NI; i++)  fprintf(out,"%1.16E ",x[i]);
-  fprintf(out,"\n");
-  for (j = 0; j < NJ; j++)  fprintf(out,"%1.16E ",y[j]);
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)  fprintf(out,"%1.16E ",z[k]);
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u0[p]);
+  if (!strcmp(ip_file_type,"ascii")) {
+    printf("Writing ASCII initial solution file initial.inp\n");
+  	out = fopen("initial.inp","w");
+    for (i = 0; i < NI; i++)  fprintf(out,"%1.16E ",x[i]);
+    fprintf(out,"\n");
+    for (j = 0; j < NJ; j++)  fprintf(out,"%1.16E ",y[j]);
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)  fprintf(out,"%1.16E ",z[k]);
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+0]);
+        }
       }
     }
-  }
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u1[p]);
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+1]);
+        }
       }
     }
-  }
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u2[p]);
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+2]);
+        }
       }
     }
-  }
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u3[p]);
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+3]);
+        }
       }
     }
-  }
-  fprintf(out,"\n");
-  for (k = 0; k < NK; k++)	{
-    for (j = 0; j < NJ; j++)	{
-	    for (i = 0; i < NI; i++)	{
-        int p = NJ*NK*i + NK*j + k;
-        fprintf(out,"%1.16E ",u4[p]);
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+4]);
+        }
       }
     }
+    fprintf(out,"\n");
+	  fclose(out);
+
+  } else if ((!strcmp(ip_file_type,"binary")) || (!strcmp(ip_file_type,"bin"))) {
+
+    printf("Writing binary initial solution file initial.inp\n");
+  	out = fopen("initial.inp","wb");
+    fwrite(x,sizeof(double),NI,out);
+    fwrite(y,sizeof(double),NJ,out);
+    fwrite(z,sizeof(double),NK,out);
+    fwrite(U,sizeof(double),5*NI*NJ*NK,out);
+    fclose(out);
+
   }
-  fprintf(out,"\n");
-	fclose(out);
+
+	for (i = 0; i < NI; i++){
+  	for (j = 0; j < NJ; j++){
+  	  for (k = 0; k < NK; k++){
+  	  	x[i] = i*dx;
+	    	y[j] = j*dy;
+	    	z[k] = k*dz;
+        int p = i + NK*j + NI*NJ*k;
+
+        double rho, u, v, w, P;
+        rho = rho_inf + drho * sin(2*pi*x[i]-2*pi*u_inf*tf) * sin(2*pi*y[j]-2*pi*v_inf*tf) * sin(2*pi*z[k]-2*pi*w_inf*tf);
+        P   = p_inf;
+        u   = u_inf;
+        v   = v_inf;
+        w   = w_inf;
+
+        U[5*p+0] = rho;
+        U[5*p+1] = rho*u;
+        U[5*p+2] = rho*v;
+        U[5*p+3] = rho*w;
+        U[5*p+4] = P/(GAMMA-1.0) + 0.5*rho*(u*u+v*v+w*w);
+      }
+	  }
+	}
+  if (!strcmp(ip_file_type,"ascii")) {
+    printf("Writing ASCII exact solution file exact.inp\n");
+  	out = fopen("exact.inp","w");
+    for (i = 0; i < NI; i++)  fprintf(out,"%1.16E ",x[i]);
+    fprintf(out,"\n");
+    for (j = 0; j < NJ; j++)  fprintf(out,"%1.16E ",y[j]);
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)  fprintf(out,"%1.16E ",z[k]);
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+0]);
+        }
+      }
+    }
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+1]);
+        }
+      }
+    }
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+2]);
+        }
+      }
+    }
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+3]);
+        }
+      }
+    }
+    fprintf(out,"\n");
+    for (k = 0; k < NK; k++)	{
+      for (j = 0; j < NJ; j++)	{
+	      for (i = 0; i < NI; i++)	{
+          int p = i + NK*j + NI*NJ*k;
+          fprintf(out,"%1.16E ",U[5*p+4]);
+        }
+      }
+    }
+    fprintf(out,"\n");
+	  fclose(out);
+
+  } else if ((!strcmp(ip_file_type,"binary")) || (!strcmp(ip_file_type,"bin"))) {
+
+    printf("Writing binary exact solution file exact.inp\n");
+  	out = fopen("exact.inp","wb");
+    fwrite(x,sizeof(double),NI,out);
+    fwrite(y,sizeof(double),NJ,out);
+    fwrite(z,sizeof(double),NK,out);
+    fwrite(U,sizeof(double),5*NI*NJ*NK,out);
+    fclose(out);
+
+  }
 
 	free(x);
 	free(y);
 	free(z);
-	free(u0);
-	free(u1);
-	free(u2);
-	free(u3);
+	free(U);
 
 	return(0);
 }

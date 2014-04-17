@@ -70,6 +70,12 @@
     for (arraycounter = 0; arraycounter < (size); arraycounter++)  x[arraycounter] = (value);                       \
   }
 
+#define _ArrayScale1D_(x,a,size)                                                                                    \
+  {                                                                                                                 \
+    int arraycounter;                                                                                               \
+    for (arraycounter=0; arraycounter<size; arraycounter++) x[arraycounter] *= a;                                   \
+  }
+
 #define _ArraySubtract1D_(x,a,b,size)                                                                               \
   {                                                                                                                 \
     int arraycounter;                                                                                               \

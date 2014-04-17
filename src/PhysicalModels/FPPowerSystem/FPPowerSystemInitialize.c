@@ -62,7 +62,7 @@ int FPPowerSystemInitialize(void *s,void *m)
 	    while (strcmp(word, "end")){
 		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
         if      (!strcmp(word, "inertia")) {ferr=fscanf(in,"%lf",&physics->H  );if(ferr!=1)return(1);}
-        if      (!strcmp(word, "omega_s")) {ferr=fscanf(in,"%lf",&physics->O_s);if(ferr!=1)return(1);}
+        else if (!strcmp(word, "omega_s")) {ferr=fscanf(in,"%lf",&physics->O_s);if(ferr!=1)return(1);}
         else if (!strcmp(word, "E"      )) {ferr=fscanf(in,"%lf",&physics->E  );if(ferr!=1)return(1);}
         else if (!strcmp(word, "V"      )) {ferr=fscanf(in,"%lf",&physics->V  );if(ferr!=1)return(1);}
         else if (!strcmp(word, "g1"     )) {ferr=fscanf(in,"%lf",&physics->g1 );if(ferr!=1)return(1);}

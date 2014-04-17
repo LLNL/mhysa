@@ -9,8 +9,9 @@ begin
   time_scheme_type  ssprk3
   hyp_space_scheme  crweno5
   dt                0.0025
-  screen_op_iter    1
+  screen_op_iter    10
   file_op_iter      40
+  ip_file_type      ascii
   op_file_format    text
   op_overwrite      no
   model             linear-advection-diffusion-reaction

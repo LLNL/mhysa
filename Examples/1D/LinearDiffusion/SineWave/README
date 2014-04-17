@@ -25,6 +25,8 @@ The following input files are required:
                     (if not present, then solver will use
                     native time-integration)
 
+** See hypar/README for other (optional) input files
+
 Notes:-
 The code aux/init.C is an example to generate the initial
 solution file in the correct format required by the solver. 

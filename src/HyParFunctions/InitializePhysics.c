@@ -9,8 +9,10 @@
 #include <physicalmodels/linearadr.h>
 #include <physicalmodels/fpdoublewell.h>
 #include <physicalmodels/fppowersystem.h>
+#include <physicalmodels/fppowersystem3bus.h>
 #include <physicalmodels/euler1d.h>
 #include <physicalmodels/euler2d.h>
+#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 int InitializePhysics(void *s,void *m)
@@ -26,6 +28,7 @@ int InitializePhysics(void *s,void *m)
   solver->ComputeDiffNumber     = NULL;
   solver->FFunction             = NULL;
   solver->GFunction             = NULL;
+  solver->HFunction             = NULL;
   solver->SFunction             = NULL;
   solver->Upwind                = NULL;
   solver->PreStage              = NULL;
@@ -52,6 +55,11 @@ int InitializePhysics(void *s,void *m)
     solver->physics = (FPPowerSystem*) calloc (1,sizeof(FPPowerSystem));
     IERR FPPowerSystemInitialize(solver,mpi); CHECKERR(ierr);
 
+  } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_3BUS_)) {
+
+    solver->physics = (FPPowerSystem3Bus*) calloc (1,sizeof(FPPowerSystem3Bus));
+    IERR FPPowerSystem3BusInitialize(solver,mpi); CHECKERR(ierr);
+
   } else if (!strcmp(solver->model,_EULER_1D_)) {
 
     solver->physics = (Euler1D*) calloc (1,sizeof(Euler1D));
@@ -61,6 +69,11 @@ int InitializePhysics(void *s,void *m)
 
     solver->physics = (Euler2D*) calloc (1,sizeof(Euler2D));
     IERR Euler2DInitialize(solver,mpi); CHECKERR(ierr);
+
+  } else if (!strcmp(solver->model,_NAVIER_STOKES_2D_)) {
+
+    solver->physics = (NavierStokes2D*) calloc (1,sizeof(NavierStokes2D));
+    IERR NavierStokes2DInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_NAVIER_STOKES_3D_)) {
 

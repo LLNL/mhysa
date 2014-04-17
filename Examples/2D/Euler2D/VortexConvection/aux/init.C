@@ -16,6 +16,8 @@ double power(double x,double a)
 int main(){
   
 	int NI,NJ,ndims;
+  char ip_file_type[50];
+  strcpy(ip_file_type,"ascii");
   std::ifstream in;
   std::cout << "Reading file \"solver.inp\"...\n";
   in.open("solver.inp");
@@ -27,8 +29,9 @@ int main(){
     if (!strcmp(word, "begin")){
       while (strcmp(word, "end")){
         in >> word;
-        if (!strcmp(word, "ndims"))     in >> ndims;
-        else if (!strcmp(word, "size")) in >> NI >> NJ;
+        if (!strcmp(word, "ndims"))             in >> ndims;
+        else if (!strcmp(word, "size"))         in >> NI >> NJ;
+        else if (!strcmp(word, "ip_file_type")) in >> ip_file_type;
       }
     }else{ 
       std::cout << "Error: Illegal format in solver.inp. Crash and burn!\n";
@@ -79,40 +82,62 @@ int main(){
 	}
 
   FILE *out;
-	out = fopen("initial.inp","w");
-  for (i = 0; i < NI; i++)  fprintf(out,"%lf ",x[i]);
-  fprintf(out,"\n");
-  for (j = 0; j < NJ; j++)  fprintf(out,"%lf ",y[j]);
-  fprintf(out,"\n");
-  for (j = 0; j < NJ; j++)	{
-	  for (i = 0; i < NI; i++)	{
-      int p = NJ*i + j;
-      fprintf(out,"%lf ",u0[p]);
+  if (!strcmp(ip_file_type,"ascii")) {
+    printf("Writing ASCII initial solution file initial.inp\n");
+  	out = fopen("initial.inp","w");
+    for (i = 0; i < NI; i++)  fprintf(out,"%lf ",x[i]);
+    fprintf(out,"\n");
+    for (j = 0; j < NJ; j++)  fprintf(out,"%lf ",y[j]);
+    fprintf(out,"\n");
+    for (j = 0; j < NJ; j++)	{
+	    for (i = 0; i < NI; i++)	{
+        int p = NJ*i + j;
+        fprintf(out,"%lf ",u0[p]);
+      }
     }
-  }
-  fprintf(out,"\n");
-  for (j = 0; j < NJ; j++)	{
-	  for (i = 0; i < NI; i++)	{
-      int p = NJ*i + j;
-      fprintf(out,"%lf ",u1[p]);
+    fprintf(out,"\n");
+    for (j = 0; j < NJ; j++)	{
+	    for (i = 0; i < NI; i++)	{
+        int p = NJ*i + j;
+        fprintf(out,"%lf ",u1[p]);
+      }
     }
-  }
-  fprintf(out,"\n");
-  for (j = 0; j < NJ; j++)	{
-	  for (i = 0; i < NI; i++)	{
-      int p = NJ*i + j;
-      fprintf(out,"%lf ",u2[p]);
+    fprintf(out,"\n");
+    for (j = 0; j < NJ; j++)	{
+	    for (i = 0; i < NI; i++)	{
+        int p = NJ*i + j;
+        fprintf(out,"%lf ",u2[p]);
+      }
     }
-  }
-  fprintf(out,"\n");
-  for (j = 0; j < NJ; j++)	{
-	  for (i = 0; i < NI; i++)	{
-      int p = NJ*i + j;
-      fprintf(out,"%lf ",u3[p]);
+    fprintf(out,"\n");
+    for (j = 0; j < NJ; j++)	{
+	    for (i = 0; i < NI; i++)	{
+        int p = NJ*i + j;
+        fprintf(out,"%lf ",u3[p]);
+      }
     }
+    fprintf(out,"\n");
+	  fclose(out);
+  } else if ((!strcmp(ip_file_type,"binary")) || (!strcmp(ip_file_type,"bin"))) {
+    printf("Writing binary initial solution file initial.inp\n");
+  	out = fopen("initial.inp","wb");
+    fwrite(x,sizeof(double),NI,out);
+    fwrite(y,sizeof(double),NJ,out);
+    double *U = (double*) calloc (4*NI*NJ,sizeof(double));
+    for (i=0; i < NI; i++) {
+      for (j = 0; j < NJ; j++) {
+        int p = NJ*i + j;
+        int q = NI*j + i;
+        U[4*q+0] = u0[p];
+        U[4*q+1] = u1[p];
+        U[4*q+2] = u2[p];
+        U[4*q+3] = u3[p];
+      }
+    }
+    fwrite(U,sizeof(double),4*NI*NJ,out);
+    free(U);
+    fclose(out);
   }
-  fprintf(out,"\n");
-	fclose(out);
 
 	free(x);
 	free(y);

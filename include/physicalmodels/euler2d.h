@@ -1,6 +1,6 @@
 /*
 
-  1D Euler Equations for Inviscid, Compressible Flows
+  2D Euler Equations for Inviscid, Compressible Flows
 
     
   d   [ rho   ]   d   [   rho*u    ]    d  [   rho*v   ]
@@ -34,6 +34,7 @@
 #define _ROE_   "roe"
 #define _RF_    "rf-char"
 #define _LLF_   "llf-char"
+#define _SWFS_  "steger-warming"
 
 /* directions */
 #define _XDIR_ 0
@@ -118,10 +119,17 @@
     if      (dir == _XDIR_) vn = vx; \
     else if (dir == _YDIR_) vn = vy; \
     else               vn = 0.0; \
-    D[0*_MODEL_NVARS_+0] = vn-c;   D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0; \
-    D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = vn;   D[1*_MODEL_NVARS_+2] = 0;      D[1*_MODEL_NVARS_+3] = 0; \
-    D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = vn+c;   D[2*_MODEL_NVARS_+3] = 0; \
-    D[3*_MODEL_NVARS_+0] = 0;      D[3*_MODEL_NVARS_+1] = 0;    D[3*_MODEL_NVARS_+2] = 0;      D[3*_MODEL_NVARS_+3] = vn; \
+    if (dir == _XDIR_) {\
+      D[0*_MODEL_NVARS_+0] = vn-c;   D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0; \
+      D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = vn+c; D[1*_MODEL_NVARS_+2] = 0;      D[1*_MODEL_NVARS_+3] = 0; \
+      D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = vn;     D[2*_MODEL_NVARS_+3] = 0; \
+      D[3*_MODEL_NVARS_+0] = 0;      D[3*_MODEL_NVARS_+1] = 0;    D[3*_MODEL_NVARS_+2] = 0;      D[3*_MODEL_NVARS_+3] = vn; \
+    } else if (dir == _YDIR_) { \
+      D[0*_MODEL_NVARS_+0] = vn-c;   D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0; \
+      D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = vn;   D[1*_MODEL_NVARS_+2] = 0;      D[1*_MODEL_NVARS_+3] = 0; \
+      D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = vn+c;   D[2*_MODEL_NVARS_+3] = 0; \
+      D[3*_MODEL_NVARS_+0] = 0;      D[3*_MODEL_NVARS_+1] = 0;    D[3*_MODEL_NVARS_+2] = 0;      D[3*_MODEL_NVARS_+3] = vn; \
+    }\
   }
 
 #define _Euler2DLeftEigenvectors_(u,L,p,dir) \
@@ -144,18 +152,18 @@
 	  	L[0*_MODEL_NVARS_+1] = ((-ga_minus_one)*vx - a*nx) / (2*a*a); \
 		  L[0*_MODEL_NVARS_+2] = ((-ga_minus_one)*vy - a*ny) / (2*a*a); \
   		L[0*_MODEL_NVARS_+3] = ga_minus_one / (2*a*a); \
-	  	L[1*_MODEL_NVARS_+0] = (a*a - ga_minus_one*ek) / (a*a); \
-  		L[1*_MODEL_NVARS_+1] = (ga_minus_one*vx) / (a*a); \
-	  	L[1*_MODEL_NVARS_+2] = (ga_minus_one*vy) / (a*a); \
-		  L[1*_MODEL_NVARS_+3] = (-ga_minus_one) / (a*a); \
-		  L[2*_MODEL_NVARS_+0] = (ga_minus_one*ek - a*un) / (2*a*a); \
-  		L[2*_MODEL_NVARS_+1] = ((-ga_minus_one)*vx + a*nx) / (2*a*a); \
-	  	L[2*_MODEL_NVARS_+2] = ((-ga_minus_one)*vy + a*ny) / (2*a*a); \
-		  L[2*_MODEL_NVARS_+3] = ga_minus_one / (2*a*a); \
-  		L[3*_MODEL_NVARS_+0] = (vy - un*ny) / nx; \
-	  	L[3*_MODEL_NVARS_+1] = ny; \
-		  L[3*_MODEL_NVARS_+2] = (ny*ny - 1.0) / nx; \
-  		L[3*_MODEL_NVARS_+3] = 0.0; \
+	  	L[3*_MODEL_NVARS_+0] = (a*a - ga_minus_one*ek) / (a*a); \
+  		L[3*_MODEL_NVARS_+1] = (ga_minus_one*vx) / (a*a); \
+	  	L[3*_MODEL_NVARS_+2] = (ga_minus_one*vy) / (a*a); \
+		  L[3*_MODEL_NVARS_+3] = (-ga_minus_one) / (a*a); \
+		  L[1*_MODEL_NVARS_+0] = (ga_minus_one*ek - a*un) / (2*a*a); \
+  		L[1*_MODEL_NVARS_+1] = ((-ga_minus_one)*vx + a*nx) / (2*a*a); \
+	  	L[1*_MODEL_NVARS_+2] = ((-ga_minus_one)*vy + a*ny) / (2*a*a); \
+		  L[1*_MODEL_NVARS_+3] = ga_minus_one / (2*a*a); \
+  		L[2*_MODEL_NVARS_+0] = (vy - un*ny) / nx; \
+	  	L[2*_MODEL_NVARS_+1] = ny; \
+		  L[2*_MODEL_NVARS_+2] = (ny*ny - 1.0) / nx; \
+  		L[2*_MODEL_NVARS_+3] = 0.0; \
     } else if (dir == _YDIR_) {  \
       un = vy;  \
       ny = 1.0; \
@@ -163,18 +171,18 @@
 		  L[0*_MODEL_NVARS_+1] = ((1.0-ga)*vx - a*nx) / (2*a*a); \
   		L[0*_MODEL_NVARS_+2] = ((1.0-ga)*vy - a*ny) / (2*a*a); \
 	  	L[0*_MODEL_NVARS_+3] = ga_minus_one / (2*a*a); \
-		  L[1*_MODEL_NVARS_+0] = (a*a-ga_minus_one*ek) / (a*a); \
-  		L[1*_MODEL_NVARS_+1] = ga_minus_one*vx / (a*a); \
-	  	L[1*_MODEL_NVARS_+2] = ga_minus_one*vy / (a*a); \
-		  L[1*_MODEL_NVARS_+3] = (1.0 - ga) / (a*a); \
+		  L[3*_MODEL_NVARS_+0] = (a*a-ga_minus_one*ek) / (a*a); \
+  		L[3*_MODEL_NVARS_+1] = ga_minus_one*vx / (a*a); \
+	  	L[3*_MODEL_NVARS_+2] = ga_minus_one*vy / (a*a); \
+		  L[3*_MODEL_NVARS_+3] = (1.0 - ga) / (a*a); \
 		  L[2*_MODEL_NVARS_+0] = (ga_minus_one*ek-a*un) / (2*a*a); \
   		L[2*_MODEL_NVARS_+1] = ((1.0-ga)*vx + a*nx) / (2*a*a); \
 	  	L[2*_MODEL_NVARS_+2] = ((1.0-ga)*vy + a*ny) / (2*a*a); \
 		  L[2*_MODEL_NVARS_+3] = ga_minus_one / (2*a*a); \
-		  L[3*_MODEL_NVARS_+0] = (un*nx-vx) / ny; \
-  		L[3*_MODEL_NVARS_+1] = (1.0 - nx*nx) / ny; \
-	  	L[3*_MODEL_NVARS_+2] = - nx; \
-		  L[3*_MODEL_NVARS_+3] = 0; \
+		  L[1*_MODEL_NVARS_+0] = (un*nx-vx) / ny; \
+  		L[1*_MODEL_NVARS_+1] = (1.0 - nx*nx) / ny; \
+	  	L[1*_MODEL_NVARS_+2] = - nx; \
+		  L[1*_MODEL_NVARS_+3] = 0; \
     } \
   }
 
@@ -199,18 +207,18 @@
 	  	R[1*_MODEL_NVARS_+0] = vx - a*nx; \
 	  	R[2*_MODEL_NVARS_+0] = vy - a*ny; \
 	  	R[3*_MODEL_NVARS_+0] = h0 - a*un; \
+  		R[0*_MODEL_NVARS_+3] = 1.0; \
+  		R[1*_MODEL_NVARS_+3] = vx; \
+  		R[2*_MODEL_NVARS_+3] = vy; \
+  		R[3*_MODEL_NVARS_+3] = ek; \
   		R[0*_MODEL_NVARS_+1] = 1.0; \
-  		R[1*_MODEL_NVARS_+1] = vx; \
-  		R[2*_MODEL_NVARS_+1] = vy; \
-  		R[3*_MODEL_NVARS_+1] = ek; \
-  		R[0*_MODEL_NVARS_+2] = 1.0; \
-  		R[1*_MODEL_NVARS_+2] = vx + a*nx; \
-  		R[2*_MODEL_NVARS_+2] = vy + a*ny; \
-  		R[3*_MODEL_NVARS_+2] = h0 + a*un; \
-  		R[0*_MODEL_NVARS_+3] = 0.0; \
-  		R[1*_MODEL_NVARS_+3] = ny; \
-  		R[2*_MODEL_NVARS_+3] = -nx; \
-  		R[3*_MODEL_NVARS_+3] = vx*ny - vy*nx; \
+  		R[1*_MODEL_NVARS_+1] = vx + a*nx; \
+  		R[2*_MODEL_NVARS_+1] = vy + a*ny; \
+  		R[3*_MODEL_NVARS_+1] = h0 + a*un; \
+  		R[0*_MODEL_NVARS_+2] = 0.0; \
+  		R[1*_MODEL_NVARS_+2] = ny; \
+  		R[2*_MODEL_NVARS_+2] = -nx; \
+  		R[3*_MODEL_NVARS_+2] = vx*ny - vy*nx; \
   	} else if (dir == _YDIR_) { \
       un = vy; \
       ny = 1.0; \
@@ -218,18 +226,18 @@
   		R[1*_MODEL_NVARS_+0] = vx - a*nx; \
   		R[2*_MODEL_NVARS_+0] = vy - a*ny; \
   		R[3*_MODEL_NVARS_+0] = h0 - a*un; \
-  		R[0*_MODEL_NVARS_+1] = 1.0; \
-  		R[1*_MODEL_NVARS_+1] = vx; \
-  		R[2*_MODEL_NVARS_+1] = vy; \
-  		R[3*_MODEL_NVARS_+1] = ek; \
+  		R[0*_MODEL_NVARS_+3] = 1.0; \
+  		R[1*_MODEL_NVARS_+3] = vx; \
+  		R[2*_MODEL_NVARS_+3] = vy; \
+  		R[3*_MODEL_NVARS_+3] = ek; \
   		R[0*_MODEL_NVARS_+2] = 1.0; \
   		R[1*_MODEL_NVARS_+2] = vx + a*nx; \
   		R[2*_MODEL_NVARS_+2] = vy + a*ny; \
   		R[3*_MODEL_NVARS_+2] = h0 + a*un; \
-  		R[0*_MODEL_NVARS_+3] = 0; \
-  		R[1*_MODEL_NVARS_+3] = ny; \
-  		R[2*_MODEL_NVARS_+3] = -nx; \
-  		R[3*_MODEL_NVARS_+3] = vx*ny-vy*nx; \
+  		R[0*_MODEL_NVARS_+1] = 0; \
+  		R[1*_MODEL_NVARS_+1] = ny; \
+  		R[2*_MODEL_NVARS_+1] = -nx; \
+  		R[3*_MODEL_NVARS_+1] = vx*ny-vy*nx; \
     } \
   }
 

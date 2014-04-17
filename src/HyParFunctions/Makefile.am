@@ -3,6 +3,7 @@ libHyParFunctions_a_SOURCES = \
   ApplyBoundaryConditions.c \
   CalculateError.c \
   Cleanup.c \
+  ExactSolution.c \
   HyperbolicFunction.c \
   Initialize.c \
   InitialSolution.c \
@@ -12,11 +13,13 @@ libHyParFunctions_a_SOURCES = \
   OutputSolution.c \
   ParabolicFunctionCons1Stage.c \
   ParabolicFunctionNC1Stage.c \
+  ParabolicFunctionNC2Stage.c \
   ReadInputs.c \
   ReconstructHyperbolic.c \
   Solve.c \
   SolvePETSc.c \
   SourceFunction.c \
+  WriteBinary.c \
   WriteTecplot2D.c \
   WriteTecplot3D.c \
   WriteText.c

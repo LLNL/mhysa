@@ -7,6 +7,10 @@
   "rf-char"   Roe-fixed
   "llf-char"  Local Lax-Friedrich
 
+  Refer: Computational Fluid Mechanics and Heat Transfer
+         by Tannehill, Anderson and Pletcher
+         Chapter 5, Section 5.1.7 for the non-dimensional
+         form of the NS equations.
 */
 
 #include <basic.h>
@@ -304,6 +308,10 @@
 typedef struct navierstokes3d_parameters {
   double  gamma;  /* Ratio of heat capacities */
   char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */
+  double  Re;     /* Reynolds number */
+  double  Pr;     /* Prandtl  number */
+  double  Minf;   /* Freestream Mach number */
+  double  C1,C2;  /* Sutherlands law constants */
 } NavierStokes3D;
 
 int    NavierStokes3DInitialize (void*,void*);

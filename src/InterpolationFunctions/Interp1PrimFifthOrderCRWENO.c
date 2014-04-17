@@ -14,19 +14,19 @@
 #undef  _MINIMUM_GHOSTS_
 #define _MINIMUM_GHOSTS_ 3
 
-static int Interp1PrimFifthOrderCRWENO_2(double*,double*,double*,int,int,void*,void*);
-static int Interp1PrimFifthOrderCRWENO_3(double*,double*,double*,int,int,void*,void*);
-static int Interp1PrimFifthOrderCRWENO_N(double*,double*,double*,int,int,void*,void*);
+static int Interp1PrimFifthOrderCRWENO_2(double*,double*,double*,double*,int,int,void*,void*);
+static int Interp1PrimFifthOrderCRWENO_3(double*,double*,double*,double*,int,int,void*,void*);
+static int Interp1PrimFifthOrderCRWENO_N(double*,double*,double*,double*,int,int,void*,void*);
 
-int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*) s;
-  if (solver->ndims == 2) return(Interp1PrimFifthOrderCRWENO_2(fI,fC,u,upw,dir,s,m));
-  if (solver->ndims == 3) return(Interp1PrimFifthOrderCRWENO_3(fI,fC,u,upw,dir,s,m));
-  else                    return(Interp1PrimFifthOrderCRWENO_N(fI,fC,u,upw,dir,s,m));
+  if (solver->ndims == 2) return(Interp1PrimFifthOrderCRWENO_2(fI,fC,u,x,upw,dir,s,m));
+  if (solver->ndims == 3) return(Interp1PrimFifthOrderCRWENO_3(fI,fC,u,x,upw,dir,s,m));
+  else                    return(Interp1PrimFifthOrderCRWENO_N(fI,fC,u,x,upw,dir,s,m));
 }
 
-int Interp1PrimFifthOrderCRWENO_N(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderCRWENO_N(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
@@ -232,7 +232,7 @@ int Interp1PrimFifthOrderCRWENO_N(double *fI,double *fC,double *u,int upw,int di
 
 #undef _NDIMS_
 #define _NDIMS_ 2
-int Interp1PrimFifthOrderCRWENO_2(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderCRWENO_2(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
@@ -437,7 +437,7 @@ int Interp1PrimFifthOrderCRWENO_2(double *fI,double *fC,double *u,int upw,int di
 
 #undef _NDIMS_
 #define _NDIMS_ 3
-int Interp1PrimFifthOrderCRWENO_3(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderCRWENO_3(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;

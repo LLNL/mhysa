@@ -34,6 +34,8 @@ The following input files are required:
 + lusolver.inp  -   Parameters for the tridiagonal solver
                     required for a compact scheme
 
+** See hypar/README for other (optional) input files
+
 The code aux/exact.C is an example to generate the initial
 solution file (initial.inp) and exact solution file (exact.inp)
 in the correct format required by the solver. 

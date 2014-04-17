@@ -52,7 +52,7 @@ int TimeMSTIInitialize(char *class,char *type,void *s)
       params->A[4] = 0.5; params->A[9] = 0.5; params->A[14] = 1.0;
       params->c[1] = params->c[2] = 0.5; params->c[3] = 1.0;
       params->b[0] = 1.0/6.0; params->b[1] = 1.0/3.0; params->b[2] = 1.0/3.0; params->b[3] = 1.0/6.0;
-    } else if (!strcmp(type,_RK_SSP3_)) {
+    } else if ((!strcmp(type,_RK_SSP3_)) || (!strcmp(type,_RK_TVD3_))) {
       params->nstages = 3;
       params->A = (double*) calloc (params->nstages*params->nstages,sizeof(double));
       params->b = (double*) calloc (params->nstages                ,sizeof(double));

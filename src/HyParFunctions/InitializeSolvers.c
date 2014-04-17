@@ -6,17 +6,21 @@
 #include <tridiagLU.h>
 #include <timeintegration.h>
 #include <interpolation.h>
+#include <firstderivative.h>
 #include <secondderivative.h>
 
 /* Function declarations */
-int WriteText                   (int,int,int*,double*,double*,char*,int*);
-int WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
-int WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
-int ApplyBoundaryConditions     (void*,void*,double*);
-int HyperbolicFunction          (double*,double*,void*,void*,double);
-int ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
-int ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
-int SourceFunction              (double*,double*,void*,void*,double);
+int  WriteBinary                 (int,int,int*,double*,double*,char*,int*);
+int  WriteText                   (int,int,int*,double*,double*,char*,int*);
+int  WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
+int  WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
+int  ApplyBoundaryConditions     (void*,void*,double*);
+int  HyperbolicFunction          (double*,double*,void*,void*,double);
+int  ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
+int  ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
+int  ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
+int  SourceFunction              (double*,double*,void*,void*,double);
+void IncrementFilename          (char*);
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -31,28 +35,29 @@ int InitializeSolvers(void *s, void *m)
   solver->SourceFunction          = SourceFunction;
 
   /* choose the type of parabolic discretization */
-  if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) {
+  if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) 
     solver->ParabolicFunction = ParabolicFunctionNC1Stage;
-    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_)) {
-      solver->SecondDerivativePar = SecondDerivativeSecondOrder; 
-    } else {
-      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
-      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
-              solver->spatial_type_par);
-    }
-  } else if (!strcmp(solver->spatial_type_par,_CONS_1STAGE_)) {
+  else if (!strcmp(solver->spatial_type_par,_NC_2STAGE_))
+    solver->ParabolicFunction = ParabolicFunctionNC2Stage;
+  else if (!strcmp(solver->spatial_type_par,_CONS_1STAGE_))
     solver->ParabolicFunction = ParabolicFunctionCons1Stage;
-    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
-      solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
-    } else {
-      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
-      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
-              solver->spatial_type_par);
-    }
-  } else {
+  else {
     fprintf(stderr,"Error: %s is not a supported ",solver->spatial_type_par);
     fprintf(stderr,"spatial discretization type for the parabolic terms.\n");
     return(1);
+  }
+  if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
+    solver->SecondDerivativePar      = SecondDerivativeSecondOrderCentral; 
+    solver->FirstDerivativePar       = FirstDerivativeSecondOrderCentral; 
+    solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
+  } else if (!strcmp(solver->spatial_scheme_par,_FOURTH_ORDER_CENTRAL_)) {
+    solver->SecondDerivativePar      = SecondDerivativeFourthOrderCentral; 
+    solver->FirstDerivativePar       = FirstDerivativeFourthOrderCentral; 
+    solver->InterpolateInterfacesPar = NULL; /* not yet coded, setting to NULL so that the code crashes */
+  } else {
+    fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+    fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+            solver->spatial_type_par);
   }
 
   /* Spatial interpolation for hyperbolic term */
@@ -131,13 +136,38 @@ int InitializeSolvers(void *s, void *m)
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
     IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
+  } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_NONUNIFORM_WENO_)) {
+    /* Fifth order WENO scheme for non-uniform grid */
+    if (solver->nvars > 1) {
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) {
+        fprintf(stderr,"Error in InitializeSolvers(): Characteristic-based non-uniform WENO scheme not yet implemented.\n");
+        return(1);
+      } else if (!strcmp(solver->interp_type,_COMPONENTS_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderNonUniformWENO;
+      else {
+        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
+        fprintf(stderr,"supported interpolation type.\n");
+        return(1);
+      }
+    } else {
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) 
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderNonUniformWENO;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderNonUniformWENO;
+      else {
+        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
+        fprintf(stderr,"supported interpolation type.\n");
+        return(1);
+      }
+    }
+    solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
+    IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
     /* Fifth order CRWENO scheme */
     if (solver->nvars > 1) {
-      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) {
-        fprintf(stderr,"Error in InitializeSolvers(): Characteristic CRWENO not yet available.\n");
-        return(1);
-      } else if (!strcmp(solver->interp_type,_COMPONENTS_))
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderCRWENOChar;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
         solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderCRWENO;
       else {
         fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
@@ -149,6 +179,33 @@ int InitializeSolvers(void *s, void *m)
         solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderCRWENO;
       else if (!strcmp(solver->interp_type,_COMPONENTS_))
         solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderCRWENO;
+      else {
+        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
+        fprintf(stderr,"supported interpolation type.\n");
+        return(1);
+      }
+    }
+    solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
+    IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp); CHECKERR(ierr);
+    solver->lusolver = (TridiagLU*) calloc (1,sizeof(TridiagLU));
+    IERR tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
+  } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_HCWENO_)) {
+    /* Fifth order HCWENO scheme */
+    if (solver->nvars > 1) {
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderHCWENOChar;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderHCWENO;
+      else {
+        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
+        fprintf(stderr,"supported interpolation type.\n");
+        return(1);
+      }
+    } else {
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) 
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderHCWENO;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
+        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderHCWENO;
       else {
         fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
         fprintf(stderr,"supported interpolation type.\n");
@@ -181,7 +238,7 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Solution output function */
-  solver->WriteOutput = WriteText;
+  solver->WriteOutput = NULL; /* default - no output */
   if (!strcmp(solver->op_overwrite,"no")) strcpy(solver->op_filename,"op_00000");
   else                                    strcpy(solver->op_filename,"op");
   if (!strcmp(solver->op_file_format,"text")) {
@@ -193,11 +250,20 @@ int InitializeSolvers(void *s, void *m)
   } else if (!strcmp(solver->op_file_format,"tecplot3d")) {
     solver->WriteOutput = WriteTecplot3D;
     strcat(solver->op_filename,".dat");
+  } else if ((!strcmp(solver->op_file_format,"binary")) || (!strcmp(solver->op_file_format,"bin"))) {
+    solver->WriteOutput = WriteBinary;
+    strcat(solver->op_filename,".bin");
   } else if (!strcmp(solver->op_file_format,"none")) {
     solver->WriteOutput = NULL;
   } else {
     fprintf(stderr,"Error: %s is not a supported file format.\n",solver->op_file_format);
     return(1);
+  }
+  if ((!strcmp(solver->op_overwrite,"no")) && solver->restart_iter) {
+    /* if it's a restart run, fast-forward the filename */
+    int t;
+    for (t=0; t<solver->restart_iter; t++) 
+      if ((t+1)%solver->file_op_iter == 0) IncrementFilename(solver->op_filename);
   }
 
   return(0);

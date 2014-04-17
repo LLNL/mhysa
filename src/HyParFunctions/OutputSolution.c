@@ -7,7 +7,7 @@
 #include <hypar.h>
 
 /* Function declarations */
-static void IncrementFilename (char*);
+void IncrementFilename (char*);
 
 int OutputSolution(void *s, void *m)
 {

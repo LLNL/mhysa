@@ -3,6 +3,7 @@
 #include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <boundaryconditions.h>
 #include <physicalmodels/euler2d.h>
 #include <mpivars.h>
 #include <hypar.h>
@@ -12,6 +13,7 @@ int    Euler2DFlux              (double*,double*,int,void*,double);
 int    Euler2DUpwindRoe         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler2DUpwindRF          (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler2DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    Euler2DUpwindSWFS        (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler2DRoeAverage        (double*,double*,double*,void*);
 int    Euler2DLeftEigenvectors  (double*,double*,void*,int);
 int    Euler2DRightEigenvectors (double*,double*,void*,int);
@@ -69,9 +71,10 @@ int Euler2DInitialize(void *s,void *m)
   /* initializing physical model-specific functions */
   solver->ComputeCFL  = Euler2DComputeCFL;
   solver->FFunction   = Euler2DFlux;
-  if      (!strcmp(physics->upw_choice,_ROE_)) solver->Upwind = Euler2DUpwindRoe;
-  else if (!strcmp(physics->upw_choice,_RF_))  solver->Upwind = Euler2DUpwindRF;
-  else if (!strcmp(physics->upw_choice,_LLF_)) solver->Upwind = Euler2DUpwindLLF;
+  if      (!strcmp(physics->upw_choice,_ROE_ )) solver->Upwind = Euler2DUpwindRoe;
+  else if (!strcmp(physics->upw_choice,_RF_  )) solver->Upwind = Euler2DUpwindRF;
+  else if (!strcmp(physics->upw_choice,_LLF_ )) solver->Upwind = Euler2DUpwindLLF;
+  else if (!strcmp(physics->upw_choice,_SWFS_)) solver->Upwind = Euler2DUpwindSWFS;
   else {
     fprintf(stderr,"Error in Euler2DInitialize(): %s is not a valid upwinding scheme.\n",
             physics->upw_choice);
@@ -80,6 +83,11 @@ int Euler2DInitialize(void *s,void *m)
   solver->AveragingFunction     = Euler2DRoeAverage;
   solver->GetLeftEigenvectors   = Euler2DLeftEigenvectors;
   solver->GetRightEigenvectors  = Euler2DRightEigenvectors;
+
+  /* set the value of gamma in all the boundary objects */
+  int n;
+  DomainBoundary  *boundary = (DomainBoundary*) solver->boundary;
+  for (n = 0; n < solver->nBoundaryZones; n++)  boundary[n].gamma = physics->gamma;
 
   return(0);
 }

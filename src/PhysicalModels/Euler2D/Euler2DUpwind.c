@@ -203,3 +203,85 @@ int Euler2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
 
   return(0);
 }
+
+int Euler2DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+{
+  HyPar     *solver = (HyPar*)    s;
+  Euler2D   *param  = (Euler2D*)  solver->physics;
+  int       done,k;
+  _DECLARE_IERR_;
+
+  int ndims = solver->ndims;
+  int *dim  = solver->dim_local;
+
+  int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
+  static double fp[_MODEL_NVARS_], fm[_MODEL_NVARS_],uavg[_MODEL_NVARS_];
+
+  done = 0; _ArraySetValue_(index_outer,ndims,0);
+  while (!done) {
+    _ArrayCopy1D_(index_outer,index_inter,ndims);
+    for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
+      int p; _ArrayIndex1D_(ndims,bounds_inter,index_inter,0,p);
+      double rho,vx,vy,e,P,c,gamma=param->gamma,term,Mach,lp[_MODEL_NVARS_],lm[_MODEL_NVARS_];
+
+      /* Steger Warming flux splitting */
+      _Euler2DRoeAverage_(uavg,(uL+_MODEL_NVARS_*p),(uR+_MODEL_NVARS_*p),param); 
+      _Euler2DGetFlowVar_(uavg,rho,vx,vy,e,P,param);
+      Mach = (dir==_XDIR_ ? vx : vy) / sqrt(gamma*P/rho);
+
+      if (Mach < -1.0) {
+
+        _ArrayCopy1D_((fR+_MODEL_NVARS_*p),(fI+_MODEL_NVARS_*p),_MODEL_NVARS_);
+
+      } else if (Mach < 1.0) {
+
+        double kx = 0, ky = 0;
+        kx = (dir==_XDIR_ ? 1.0 : 0.0);
+        ky = (dir==_YDIR_ ? 1.0 : 0.0);
+
+        _Euler2DGetFlowVar_((uL+_MODEL_NVARS_*p),rho,vx,vy,e,P,param);
+        c = sqrt(gamma*P/rho);
+        term = rho/(2.0*gamma);
+        lp[0] = lp[1] = kx*vx + ky*vy;
+        lp[2] = lp[0] + c;
+        lp[3] = lp[0] - c;
+        for (k=0; k<_MODEL_NVARS_; k++) if (lp[k] < 0.0) lp[k] = 0.0;
+
+        fp[0] = term * (2.0*(gamma-1.0)*lp[0] + lp[2] + lp[3]);
+        fp[1] = term * (2.0*(gamma-1.0)*lp[0]*vx + lp[2]*(vx+c*kx) + lp[3]*(vx-c*kx));
+        fp[2] = term * (2.0*(gamma-1.0)*lp[0]*vy + lp[2]*(vy+c*ky) + lp[3]*(vy-c*ky));
+        fp[3] = term * ((gamma-1.0)*lp[0]*(vx*vx+vy*vy) + 0.5*lp[2]*((vx+c*kx)*(vx+c*kx) + (vy+c*ky)*(vy+c*ky)) 
+                        + 0.5*lp[3]*((vx-c*kx)*(vx-c*kx) + (vy-c*ky)*(vy-c*ky)) 
+                        + ((3.0-gamma)*(lp[2]+lp[3])*c*c)/(2.0*(gamma-1.0)) );
+
+        _Euler2DGetFlowVar_((uR+_MODEL_NVARS_*p),rho,vx,vy,e,P,param);
+        c = sqrt(gamma*P/rho);
+        term = rho/(2.0*gamma);
+        lm[0] = lm[1] = kx*vx + ky*vy;
+        lm[2] = lm[0] + c;
+        lm[3] = lm[0] - c;
+        for (k=0; k<_MODEL_NVARS_; k++) if (lm[k] > 0.0) lm[k] = 0.0;
+
+        fm[0] = term * (2.0*(gamma-1.0)*lm[0] + lm[2] + lm[3]);
+        fm[1] = term * (2.0*(gamma-1.0)*lm[0]*vx + lm[2]*(vx+c*kx) + lm[3]*(vx-c*kx));
+        fm[2] = term * (2.0*(gamma-1.0)*lm[0]*vy + lm[2]*(vy+c*ky) + lm[3]*(vy-c*ky));
+        fm[3] = term * ((gamma-1.0)*lm[0]*(vx*vx+vy*vy) + 0.5*lm[2]*((vx+c*kx)*(vx+c*kx) + (vy+c*ky)*(vy+c*ky)) 
+                        + 0.5*lm[3]*((vx-c*kx)*(vx-c*kx) + (vy-c*ky)*(vy-c*ky)) 
+                        + ((3.0-gamma)*(lm[2]+lm[3])*c*c)/(2.0*(gamma-1.0)) );
+
+        _ArrayAdd1D_((fI+_MODEL_NVARS_*p),fp,fm,_MODEL_NVARS_);
+
+      } else {
+
+        _ArrayCopy1D_((fL+_MODEL_NVARS_*p),(fI+_MODEL_NVARS_*p),_MODEL_NVARS_);
+
+      }
+
+    }
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
+  }
+
+  return(0);
+}

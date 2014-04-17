@@ -31,9 +31,10 @@
 #define _MODEL_NVARS_ 3
 
 /* choices for upwinding schemes */
-#define _ROE_   "roe"
-#define _RF_    "rf-char"
-#define _LLF_   "llf-char"
+#define _ROE_     "roe"
+#define _RF_      "rf-char"
+#define _LLF_     "llf-char"
+#define _SWFS_    "steger-warming"
 
 #define _Euler1DGetFlowVar_(u,rho,v,e,P,p) \
   { \
@@ -92,9 +93,9 @@
     e   = u[2]; \
     P   = (e - 0.5*rho*v*v) * (gamma-1.0); \
     c = sqrt(gamma*P/rho); \
-    D[0*_MODEL_NVARS_+0] = (v-c);  D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0; \
-    D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = v;    D[1*_MODEL_NVARS_+2] = 0; \
-    D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = (v+c); \
+    D[0*_MODEL_NVARS_+0] = v;      D[0*_MODEL_NVARS_+1] = 0;      D[0*_MODEL_NVARS_+2] = 0; \
+    D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = (v-c);  D[1*_MODEL_NVARS_+2] = 0; \
+    D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;      D[2*_MODEL_NVARS_+2] = (v+c); \
   }
 
 #define _Euler1DLeftEigenvectors_(u,L,p,dir) \
@@ -106,12 +107,12 @@
     e   = u[2]; \
     P   = (e - 0.5*rho*v*v) * (gamma-1.0); \
     c    = sqrt(gamma*P/rho); \
-    L[0*_MODEL_NVARS_+0] = ((gamma - 1)/(rho*c)) * (-(v*v)/2 - c*v/(gamma-1)); \
-    L[0*_MODEL_NVARS_+1] = ((gamma - 1)/(rho*c)) * (v + c/(gamma-1)); \
-    L[0*_MODEL_NVARS_+2] = ((gamma - 1)/(rho*c)) * (-1); \
-    L[1*_MODEL_NVARS_+0] = ((gamma - 1)/(rho*c)) * (rho*(-(v*v)/2+c*c/(gamma-1))/c); \
-    L[1*_MODEL_NVARS_+1] = ((gamma - 1)/(rho*c)) * (rho*v/c); \
-    L[1*_MODEL_NVARS_+2] = ((gamma - 1)/(rho*c)) * (-rho/c); \
+    L[1*_MODEL_NVARS_+0] = ((gamma - 1)/(rho*c)) * (-(v*v)/2 - c*v/(gamma-1)); \
+    L[1*_MODEL_NVARS_+1] = ((gamma - 1)/(rho*c)) * (v + c/(gamma-1)); \
+    L[1*_MODEL_NVARS_+2] = ((gamma - 1)/(rho*c)) * (-1); \
+    L[0*_MODEL_NVARS_+0] = ((gamma - 1)/(rho*c)) * (rho*(-(v*v)/2+c*c/(gamma-1))/c); \
+    L[0*_MODEL_NVARS_+1] = ((gamma - 1)/(rho*c)) * (rho*v/c); \
+    L[0*_MODEL_NVARS_+2] = ((gamma - 1)/(rho*c)) * (-rho/c); \
     L[2*_MODEL_NVARS_+0] = ((gamma - 1)/(rho*c)) * ((v*v)/2 - c*v/(gamma-1)); \
     L[2*_MODEL_NVARS_+1] = ((gamma - 1)/(rho*c)) * (-v + c/(gamma-1)); \
     L[2*_MODEL_NVARS_+2] = ((gamma - 1)/(rho*c)) * (1); \
@@ -126,8 +127,8 @@
     e   = u[2]; \
     P   = (e - 0.5*rho*v*v) * (gamma-1.0); \
     c    = sqrt(gamma*P/rho); \
-    R[0*_MODEL_NVARS_+0] = - rho/(2*c);  R[1*_MODEL_NVARS_+0] = -rho*(v-c)/(2*c); R[2*_MODEL_NVARS_+0] = -rho*((v*v)/2+(c*c)/(gamma-1)-c*v)/(2*c);  \
-    R[0*_MODEL_NVARS_+1] = 1;            R[1*_MODEL_NVARS_+1] = v;                R[2*_MODEL_NVARS_+1] = v*v / 2;                                   \
+    R[0*_MODEL_NVARS_+1] = - rho/(2*c);  R[1*_MODEL_NVARS_+1] = -rho*(v-c)/(2*c); R[2*_MODEL_NVARS_+1] = -rho*((v*v)/2+(c*c)/(gamma-1)-c*v)/(2*c);  \
+    R[0*_MODEL_NVARS_+0] = 1;            R[1*_MODEL_NVARS_+0] = v;                R[2*_MODEL_NVARS_+0] = v*v / 2;                                   \
     R[0*_MODEL_NVARS_+2] = rho/(2*c);    R[1*_MODEL_NVARS_+2] = rho*(v+c)/(2*c);  R[2*_MODEL_NVARS_+2] = rho*((v*v)/2+(c*c)/(gamma-1)+c*v)/(2*c);   \
   }
 

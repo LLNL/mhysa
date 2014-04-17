@@ -12,6 +12,7 @@ int    Euler1DFlux       (double*,double*,int,void*,double);
 int    Euler1DUpwindRoe  (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindLLF  (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    Euler1DUpwindSWFS (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DRoeAverage        (double*,double*,double*,void*);
 int    Euler1DLeftEigenvectors  (double*,double*,void*,int);
 int    Euler1DRightEigenvectors (double*,double*,void*,int);
@@ -72,9 +73,10 @@ int Euler1DInitialize(void *s,void *m)
   /* initializing physical model-specific functions */
   solver->ComputeCFL         = Euler1DComputeCFL;
   solver->FFunction          = Euler1DFlux;
-  if      (!strcmp(physics->upw_choice,_ROE_)) solver->Upwind = Euler1DUpwindRoe;
-  else if (!strcmp(physics->upw_choice,_RF_))  solver->Upwind = Euler1DUpwindRF;
-  else if (!strcmp(physics->upw_choice,_LLF_)) solver->Upwind = Euler1DUpwindLLF;
+  if      (!strcmp(physics->upw_choice,_ROE_ )) solver->Upwind = Euler1DUpwindRoe;
+  else if (!strcmp(physics->upw_choice,_RF_  )) solver->Upwind = Euler1DUpwindRF;
+  else if (!strcmp(physics->upw_choice,_LLF_ )) solver->Upwind = Euler1DUpwindLLF;
+  else if (!strcmp(physics->upw_choice,_SWFS_)) solver->Upwind = Euler1DUpwindSWFS;
   else {
     fprintf(stderr,"Error in Euler1DInitialize(): %s is not a valid upwinding scheme.\n",
             physics->upw_choice);

@@ -30,6 +30,7 @@ int InitializeBoundaries(void *s,void *m)
     /* read number of boundary conditions and allocate */
     ferr = fscanf(in,"%d",&solver->nBoundaryZones); if (ferr != 1) return(1);
     boundary = (DomainBoundary*) calloc (solver->nBoundaryZones,sizeof(DomainBoundary));
+    for (n = 0; n < solver->nBoundaryZones; n++) boundary[n].DirichletValue = boundary[n].FlowVelocity = NULL;
 
     /* read each boundary condition */
     for (n = 0; n < solver->nBoundaryZones; n++) {
@@ -47,12 +48,34 @@ int InitializeBoundaries(void *s,void *m)
       }
 
       /* read in boundary type-specific additional data if required */
+
       if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
         boundary[n].DirichletValue = (double*) calloc (solver->nvars,sizeof(double)); 
                                      /* deallocated in BCCleanup.c */
         /* read the Dirichlet value for each variable on this boundary */
         for (v = 0; v < solver->nvars; v++) ferr = fscanf(in,"%lf",&boundary[n].DirichletValue[v]);
-      } else boundary[n].DirichletValue = NULL;
+      }
+
+      if (    (!strcmp(boundary[n].bctype,_SLIP_WALL_)) 
+          ||  (!strcmp(boundary[n].bctype,_NOSLIP_WALL_)) ) {
+        boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+                                     /* deallocated in BCCleanup.c */
+        /* read the wall velocity */
+        for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
+      }
+
+      if (!strcmp(boundary[n].bctype,_SUBSONIC_INFLOW_)) {
+        boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+                                     /* deallocated in BCCleanup.c */
+        /* read in the inflow density and velocity */
+        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
+      }
+
+      if (!strcmp(boundary[n].bctype,_SUBSONIC_OUTFLOW_)) {
+        /* read in the outflow pressure */
+        ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
+      }
 
       /* if boundary is periodic, let the MPI info know */
       /* 
@@ -75,7 +98,7 @@ int InitializeBoundaries(void *s,void *m)
                 n,boundary[n].var,solver->nvars);
         return(1);
       }
-      printf("  Boundary %15s:  Variable %2d, along dimension %2d and face %+1d\n",
+      printf("  Boundary %25s:  Variable %2d, along dimension %2d and face %+1d\n",
                 boundary[n].bctype,boundary[n].var,boundary[n].dim,boundary[n].face);
     }
 
@@ -106,14 +129,27 @@ int InitializeBoundaries(void *s,void *m)
   /* broadcast periodic boundary info for MPI to all processes */
   IERR MPIBroadcast_integer(mpi->bcperiodic,solver->ndims,0,&mpi->world);CHECKERR(ierr);
 
-
   /* On other processes, if necessary, allocate and receive boundary-type-specific data */
   for (n = 0; n < solver->nBoundaryZones; n++) {
     if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
       if (mpi->rank)  boundary[n].DirichletValue = (double*) calloc (solver->nvars,sizeof(double));
       IERR MPIBroadcast_double(boundary[n].DirichletValue,solver->nvars,0,&mpi->world); CHECKERR(ierr);
-    } else {
-      boundary[n].DirichletValue = NULL;
+    }
+
+    if (    (!strcmp(boundary[n].bctype,_SLIP_WALL_)) 
+        ||  (!strcmp(boundary[n].bctype,_NOSLIP_WALL_)) ) {
+      if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+      IERR MPIBroadcast_double(boundary[n].FlowVelocity,solver->ndims,0,&mpi->world); CHECKERR(ierr);
+    }
+
+    if (!strcmp(boundary[n].bctype,_SUBSONIC_INFLOW_)) {
+      if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+      IERR MPIBroadcast_double(&boundary[n].FlowDensity,1            ,0,&mpi->world); CHECKERR(ierr);
+      IERR MPIBroadcast_double(boundary[n].FlowVelocity,solver->ndims,0,&mpi->world); CHECKERR(ierr);
+    }
+
+    if (!strcmp(boundary[n].bctype,_SUBSONIC_OUTFLOW_)) {
+      IERR MPIBroadcast_double(&boundary[n].FlowPressure,1,0,&mpi->world); CHECKERR(ierr);
     }
   }
 

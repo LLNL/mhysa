@@ -14,7 +14,7 @@
 #undef  _MINIMUM_GHOSTS_
 #define _MINIMUM_GHOSTS_ 1
 
-int Interp1PrimFirstOrderUpwindChar(double *fI,double *fC,double *u,int upw,int dir,void *s,void *m)
+int Interp1PrimFirstOrderUpwindChar(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
   HyPar         *solver = (HyPar*) s;
   int           k, v;

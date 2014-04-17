@@ -16,7 +16,7 @@ int ApplyBoundaryConditions(void *s,void *m,double *x)
   /* Apply domain boundary conditions to p */
   int n;
   for (n = 0; n < nb; n++) {
-    IERR boundary[n].BCFunction(&boundary[n],mpi,solver->ndims,solver->nvars,
+    IERR boundary[n].BCFunctionU(&boundary[n],mpi,solver->ndims,solver->nvars,
                                   solver->dim_local,solver->ghosts,x);
     CHECKERR(ierr);
   }

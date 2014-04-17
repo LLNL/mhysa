@@ -13,8 +13,10 @@
 #include <physicalmodels/linearadr.h>
 #include <physicalmodels/fpdoublewell.h>
 #include <physicalmodels/fppowersystem.h>
+#include <physicalmodels/fppowersystem3bus.h>
 #include <physicalmodels/euler1d.h>
 #include <physicalmodels/euler2d.h>
+#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 int Cleanup(void *s,void *m)
@@ -40,10 +42,14 @@ int Cleanup(void *s,void *m)
     IERR FPDoubleWellCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_)) {
     IERR FPPowerSystemCleanup(solver->physics); CHECKERR(ierr);
+  } else if (!strcmp(solver->model,_FP_POWER_SYSTEM_3BUS_)) {
+    IERR FPPowerSystem3BusCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_EULER_1D_)) {
     IERR Euler1DCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_EULER_2D_)) {
     IERR Euler2DCleanup(solver->physics); CHECKERR(ierr);
+  } else if (!strcmp(solver->model,_NAVIER_STOKES_2D_)) {
+    IERR NavierStokes2DCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_NAVIER_STOKES_3D_)) {
     IERR NavierStokes3DCleanup(solver->physics); CHECKERR(ierr);
   }
@@ -56,14 +62,15 @@ int Cleanup(void *s,void *m)
   }
 
   /* Clean up any spatial reconstruction related allocations */
-  if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-    IERR WENOCleanup(solver->interp);
+  if (   (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) 
+      || (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_HCWENO_))){
+    IERR WENOCleanup(solver->interp); CHECKERR(ierr);
   }
   if (solver->interp)   free(solver->interp);
   if (solver->lusolver) free(solver->lusolver);
 
   /* Free the communicators created */
-  IERR MPIFreeCommunicators(solver->ndims,mpi);
+  IERR MPIFreeCommunicators(solver->ndims,mpi); CHECKERR(ierr);
 
   /* These variables are allocated in Initialize.c */
   free(solver->dim_global);
@@ -74,6 +81,8 @@ int Cleanup(void *s,void *m)
   free(solver->par);
   free(solver->source);
   free(solver->fluxC);
+  free(solver->Deriv1);
+  free(solver->Deriv2);
   free(solver->fluxI);
   free(solver->uL);
   free(solver->uR);
