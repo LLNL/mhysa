@@ -16,7 +16,6 @@
 
 typedef struct domain_boundaries {
   char    bctype [_MAX_STRING_SIZE_]; /* Type of boundary condition                           */
-  int     var;                        /* variable to apply this BC on                         */
   int     dim;                        /* dimension along which this BC applies                */
   int     face;                       /* 1 -> left/min, -1 -> right/max                       */
   double  *xmin,*xmax;                /* extent of this boundary condition                    */

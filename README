@@ -248,10 +248,10 @@ files in the Examples for a better idea):
 
   Format
     <nb>
-    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
-    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
+    <bctype>  <dim> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
+    <bctype>  <dim> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
     ...
-    <bctype>  <dim> <var> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
+    <bctype>  <dim> <face> <x1min>  <x1max> [<x2min>  <x2max> ... <x{ndim-1}min>  <x{ndims-1}max>]
 
   Explanation:
     nb  -> number of boundary conditions
@@ -263,8 +263,6 @@ files in the Examples for a better idea):
                    (see include/boundaryconditions.h for a complete list)
     dim         -> dimension along which to apply this boundary conditions 
                    (0 <= dim < ndims)
-    var         -> variable on which to apply this boundary conditions 
-                   (0 <= var < nvars)
     face        -> face on which to apply this boundary condition 
                    (1 -> left/xmin; -1 -> right/xmax)
 

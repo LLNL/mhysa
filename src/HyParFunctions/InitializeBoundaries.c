@@ -39,7 +39,6 @@ int InitializeBoundaries(void *s,void *m)
       boundary[n].xmax = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
 
       ferr = fscanf(in,"%s",boundary[n].bctype); if (ferr != 1) return(1);
-      ferr = fscanf(in,"%d",&boundary[n].var  ); if (ferr != 1) return(1);
       ferr = fscanf(in,"%d",&boundary[n].dim  ); if (ferr != 1) return(1);
       ferr = fscanf(in,"%d",&boundary[n].face ); if (ferr != 1) return(1);
       for (d=0; d < solver->ndims; d++) {
@@ -102,13 +101,8 @@ int InitializeBoundaries(void *s,void *m)
                 n,boundary[n].dim,solver->ndims);
         return(1);
       }
-      if (boundary[n].var >= solver->nvars) {
-        fprintf(stderr,"Error in reading boundary condition %d: var %d is invalid (nvars = %d).\n",
-                n,boundary[n].var,solver->nvars);
-        return(1);
-      }
-      printf("  Boundary %25s:  Variable %2d, along dimension %2d and face %+1d\n",
-                boundary[n].bctype,boundary[n].var,boundary[n].dim,boundary[n].face);
+      printf("  Boundary %25s:  Along dimension %2d and face %+1d\n",
+                boundary[n].bctype,boundary[n].dim,boundary[n].face);
     }
 
     fclose(in);
@@ -129,7 +123,6 @@ int InitializeBoundaries(void *s,void *m)
   /* communicate BC data to other processes */
   for (n = 0; n < solver->nBoundaryZones; n++) {
     IERR MPIBroadcast_character(boundary[n].bctype,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-    IERR MPIBroadcast_integer  (&boundary[n].var  ,1                ,0,&mpi->world); CHECKERR(ierr);
     IERR MPIBroadcast_integer  (&boundary[n].dim  ,1                ,0,&mpi->world); CHECKERR(ierr);
     IERR MPIBroadcast_integer  (&boundary[n].face ,1                ,0,&mpi->world); CHECKERR(ierr);
     IERR MPIBroadcast_double   (boundary[n].xmin  ,solver->ndims    ,0,&mpi->world); CHECKERR(ierr);

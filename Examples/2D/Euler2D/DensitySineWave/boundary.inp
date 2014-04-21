@@ -1,17 +1,5 @@
-16
-periodic      0     0     1     0     0      0    1.0
-periodic      0     0    -1     0     0      0    1.0
-periodic      0     1     1     0   1.0      0      0
-periodic      0     1    -1     0   1.0      0      0
-periodic      1     0     1     0     0      0    1.0
-periodic      1     0    -1     0     0      0    1.0
-periodic      1     1     1     0   1.0      0      0
-periodic      1     1    -1     0   1.0      0      0
-periodic      2     0     1     0     0      0    1.0
-periodic      2     0    -1     0     0      0    1.0
-periodic      2     1     1     0   1.0      0      0
-periodic      2     1    -1     0   1.0      0      0
-periodic      3     0     1     0     0      0    1.0
-periodic      3     0    -1     0     0      0    1.0
-periodic      3     1     1     0   1.0      0      0
-periodic      3     1    -1     0   1.0      0      0
+4
+periodic      0     1     0     0      0    1.0
+periodic      0    -1     0     0      0    1.0
+periodic      1     1     0   1.0      0      0
+periodic      1    -1     0   1.0      0      0

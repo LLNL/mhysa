@@ -9,7 +9,7 @@ int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
 
   int dim   = boundary->dim;
   int face  = boundary->face;
-  int var   = boundary->var;
+  int v;
 
   if (boundary->on_this_proc) {
     int bounds[ndims], indexb[ndims], indexi[ndims];
@@ -25,7 +25,7 @@ int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       else return(1);
       _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
-      phi[nvars*p1+var] = -phi[nvars*p2+var];
+      for (v=0; v<nvars; v++) phi[nvars*p1+v] = -phi[nvars*p2+v];
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }
@@ -38,7 +38,7 @@ int BCReflectDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
 
   int dim   = boundary->dim;
   int face  = boundary->face;
-  int var   = boundary->var;
+  int v;
 
   if (boundary->on_this_proc) {
     int bounds[ndims], indexb[ndims], indexi[ndims];
@@ -54,7 +54,7 @@ int BCReflectDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
       else return(1);
       _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
-      phi[nvars*p1+var] = -phi[nvars*p2+var];
+      for (v=0; v<nvars; v++) phi[nvars*p1+v] = -phi[nvars*p2+v];
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }

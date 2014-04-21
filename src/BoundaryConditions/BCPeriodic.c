@@ -19,7 +19,7 @@ int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
 
   int dim   = boundary->dim;
   int face  = boundary->face;
-  int var   = boundary->var;
+  int v;
 
   if ((boundary->on_this_proc) && (mpi->iproc[dim] == 1)) {
     int bounds[ndims], index1[ndims], index2[ndims];
@@ -38,7 +38,7 @@ int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
         _ArrayIndex1DWO_(ndims,size,index1,boundary->is,ghosts,p1);
         _ArrayIndex1D_(ndims,size,index1,ghosts,p2);
       }
-      phi[nvars*p1+var] = phi[nvars*p2+var];
+      for (v=0; v<nvars; v++) phi[nvars*p1+v] = phi[nvars*p2+v];
       _ArrayIncrementIndex_(ndims,bounds,index1,done);
     }
   }
@@ -52,7 +52,7 @@ int BCPeriodicDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
 
   int dim   = boundary->dim;
   int face  = boundary->face;
-  int var   = boundary->var;
+  int v;
 
   if ((boundary->on_this_proc) && (mpi->iproc[dim] == 1)) {
     int bounds[ndims], index1[ndims], index2[ndims];
@@ -71,7 +71,7 @@ int BCPeriodicDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
         _ArrayIndex1DWO_(ndims,size,index1,boundary->is,ghosts,p1);
         _ArrayIndex1D_(ndims,size,index1,ghosts,p2);
       }
-      phi[nvars*p1+var] = phi[nvars*p2+var];
+      for (v=0; v<nvars; v++) phi[nvars*p1+v] = phi[nvars*p2+v];
       _ArrayIncrementIndex_(ndims,bounds,index1,done);
     }
   }

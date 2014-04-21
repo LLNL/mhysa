@@ -6,7 +6,7 @@
 int BCDirichletU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
-  int            var       = boundary->var;
+  int            v;
 
   if (boundary->on_this_proc) {
     int bounds[ndims], indexb[ndims];
@@ -15,7 +15,7 @@ int BCDirichletU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
     int done = 0;
     while (!done) {
       int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
-      phi[nvars*p+var] = boundary->DirichletValue[var];
+      for (v=0; v<nvars; v++) phi[nvars*p+v] = boundary->DirichletValue[v];
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }
@@ -25,7 +25,7 @@ int BCDirichletU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
 int BCDirichletDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
-  int            var       = boundary->var;
+  int            v;
 
   if (boundary->on_this_proc) {
     int bounds[ndims], indexb[ndims];
@@ -34,7 +34,7 @@ int BCDirichletDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,doubl
     int done = 0;
     while (!done) {
       int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
-      phi[nvars*p+var] = 0.0;
+      for (v=0; v<nvars; v++) phi[nvars*p+v] = 0.0;
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }
