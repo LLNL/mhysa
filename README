@@ -67,7 +67,7 @@ existing template. The only restriction is that any new discretization scheme
 for the hyperbolic terms needs to be conservative (i.e., only the function to
 interpolate interface fluxes needs to be specified).
 
-PETSc TIME INTEGRATION:-
+PETSc TIME INTEGRATION (Optional but Recommended) :-
 This code can be compiled with PETSc's time-integration library to use a large
 number of RK and ARK implicit-explicit schemes. Before starting, it will be 
 useful to briefly go through the documentation, user manuals and examples for 
@@ -77,7 +77,7 @@ PETSc's time-integration (TS) module:
 
 -------------------------------------------------------------------------------------
 
-PETSc INSTALLATION:-
+PETSc INSTALLATION (Optional but Recommended) :-
 
 Get PETSc:
 git clone git@bitbucket.org:petsc/petsc.git (with Bitbucket account and SSH keys)
@@ -295,10 +295,8 @@ files in the Examples for a better idea):
 
   If the keyword "input_mode" is specified as "parallel", the code reads in the 
   file "initial_par.inp". This file contains the initial solution divided into
-  blocks corresponding to each processor. All the ranks open the file, and read
-  in the part containing the initial solution for their part of the domain. Thus
-  the global domain is not allocated (useful for memory-limited machines and/or
-  big domains). 
+  blocks corresponding to each processor.  The global domain is not allocated 
+  (useful for memory-limited machines and/or big domains). 
 
   To generate "initial_par.inp", compile and run hypar/Extras/ParallelInput.c 
   after generating "initial.inp" and specifying the number of processors "iproc"
