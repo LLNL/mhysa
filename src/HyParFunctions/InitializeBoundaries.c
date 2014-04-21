@@ -77,6 +77,15 @@ int InitializeBoundaries(void *s,void *m)
         ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
       }
 
+      if (!strcmp(boundary[n].bctype,_SUPERSONIC_INFLOW_)) {
+        boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+                                     /* deallocated in BCCleanup.c */
+        /* read in the inflow density, velocity and pressure */
+        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
+        ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
+      }
+
       /* if boundary is periodic, let the MPI info know */
       /* 
         The MPI function to exchange internal (MPI) boundary information will handle
@@ -113,6 +122,7 @@ int InitializeBoundaries(void *s,void *m)
     for (n = 0; n < solver->nBoundaryZones; n++) {
       boundary[n].xmin = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
       boundary[n].xmax = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
+      boundary[n].DirichletValue = boundary[n].FlowVelocity = NULL;
     }
   }
 
@@ -151,6 +161,14 @@ int InitializeBoundaries(void *s,void *m)
     if (!strcmp(boundary[n].bctype,_SUBSONIC_OUTFLOW_)) {
       IERR MPIBroadcast_double(&boundary[n].FlowPressure,1,0,&mpi->world); CHECKERR(ierr);
     }
+
+    if (!strcmp(boundary[n].bctype,_SUPERSONIC_INFLOW_)) {
+      if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+      IERR MPIBroadcast_double(&boundary[n].FlowDensity ,1            ,0,&mpi->world); CHECKERR(ierr);
+      IERR MPIBroadcast_double(boundary[n].FlowVelocity ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
+      IERR MPIBroadcast_double(&boundary[n].FlowPressure,1            ,0,&mpi->world); CHECKERR(ierr);
+    }
+
   }
 
   solver->boundary = boundary;
