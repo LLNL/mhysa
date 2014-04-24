@@ -92,8 +92,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       vy   = (QDerivY+p)[2];
 
       /* calculate viscosity coeff based on Sutherland's law */
-      /* double mu = raiseto(T, 0.76) */
-      double mu = 1.0; 
+      double mu = raiseto(T, 0.76);
 
       double tau_xx, tau_xy, qx;
       tau_xx = two_third * (mu*inv_Re) * (2*ux - vy);
@@ -134,8 +133,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       vy   = (QDerivY+p)[2];
 
       /* calculate viscosity coeff based on Sutherland's law */
-      /* double mu = raiseto(T, 0.76) */
-      double mu = 1.0; 
+      double mu = raiseto(T, 0.76);
 
       double tau_yx, tau_yy, qy;
       tau_yx = (mu*inv_Re) * (uy + vx);

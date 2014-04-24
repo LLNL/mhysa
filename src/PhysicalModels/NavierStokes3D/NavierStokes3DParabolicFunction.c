@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <mathfunctions.h>
 #include <physicalmodels/navierstokes3d.h>
 #include <mpivars.h>
 #include <hypar.h>
@@ -117,8 +118,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        /* double mu = raiseto(T, 0.76) */
-        double mu = 1.0; 
+        double mu = raiseto(T, 0.76);
 
         double tau_xx, tau_xy, tau_xz, qx;
         tau_xx = two_third * (mu*inv_Re) * (2*ux - vy - wz);
@@ -172,8 +172,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        /* double mu = raiseto(T, 0.76) */
-        double mu = 1.0; 
+        double mu = raiseto(T, 0.76);
 
         double tau_yx, tau_yy, tau_yz, qy;
         tau_yx = (mu*inv_Re) * (uy + vx);
@@ -227,8 +226,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
-        /* double mu = physics->C1 * raiseto(T,1.5) / (T + physics->C2); */
-        double mu = 1.0; 
+        double mu = raiseto(T,0.76);
 
         double tau_zx, tau_zy, tau_zz, qz;
         tau_zx = (mu*inv_Re) * (uz + wx);
