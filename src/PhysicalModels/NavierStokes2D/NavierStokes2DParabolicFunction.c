@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <mathfunctions.h>
 #include <physicalmodels/navierstokes2d.h>
 #include <mpivars.h>
 #include <hypar.h>
