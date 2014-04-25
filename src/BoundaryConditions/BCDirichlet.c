@@ -3,7 +3,7 @@
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
-int BCDirichletU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCDirichletU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   int            v;
@@ -22,7 +22,7 @@ int BCDirichletU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
   return(0);
 }
 
-int BCDirichletDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
+int BCDirichletDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   int            v;

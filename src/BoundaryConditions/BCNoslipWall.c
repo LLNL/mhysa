@@ -15,7 +15,7 @@
  * it once with an arbitrary value for boundary->var 
 */
 
-int BCNoslipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCNoslipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -117,7 +117,7 @@ int BCNoslipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,doubl
   return(0);
 }
 
-int BCNoslipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
+int BCNoslipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

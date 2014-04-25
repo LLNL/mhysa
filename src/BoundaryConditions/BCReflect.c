@@ -3,7 +3,7 @@
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
-int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -32,7 +32,7 @@ int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
   return(0);
 }
 
-int BCReflectDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
+int BCReflectDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

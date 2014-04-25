@@ -12,7 +12,7 @@
   If it's greater than 1, it's handled by MPIExchangeBoundaries()
 */
 
-int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   MPIVariables   *mpi      = (MPIVariables*)   m;
@@ -45,7 +45,7 @@ int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
   return(0);
 }
 
-int BCPeriodicDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
+int BCPeriodicDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   MPIVariables   *mpi      = (MPIVariables*)   m;

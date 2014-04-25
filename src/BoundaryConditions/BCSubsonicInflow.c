@@ -17,7 +17,7 @@
  * it once with an arbitrary value for boundary->var 
 */
 
-int BCSubsonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi)
+int BCSubsonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -119,7 +119,7 @@ int BCSubsonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,d
   return(0);
 }
 
-int BCSubsonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref)
+int BCSubsonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
