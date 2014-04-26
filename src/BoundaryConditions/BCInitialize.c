@@ -11,6 +11,7 @@ int BCInitialize(void *b)
   else if (!strcmp(boundary->bctype,_EXTRAPOLATE_       )) boundary->BCFunctionU = BCExtrapolateU;
   else if (!strcmp(boundary->bctype,_DIRICHLET_         )) boundary->BCFunctionU = BCDirichletU;  
   else if (!strcmp(boundary->bctype,_REFLECT_           )) boundary->BCFunctionU = BCReflectU;    
+  else if (!strcmp(boundary->bctype,_SPONGE_            )) boundary->BCFunctionU = BCSpongeUDummy;    
   else if (!strcmp(boundary->bctype,_NOSLIP_WALL_       )) boundary->BCFunctionU = BCNoslipWallU;    
   else if (!strcmp(boundary->bctype,_SLIP_WALL_         )) boundary->BCFunctionU = BCSlipWallU;    
   else if (!strcmp(boundary->bctype,_SUBSONIC_OUTFLOW_  )) boundary->BCFunctionU = BCSubsonicOutflowU;    
@@ -27,6 +28,7 @@ int BCInitialize(void *b)
   else if (!strcmp(boundary->bctype,_EXTRAPOLATE_       )) boundary->BCFunctionDU = BCExtrapolateDU;
   else if (!strcmp(boundary->bctype,_DIRICHLET_         )) boundary->BCFunctionDU = BCDirichletDU;  
   else if (!strcmp(boundary->bctype,_REFLECT_           )) boundary->BCFunctionDU = BCReflectDU;    
+  else if (!strcmp(boundary->bctype,_SPONGE_            )) boundary->BCFunctionDU = BCSpongeDUDummy;    
   else if (!strcmp(boundary->bctype,_NOSLIP_WALL_       )) boundary->BCFunctionDU = BCNoslipWallDU;    
   else if (!strcmp(boundary->bctype,_SLIP_WALL_         )) boundary->BCFunctionDU = BCSlipWallDU;    
   else if (!strcmp(boundary->bctype,_SUBSONIC_OUTFLOW_  )) boundary->BCFunctionDU = BCSubsonicOutflowDU;    

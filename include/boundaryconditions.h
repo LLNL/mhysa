@@ -4,6 +4,7 @@
 #define _EXTRAPOLATE_         "extrapolate"
 #define _DIRICHLET_           "dirichlet"
 #define _REFLECT_             "reflect"
+#define _SPONGE_              "sponge"
 
 /* some BC types unique to the euler/navier-stokes systems */
 #define _NOSLIP_WALL_         "noslip-wall"
@@ -29,6 +30,7 @@ typedef struct domain_boundaries {
   int (*BCFunctionDU)(void*,void*,int,int,int*,int,double*,double*,double);
 
   double *DirichletValue;   /* specified value for steady Dirichlet BC */
+  double *SpongeValue;      /* specified value for steady Sponge    BC */
 
   /* variables specific to Navier-Stokes/Euler equations BCs */
   double gamma,                                   /* ratio of specific heats  */
@@ -63,3 +65,9 @@ int BCSubsonicInflowDU    (void*,void*,int,int,int*,int,double*,double*,double);
 int BCSubsonicOutflowDU   (void*,void*,int,int,int*,int,double*,double*,double);    /* Subsonic outflow       boundary conditions  */
 int BCSupersonicInflowDU  (void*,void*,int,int,int*,int,double*,double*,double);    /* Supersonic inflow      boundary conditions  */
 int BCSupersonicOutflowDU (void*,void*,int,int,int*,int,double*,double*,double);    /* Supersonic outflow     boundary conditions  */
+
+/* a special BC enforcement - an absorbent sponge - enforced through a source term */
+int BCSpongeSource        (void*,int,int,int,int*,double*,double*,double*);
+/* dummy functions that get called during applying BCs - they don't do anything */
+int BCSpongeUDummy        (void*,void*,int,int,int*,int,double*,double);
+int BCSpongeDUDummy       (void*,void*,int,int,int*,int,double*,double*,double);

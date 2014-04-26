@@ -7,6 +7,7 @@ libBoundaryConditions_a_SOURCES = \
   BCNoslipWall.c \
   BCPeriodic.c \
   BCReflect.c \
+  BCSponge.c \
 	BCSubsonicInflow.c \
 	BCSubsonicOutflow.c \
 	BCSupersonicInflow.c \

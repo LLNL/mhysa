@@ -9,6 +9,7 @@ int BCCleanup(void *b)
   free(boundary->is);
   free(boundary->ie);
   if (boundary->DirichletValue) free(boundary->DirichletValue);
+  if (boundary->SpongeValue   ) free(boundary->SpongeValue   );
   if (boundary->FlowVelocity  ) free(boundary->FlowVelocity  );
   return(0);
 }

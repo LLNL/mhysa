@@ -30,7 +30,10 @@ int InitializeBoundaries(void *s,void *m)
     /* read number of boundary conditions and allocate */
     ferr = fscanf(in,"%d",&solver->nBoundaryZones); if (ferr != 1) return(1);
     boundary = (DomainBoundary*) calloc (solver->nBoundaryZones,sizeof(DomainBoundary));
-    for (n = 0; n < solver->nBoundaryZones; n++) boundary[n].DirichletValue = boundary[n].FlowVelocity = NULL;
+    for (n = 0; n < solver->nBoundaryZones; n++) 
+      boundary[n].DirichletValue = boundary[n].SpongeValue 
+                                 = boundary[n].FlowVelocity 
+                                 = NULL;
 
     /* read each boundary condition */
     for (n = 0; n < solver->nBoundaryZones; n++) {
@@ -53,6 +56,13 @@ int InitializeBoundaries(void *s,void *m)
                                      /* deallocated in BCCleanup.c */
         /* read the Dirichlet value for each variable on this boundary */
         for (v = 0; v < solver->nvars; v++) ferr = fscanf(in,"%lf",&boundary[n].DirichletValue[v]);
+      }
+
+      if (!strcmp(boundary[n].bctype,_SPONGE_)) {
+        boundary[n].SpongeValue = (double*) calloc (solver->nvars,sizeof(double)); 
+                                     /* deallocated in BCCleanup.c */
+        /* read the sponge value for each variable on this boundary */
+        for (v = 0; v < solver->nvars; v++) ferr = fscanf(in,"%lf",&boundary[n].SpongeValue[v]);
       }
 
       if (    (!strcmp(boundary[n].bctype,_SLIP_WALL_)) 
@@ -116,7 +126,9 @@ int InitializeBoundaries(void *s,void *m)
     for (n = 0; n < solver->nBoundaryZones; n++) {
       boundary[n].xmin = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
       boundary[n].xmax = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
-      boundary[n].DirichletValue = boundary[n].FlowVelocity = NULL;
+      boundary[n].DirichletValue = boundary[n].SpongeValue 
+                                 = boundary[n].FlowVelocity 
+                                 = NULL;
     }
   }
 
@@ -137,6 +149,11 @@ int InitializeBoundaries(void *s,void *m)
     if (!strcmp(boundary[n].bctype,_DIRICHLET_)) {
       if (mpi->rank)  boundary[n].DirichletValue = (double*) calloc (solver->nvars,sizeof(double));
       IERR MPIBroadcast_double(boundary[n].DirichletValue,solver->nvars,0,&mpi->world); CHECKERR(ierr);
+    }
+
+    if (!strcmp(boundary[n].bctype,_SPONGE_)) {
+      if (mpi->rank)  boundary[n].SpongeValue = (double*) calloc (solver->nvars,sizeof(double));
+      IERR MPIBroadcast_double(boundary[n].SpongeValue,solver->nvars,0,&mpi->world); CHECKERR(ierr);
     }
 
     if (    (!strcmp(boundary[n].bctype,_SLIP_WALL_)) 
@@ -177,7 +194,6 @@ int InitializeBoundaries(void *s,void *m)
   return(0);
 }
 
-
 int CalculateLocalExtent(void *s,void *m)
 {
   HyPar           *solver   = (HyPar*)        s;
@@ -192,49 +208,66 @@ int CalculateLocalExtent(void *s,void *m)
 
     int d,dim = boundary[n].dim;
 
-    if (boundary[n].face == 1) {
+    if (!strcmp(boundary[n].bctype,_SPONGE_)) {
+      /* Sponge boundary condition */
+      boundary[n].on_this_proc = 1;
+      int offset = 0;
+      for (d=0; d<solver->ndims; d++) {
+        int is, ie;
+        FindInterval(boundary[n].xmin[d],boundary[n].xmax[d],
+                     &solver->x[offset+solver->ghosts],
+                     solver->dim_local[d],&is,&ie);
+        boundary[n].is[d] = is;
+        boundary[n].ie[d] = ie;
+        if ((ie-is) <= 0) boundary[n].on_this_proc = 0;
+        offset += solver->dim_local[d] + 2*solver->ghosts;
+      }
+    } else {
+      /* other boundary conditions */
+      if (boundary[n].face == 1) {
 
-      if (mpi->ip[dim] == 0) {
-        boundary[n].on_this_proc = 1;
-        int offset = 0;
-        for (d=0; d<solver->ndims; d++) {
-          if (d == dim) {
-            boundary[n].is[d] = -solver->ghosts;
-            boundary[n].ie[d] = 0;
-          } else {
-            int is, ie;
-            FindInterval(boundary[n].xmin[d],boundary[n].xmax[d],
-                         &solver->x[offset+solver->ghosts],
-                         solver->dim_local[d],&is,&ie);
-            boundary[n].is[d] = is;
-            boundary[n].ie[d] = ie;
-            if ((ie-is) <= 0) boundary[n].on_this_proc = 0;
+        if (mpi->ip[dim] == 0) {
+          boundary[n].on_this_proc = 1;
+          int offset = 0;
+          for (d=0; d<solver->ndims; d++) {
+            if (d == dim) {
+              boundary[n].is[d] = -solver->ghosts;
+              boundary[n].ie[d] = 0;
+            } else {
+              int is, ie;
+              FindInterval(boundary[n].xmin[d],boundary[n].xmax[d],
+                           &solver->x[offset+solver->ghosts],
+                           solver->dim_local[d],&is,&ie);
+              boundary[n].is[d] = is;
+              boundary[n].ie[d] = ie;
+              if ((ie-is) <= 0) boundary[n].on_this_proc = 0;
+            }
+            offset += solver->dim_local[d] + 2*solver->ghosts;
           }
-          offset += solver->dim_local[d] + 2*solver->ghosts;
-        }
-      } else  boundary[n].on_this_proc = 0;
+        } else  boundary[n].on_this_proc = 0;
 
-    } else if (boundary[n].face == -1) {
+      } else if (boundary[n].face == -1) {
 
-      if (mpi->ip[dim] == mpi->iproc[dim]-1) {
-        boundary[n].on_this_proc = 1;
-        int offset = 0;
-        for (d=0; d<solver->ndims; d++) {
-          if (d == dim) {
-            boundary[n].is[d] = solver->dim_local[dim];
-            boundary[n].ie[d] = solver->dim_local[dim] + solver->ghosts;
-          } else {
-            int is, ie;
-            FindInterval(boundary[n].xmin[d],boundary[n].xmax[d],
-                         &solver->x[offset+solver->ghosts],
-                         solver->dim_local[d],&is,&ie);
-            boundary[n].is[d] = is;
-            boundary[n].ie[d] = ie;
-            if ((ie-is) <= 0) boundary[n].on_this_proc = 0;
+        if (mpi->ip[dim] == mpi->iproc[dim]-1) {
+          boundary[n].on_this_proc = 1;
+          int offset = 0;
+          for (d=0; d<solver->ndims; d++) {
+            if (d == dim) {
+              boundary[n].is[d] = solver->dim_local[dim];
+              boundary[n].ie[d] = solver->dim_local[dim] + solver->ghosts;
+            } else {
+              int is, ie;
+              FindInterval(boundary[n].xmin[d],boundary[n].xmax[d],
+                           &solver->x[offset+solver->ghosts],
+                           solver->dim_local[d],&is,&ie);
+              boundary[n].is[d] = is;
+              boundary[n].ie[d] = ie;
+              if ((ie-is) <= 0) boundary[n].on_this_proc = 0;
+            }
+            offset += solver->dim_local[d] + 2*solver->ghosts;
           }
-          offset += solver->dim_local[d] + 2*solver->ghosts;
-        }
-      } else  boundary[n].on_this_proc = 0;
+        } else  boundary[n].on_this_proc = 0;
+      }
     }
 
   }

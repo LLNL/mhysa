@@ -19,7 +19,6 @@ int ApplyBoundaryConditions(void *s,void *m,double *x,double *xref,int flag,doub
   int             nb        = solver->nBoundaryZones;
   _DECLARE_IERR_;
 
-
   /* Apply domain boundary conditions to p */
   int n;
   if (flag) {
