@@ -19,10 +19,7 @@ int BCSpongeSource(void *b,int ndims,int nvars,int ghosts,int *size,double *grid
     _ArraySetValue_(indexb,ndims,0); 
     int done = 0;
     while (!done) {
-      int i, istart, iend;
-      i       = indexb[dim];
-      istart  = boundary->is[dim];
-      iend    = boundary->ie[dim];
+      int i = indexb[dim] + boundary->is[dim];
       double x, xstart, xend;
       _GetCoordinate_(dim,i,size,ghosts,grid,x);
       xstart = xmin[dim];
@@ -34,7 +31,7 @@ int BCSpongeSource(void *b,int ndims,int nvars,int ghosts,int *size,double *grid
       /* add to the source term */
       int p; _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p);
       for (v=0; v<nvars; v++) 
-        source[nvars*p+v] -= (sigma * (u[nvars*p+v]-uref[nvars*p+v]));
+        source[nvars*p+v] -= (sigma * (u[nvars*p+v]-uref[v]));
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }
