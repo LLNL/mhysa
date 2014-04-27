@@ -1,0 +1,18 @@
+begin
+  ndims             1
+  nvars             1
+  size              320
+  iproc             4
+  ghost             3
+  n_iter            1600
+  time_scheme       rk
+  time_scheme_type  ssprk3
+  hyp_space_scheme  weno5
+  dt                0.0025
+  screen_op_iter    1
+  file_op_iter      40
+  ip_file_type      ascii
+  op_file_format    text
+  op_overwrite      no
+  model             linear-advection-diffusion-reaction
+end
