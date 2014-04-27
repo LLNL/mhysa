@@ -1,0 +1,8 @@
+5
+dirichlet     0     1     0     0   -3.0    3.0
+0.0
+extrapolate   0    -1     0     0   -3.0    3.0
+periodic      1     1  -6.0   6.0      0      0
+periodic      1    -1  -6.0   6.0      0      0
+sponge        0     1   0.0   6.0   -3.0    3.0
+0.0
