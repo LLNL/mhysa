@@ -4,7 +4,7 @@
   --  + a --  = 0
   dt      dx
 
-  0 <= x <= 1; Periodic
+  -1 <= x <= 1; Periodic
   a = advection speed
 
 Initial Solution: Consists of an exponential, square,
