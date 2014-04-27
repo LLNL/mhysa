@@ -1,0 +1,46 @@
+2D EULER EQUATIONS FOR INVISCID, COMPRESSIBLE FLOWS
+
+  d   [ rho   ]   d   [   rho*u    ]    d  [   rho*v   ]
+  --  [ rho*u ] + --  [rho*u*u + p ] +  -- [  rho*u*v  ] = 0
+  dt  [ rho*v ]   dx  [   rho*u*v  ]    dy [rho*v*v + p]
+      [   e   ]       [   (e+p)*u  ]       [  (e+p)v   ]
+
+  rho   - density
+  u     - x-velocity
+  v     - y-velocity
+  p     - pressure
+  e     - internal energy
+
+  Equation of state:
+           p         1
+    e = -------  +   - rho * (u^2+v^2)
+        gamma-1      2
+
+
+This example tests the sponge BC implementation for the 
+isentropic vortex convection problem.
+
+Domain:
+
+  0 <= x <= 20.0
+  subsonic inflow and outflow boundary conditions
+  0 <= y <= 10.0
+  "periodic" boundary conditions
+
+The sponge BC is applied on the right half of the
+domain (10 < x <= 20), with the reference state
+being the freestream.
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
++ initial.inp   -   Initial solution, can be generated
+                    by compiling and running aux/init.c
+
+** See hypar/README for other (optional) input files
+
+
+Notes:-
+The code aux/init.C is an example to generate the initial
+solution file in the correct format required by the solver. 
