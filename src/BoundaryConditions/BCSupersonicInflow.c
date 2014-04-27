@@ -25,32 +25,20 @@ int BCSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts
 
   if (ndims == 2) {
 
-    /* create a fake physics object */
-    Euler2D physics; 
     double gamma;
-    gamma = physics.gamma = boundary->gamma;
+    gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
 
     if (boundary->on_this_proc) {
-      int bounds[ndims], indexb[ndims], indexi[ndims];
+      int bounds[ndims], indexb[ndims];
       _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
       _ArraySetValue_(indexb,ndims,0);
       int done = 0;
       while (!done) {
-        int p1, p2;
-        _ArrayCopy1D_(indexb,indexi,ndims);
-        _ArrayAdd1D_(indexi,indexi,boundary->is,ndims);
-        if      (face ==  1) indexi[dim] = ghosts-1-indexb[dim];
-        else if (face == -1) indexi[dim] = size[dim]-indexb[dim]-1;
-        else return(1);
-        _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
-        _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
+        int p1; _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
         
-        /* flow variables in the interior */
-        double rho, uvel, vvel, energy, pressure;
-        double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
-        _Euler2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
         /* set the ghost point values */
+        double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
         rho_gpt      = boundary->FlowDensity;
         pressure_gpt = boundary->FlowPressure;
         uvel_gpt     = boundary->FlowVelocity[0];
@@ -69,32 +57,20 @@ int BCSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts
 
   } else if (ndims == 3) {
 
-    /* create a fake physics object */
-    NavierStokes3D physics;
     double gamma;
-    gamma = physics.gamma = boundary->gamma;
+    gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
 
     if (boundary->on_this_proc) {
-      int bounds[ndims], indexb[ndims], indexi[ndims];
+      int bounds[ndims], indexb[ndims];
       _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
       _ArraySetValue_(indexb,ndims,0);
       int done = 0;
       while (!done) {
-        int p1, p2;
-        _ArrayCopy1D_(indexb,indexi,ndims);
-        _ArrayAdd1D_(indexi,indexi,boundary->is,ndims);
-        if      (face ==  1) indexi[dim] = ghosts-1-indexb[dim];
-        else if (face == -1) indexi[dim] = size[dim]-indexb[dim]-1;
-        else return(1);
-        _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
-        _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
+        int p1; _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
         
-        /* flow variables in the interior */
-        double rho, uvel, vvel, wvel, energy, pressure;
-        double rho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, energy_gpt, pressure_gpt;
-        _NavierStokes3DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,wvel,energy,pressure,(&physics));
         /* set the ghost point values */
+        double rho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, energy_gpt, pressure_gpt;
         rho_gpt      = boundary->FlowDensity;
         pressure_gpt = boundary->FlowPressure;
         uvel_gpt     = boundary->FlowVelocity[0];
