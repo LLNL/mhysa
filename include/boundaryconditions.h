@@ -13,7 +13,6 @@
 #define _SUBSONIC_OUTFLOW_    "subsonic-outflow"
 #define _SUPERSONIC_INFLOW_   "supersonic-inflow"
 #define _SUPERSONIC_OUTFLOW_  "supersonic-outflow"
-/* note: supersonic inflow/outflow can be enforced by dirichlet/extrapolate bcs */
 
 typedef struct domain_boundaries {
   char    bctype [_MAX_STRING_SIZE_]; /* Type of boundary condition                           */
