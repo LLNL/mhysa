@@ -30,10 +30,13 @@ int InitializeBoundaries(void *s,void *m)
     /* read number of boundary conditions and allocate */
     ferr = fscanf(in,"%d",&solver->nBoundaryZones); if (ferr != 1) return(1);
     boundary = (DomainBoundary*) calloc (solver->nBoundaryZones,sizeof(DomainBoundary));
-    for (n = 0; n < solver->nBoundaryZones; n++) 
+    for (n = 0; n < solver->nBoundaryZones; n++) {
       boundary[n].DirichletValue = boundary[n].SpongeValue 
                                  = boundary[n].FlowVelocity 
+                                 = boundary[n].UnsteadyDirichletData
                                  = NULL;
+      boundary[n].UnsteadyDirichletSize = NULL;
+    }
 
     /* read each boundary condition */
     for (n = 0; n < solver->nBoundaryZones; n++) {
@@ -95,6 +98,16 @@ int InitializeBoundaries(void *s,void *m)
         ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
       }
 
+      if (!strcmp(boundary[n].bctype,_TURBULENT_SUPERSONIC_INFLOW_)) {
+        boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+                                     /* deallocated in BCCleanup.c */
+        /* read in the inflow density, velocity and pressure */
+        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
+        ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
+        ferr = fscanf(in,"%s" , boundary[n].UnsteadyDirichletFilename);
+      }
+
       /* if boundary is periodic, let the MPI info know */
       /* 
         The MPI function to exchange internal (MPI) boundary information will handle
@@ -128,7 +141,9 @@ int InitializeBoundaries(void *s,void *m)
       boundary[n].xmax = (double*) calloc (solver->ndims,sizeof(double)); /* deallocated in BCCleanup.c */
       boundary[n].DirichletValue = boundary[n].SpongeValue 
                                  = boundary[n].FlowVelocity 
+                                 = boundary[n].UnsteadyDirichletData
                                  = NULL;
+      boundary[n].UnsteadyDirichletSize = NULL;
     }
   }
 
@@ -177,6 +192,15 @@ int InitializeBoundaries(void *s,void *m)
       IERR MPIBroadcast_double(&boundary[n].FlowDensity ,1            ,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(boundary[n].FlowVelocity ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(&boundary[n].FlowPressure,1            ,0,&mpi->world); CHECKERR(ierr);
+    }
+
+    if (!strcmp(boundary[n].bctype,_TURBULENT_SUPERSONIC_INFLOW_)) {
+      if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+      IERR MPIBroadcast_double(&boundary[n].FlowDensity ,1            ,0,&mpi->world); CHECKERR(ierr);
+      IERR MPIBroadcast_double(boundary[n].FlowVelocity ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
+      IERR MPIBroadcast_double(&boundary[n].FlowPressure,1            ,0,&mpi->world); CHECKERR(ierr);
+      /* allocate arrays and read in unsteady boundary data */
+      IERR BCReadTurbulentInflowData(&boundary[n],mpi,solver->ndims,solver->nvars,solver->dim_local); CHECKERR(ierr);
     }
 
   }
