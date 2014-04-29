@@ -51,9 +51,9 @@ int BCTurbulentSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,i
         wvel_gpt     = boundary->FlowVelocity[2];
 
         /* calculate the turbulent fluctuations */
-        double drho, duvel, dvvel, dwvel, dpressure;
-        double drho1, duvel1, dvvel1, dwvel1, dpressure1;
-        double drho2, duvel2, dvvel2, dwvel2, dpressure2;
+        double duvel , dvvel , dwvel ;
+        double duvel1, dvvel1, dwvel1;
+        double duvel2, dvvel2, dwvel2;
         double xt = boundary->FlowVelocity[dim] * waqt;
         int N = inflow_size[dim];
         /* the following bit is hardcoded for the inflow data
@@ -68,28 +68,20 @@ int BCTurbulentSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,i
         index1[dim] = it; index2[dim] = (it == N-1 ? 0 : it+1);
         int q1;  _ArrayIndex1D_(ndims,inflow_size,index1,0,q1);
         int q2;  _ArrayIndex1D_(ndims,inflow_size,index2,0,q2);
-        drho1       = inflow_data[q1*nvars+0];
         duvel1      = inflow_data[q1*nvars+1];
         dvvel1      = inflow_data[q1*nvars+2];
         dwvel1      = inflow_data[q1*nvars+3];
-        dpressure1  = inflow_data[q1*nvars+4];
-        drho2       = inflow_data[q2*nvars+0];
         duvel2      = inflow_data[q2*nvars+1];
         dvvel2      = inflow_data[q2*nvars+2];
         dwvel2      = inflow_data[q2*nvars+3];
-        dpressure2  = inflow_data[q2*nvars+4];
-        drho        = sigma*drho1       + (1.0-sigma)*drho2;
         duvel       = sigma*duvel1      + (1.0-sigma)*duvel2;
         dvvel       = sigma*dvvel1      + (1.0-sigma)*dvvel2;
         dwvel       = sigma*dwvel1      + (1.0-sigma)*dwvel2;
-        dpressure   = sigma*dpressure1  + (1.0-sigma)*dpressure2;
 
-        /* add the turbulent fluctuations */
-        rho_gpt       += drho;
+        /* add the turbulent fluctuations to the velocity field */
         uvel_gpt      += duvel;
         vvel_gpt      += dvvel;
         wvel_gpt      += dwvel;
-        pressure_gpt  += dpressure;
 
         /* set the ghost point values */
         energy_gpt   = inv_gamma_m1*pressure_gpt
