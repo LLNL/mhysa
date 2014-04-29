@@ -134,8 +134,8 @@ int BCReadTurbulentInflowData(void *b,void *m,int ndims,int nvars,int *DomainSiz
   MPIVariables   *mpi      = (MPIVariables*)   m;
 
   char    *filename     = boundary->UnsteadyDirichletFilename;
-  int     *inflow_size  = boundary->UnsteadyDirichletSize;
-  double  *inflow_data  = boundary->UnsteadyDirichletData;
+  int     *inflow_size  = NULL;
+  double  *inflow_data  = NULL;
   double  *buffer       = NULL;
   
   int dim = boundary->dim;
@@ -176,14 +176,14 @@ int BCReadTurbulentInflowData(void *b,void *m,int ndims,int nvars,int *DomainSiz
         return(1);
       }
       int flag = 1;
-      for (d=0; d<ndims; d++) if ((d != dim) && (size[dim] != DomainSize[dim])) flag = 0;
+      for (d=0; d<ndims; d++) if ((d != dim) && (size[d] != DomainSize[d])) flag = 0;
       if (!flag) {
         fprintf(stderr,"Error in BCReadTurbulentInflowData(): Error (4) (dimension mismatch) in file reading, count %d.\n",count);
         return(1);
       }
 
       int data_size = nvars;
-      for (d=0; d<ndims; d++) data_size *= size[dim];
+      for (d=0; d<ndims; d++) data_size *= size[d];
       buffer = (double*) calloc (data_size,sizeof(double));
       ferr = fread(buffer,sizeof(double),data_size,in);
       if (ferr != data_size) {
@@ -228,18 +228,24 @@ int BCReadTurbulentInflowData(void *b,void *m,int ndims,int nvars,int *DomainSiz
   } else {
 #ifndef serial
     if (mpi->ip[dim] == (face > 0 ? 0 : mpi->iproc[dim]-1) ) {
-      MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
+      MPI_Request req = MPI_REQUEST_NULL;
       inflow_size = (int*) calloc (ndims,sizeof(int));
-      MPI_Irecv(inflow_size,ndims,MPI_INT,0,2152,mpi->world,&req[0]);
+      MPI_Irecv(inflow_size,ndims,MPI_INT,0,2152,mpi->world,&req);
+      MPI_Wait(&req,MPI_STATUS_IGNORE);
       int data_size = nvars;
-      for (d=0; d<ndims; d++) data_size *= inflow_size[dim];
+      for (d=0; d<ndims; d++) data_size *= inflow_size[d];
       inflow_data = (double*) calloc (data_size,sizeof(double));
-      MPI_Irecv(inflow_data,data_size,MPI_DOUBLE,0,2153,mpi->world,&req[1]);
-      MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
+      MPI_Irecv(inflow_data,data_size,MPI_DOUBLE,0,2153,mpi->world,&req);
+      MPI_Wait(&req,MPI_STATUS_IGNORE);
     }
 #else
     fprintf(stderr,"Error in BCReadTurbulentInflowData(): Serial code should not be here!.\n");
 #endif
   }
+  
+  boundary->UnsteadyDirichletSize = inflow_size;
+  boundary->UnsteadyDirichletData = inflow_data;
+
+  return(0);
 }
 

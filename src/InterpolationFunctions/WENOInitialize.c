@@ -53,6 +53,7 @@ int WENOInitialize(void *s,void *m, char *scheme)
     	  fprintf(stderr,"Error: Illegal format in file \"weno.inp\".\n");
         return(1);
 	    }
+      fclose(in);
     }
   }
 

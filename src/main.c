@@ -36,13 +36,11 @@ int main(int argc,char **argv)
 
 #ifdef with_petsc
   PetscInitialize(&argc,&argv,(char*)0,help);
-  if (!mpi.rank) printf("compiled with PETSc time integration.\n");
+  if (!mpi.rank) printf("Compiled with PETSc time integration.\n");
 
   use_petscts = PETSC_FALSE; /* default value */
   ierr = PetscOptionsGetBool(PETSC_NULL,"-use-petscts" ,&use_petscts ,PETSC_NULL); CHKERRQ(ierr);
   solver.use_petscTS  = use_petscts;
-#else
-  printf(".\n");
 #endif
 
   gettimeofday(&main_start,NULL);
