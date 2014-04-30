@@ -41,10 +41,13 @@ int NavierStokes2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *
       _NavierStokes2DLeftEigenvectors_(uavg,L,param,dir);
       _NavierStokes2DRightEigenvectors_(uavg,R,param,dir);
 
-      D[0]  = absolute(D[0]);
-      D[5]  = absolute(D[5]);
-      D[10] = absolute(D[10]);
-      D[15] = absolute(D[15]);
+       /* Harten's Entropy Fix - Page 362 of Leveque */
+      int k;
+      double delta = 0.000001, delta2 = delta*delta;
+      k=0;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=5;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=10; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=15; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
 
       MatMult4(_MODEL_NVARS_,DL,D,L);
       MatMult4(_MODEL_NVARS_,modA,R,DL);
@@ -206,9 +209,9 @@ int NavierStokes2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
 
 int NavierStokes2DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {
-  HyPar     *solver = (HyPar*)    s;
-  NavierStokes2D   *param  = (NavierStokes2D*)  solver->physics;
-  int       done,k;
+  HyPar             *solver = (HyPar*)    s;
+  NavierStokes2D    *param  = (NavierStokes2D*)  solver->physics;
+  int               done,k;
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;

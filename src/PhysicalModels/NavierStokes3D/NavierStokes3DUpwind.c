@@ -42,11 +42,14 @@ int NavierStokes3DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *
       _NavierStokes3DLeftEigenvectors_(uavg,L,param,dir);
       _NavierStokes3DRightEigenvectors_(uavg,R,param,dir);
 
-      D[0]  = absolute(D[0]);
-      D[6]  = absolute(D[6]);
-      D[12] = absolute(D[12]);
-      D[18] = absolute(D[18]);
-      D[24] = absolute(D[24]);
+      /* Harten's Entropy Fix - Page 362 of Leveque */
+      int k;
+      double delta = 0.000001, delta2 = delta*delta;
+      k=0;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=6;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=12; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=18; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=24; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
 
       MatMult5(_MODEL_NVARS_,DL,D,L);
       MatMult5(_MODEL_NVARS_,modA,R,DL);

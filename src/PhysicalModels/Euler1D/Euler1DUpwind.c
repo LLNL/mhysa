@@ -41,7 +41,12 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       _Euler1DLeftEigenvectors_(uavg,L,param,0);
       _Euler1DRightEigenvectors_ (uavg,R,param,0);
 
-      for (k=0; k<_MODEL_NVARS_; k++) D[k*_MODEL_NVARS_+k] = absolute(D[k*_MODEL_NVARS_+k]);
+      /* Harten's Entropy Fix - Page 362 of Leveque */
+      double delta = 0.000001, delta2 = delta*delta;
+      k = 0; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k = 4; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k = 8; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+
       MatMult3(3,DL,D,L);
       MatMult3(3,modA,R,DL);
 
