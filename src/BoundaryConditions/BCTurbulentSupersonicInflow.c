@@ -35,6 +35,13 @@ int BCTurbulentSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,i
     double inv_gamma_m1 = 1.0/(gamma-1.0);
 
     if (boundary->on_this_proc) {
+      /* the following bit is hardcoded for the inflow data
+       * representing fluctuations in a domain of length 2pi */
+      double  xt = boundary->FlowVelocity[dim] * waqt;
+      int     N  = inflow_size[dim];
+      double  L  = 2.0 * (4.0*atan(1.0));
+      int     it = ((int) ((xt/L) * ((double)N))) % N;
+
       int bounds[ndims], indexb[ndims], indexi[ndims];
       _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
       _ArraySetValue_(indexb,ndims,0);
@@ -52,31 +59,12 @@ int BCTurbulentSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,i
 
         /* calculate the turbulent fluctuations */
         double duvel , dvvel , dwvel ;
-        double duvel1, dvvel1, dwvel1;
-        double duvel2, dvvel2, dwvel2;
-        double xt = boundary->FlowVelocity[dim] * waqt;
-        int N = inflow_size[dim];
-        /* the following bit is hardcoded for the inflow data
-         * representing fluctuations in a domain of length 2pi */
-        double L = 2.0 * (4.0*atan(1.0));
-        int it; it = ((int) ((xt/L) * ((double)N))) % N;
-        double x1 = ((double)it  ) / ((double)N) * L;
-        double x2 = ((double)it+1) / ((double)N) * L;
-        double sigma = (xt-x1) / (x2-x1);
         int index1[ndims]; _ArrayCopy1D_(indexb,index1,ndims);
-        int index2[ndims]; _ArrayCopy1D_(indexb,index2,ndims);
-        index1[dim] = it; index2[dim] = (it == N-1 ? 0 : it+1);
-        int q1;  _ArrayIndex1D_(ndims,inflow_size,index1,0,q1);
-        int q2;  _ArrayIndex1D_(ndims,inflow_size,index2,0,q2);
-        duvel1      = inflow_data[q1*nvars+1];
-        dvvel1      = inflow_data[q1*nvars+2];
-        dwvel1      = inflow_data[q1*nvars+3];
-        duvel2      = inflow_data[q2*nvars+1];
-        dvvel2      = inflow_data[q2*nvars+2];
-        dwvel2      = inflow_data[q2*nvars+3];
-        duvel       = sigma*duvel1      + (1.0-sigma)*duvel2;
-        dvvel       = sigma*dvvel1      + (1.0-sigma)*dvvel2;
-        dwvel       = sigma*dwvel1      + (1.0-sigma)*dwvel2;
+        index1[dim] = it;
+        int q; _ArrayIndex1D_(ndims,inflow_size,index1,0,q);
+        duvel = inflow_data[q*nvars+1];
+        dvvel = inflow_data[q*nvars+2];
+        dwvel = inflow_data[q*nvars+3];
 
         /* add the turbulent fluctuations to the velocity field */
         uvel_gpt      += duvel;
