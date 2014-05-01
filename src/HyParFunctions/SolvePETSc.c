@@ -21,9 +21,6 @@ int SolvePETSc(void *s,void *m)
   Mat             A;  /* Jacobian matrix          */
   TSType          time_scheme;
 
-  /* Write an initial solution file */
-  ierr = OutputSolution(solver,mpi); if (ierr) return(ierr);
-
   /* Register custom time-integration methods, if specified */
   ierr = PetscRegisterTIMethods(mpi->rank);                               CHECKERR(ierr);
   if(!mpi->rank) printf("Setting up PETSc time integration... \n");
