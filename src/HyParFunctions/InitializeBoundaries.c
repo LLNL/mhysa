@@ -124,7 +124,7 @@ int InitializeBoundaries(void *s,void *m)
                 n,boundary[n].dim,solver->ndims);
         return(1);
       }
-      printf("  Boundary %25s:  Along dimension %2d and face %+1d\n",
+      printf("  Boundary %30s:  Along dimension %2d and face %+1d\n",
                 boundary[n].bctype,boundary[n].dim,boundary[n].face);
     }
 
