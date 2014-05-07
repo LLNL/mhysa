@@ -33,11 +33,16 @@ int TimeRK(void *ts)
     IERR TS->RHSFunction(TS->Udot[stage],TS->U[stage],solver,mpi,stagetime);
     if (solver->PostStage) 
       { IERR solver->PostStage(stage,TS->U,solver,mpi,stagetime); CHECKERR(ierr); }
+
+    _ArraySetValue_(TS->BoundaryFlux[stage],2*solver->ndims*solver->nvars,0.0);
+    _ArrayCopy1D_(solver->StageBoundaryIntegral,TS->BoundaryFlux[stage],2*solver->ndims*solver->nvars);
   }
 
   /* Step completion */
   for (stage = 0; stage < params->nstages; stage++) {
     _ArrayAXPY_(TS->Udot[stage],solver->dt*params->b[stage],solver->u,size*solver->nvars);
+    _ArrayAXPY_(TS->BoundaryFlux[stage],solver->dt*params->b[stage],solver->StepBoundaryIntegral,
+                2*solver->ndims*solver->nvars);
   }
 
   if (solver->PostStep)  { IERR solver->PostStep(solver->u,solver,mpi,TS->waqt); CHECKERR(ierr); }

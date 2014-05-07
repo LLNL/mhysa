@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -30,6 +31,14 @@ int TimePostStep(void *ts)
     if (TS->ResidualFile) fprintf((FILE*)TS->ResidualFile,"%10d\t%E\t%E\n",TS->iter+1,TS->waqt,TS->norm);
   
   }
+
+  if (!strcmp(solver->ConservationCheck,"yes")) {
+    /* calculate volume integral of the solution at this time step */
+    IERR solver->VolumeIntegralFunction(solver->VolumeIntegral,solver->u,solver,mpi); CHECKERR(ierr);
+    /* calculate surface integral of the flux at this time step */
+    IERR solver->BoundaryIntegralFunction(solver,mpi); CHECKERR(ierr);
+  }
+
   return(0);
 }
 

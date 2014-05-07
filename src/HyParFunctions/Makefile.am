@@ -1,6 +1,7 @@
 noinst_LIBRARIES = libHyParFunctions.a
 libHyParFunctions_a_SOURCES = \
   ApplyBoundaryConditions.c \
+  BoundaryIntegral.c \
   CalculateError.c \
   Cleanup.c \
   ExactSolution.c \
@@ -19,6 +20,7 @@ libHyParFunctions_a_SOURCES = \
   Solve.c \
   SolvePETSc.c \
   SourceFunction.c \
+  VolumeIntegral.c \
   WriteBinary.c \
   WriteTecplot2D.c \
   WriteTecplot3D.c \

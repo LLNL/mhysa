@@ -26,7 +26,8 @@ typedef struct time_integration_variables {
   double  *rhs;         /* right-hand side array                */ 
 
   /* arrays for multi-stage schemes */
-  double **U,**Udot; /* stage values and RHS                */
+  double **U,**Udot;    /* stage values and RHS                 */
+  double **BoundaryFlux;/* Boundary integral for each stage     */
 
   void *ResidualFile; /* file to write residual             */
 

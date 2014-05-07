@@ -20,7 +20,9 @@ int  ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
 int  SourceFunction              (double*,double*,void*,void*,double);
-void IncrementFilename          (char*);
+int  VolumeIntegral              (double*,double*,void*,void*);
+int  BoundaryIntegral            (void*,void*);
+void IncrementFilename           (char*);
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -33,6 +35,8 @@ int InitializeSolvers(void *s, void *m)
   solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
   solver->HyperbolicFunction      = HyperbolicFunction;
   solver->SourceFunction          = SourceFunction;
+  solver->VolumeIntegralFunction  = VolumeIntegral;
+  solver->BoundaryIntegralFunction= BoundaryIntegral;
 
   /* choose the type of parabolic discretization */
   if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) 

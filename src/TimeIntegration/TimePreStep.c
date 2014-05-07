@@ -26,6 +26,9 @@ int TimePreStep(void *ts)
     IERR MPIMax_double(&TS->max_diff,&local_max_diff,1,&mpi->world); CHECKERR(ierr);
   }
 
+  /* set the step boundary flux integral value to zero */
+  _ArraySetValue_(solver->StepBoundaryIntegral,2*solver->ndims*solver->nvars,0.0);
+
   return(0);
 }
 

@@ -100,6 +100,11 @@ int Cleanup(void *s,void *m)
   free(mpi->bcperiodic);
   free(mpi->sendbuf);
   free(mpi->recvbuf);
+  free(solver->VolumeIntegral);
+  free(solver->VolumeIntegralInitial);
+  free(solver->StageBoundaryIntegral);
+  free(solver->StepBoundaryIntegral);
+  free(solver->TotalBoundaryIntegral);
 
   return(0);
 }

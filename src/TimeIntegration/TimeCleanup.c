@@ -24,6 +24,11 @@ int TimeCleanup(void *ts)
     free(TS->Udot);
   }
 
+  if (TS->BoundaryFlux) {
+    int i; for (i=0; i<params->nstages; i++) free(TS->BoundaryFlux[i]);
+    free(TS->BoundaryFlux);
+  }
+
   /* deallocate arrays */
   free(TS->u  );
   free(TS->rhs);

@@ -5,6 +5,7 @@
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
+int VolumeIntegral(double*,double*,void*,void*);
 
 static int InitialSolutionSerial    (void*, void*);
 static int InitialSolutionParallel  (void*, void*);
@@ -12,8 +13,9 @@ static int InitialSolutionParallel  (void*, void*);
 int InitialSolution(void *s, void *m)
 {
   HyPar  *solver = (HyPar*) s;
-  if      (!strcmp(solver->input_mode,"serial"))    return(InitialSolutionSerial    (s,m));
-  else if (!strcmp(solver->input_mode,"parallel"))  return(InitialSolutionParallel  (s,m));
+  
+  if      (!strcmp(solver->input_mode,"serial"  ))  return(InitialSolutionSerial  (s,m));
+  else if (!strcmp(solver->input_mode,"parallel"))  return(InitialSolutionParallel(s,m));
   else {
     fprintf(stderr,"Error: Illegal value (%s) for input_mode (may be \"serial\" or \"parallel\"\n",
             solver->input_mode);
@@ -186,6 +188,16 @@ int InitialSolutionSerial(void *s, void *m)
     free(xg);
     free(dxinvg);
   }
+
+  /* calculate volume integral of the initial solution */
+  IERR VolumeIntegral(solver->VolumeIntegralInitial,solver->u,solver,mpi); CHECKERR(ierr);
+  if (!mpi->rank) {
+    printf("Volume integral of the initial solution:\n");
+    for (d=0; d<solver->nvars; d++) printf("%4d:\t%1.16E\n",d,solver->VolumeIntegralInitial[d]);
+  }
+  /* Set initial total boundary flux integral to zero */
+  _ArraySetValue_(solver->TotalBoundaryIntegral,solver->nvars,0);
+
   return(0);
 }
 
@@ -405,6 +417,15 @@ int InitialSolutionParallel(void *s, void *m)
     }
     offset  += (dim[d] + 2*ghosts);
   }
-  
+
+  /* calculate volume integral of the initial solution */
+  IERR VolumeIntegral(solver->VolumeIntegralInitial,solver->u,solver,mpi); CHECKERR(ierr);
+  if (!mpi->rank) {
+    printf("Volume integral of the initial solution:\n");
+    for (d=0; d<solver->nvars; d++) printf("%2d:  %1.16E\n",d,solver->VolumeIntegralInitial[d]);
+  }
+  /* Set initial total boundary flux integral to zero */
+  _ArraySetValue_(solver->TotalBoundaryIntegral,solver->nvars,0);
+
   return(0);
 }

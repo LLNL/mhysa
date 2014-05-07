@@ -225,6 +225,9 @@ files in the Examples for a better idea):
                            (see include/secondderivative.h for a complete list 
                             for non-conservative discretization)
     dt                  -> time step size
+    conservation_check  -> check for global conservation (for conservation laws, change
+                           in volume integral of solution should be equal to the total
+                           flux in/out of the physical boundaries)
     screen_op_iter      -> frequency of screen output
     file_op_iter        -> frequency of file output
     write_residual      -> write residual information to file ? (1/0)

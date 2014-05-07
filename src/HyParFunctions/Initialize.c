@@ -112,6 +112,12 @@ int Initialize(void *s, void *m)
   mpi->maxbuf  = maxbuf;
   mpi->sendbuf = (double*) calloc (2*solver->ndims*maxbuf,sizeof(double));
   mpi->recvbuf = (double*) calloc (2*solver->ndims*maxbuf,sizeof(double));
+  /* allocate the volume and boundary integral arrays */
+  solver->VolumeIntegral        = (double*) calloc (solver->nvars  ,sizeof(double));
+  solver->VolumeIntegralInitial = (double*) calloc (solver->nvars  ,sizeof(double));
+  solver->StageBoundaryIntegral = (double*) calloc (2*solver->ndims*solver->nvars,sizeof(double));
+  solver->StepBoundaryIntegral  = (double*) calloc (2*solver->ndims*solver->nvars,sizeof(double));
+  solver->TotalBoundaryIntegral = (double*) calloc (solver->nvars,sizeof(double));
 
   return(0);
 }

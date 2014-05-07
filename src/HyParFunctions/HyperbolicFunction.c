@@ -27,6 +27,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
   for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
 
   _ArraySetValue_(hyp,size*nvars,0.0);
+  _ArraySetValue_(solver->StageBoundaryIntegral,2*ndims*nvars,0.0);
   if (!solver->FFunction) return(0); /* zero hyperbolic term */
 
   int offset = 0;
@@ -51,6 +52,12 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
       _ArrayIndex1D_(ndims,dim_interface,index2,0     ,p2);
       for (v=0; v<nvars; v++) hyp[nvars*p+v] += dxinv[offset+ghosts+index[d]] 
                                               * (FluxI[nvars*p2+v]-FluxI[nvars*p1+v]);
+      /* boundary flux integral */
+      if (index[d] == 0) 
+        for (v=0; v<nvars; v++) solver->StageBoundaryIntegral[(2*d+0)*nvars+v] -= FluxI[nvars*p1+v];
+      if (index[d] == dim[d]-1) 
+        for (v=0; v<nvars; v++) solver->StageBoundaryIntegral[(2*d+1)*nvars+v] += FluxI[nvars*p2+v];
+
       _ArrayIncrementIndex_(ndims,dim,index,done);
     }
 

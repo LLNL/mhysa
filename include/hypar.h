@@ -91,7 +91,16 @@ typedef struct main_parameters {
   void *lusolver;     /* Tridiagonal LU solver parameters         */
 
   /* Errors */
-  double error[3];   /* L1,L2,Linf errors, if calculated         */
+  double error[3];                /* L1,L2,Linf errors, if calculated                             */
+  char   ConservationCheck[_MAX_STRING_SIZE_];
+  double *VolumeIntegral;         /* volume integral of the solution variable                     */
+  double *VolumeIntegralInitial;  /* initial volume integral of the solution variable             */
+  double *StageBoundaryIntegral;  /* boundary integral of flux for a time-integration stage       */
+  double *StepBoundaryIntegral;   /* boundary integral of flux for a time-integration step        */
+  double *TotalBoundaryIntegral;  /* total boundary integral of flux                              */
+  int    (*VolumeIntegralFunction)    (double*,double*,void*,void*);
+  int    (*BoundaryIntegralFunction)  (void*,void*);
+
 #ifdef with_petsc
   /* PETSc */
   int     use_petscTS;  /* Use PETSc time-integration? */

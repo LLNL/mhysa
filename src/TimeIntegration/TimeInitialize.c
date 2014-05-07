@@ -44,7 +44,10 @@ int TimeInitialize(void *s,void *m,void *ts)
       TS->U[i]    = (double*) calloc (size*solver->nvars,sizeof(double));
       TS->Udot[i] = (double*) calloc (size*solver->nvars,sizeof(double));
     }
-  } else TS->U = TS->Udot = NULL;
+    TS->BoundaryFlux = (double**) calloc (nstages,sizeof(double*));
+    for (i=0; i<nstages; i++) 
+      TS->BoundaryFlux[i] = (double*) calloc (2*solver->ndims*solver->nvars,sizeof(double));
+  } else TS->U = TS->Udot = TS->BoundaryFlux = NULL;
 
   /* set right-hand side function pointer */
   TS->RHSFunction = TimeRHSFunctionExplicit;
