@@ -112,11 +112,11 @@ int main(){
 				double beta_imag = sqrt(E/(4*PI*kk*kk))*sin(th2)*sin(phi1);
 
 				uhat[k+N*(j+N*i)][0] = (alfa_real*kk*j+beta_real*i*k)/(kk*sqrt(i*i+j*j));
-				vhat[k+N*(j+N*i)][0] = (beta_real*j*k+alfa_real*kk*i)/(kk*sqrt(i*i+j*j));
-				what[k+N*(j+N*i)][0] = (beta_real*sqrt(i*i+j*j))/kk;
+				vhat[k+N*(j+N*i)][0] = (beta_real*j*k-alfa_real*kk*i)/(kk*sqrt(i*i+j*j));
+				what[k+N*(j+N*i)][0] = -(beta_real*sqrt(i*i+j*j))/kk;
 				uhat[k+N*(j+N*i)][1] = (alfa_imag*kk*j+beta_imag*i*k)/(kk*sqrt(i*i+j*j));
-				vhat[k+N*(j+N*i)][1] = (beta_imag*j*k+alfa_imag*kk*i)/(kk*sqrt(i*i+j*j));
-				what[k+N*(j+N*i)][1] = (beta_imag*sqrt(i*i+j*j))/kk;
+				vhat[k+N*(j+N*i)][1] = (beta_imag*j*k-alfa_imag*kk*i)/(kk*sqrt(i*i+j*j));
+				what[k+N*(j+N*i)][1] = -(beta_imag*sqrt(i*i+j*j))/kk;
 			}
 		}
 	}
@@ -135,11 +135,11 @@ int main(){
 				double beta_imag = sqrt(E/(4*PI*kk*kk))*sin(th2)*sin(phi1);
 
 				uhat[k+N*(j+N*i)][0] = (alfa_real*kk*j+beta_real*i*k)/(kk*sqrt(i*i+j*j));
-				vhat[k+N*(j+N*i)][0] = (beta_real*j*k+alfa_real*kk*i)/(kk*sqrt(i*i+j*j));
-				what[k+N*(j+N*i)][0] = (beta_real*sqrt(i*i+j*j))/kk;
+				vhat[k+N*(j+N*i)][0] = (beta_real*j*k-alfa_real*kk*i)/(kk*sqrt(i*i+j*j));
+				what[k+N*(j+N*i)][0] = -(beta_real*sqrt(i*i+j*j))/kk;
 				uhat[k+N*(j+N*i)][1] = (alfa_imag*kk*j+beta_imag*i*k)/(kk*sqrt(i*i+j*j));
-				vhat[k+N*(j+N*i)][1] = (beta_imag*j*k+alfa_imag*kk*i)/(kk*sqrt(i*i+j*j));
-				what[k+N*(j+N*i)][1] = (beta_imag*sqrt(i*i+j*j))/kk;
+				vhat[k+N*(j+N*i)][1] = (beta_imag*j*k-alfa_imag*kk*i)/(kk*sqrt(i*i+j*j));
+				what[k+N*(j+N*i)][1] = -(beta_imag*sqrt(i*i+j*j))/kk;
 			}
 		}
 	}
@@ -313,6 +313,70 @@ int main(){
 	rms_velocity = sqrt(rms_velocity / (3*N*N*N));
 	printf("RMS velocity (component-wise): %1.16E\n",rms_velocity);
 	printf("RMS of imaginary velocity (component-wise): %1.16E\n",imag_velocity);
+
+  /* calculate the divergence of velocity */
+  double DivergenceNorm = 0;
+  for (i=0; i<N; i++) {
+    for (j=0; j<N; j++) {
+      for (k=0; k<N; k++) {
+        double u1, u2, v1, v2, w1, w2;
+        u1 = (i==0   ? u[k+N*(j+N*(N-1))][0] : u[k+N*(j+N*(i-1))][0] );
+        u2 = (i==N-1 ? u[k+N*(j+N*(0  ))][0] : u[k+N*(j+N*(i+1))][0] );
+        v1 = (j==0   ? u[k+N*((N-1)+N*i)][0] : u[k+N*((j-1)+N*i)][0] );
+        v2 = (j==N-1 ? u[k+N*((0  )+N*i)][0] : u[k+N*((j+1)+N*i)][0] );
+        w1 = (k==0   ? u[(N-1)+N*(j+N*i)][0] : u[(k-1)+N*(j+N*i)][0] );
+        w2 = (k==N-1 ? u[(0  )+N*(j+N*i)][0] : u[(k+1)+N*(j+N*i)][0] );
+        double Divergence = ( (u2-u1) + (v2-v1) + (w2-w1) ) / (2.0*dx);
+        DivergenceNorm += (Divergence*Divergence);
+      }
+    }
+  }
+  DivergenceNorm = sqrt(DivergenceNorm / (N*N*N));
+  printf("Velocity divergence: %1.16E\n",DivergenceNorm);
+
+  /* calculate the Taylor microscales */
+  double TaylorMicroscale[3];
+  double Numerator[3] = {0,0,0};
+  double Denominator[3] = {0,0,0};
+  for (i=0; i<N; i++) {
+    for (j=0; j<N; j++) {
+      for (k=0; k<N; k++) {
+        double u1, u2, uu, v1, v2, vv, w1, w2, ww;
+        u1 = (i==0   ? u[k+N*(j+N*(N-1))][0] : u[k+N*(j+N*(i-1))][0] );
+        u2 = (i==N-1 ? u[k+N*(j+N*(0  ))][0] : u[k+N*(j+N*(i+1))][0] );
+        v1 = (j==0   ? u[k+N*((N-1)+N*i)][0] : u[k+N*((j-1)+N*i)][0] );
+        v2 = (j==N-1 ? u[k+N*((0  )+N*i)][0] : u[k+N*((j+1)+N*i)][0] );
+        w1 = (k==0   ? u[(N-1)+N*(j+N*i)][0] : u[(k-1)+N*(j+N*i)][0] );
+        w2 = (k==N-1 ? u[(0  )+N*(j+N*i)][0] : u[(k+1)+N*(j+N*i)][0] );
+        uu  = u[k+N*(j+N*i)][0];
+        vv  = v[k+N*(j+N*i)][0];
+        ww  = w[k+N*(j+N*i)][0];
+
+        double du, dv, dw;
+        du = (u2 - u1) / (2.0*dx);
+        dv = (v2 - v1) / (2.0*dx);
+        dw = (w2 - w1) / (2.0*dx);
+
+        Numerator[0] += (uu*uu);
+        Numerator[1] += (vv*vv);
+        Numerator[2] += (ww*ww);
+
+        Denominator[0] += (du*du);
+        Denominator[1] += (dv*dv);
+        Denominator[2] += (dw*dw);
+      }
+    }
+  }
+  Numerator[0] /= (N*N*N); Denominator[0] /= (N*N*N);
+  Numerator[1] /= (N*N*N); Denominator[1] /= (N*N*N);
+  Numerator[2] /= (N*N*N); Denominator[2] /= (N*N*N);
+
+  TaylorMicroscale[0] = sqrt(Numerator[0]/Denominator[0]);
+  TaylorMicroscale[1] = sqrt(Numerator[1]/Denominator[1]);
+  TaylorMicroscale[2] = sqrt(Numerator[2]/Denominator[2]);
+
+  printf("Taylor microscales: %1.16E, %1.16E, %1.16E\n",
+         TaylorMicroscale[0],TaylorMicroscale[1],TaylorMicroscale[2]);
 
   /* grid and solution in conserved variable form */
   double *x,*y,*z,*U;

@@ -1,22 +1,3 @@
-/* 
-
-  Code to calculate the energy spectrum of the solution
-  at a given instance.
-
-  Create a symbolic link named "op.bin" to the desired
-  solution file "op_xxxxx.bin" if not overwriting solu-
-  tion files.
-
-  It will write a file "spectrum_final.dat" which has
-  two columns - k and E(k)
-
-  It needs the FFTW3 library installed. To compile it, 
-  make sure the fftw3.h and libfftw3 are available in
-  the include and linking paths.
-
-*/
-
-
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -118,6 +99,8 @@ void fourier_analysis(int N, double *uu, double *vv, double *ww)
 {
 	int i,j,k;
   int N3 = N*N*N;
+  double pi = 4.0*atan(1.0);
+  double dx = 2*pi / ((double)N);
 
 	fftw_complex *u    = (fftw_complex*) fftw_malloc(N3 * sizeof(fftw_complex));	
 	fftw_complex *v    = (fftw_complex*) fftw_malloc(N3 * sizeof(fftw_complex));	
@@ -150,6 +133,50 @@ void fourier_analysis(int N, double *uu, double *vv, double *ww)
 	}
 	rms_velocity = sqrt(rms_velocity / (3*N3));
 	printf("RMS velocity (component-wise): %1.16E\n",rms_velocity);
+
+  /* calculate the Taylor microscales */
+  double TaylorMicroscale[3];
+  double Numerator[3] = {0,0,0};
+  double Denominator[3] = {0,0,0};
+  for (i=0; i<N; i++) {
+    for (j=0; j<N; j++) {
+      for (k=0; k<N; k++) {
+        double u1, u2, uc, v1, v2, vc, w1, w2, wc;
+        u1 = (i==0   ? u[k+N*(j+N*(N-1))][0] : u[k+N*(j+N*(i-1))][0] );
+        u2 = (i==N-1 ? u[k+N*(j+N*(0  ))][0] : u[k+N*(j+N*(i+1))][0] );
+        v1 = (j==0   ? u[k+N*((N-1)+N*i)][0] : u[k+N*((j-1)+N*i)][0] );
+        v2 = (j==N-1 ? u[k+N*((0  )+N*i)][0] : u[k+N*((j+1)+N*i)][0] );
+        w1 = (k==0   ? u[(N-1)+N*(j+N*i)][0] : u[(k-1)+N*(j+N*i)][0] );
+        w2 = (k==N-1 ? u[(0  )+N*(j+N*i)][0] : u[(k+1)+N*(j+N*i)][0] );
+        uc  = u[k+N*(j+N*i)][0];
+        vc  = v[k+N*(j+N*i)][0];
+        wc  = w[k+N*(j+N*i)][0];
+
+        double du, dv, dw;
+        du = (u2 - u1) / (2.0*dx);
+        dv = (v2 - v1) / (2.0*dx);
+        dw = (w2 - w1) / (2.0*dx);
+
+        Numerator[0] += (uc*uc);
+        Numerator[1] += (vc*vc);
+        Numerator[2] += (wc*wc);
+
+        Denominator[0] += (du*du);
+        Denominator[1] += (dv*dv);
+        Denominator[2] += (dw*dw);
+      }
+    }
+  }
+  Numerator[0] /= (N*N*N); Denominator[0] /= (N*N*N);
+  Numerator[1] /= (N*N*N); Denominator[1] /= (N*N*N);
+  Numerator[2] /= (N*N*N); Denominator[2] /= (N*N*N);
+
+  TaylorMicroscale[0] = sqrt(Numerator[0]/Denominator[0]);
+  TaylorMicroscale[1] = sqrt(Numerator[1]/Denominator[1]);
+  TaylorMicroscale[2] = sqrt(Numerator[2]/Denominator[2]);
+
+  printf("Taylor microscales: %1.16E, %1.16E, %1.16E\n",
+         TaylorMicroscale[0],TaylorMicroscale[1],TaylorMicroscale[2]);
 
 	fftw_execute(transform_u);
 	fftw_execute(transform_v);
