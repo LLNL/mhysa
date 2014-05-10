@@ -13,6 +13,8 @@ int    Numa3DFlux              (double*,double*,int,void*,double);
 int    Numa3DSource            (double*,double*,void*,double);
 int    Numa3DRusanov           (double*,double*,double*,double*,double*,double*,int,void*,double);
 
+static int Numa3DStandardAtmosphere(void*,double*,int);
+
 int Numa3DInitialize(void *s,void *m)
 {
   HyPar           *solver  = (HyPar*)         s;
@@ -31,10 +33,13 @@ int Numa3DInitialize(void *s,void *m)
 
   /* default values */
   physics->gamma  = 1.4; 
-  physics->R      = 287.058;
-  physics->Omega  = 7.2921150E-05;
-  physics->g      = 9.8;
-  physics->Pref   = 1.0;
+  physics->R      = 287.058;        /* J kg^{-1} K^{-1} */
+  physics->Omega  = 7.2921150E-05;  /* rad s^{-1}       */
+  physics->g      = 9.8;            /* m s^{-2}         */
+
+  physics->Pref   = 101327.0;       /* N m^{-2}         */
+  physics->rhoref = 1.225;          /* kg m^{-3}        */
+  physics->Tref   = 288.15;         /* Kelvin           */
 
   /* allocate rho0(z), P0(z), T0(z) */
   physics->rho0 = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
@@ -63,6 +68,10 @@ int Numa3DInitialize(void *s,void *m)
           ferr = fscanf(in,"%lf",&physics->Omega); if (ferr != 1) return(1);
         } else if (!strcmp(word,"Pref")) {
           ferr = fscanf(in,"%lf",&physics->Pref); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"rhoref")) {
+          ferr = fscanf(in,"%lf",&physics->rhoref); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"Tref")) {
+          ferr = fscanf(in,"%lf",&physics->Tref); if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
           ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
@@ -77,6 +86,12 @@ int Numa3DInitialize(void *s,void *m)
   }
   fclose(in);
 
+  /* calculate the mean hydrostatic atmosphere as a function of altitude */
+  double *zcoord = solver->x + (solver->dim_local[0]+2*solver->ghosts)
+                             + (solver->dim_local[1]+2*solver->ghosts);
+  IERR Numa3DStandardAtmosphere(physics,zcoord,(solver->dim_local[2]+2*solver->ghosts)); 
+  CHECKERR(ierr);
+
   /* initializing physical model-specific functions */
   solver->ComputeCFL  = Numa3DComputeCFL;
   solver->FFunction   = Numa3DFlux;
@@ -88,5 +103,28 @@ int Numa3DInitialize(void *s,void *m)
   DomainBoundary  *boundary = (DomainBoundary*) solver->boundary;
   for (n = 0; n < solver->nBoundaryZones; n++)  boundary[n].gamma = physics->gamma;
 
+  return(0);
+}
+
+int Numa3DStandardAtmosphere(void *p,double *z,int N)
+{
+  Numa3D *physics = (Numa3D*) p;
+
+  /* reference quantities at zero altitude */
+  double rho_ref, P_ref, T_ref; 
+  rho_ref = physics->rhoref;
+  P_ref   = physics->Pref;
+  T_ref   = physics->Tref;
+
+  double *rho = physics->rho0;
+  double *P   = physics->P0;
+  double *T   = physics->T0;
+
+  int i;
+  for (i=0; i<N; i++) {
+    rho[i] = rho_ref;
+    P[i]   = P_ref;
+    T[i]   = T_ref;
+  }
   return(0);
 }

@@ -87,7 +87,9 @@ typedef struct numa3d_parameters {
   double  R;      /* Universal gas constant                       */
   double  Omega;  /* Angular speed of Earth                       */
   double  g;      /* acceleration due to gravity                  */
-  double  Pref;   /* refernce pressure (atmos. pressure @ ground  */
+
+  /* reference variables at zero altitude */
+  double Pref, rhoref, Tref;
 
   /* mean hydrostatic flow variables */
   double *rho0, *P0, *T0;
