@@ -70,7 +70,7 @@ typedef struct main_parameters {
   int    (*FFunction)          (double*,double*,int,void*,double);
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*HFunction)          (double*,double*,int,int,void*,double);
-  int    (*SFunction)          ();
+  int    (*SFunction)          (double*,double*,void*,double);
   int    (*Upwind)             (double*,double*,double*,double*,double*,double*,
                                 int,void*,double);
   /* physics-specific pre/post-time-step/stage functions */
