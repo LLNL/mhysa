@@ -28,6 +28,11 @@ int SourceFunction(double *source,double *u,void *s,void *m,double t)
   /* initialize to zero */
   _ArraySetValue_(source,size*nvars,0.0);
 
+  /* call the source function of the physics model, if available */
+  if (solver->SFunction) {
+    IERR solver->SFunction(source,u,solver,t); CHECKERR(ierr);
+  }
+
   /* Apart from other source terms, implement sponge BC as a source */
   for (n = 0; n < nb; n++) {
     if (!strcmp(boundary[n].bctype,_SPONGE_)) {
