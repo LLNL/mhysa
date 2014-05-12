@@ -25,7 +25,7 @@
 #undef _MODEL_NDIMS_
 #undef _MODEL_NVARS_
 #define _MODEL_NDIMS_ 3
-#define _MODEL_NVARS_ 6
+#define _MODEL_NVARS_ 5
 
 /* grid directions */
 #define _XDIR_ 0

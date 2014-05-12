@@ -4,8 +4,7 @@
 
 int Numa3DCleanup(void *s)
 {
-  HyPar  *solver  = (HyPar*)         s;
-  Numa3D *physics = (Numa3D*)        solver->physics;
+  Numa3D *physics = (Numa3D*) s;
 
   free(physics->rho0);
   free(physics->P0);
