@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <basic.h>
+#include <interpolation.h>
 #include <mpivars.h>
 #include <hypar.h>
 
@@ -14,6 +15,7 @@
 #include <physicalmodels/euler2d.h>
 #include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
+#include <physicalmodels/numa3d.h>
 
 int InitializePhysics(void *s,void *m)
 {
@@ -80,12 +82,29 @@ int InitializePhysics(void *s,void *m)
     solver->physics = (NavierStokes3D*) calloc (1,sizeof(NavierStokes3D));
     IERR NavierStokes3DInitialize(solver,mpi); CHECKERR(ierr);
 
+  } else if (!strcmp(solver->model,_NUMA3D_)) {
+
+    solver->physics = (Numa3D*) calloc (1,sizeof(Numa3D));
+    IERR Numa3DInitialize(solver,mpi); CHECKERR(ierr);
+
   } else {
 
     fprintf(stderr,"Error: %s is not a supported physical model.\n",solver->model);
     return(1);
 
   }
+
+  if ( ( (solver->GetLeftEigenvectors == NULL) || (solver->GetRightEigenvectors == NULL) )
+      && (!strcmp(solver->interp_type,_CHARACTERISTIC_)) ) {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error: Interpolation type is defined as characteristic ");
+      fprintf(stderr,"but physics initializations returned NULL pointers for ");
+      fprintf(stderr,"Get(Left,Right)Eigenvectors needed for characteristic-based ");
+      fprintf(stderr,"reconstruction.\n");
+    }
+    return(1);
+  }
+
 
   return(0);
 }

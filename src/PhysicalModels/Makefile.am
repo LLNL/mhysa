@@ -6,4 +6,5 @@ SUBDIRS = \
   Euler1D \
   Euler2D \
   NavierStokes2D \
-  NavierStokes3D
+  NavierStokes3D \
+  Numa3D
