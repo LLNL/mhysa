@@ -13,7 +13,7 @@ int TimePrintStep(void *ts)
   int             v;
 
   if ((!mpi->rank) && ((TS->iter+1)%solver->screen_op_iter == 0)) {
-    printf("Iteration: %6d  "       ,TS->iter+1  );
+    printf("Iteration: %7d  "       ,TS->iter+1  );
     printf("Time: %1.3E  "          ,TS->waqt    );
     printf("Max CFL: %1.3E  "       ,TS->max_cfl );
     printf("Max Diff. No.: %1.3E  " ,TS->max_diff);
