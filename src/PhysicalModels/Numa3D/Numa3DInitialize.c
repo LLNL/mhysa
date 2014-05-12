@@ -3,6 +3,7 @@
 #include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <mathfunctions.h>
 #include <boundaryconditions.h>
 #include <physicalmodels/numa3d.h>
 #include <mpivars.h>
@@ -38,7 +39,6 @@ int Numa3DInitialize(void *s,void *m)
   physics->g      = 9.8;            /* m s^{-2}         */
 
   physics->Pref   = 101327.0;       /* N m^{-2}         */
-  physics->rhoref = 1.225;          /* kg m^{-3}        */
   physics->Tref   = 288.15;         /* Kelvin           */
 
   /* allocate rho0(z), P0(z), T0(z) */
@@ -68,8 +68,6 @@ int Numa3DInitialize(void *s,void *m)
           ferr = fscanf(in,"%lf",&physics->Omega); if (ferr != 1) return(1);
         } else if (!strcmp(word,"Pref")) {
           ferr = fscanf(in,"%lf",&physics->Pref); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"rhoref")) {
-          ferr = fscanf(in,"%lf",&physics->rhoref); if (ferr != 1) return(1);
         } else if (!strcmp(word,"Tref")) {
           ferr = fscanf(in,"%lf",&physics->Tref); if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
@@ -110,11 +108,15 @@ int Numa3DStandardAtmosphere(void *p,double *z,int N)
 {
   Numa3D *physics = (Numa3D*) p;
 
+  double R      = physics->R;
+  double gamma  = physics->gamma;
+  double g      = physics->g;
+
   /* reference quantities at zero altitude */
   double rho_ref, P_ref, T_ref; 
-  rho_ref = physics->rhoref;
   P_ref   = physics->Pref;
   T_ref   = physics->Tref;
+  rho_ref = P_ref/(R*T_ref);
 
   double *rho = physics->rho0;
   double *P   = physics->P0;
@@ -122,8 +124,12 @@ int Numa3DStandardAtmosphere(void *p,double *z,int N)
 
   int i;
   for (i=0; i<N; i++) {
-    rho[i] = rho_ref;
-    P[i]   = P_ref;
+    double zcoord = z[i];
+    double pi = 1.0 - ((gamma-1.0)/gamma)*(g/(R*T_ref))*zcoord;
+    double term = gamma/(gamma-1.0);
+    
+    rho[i] = rho_ref * raiseto(pi,term);
+    P[i]   = P_ref   * raiseto(pi,term);
     T[i]   = T_ref;
   }
   return(0);
