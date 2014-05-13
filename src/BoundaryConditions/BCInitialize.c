@@ -19,6 +19,7 @@ int BCInitialize(void *b)
   else if (!strcmp(boundary->bctype,_SUPERSONIC_OUTFLOW_          )) boundary->BCFunctionU = BCSupersonicOutflowU;    
   else if (!strcmp(boundary->bctype,_SUPERSONIC_INFLOW_           )) boundary->BCFunctionU = BCSupersonicInflowU;    
   else if (!strcmp(boundary->bctype,_TURBULENT_SUPERSONIC_INFLOW_ )) boundary->BCFunctionU = BCTurbulentSupersonicInflowU;    
+  else if (!strcmp(boundary->bctype,_NO_FLUX_BC_                  )) boundary->BCFunctionU = BCNoFluxU;    
   else {
     fprintf(stderr,"Error in BCInitialize(): \"%s\" is not a supported boundary condition.\n",
             boundary->bctype);
@@ -37,6 +38,7 @@ int BCInitialize(void *b)
   else if (!strcmp(boundary->bctype,_SUPERSONIC_OUTFLOW_          )) boundary->BCFunctionDU = BCSupersonicOutflowDU;    
   else if (!strcmp(boundary->bctype,_SUPERSONIC_INFLOW_           )) boundary->BCFunctionDU = BCSupersonicInflowDU;    
   else if (!strcmp(boundary->bctype,_TURBULENT_SUPERSONIC_INFLOW_ )) boundary->BCFunctionDU = BCTurbulentSupersonicInflowDU;    
+  else if (!strcmp(boundary->bctype,_NO_FLUX_BC_                  )) boundary->BCFunctionDU = BCNoFluxDU;    
   else {
     fprintf(stderr,"Error in BCInitialize(): \"%s\" is not a supported boundary condition.\n",
             boundary->bctype);

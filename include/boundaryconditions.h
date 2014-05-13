@@ -15,6 +15,9 @@
 #define _SUPERSONIC_OUTFLOW_            "supersonic-outflow"
 #define _TURBULENT_SUPERSONIC_INFLOW_   "turbulent-supersonic-inflow"
 
+/* some BC types unique to the NUMA system */
+#define _NO_FLUX_BC_                    "numa-nfbc"
+
 typedef struct domain_boundaries {
   char    bctype [_MAX_STRING_SIZE_]; /* Type of boundary condition                           */
   int     dim;                        /* dimension along which this BC applies                */
@@ -60,6 +63,7 @@ int BCSubsonicOutflowU              (void*,void*,int,int,int*,int,double*,double
 int BCSupersonicInflowU             (void*,void*,int,int,int*,int,double*,double);    /* Supersonic inflow                boundary conditions  */
 int BCSupersonicOutflowU            (void*,void*,int,int,int*,int,double*,double);    /* Supersonic outflow               boundary conditions  */
 int BCTurbulentSupersonicInflowU    (void*,void*,int,int,int*,int,double*,double);    /* Turbulent Supersonic inflow      boundary conditions  */
+int BCNoFluxU                       (void*,void*,int,int,int*,int,double*,double);    /* No-Flux (inviscid wall)          boundary conditions  */
 
 /* Boundary condition implementations for the (\Delta U) */
 int BCPeriodicDU                    (void*,void*,int,int,int*,int,double*,double*,double);    /* Periodic                     boundary conditions    */
@@ -73,6 +77,7 @@ int BCSubsonicOutflowDU             (void*,void*,int,int,int*,int,double*,double
 int BCSupersonicInflowDU            (void*,void*,int,int,int*,int,double*,double*,double);    /* Supersonic inflow            boundary conditions  */
 int BCSupersonicOutflowDU           (void*,void*,int,int,int*,int,double*,double*,double);    /* Supersonic outflow           boundary conditions  */
 int BCTurbulentSupersonicInflowDU   (void*,void*,int,int,int*,int,double*,double*,double);    /* Turbulent Supersonic inflow  boundary conditions  */
+int BCNoFluxDU                      (void*,void*,int,int,int*,int,double*,double*,double);    /* No-Flux ((inviscid wall)     boundary conditions  */
 
 /* a special BC enforcement - an absorbent sponge - enforced through a source term */
 int BCSpongeSource        (void*,int,int,int,int*,double*,double*,double*);
