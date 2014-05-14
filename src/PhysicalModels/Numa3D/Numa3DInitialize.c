@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mathfunctions.h>
@@ -14,7 +15,8 @@ int    Numa3DFlux              (double*,double*,int,void*,double);
 int    Numa3DSource            (double*,double*,void*,double);
 int    Numa3DRusanov           (double*,double*,double*,double*,double*,double*,int,void*,double);
 
-static int Numa3DStandardAtmosphere(void*,double*,int);
+static int Numa3DStandardAtmosphere_1(void*,double*,int);
+static int Numa3DStandardAtmosphere_2(void*,double*,int);
 
 int Numa3DInitialize(void *s,void *m)
 {
@@ -40,6 +42,9 @@ int Numa3DInitialize(void *s,void *m)
 
   physics->Pref   = 101327.0;       /* N m^{-2}         */
   physics->Tref   = 288.15;         /* Kelvin           */
+
+  /* default choice of initial atmosphere */
+  physics->init_atmos = 1;
 
   /* allocate rho0(z), P0(z), T0(z) */
   physics->rho0 = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
@@ -70,6 +75,8 @@ int Numa3DInitialize(void *s,void *m)
           ferr = fscanf(in,"%lf",&physics->Pref); if (ferr != 1) return(1);
         } else if (!strcmp(word,"Tref")) {
           ferr = fscanf(in,"%lf",&physics->Tref); if (ferr != 1) return(1);
+        } else if (!strcmp(word,"init_atmos")) {
+          ferr = fscanf(in,"%d",&physics->init_atmos); if (ferr != 1) return(1);
         } else if (strcmp(word,"end")) {
           char useless[_MAX_STRING_SIZE_];
           ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
@@ -87,7 +94,16 @@ int Numa3DInitialize(void *s,void *m)
   /* calculate the mean hydrostatic atmosphere as a function of altitude */
   double *zcoord = solver->x + (solver->dim_local[0]+2*solver->ghosts)
                              + (solver->dim_local[1]+2*solver->ghosts);
-  IERR Numa3DStandardAtmosphere(physics,zcoord,(solver->dim_local[2]+2*solver->ghosts)); 
+  if (physics->init_atmos == 1) {
+    IERR Numa3DStandardAtmosphere_1(physics,zcoord,(solver->dim_local[2]+2*solver->ghosts)); 
+  } else if (physics->init_atmos == 2) {
+    IERR Numa3DStandardAtmosphere_2(physics,zcoord,(solver->dim_local[2]+2*solver->ghosts)); 
+  } else {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in Numa3DInitialize(): invalid choice of initial atmosphere (init_atmos).\n");
+      return(1);
+    }
+  }
   CHECKERR(ierr);
 
   /* initializing physical model-specific functions */
@@ -104,7 +120,7 @@ int Numa3DInitialize(void *s,void *m)
   return(0);
 }
 
-int Numa3DStandardAtmosphere(void *p,double *z,int N)
+int Numa3DStandardAtmosphere_1(void *p,double *z,int N)
 {
   Numa3D *physics = (Numa3D*) p;
 
@@ -131,6 +147,39 @@ int Numa3DStandardAtmosphere(void *p,double *z,int N)
     rho[i] = rho_ref * raiseto(pi,term);
     P[i]   = P_ref   * raiseto(pi,term);
     T[i]   = T_ref;
+  }
+  return(0);
+}
+
+int Numa3DStandardAtmosphere_2(void *p,double *z,int N)
+{
+  Numa3D *physics = (Numa3D*) p;
+
+  double R      = physics->R;
+  double gamma  = physics->gamma;
+  double g      = physics->g;
+
+  /* reference quantities at zero altitude */
+  double rho_ref, P_ref, T_ref; 
+  P_ref   = physics->Pref;
+  T_ref   = physics->Tref;
+  rho_ref = P_ref/(R*T_ref);
+
+  double *rho = physics->rho0;
+  double *P   = physics->P0;
+  double *T   = physics->T0;
+
+  double BV = 0.01; /* Brunt-Vaisala frequency */
+  double term = gamma/(gamma-1.0);
+  double cp = term*R;
+
+  int i;
+  for (i=0; i<N; i++) {
+    double zcoord = z[i];
+    double pi     = 1.0 + (g*g/(cp*T_ref*BV*BV)) * (exp(-BV*BV*zcoord/g) - 1.0);
+    rho[i]        = rho_ref * raiseto(pi,term);
+    P[i]          = P_ref   * raiseto(pi,term);
+    T[i]          = T_ref   * exp(BV*BV*zcoord/g);
   }
   return(0);
 }

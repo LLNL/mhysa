@@ -83,10 +83,11 @@
   }
 
 typedef struct numa3d_parameters {
-  double  gamma;  /* Ratio of heat capacities                     */
-  double  R;      /* Universal gas constant                       */
-  double  Omega;  /* Angular speed of Earth                       */
-  double  g;      /* acceleration due to gravity                  */
+  double  gamma;      /* Ratio of heat capacities       */
+  double  R;          /* Universal gas constant         */
+  double  Omega;      /* Angular speed of Earth         */
+  double  g;          /* acceleration due to gravity    */
+  int     init_atmos; /* choice of initial atmosphere   */
 
   /* pressure & temperature at zero altitude */
   double Pref, Tref;
