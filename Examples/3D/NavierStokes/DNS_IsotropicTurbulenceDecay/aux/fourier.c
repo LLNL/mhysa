@@ -134,6 +134,26 @@ void fourier_analysis(int N, double *uu, double *vv, double *ww)
 	rms_velocity = sqrt(rms_velocity / (3*N3));
 	printf("RMS velocity (component-wise): %1.16E\n",rms_velocity);
 
+  /* calculate the divergence of velocity */
+  double DivergenceNorm = 0;
+  for (i=0; i<N; i++) {
+    for (j=0; j<N; j++) {
+      for (k=0; k<N; k++) {
+        double u1, u2, v1, v2, w1, w2;
+        u1 = (i==0   ? u[k+N*(j+N*(N-1))][0] : u[k+N*(j+N*(i-1))][0] );
+        u2 = (i==N-1 ? u[k+N*(j+N*(0  ))][0] : u[k+N*(j+N*(i+1))][0] );
+        v1 = (j==0   ? v[k+N*((N-1)+N*i)][0] : v[k+N*((j-1)+N*i)][0] );
+        v2 = (j==N-1 ? v[k+N*((0  )+N*i)][0] : v[k+N*((j+1)+N*i)][0] );
+        w1 = (k==0   ? w[(N-1)+N*(j+N*i)][0] : w[(k-1)+N*(j+N*i)][0] );
+        w2 = (k==N-1 ? w[(0  )+N*(j+N*i)][0] : w[(k+1)+N*(j+N*i)][0] );
+        double Divergence = ( (u2-u1) + (v2-v1) + (w2-w1) ) / (2.0*dx);
+        DivergenceNorm += (Divergence*Divergence);
+      }
+    }
+  }
+  DivergenceNorm = sqrt(DivergenceNorm / (N*N*N));
+  printf("Velocity divergence: %1.16E\n",DivergenceNorm);
+
   /* calculate the Taylor microscales */
   double TaylorMicroscale[3];
   double Numerator[3] = {0,0,0};
@@ -144,10 +164,10 @@ void fourier_analysis(int N, double *uu, double *vv, double *ww)
         double u1, u2, uc, v1, v2, vc, w1, w2, wc;
         u1 = (i==0   ? u[k+N*(j+N*(N-1))][0] : u[k+N*(j+N*(i-1))][0] );
         u2 = (i==N-1 ? u[k+N*(j+N*(0  ))][0] : u[k+N*(j+N*(i+1))][0] );
-        v1 = (j==0   ? u[k+N*((N-1)+N*i)][0] : u[k+N*((j-1)+N*i)][0] );
-        v2 = (j==N-1 ? u[k+N*((0  )+N*i)][0] : u[k+N*((j+1)+N*i)][0] );
-        w1 = (k==0   ? u[(N-1)+N*(j+N*i)][0] : u[(k-1)+N*(j+N*i)][0] );
-        w2 = (k==N-1 ? u[(0  )+N*(j+N*i)][0] : u[(k+1)+N*(j+N*i)][0] );
+        v1 = (j==0   ? v[k+N*((N-1)+N*i)][0] : v[k+N*((j-1)+N*i)][0] );
+        v2 = (j==N-1 ? v[k+N*((0  )+N*i)][0] : v[k+N*((j+1)+N*i)][0] );
+        w1 = (k==0   ? w[(N-1)+N*(j+N*i)][0] : w[(k-1)+N*(j+N*i)][0] );
+        w2 = (k==N-1 ? w[(0  )+N*(j+N*i)][0] : w[(k+1)+N*(j+N*i)][0] );
         uc  = u[k+N*(j+N*i)][0];
         vc  = v[k+N*(j+N*i)][0];
         wc  = w[k+N*(j+N*i)][0];

@@ -105,7 +105,8 @@ int main(){
 				double th2  = 2*PI * ((double)rand())/((double)RAND_MAX);
 				double phi1 = 2*PI * ((double)rand())/((double)RAND_MAX);
 
-				double E = 16.0 * sqrt(2.0/PI) * (u0*u0/kp) * raiseto(kk/kp, 4.0) * exp(-2.0*(kk/kp)*(kk/kp));
+				double E = 16.0 * sqrt(2.0/PI) * (u0*u0/kp) * raiseto(kk/kp, 4.0) 
+                        * exp(-2.0*(kk/kp)*(kk/kp));
 				double alfa_real = sqrt(E/(4*PI*kk*kk))*cos(th1)*cos(phi1);
 				double alfa_imag = sqrt(E/(4*PI*kk*kk))*sin(th1)*cos(phi1);
 				double beta_real = sqrt(E/(4*PI*kk*kk))*cos(th2)*sin(phi1);
@@ -128,7 +129,8 @@ int main(){
 				double th2  = 2*PI * ((double)rand())/((double)RAND_MAX);
 				double phi1 = 2*PI * ((double)rand())/((double)RAND_MAX);
 
-				double E = 16.0 * sqrt(2.0/PI) * (u0*u0/kp) * raiseto(kk/kp, 4.0) * exp(-2.0*(kk/kp)*(kk/kp));
+				double E = 16.0 * sqrt(2.0/PI) * (u0*u0/kp) * raiseto(kk/kp, 4.0) 
+                        * exp(-2.0*(kk/kp)*(kk/kp));
 				double alfa_real = sqrt(E/(4*PI*kk*kk))*cos(th1)*cos(phi1);
 				double alfa_imag = sqrt(E/(4*PI*kk*kk))*sin(th1)*cos(phi1);
 				double beta_real = sqrt(E/(4*PI*kk*kk))*cos(th2)*sin(phi1);
@@ -322,10 +324,10 @@ int main(){
         double u1, u2, v1, v2, w1, w2;
         u1 = (i==0   ? u[k+N*(j+N*(N-1))][0] : u[k+N*(j+N*(i-1))][0] );
         u2 = (i==N-1 ? u[k+N*(j+N*(0  ))][0] : u[k+N*(j+N*(i+1))][0] );
-        v1 = (j==0   ? u[k+N*((N-1)+N*i)][0] : u[k+N*((j-1)+N*i)][0] );
-        v2 = (j==N-1 ? u[k+N*((0  )+N*i)][0] : u[k+N*((j+1)+N*i)][0] );
-        w1 = (k==0   ? u[(N-1)+N*(j+N*i)][0] : u[(k-1)+N*(j+N*i)][0] );
-        w2 = (k==N-1 ? u[(0  )+N*(j+N*i)][0] : u[(k+1)+N*(j+N*i)][0] );
+        v1 = (j==0   ? v[k+N*((N-1)+N*i)][0] : v[k+N*((j-1)+N*i)][0] );
+        v2 = (j==N-1 ? v[k+N*((0  )+N*i)][0] : v[k+N*((j+1)+N*i)][0] );
+        w1 = (k==0   ? w[(N-1)+N*(j+N*i)][0] : w[(k-1)+N*(j+N*i)][0] );
+        w2 = (k==N-1 ? w[(0  )+N*(j+N*i)][0] : w[(k+1)+N*(j+N*i)][0] );
         double Divergence = ( (u2-u1) + (v2-v1) + (w2-w1) ) / (2.0*dx);
         DivergenceNorm += (Divergence*Divergence);
       }
@@ -344,10 +346,10 @@ int main(){
         double u1, u2, uu, v1, v2, vv, w1, w2, ww;
         u1 = (i==0   ? u[k+N*(j+N*(N-1))][0] : u[k+N*(j+N*(i-1))][0] );
         u2 = (i==N-1 ? u[k+N*(j+N*(0  ))][0] : u[k+N*(j+N*(i+1))][0] );
-        v1 = (j==0   ? u[k+N*((N-1)+N*i)][0] : u[k+N*((j-1)+N*i)][0] );
-        v2 = (j==N-1 ? u[k+N*((0  )+N*i)][0] : u[k+N*((j+1)+N*i)][0] );
-        w1 = (k==0   ? u[(N-1)+N*(j+N*i)][0] : u[(k-1)+N*(j+N*i)][0] );
-        w2 = (k==N-1 ? u[(0  )+N*(j+N*i)][0] : u[(k+1)+N*(j+N*i)][0] );
+        v1 = (j==0   ? v[k+N*((N-1)+N*i)][0] : v[k+N*((j-1)+N*i)][0] );
+        v2 = (j==N-1 ? v[k+N*((0  )+N*i)][0] : v[k+N*((j+1)+N*i)][0] );
+        w1 = (k==0   ? w[(N-1)+N*(j+N*i)][0] : w[(k-1)+N*(j+N*i)][0] );
+        w2 = (k==N-1 ? w[(0  )+N*(j+N*i)][0] : w[(k+1)+N*(j+N*i)][0] );
         uu  = u[k+N*(j+N*i)][0];
         vv  = v[k+N*(j+N*i)][0];
         ww  = w[k+N*(j+N*i)][0];
