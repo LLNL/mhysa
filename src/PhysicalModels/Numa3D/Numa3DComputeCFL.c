@@ -11,20 +11,25 @@ double Numa3DComputeCFL(void *s,void *m,double dt,double t)
   HyPar  *solver = (HyPar*)  s;
   Numa3D *param  = (Numa3D*) solver->physics;
 
-  int *dim    = solver->dim_local;
-  int ghosts  = solver->ghosts;
-  int ndims   = solver->ndims;
-  int index[ndims];
-  double *u   = solver->u;
+  int     *dim    = solver->dim_local;
+  int     ghosts  = solver->ghosts;
+  int     ndims   = solver->ndims;
+  double  *u      = solver->u;
+  int     index[ndims];
 
   double max_cfl = 0;
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-    double drho,uvel,vvel,wvel,dT;
-    _Numa3DGetFlowVars_((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT);
-    double T  = param->T0[index[_ZDIR_]] + dT;
-    double c  = sqrt(param->gamma*param->R*T); /* speed of sound */
+    double drho,uvel,vvel,wvel,dT,dP,rho0,P0,T0,c;
+
+    rho0 = param->rho0[index[_ZDIR_]];
+    T0   = param->T0  [index[_ZDIR_]];
+    P0   = param->P0  [index[_ZDIR_]];
+
+    _Numa3DGetFlowVars_         ((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT,rho0);
+    _Numa3DComputePressure_     (param,T0,dT,P0,dP);
+    _Numa3DComputeSpeedofSound_ (param->gamma,P0,dP,rho0,drho,c);
 
     double dxinv, dyinv, dzinv;
     _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv,dxinv); /* 1/dx */

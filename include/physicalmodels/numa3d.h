@@ -32,34 +32,36 @@
 #define _YDIR_ 1
 #define _ZDIR_ 2
 
-#define _Numa3DGetFlowVars_(u,drho,uvel,vvel,wvel,dT) \
+#define _Numa3DGetFlowVars_(u,drho,uvel,vvel,wvel,dT,rho0) \
   { \
     drho = u[0]; \
-    uvel = u[1]; \
-    vvel = u[2]; \
-    wvel = u[3]; \
+    double rho_total = drho+rho0; \
+    uvel = u[1]/rho_total; \
+    vvel = u[2]/rho_total; \
+    wvel = u[3]/rho_total; \
     dT   = u[4]; \
   }
 
 #define _Numa3DSetFlux_(f,dir,drho,uvel,vvel,wvel,dT,dP,rho0) \
   { \
+    double rho_total = rho0+drho; \
     if (dir == _XDIR_) { \
-      f[0] = (drho+rho0) * uvel; \
-      f[1] = uvel*uvel + dP/(drho+rho0); \
-      f[2] = uvel*vvel; \
-      f[3] = uvel*wvel; \
+      f[0] = rho_total * uvel; \
+      f[1] = rho_total*uvel*uvel + dP; \
+      f[2] = rho_total*uvel*vvel; \
+      f[3] = rho_total*uvel*wvel; \
       f[4] = uvel*dT; \
     } else if (dir == _YDIR_) { \
-      f[0] = (drho+rho0) * vvel; \
-      f[1] = uvel*vvel; \
-      f[2] = vvel*vvel + dP/(drho+rho0); \
-      f[3] = wvel*vvel; \
+      f[0] = rho_total * vvel; \
+      f[1] = rho_total*uvel*vvel; \
+      f[2] = rho_total*vvel*vvel + dP; \
+      f[3] = rho_total*wvel*vvel; \
       f[4] = vvel*dT; \
     } else if (dir == _ZDIR_) { \
-      f[0] = (drho+rho0) * wvel; \
-      f[1] = uvel*wvel; \
-      f[2] = vvel*wvel; \
-      f[3] = wvel*wvel + dP/(drho+rho0); \
+      f[0] = rho_total * wvel; \
+      f[1] = rho_total*uvel*wvel; \
+      f[2] = rho_total*vvel*wvel; \
+      f[3] = rho_total*wvel*wvel + dP; \
       f[4] = wvel*dT; \
     } \
   }
@@ -67,19 +69,24 @@
 #define _Numa3DSetSource_(s,param,uvel,vvel,drho,rho0) \
   { \
     s[0] =  0.0; \
-    s[1] =  2.0*param->Omega*vvel; \
-    s[2] = -2.0*param->Omega*uvel; \
-    s[3] = -param->g*drho/(drho+rho0); \
+    s[1] =  2.0*param->Omega*vvel*(rho0+drho); \
+    s[2] = -2.0*param->Omega*uvel*(rho0+drho); \
+    s[3] = -param->g*drho; \
     s[4] =  0.0; \
   }
 
-#define _Numa3DComputePressure_(params,rho,T,P0,P,dP) \
+#define _Numa3DComputePressure_(params,T0,dT,P0,dP) \
   { \
-    double gamma = params->gamma; \
-    double Pref  = params->Pref; \
-    double R     = params->R; \
-    P   = Pref * raiseto((rho*R*T/Pref),gamma); \
-    dP  = P - P0; \
+    double gamma    = params->gamma; \
+    double Pref     = params->Pref; \
+    double R        = params->R; \
+    double P_total  = Pref * raiseto((R*(T0+dT)/Pref),gamma); \
+    dP  = P_total - P0; \
+  }
+
+#define _Numa3DComputeSpeedofSound_(gamma,P0,dP,rho0,drho,c) \
+  { \
+    c = sqrt(gamma*(P0+dP)/(rho0+drho)); \
   }
 
 typedef struct numa3d_parameters {

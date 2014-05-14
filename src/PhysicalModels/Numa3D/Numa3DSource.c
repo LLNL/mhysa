@@ -26,9 +26,11 @@ int Numa3DSource(double *S,double *u,void *s,double t)
   while (!done) {
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
     double drho,uvel,vvel,wvel,dT,rho0;
+
     rho0 = param->rho0[index[_ZDIR_]];
-    _Numa3DGetFlowVars_((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT);
+    _Numa3DGetFlowVars_((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT,rho0);
     _Numa3DSetSource_  ((S+_MODEL_NVARS_*p),param,uvel,vvel,drho,rho0);
+
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }
   

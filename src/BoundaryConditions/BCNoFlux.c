@@ -43,7 +43,7 @@ int BCNoFluxU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *p
       /* flow variables in the interior */
       double drho, uvel, vvel, wvel, dT;
       double drho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, dT_gpt;
-      _Numa3DGetFlowVars_((phi+nvars*p2),drho,uvel,vvel,wvel,dT);
+      _Numa3DGetFlowVars_((phi+nvars*p2),drho,uvel,vvel,wvel,dT,1.0);
       /* set the ghost point values */
       drho_gpt  = drho;
       dT_gpt    = dT;
@@ -99,7 +99,7 @@ int BCNoFluxDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       /* flow variables in the interior */
       double drho, uvel, vvel, wvel, dT;
       double drho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, dT_gpt;
-      _Numa3DGetFlowVars_((phi+nvars*p2),drho,uvel,vvel,wvel,dT);
+      _Numa3DGetFlowVars_((phi+nvars*p2),drho,uvel,vvel,wvel,dT,1.0);
       /* setting the ghost point values for the total flow variables */
       drho_gpt  = drho;
       dT_gpt    = dT;

@@ -39,11 +39,18 @@ int Numa3DRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double 
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
       udiff[4] = 0.5 * (uR[_MODEL_NVARS_*p+4] - uL[_MODEL_NVARS_*p+4]);
 
-      double drho,vel[3],dT,T0;
-      _Numa3DGetFlowVars_(uavg,drho,vel[0],vel[1],vel[2],dT);
-      T0 = (dir==_ZDIR_ ? 0.5*(param->T0[index_inter[_ZDIR_]]+param->T0[index_inter[_ZDIR_]-1]) 
-                        : param->T0[index_inter[_ZDIR_]] );
-      double c      =   sqrt(param->gamma*param->R*(T0+dT));
+      double drho,vel[3],dT,dP,rho0,P0,T0,c;
+      rho0 = (dir==_ZDIR_ ? 0.5*(param->rho0[index_inter[_ZDIR_]]+param->rho0[index_inter[_ZDIR_]-1]) 
+                          : param->rho0[index_inter[_ZDIR_]] );
+      T0   = (dir==_ZDIR_ ? 0.5*(param->T0[index_inter[_ZDIR_]]+param->T0[index_inter[_ZDIR_]-1]) 
+                          : param->T0[index_inter[_ZDIR_]] );
+      P0   = (dir==_ZDIR_ ? 0.5*(param->P0[index_inter[_ZDIR_]]+param->P0[index_inter[_ZDIR_]-1]) 
+                          : param->P0[index_inter[_ZDIR_]] );
+
+      _Numa3DGetFlowVars_         (uavg,drho,vel[0],vel[1],vel[2],dT,rho0);
+      _Numa3DComputePressure_     (param,T0,dT,P0,dP);
+      _Numa3DComputeSpeedofSound_ (param->gamma,P0,dP,rho0,drho,c);
+
       double alpha  =   c + absolute(vel[dir]);
 
       fI[_MODEL_NVARS_*p+0] = 0.5 * (fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0]) - alpha*udiff[0];

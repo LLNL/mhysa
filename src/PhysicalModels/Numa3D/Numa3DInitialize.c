@@ -146,7 +146,7 @@ int Numa3DStandardAtmosphere_1(void *p,double *z,int N)
     
     rho[i] = rho_ref * raiseto(pi,term);
     P[i]   = P_ref   * raiseto(pi,term);
-    T[i]   = T_ref;
+    T[i]   = rho[i]  * T_ref;
   }
   return(0);
 }
@@ -179,7 +179,7 @@ int Numa3DStandardAtmosphere_2(void *p,double *z,int N)
     double pi     = 1.0 + (g*g/(cp*T_ref*BV*BV)) * (exp(-BV*BV*zcoord/g) - 1.0);
     rho[i]        = rho_ref * raiseto(pi,term);
     P[i]          = P_ref   * raiseto(pi,term);
-    T[i]          = T_ref   * exp(BV*BV*zcoord/g);
+    T[i]          = rho[i]  * T_ref * exp(BV*BV*zcoord/g);
   }
   return(0);
 }
