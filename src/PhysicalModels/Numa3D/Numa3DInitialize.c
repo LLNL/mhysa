@@ -138,14 +138,16 @@ int Numa3DStandardAtmosphere_1(void *p,double *z,int N)
   double *P   = physics->P0;
   double *T   = physics->T0;
 
+  double inv_gamma_m1 = 1.0/(gamma-1.0);
+  double Cp = gamma * inv_gamma_m1 * R;
+
   int i;
   for (i=0; i<N; i++) {
     double zcoord = z[i];
-    double pi = 1.0 - ((gamma-1.0)/gamma)*(g/(R*T_ref))*zcoord;
-    double term = gamma/(gamma-1.0);
+    double pi = 1.0 - (g/(Cp*T_ref))*zcoord;
     
-    rho[i] = rho_ref * raiseto(pi,term);
-    P[i]   = P_ref   * raiseto(pi,term);
+    rho[i] = rho_ref * raiseto(pi,inv_gamma_m1);
+    P[i]   = P_ref   * raiseto(pi,gamma*inv_gamma_m1);
     T[i]   = rho[i]  * T_ref;
   }
   return(0);
@@ -170,15 +172,16 @@ int Numa3DStandardAtmosphere_2(void *p,double *z,int N)
   double *T   = physics->T0;
 
   double BV = 0.01; /* Brunt-Vaisala frequency */
-  double term = gamma/(gamma-1.0);
-  double cp = term*R;
+  double inv_gamma_m1 = 1.0/(gamma-1.0);
+  double Cp = gamma * inv_gamma_m1 * R;
 
   int i;
   for (i=0; i<N; i++) {
     double zcoord = z[i];
-    double pi     = 1.0 + (g*g/(cp*T_ref*BV*BV)) * (exp(-BV*BV*zcoord/g) - 1.0);
-    rho[i]        = rho_ref * raiseto(pi,term);
-    P[i]          = P_ref   * raiseto(pi,term);
+    double pi     = 1.0 + (g*g/(Cp*T_ref*BV*BV)) * (exp(-BV*BV*zcoord/g) - 1.0);
+
+    rho[i]        = rho_ref * exp(-BV*BV*zcoord/g) * raiseto(pi,inv_gamma_m1);
+    P[i]          = P_ref   * raiseto(pi,gamma*inv_gamma_m1);
     T[i]          = rho[i]  * T_ref * exp(BV*BV*zcoord/g);
   }
   return(0);
