@@ -35,33 +35,31 @@
 #define _Numa3DGetFlowVars_(u,drho,uvel,vvel,wvel,dT,rho0) \
   { \
     drho = u[0]; \
-    double rho_total = drho+rho0; \
-    uvel = u[1]/rho_total; \
-    vvel = u[2]/rho_total; \
-    wvel = u[3]/rho_total; \
+    uvel = u[1]/(rho0+drho); \
+    vvel = u[2]/(rho0+drho); \
+    wvel = u[3]/(rho0+drho); \
     dT   = u[4]; \
   }
 
 #define _Numa3DSetFlux_(f,dir,drho,uvel,vvel,wvel,dT,dP,rho0) \
   { \
-    double rho_total = rho0+drho; \
     if (dir == _XDIR_) { \
-      f[0] = rho_total * uvel; \
-      f[1] = rho_total*uvel*uvel + dP; \
-      f[2] = rho_total*uvel*vvel; \
-      f[3] = rho_total*uvel*wvel; \
+      f[0] = (rho0+drho) * uvel; \
+      f[1] = (rho0+drho)*uvel*uvel + dP; \
+      f[2] = (rho0+drho)*uvel*vvel; \
+      f[3] = (rho0+drho)*uvel*wvel; \
       f[4] = uvel*dT; \
     } else if (dir == _YDIR_) { \
-      f[0] = rho_total * vvel; \
-      f[1] = rho_total*uvel*vvel; \
-      f[2] = rho_total*vvel*vvel + dP; \
-      f[3] = rho_total*wvel*vvel; \
+      f[0] = (rho0+drho) * vvel; \
+      f[1] = (rho0+drho)*uvel*vvel; \
+      f[2] = (rho0+drho)*vvel*vvel + dP; \
+      f[3] = (rho0+drho)*wvel*vvel; \
       f[4] = vvel*dT; \
     } else if (dir == _ZDIR_) { \
-      f[0] = rho_total * wvel; \
-      f[1] = rho_total*uvel*wvel; \
-      f[2] = rho_total*vvel*wvel; \
-      f[3] = rho_total*wvel*wvel + dP; \
+      f[0] = (rho0+drho) * wvel; \
+      f[1] = (rho0+drho)*uvel*wvel; \
+      f[2] = (rho0+drho)*vvel*wvel; \
+      f[3] = (rho0+drho)*wvel*wvel + dP; \
       f[4] = wvel*dT; \
     } \
   }
