@@ -41,26 +41,26 @@
     dT   = u[4]; \
   }
 
-#define _Numa3DSetFlux_(f,dir,drho,uvel,vvel,wvel,dT,dP,rho0) \
+#define _Numa3DSetFlux_(f,dir,drho,uvel,vvel,wvel,dT,dP,rho0,T0) \
   { \
     if (dir == _XDIR_) { \
       f[0] = (rho0+drho) * uvel; \
       f[1] = (rho0+drho)*uvel*uvel + dP; \
       f[2] = (rho0+drho)*uvel*vvel; \
       f[3] = (rho0+drho)*uvel*wvel; \
-      f[4] = uvel*dT; \
+      f[4] = uvel*(dT+T0); \
     } else if (dir == _YDIR_) { \
       f[0] = (rho0+drho) * vvel; \
       f[1] = (rho0+drho)*uvel*vvel; \
       f[2] = (rho0+drho)*vvel*vvel + dP; \
       f[3] = (rho0+drho)*wvel*vvel; \
-      f[4] = vvel*dT; \
+      f[4] = vvel*(dT+T0); \
     } else if (dir == _ZDIR_) { \
       f[0] = (rho0+drho) * wvel; \
       f[1] = (rho0+drho)*uvel*wvel; \
       f[2] = (rho0+drho)*vvel*wvel; \
       f[3] = (rho0+drho)*wvel*wvel + dP; \
-      f[4] = wvel*dT; \
+      f[4] = wvel*(dT+T0); \
     } \
   }
 
