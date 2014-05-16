@@ -12,7 +12,8 @@ int Numa3DRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double 
   Numa3D  *param  = (Numa3D*) solver->physics;
   int      done;
 
-  int *dim  = solver->dim_local;
+  int *dim   = solver->dim_local;
+  int ghosts = solver->ghosts;
 
   int bounds_outer[_MODEL_NDIMS_], bounds_inter[_MODEL_NDIMS_];
   _ArrayCopy1D3_(dim,bounds_outer,_MODEL_NDIMS_); bounds_outer[dir] =  1;
@@ -23,15 +24,9 @@ int Numa3DRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double 
     _ArrayCopy1D3_(index_outer,index_inter,_MODEL_NDIMS_);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D3_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
-      double udiff[_MODEL_NVARS_], uavg[_MODEL_NVARS_];
+      double udiff[_MODEL_NVARS_],drho,vel[3],dT,rho0,T0,EP,c;
 
       /* Rusanov's upwinding scheme */
-
-      uavg[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] + uL[_MODEL_NVARS_*p+0]);
-      uavg[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] + uL[_MODEL_NVARS_*p+1]);
-      uavg[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] + uL[_MODEL_NVARS_*p+2]);
-      uavg[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] + uL[_MODEL_NVARS_*p+3]);
-      uavg[4] = 0.5 * (uR[_MODEL_NVARS_*p+4] + uL[_MODEL_NVARS_*p+4]);
 
       udiff[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] - uL[_MODEL_NVARS_*p+0]);
       udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
@@ -39,20 +34,23 @@ int Numa3DRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double 
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
       udiff[4] = 0.5 * (uR[_MODEL_NVARS_*p+4] - uL[_MODEL_NVARS_*p+4]);
 
-      double drho,vel[3],dT,dP,rho0,P0,T0,c;
-      rho0 = (dir==_ZDIR_ ? 0.5*(param->rho0[index_inter[_ZDIR_]]+param->rho0[index_inter[_ZDIR_]-1]) 
-                          : param->rho0[index_inter[_ZDIR_]] );
-      T0   = (dir==_ZDIR_ ? 0.5*(param->T0[index_inter[_ZDIR_]]+param->T0[index_inter[_ZDIR_]-1]) 
-                          : param->T0[index_inter[_ZDIR_]] );
-      P0   = (dir==_ZDIR_ ? 0.5*(param->P0[index_inter[_ZDIR_]]+param->P0[index_inter[_ZDIR_]-1]) 
-                          : param->P0[index_inter[_ZDIR_]] );
+      /* left of the interface */
+      rho0 = param->rho0  [(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
+      T0   = param->T0    [(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
+      EP   = param->ExnerP[(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
+      _Numa3DGetFlowVars_         ((uL+_MODEL_NVARS_*p),drho,vel[0],vel[1],vel[2],dT,rho0);
+      _Numa3DComputeSpeedofSound_ (param->gamma,param->R,T0,dT,rho0,drho,EP,c);
+      double alphaL = c + absolute(vel[dir]);
 
-      _Numa3DGetFlowVars_         (uavg,drho,vel[0],vel[1],vel[2],dT,rho0);
-      _Numa3DComputePressure_     (param,T0,dT,P0,dP);
-      _Numa3DComputeSpeedofSound_ (param->gamma,P0,dP,rho0,drho,c);
+      /* right of the interface */
+      rho0 = param->rho0  [index_inter[_ZDIR_]+ghosts];
+      T0   = param->T0    [index_inter[_ZDIR_]+ghosts];
+      EP   = param->ExnerP[index_inter[_ZDIR_]+ghosts];
+      _Numa3DGetFlowVars_         ((uR+_MODEL_NVARS_*p),drho,vel[0],vel[1],vel[2],dT,rho0);
+      _Numa3DComputeSpeedofSound_ (param->gamma,param->R,T0,dT,rho0,drho,EP,c);
+      double alphaR = c + absolute(vel[dir]);
 
-      double alpha  =   c + absolute(vel[dir]);
-
+      double alpha = max(alphaL,alphaR);
       fI[_MODEL_NVARS_*p+0] = 0.5 * (fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0]) - alpha*udiff[0];
       fI[_MODEL_NVARS_*p+1] = 0.5 * (fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1]) - alpha*udiff[1];
       fI[_MODEL_NVARS_*p+2] = 0.5 * (fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2]) - alpha*udiff[2];

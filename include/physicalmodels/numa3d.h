@@ -84,9 +84,9 @@
     dP  = P_total - P0; \
   }
 
-#define _Numa3DComputeSpeedofSound_(gamma,P0,dP,rho0,drho,c) \
+#define _Numa3DComputeSpeedofSound_(gamma,R,T0,dT,rho0,drho,EP,c) \
   { \
-    c = sqrt(gamma*(P0+dP)/(rho0+drho)); \
+    c = sqrt(gamma*R*(T0+dT)*EP/(rho0+drho)); \
   }
 
 typedef struct numa3d_parameters {
@@ -100,7 +100,7 @@ typedef struct numa3d_parameters {
   double Pref, Tref;
 
   /* mean hydrostatic flow variables */
-  double *rho0, *P0, *T0;
+  double *rho0, *P0, *T0, *ExnerP;
 } Numa3D;
 
 int Numa3DInitialize (void*,void*);

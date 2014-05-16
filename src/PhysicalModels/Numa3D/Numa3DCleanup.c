@@ -9,5 +9,6 @@ int Numa3DCleanup(void *s)
   free(physics->rho0);
   free(physics->P0);
   free(physics->T0);
+  free(physics->ExnerP);
   return(0);
 }

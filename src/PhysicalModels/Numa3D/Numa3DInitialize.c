@@ -47,9 +47,10 @@ int Numa3DInitialize(void *s,void *m)
   physics->init_atmos = 1;
 
   /* allocate rho0(z), P0(z), T0(z) */
-  physics->rho0 = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
-  physics->P0   = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
-  physics->T0   = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
+  physics->rho0   = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
+  physics->P0     = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
+  physics->T0     = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
+  physics->ExnerP = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
 
   /* reading physical model specific inputs - all processes */
   FILE *in;
@@ -134,9 +135,10 @@ int Numa3DStandardAtmosphere_1(void *p,double *z,int N)
   T_ref   = physics->Tref;
   rho_ref = P_ref/(R*T_ref);
 
-  double *rho = physics->rho0;
-  double *P   = physics->P0;
-  double *T   = physics->T0;
+  double *rho     = physics->rho0;
+  double *P       = physics->P0;
+  double *T       = physics->T0;
+  double *ExnerP  = physics->ExnerP;
 
   double inv_gamma_m1 = 1.0/(gamma-1.0);
   double Cp = gamma * inv_gamma_m1 * R;
@@ -144,11 +146,10 @@ int Numa3DStandardAtmosphere_1(void *p,double *z,int N)
   int i;
   for (i=0; i<N; i++) {
     double zcoord = z[i];
-    double pi = 1.0 - (g/(Cp*T_ref))*zcoord;
-    
-    rho[i] = rho_ref * raiseto(pi,inv_gamma_m1);
-    P[i]   = P_ref   * raiseto(pi,gamma*inv_gamma_m1);
-    T[i]   = rho[i]  * T_ref;
+    ExnerP[i] = 1.0 - (g/(Cp*T_ref))*zcoord;
+    rho[i]    = rho_ref * raiseto(ExnerP[i],inv_gamma_m1);
+    P[i]      = P_ref   * raiseto(ExnerP[i],gamma*inv_gamma_m1);
+    T[i]      = rho[i]  * T_ref;
   }
   return(0);
 }
@@ -167,9 +168,10 @@ int Numa3DStandardAtmosphere_2(void *p,double *z,int N)
   T_ref   = physics->Tref;
   rho_ref = P_ref/(R*T_ref);
 
-  double *rho = physics->rho0;
-  double *P   = physics->P0;
-  double *T   = physics->T0;
+  double *rho     = physics->rho0;
+  double *P       = physics->P0;
+  double *T       = physics->T0;
+  double *ExnerP  = physics->ExnerP;
 
   double BV = 0.01; /* Brunt-Vaisala frequency */
   double inv_gamma_m1 = 1.0/(gamma-1.0);
@@ -178,11 +180,10 @@ int Numa3DStandardAtmosphere_2(void *p,double *z,int N)
   int i;
   for (i=0; i<N; i++) {
     double zcoord = z[i];
-    double pi     = 1.0 + (g*g/(Cp*T_ref*BV*BV)) * (exp(-BV*BV*zcoord/g) - 1.0);
-
-    rho[i]        = rho_ref * exp(-BV*BV*zcoord/g) * raiseto(pi,inv_gamma_m1);
-    P[i]          = P_ref   * raiseto(pi,gamma*inv_gamma_m1);
-    T[i]          = rho[i]  * T_ref * exp(BV*BV*zcoord/g);
+    ExnerP[i] = 1.0 + (g*g/(Cp*T_ref*BV*BV)) * (exp(-BV*BV*zcoord/g) - 1.0);
+    rho[i]    = rho_ref * exp(-BV*BV*zcoord/g) * raiseto(ExnerP[i],inv_gamma_m1);
+    P[i]      = P_ref   * raiseto(ExnerP[i],gamma*inv_gamma_m1);
+    T[i]      = rho[i]  * T_ref * exp(BV*BV*zcoord/g);
   }
   return(0);
 }
