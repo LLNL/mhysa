@@ -1,0 +1,31 @@
+3D NON-HYDROSTATIC UNIFIED MODEL OF THE ATMOSPHERE (NUMA)
+
+Rising Thermal Bubble (2D):
+
+This case simulates the rising thermal bubble in an ambient
+atmosphere in hydrostatic balance. The initial solution 
+comprises the balanced atmosphere with a temperature pertur-
+bation.
+
+Domain:
+
+  0 <= x,z <= 1000.0 (meters)
+  No-Flux boundary conditions (invisic wall) on all
+  x and z boundaries.
+
+  Along y, to run a 2D case using a 3D solver, periodic
+  boundary conditions are specified.
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters
+
++ weno.inp      -   an optional input file specifying
+                    some options for the WENO finite-
+                    difference scheme.
+
+Notes:-
+The code aux/init.C is an example to generate the initial
+solution file in the correct format required by the solver. 
+The exact solution file also needs to be in the same format.
