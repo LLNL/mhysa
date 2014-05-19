@@ -130,10 +130,9 @@ int Numa3DStandardAtmosphere_1(void *p,double *z,int N)
   double g      = physics->g;
 
   /* reference quantities at zero altitude */
-  double rho_ref, P_ref, T_ref; 
-  P_ref   = physics->Pref;
-  T_ref   = physics->Tref;
-  rho_ref = P_ref/(R*T_ref);
+  double rho0, P0, T0; 
+  P0   = physics->Pref;
+  T0   = physics->Tref;
 
   double *rho     = physics->rho0;
   double *P       = physics->P0;
@@ -146,10 +145,11 @@ int Numa3DStandardAtmosphere_1(void *p,double *z,int N)
   int i;
   for (i=0; i<N; i++) {
     double zcoord = z[i];
-    ExnerP[i] = 1.0 - (g/(Cp*T_ref))*zcoord;
-    rho[i]    = rho_ref * raiseto(ExnerP[i],inv_gamma_m1);
-    P[i]      = P_ref   * raiseto(ExnerP[i],gamma*inv_gamma_m1);
-    T[i]      = rho[i]  * T_ref;
+    double theta  = T0;
+    ExnerP[i] = 1.0 - (g/(Cp*theta))*zcoord;
+    P[i]      = P0 * raiseto(ExnerP[i],gamma*inv_gamma_m1);
+    rho[i]    = (P0/(R*theta)) * raiseto(ExnerP[i],inv_gamma_m1);
+    T[i]      = rho[i] * theta;
   }
   return(0);
 }
@@ -163,10 +163,9 @@ int Numa3DStandardAtmosphere_2(void *p,double *z,int N)
   double g      = physics->g;
 
   /* reference quantities at zero altitude */
-  double rho_ref, P_ref, T_ref; 
-  P_ref   = physics->Pref;
-  T_ref   = physics->Tref;
-  rho_ref = P_ref/(R*T_ref);
+  double P0, T0; 
+  P0 = physics->Pref;
+  T0 = physics->Tref;
 
   double *rho     = physics->rho0;
   double *P       = physics->P0;
@@ -180,10 +179,12 @@ int Numa3DStandardAtmosphere_2(void *p,double *z,int N)
   int i;
   for (i=0; i<N; i++) {
     double zcoord = z[i];
-    ExnerP[i] = 1.0 + (g*g/(Cp*T_ref*BV*BV)) * (exp(-BV*BV*zcoord/g) - 1.0);
-    rho[i]    = rho_ref * exp(-BV*BV*zcoord/g) * raiseto(ExnerP[i],inv_gamma_m1);
-    P[i]      = P_ref   * raiseto(ExnerP[i],gamma*inv_gamma_m1);
-    T[i]      = rho[i]  * T_ref * exp(BV*BV*zcoord/g);
+    double term   = BV*BV*zcoord/g;
+    double theta  = T0 * exp(term);
+    ExnerP[i] = 1.0 + (g*g/(Cp*T0*BV*BV)) * (exp(-term) - 1.0);
+    P[i]      = P0 * raiseto(ExnerP[i],gamma*inv_gamma_m1);
+    rho[i]    = (P0/(R*theta)) * raiseto(ExnerP[i],inv_gamma_m1);
+    T[i]      = rho[i]*theta;
   }
   return(0);
 }
