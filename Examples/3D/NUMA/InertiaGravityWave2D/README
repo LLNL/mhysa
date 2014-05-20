@@ -1,0 +1,35 @@
+3D NON-HYDROSTATIC UNIFIED MODEL OF THE ATMOSPHERE (NUMA)
+
+Inertia Gravity Wave (2D):
+
+This case simulates the inertia gravity wave problem.
+
+Reference: F.X. Giraldo and M. Restelli, "A Study of Spectral 
+           Element and Discontinuous Galerkin Methods for the 
+           Navier-Stokes Equations in Nonhydrostatic Mesoscale 
+           Atmospheric Modeling: Equation Sets and Test Cases", 
+           J. Comp. Phys., Vol. 227, 3849-3877 (2008) 
+
+Domain:
+
+  0 <= x <= 300000.0 (meters)
+  0 <= z <=  10000.0 (meters)
+  No-Flux boundary conditions (invisid wall) on all
+  x and z boundaries.
+
+  Along y, to run a 2D case using a 3D solver, periodic
+  boundary conditions are specified.
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters
+
++ weno.inp      -   an optional input file specifying
+                    some options for the WENO finite-
+                    difference scheme.
+
+Notes:-
+The code aux/init.C is an example to generate the initial
+solution file in the correct format required by the solver. 
+The exact solution file also needs to be in the same format.
