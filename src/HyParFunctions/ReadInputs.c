@@ -36,77 +36,77 @@ int ReadInputs(void *s,void *m)
   strcpy(solver->model             ,"none"          );
   strcpy(solver->ConservationCheck ,"no"            );
   /* reading solver inputs */
-  FILE *in;
-  if (!mpi->rank) printf("Reading solver inputs from file \"solver.inp\".\n");
-  in = fopen("solver.inp","r");
-  if (!in) {
-    fprintf(stderr,"Error: File \"solver.inp\" not found.\n");
-    return(1);
-  } else {
-	  char word[_MAX_STRING_SIZE_];
-    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
-    if (!strcmp(word, "begin")){
-	    while (strcmp(word, "end")){
-		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
-        if (!strcmp(word, "ndims")) {
-          ferr = fscanf(in,"%d",&solver->ndims); if (ferr != 1) return(1);
-          solver->dim_global = (int*) calloc (solver->ndims,sizeof(int));
-          mpi->iproc         = (int*) calloc (solver->ndims,sizeof(int));
-        }	else if (!strcmp(word, "nvars")) ferr = fscanf(in,"%d",&solver->nvars);
-  			else if   (!strcmp(word, "size")) {
-          int i;
-          if (!solver->dim_global) {
-            fprintf(stderr,"Error in ReadInputs(): dim_global not allocated.\n");
-            fprintf(stderr,"Please specify ndims before dimensions.\n"         );
-            return(1);
-          } else {
-            for (i=0; i<solver->ndims; i++) ferr = fscanf(in,"%d",&solver->dim_global[i]);
-            if (ferr != 1) return(1);
-          }
-        } else if (!strcmp(word, "iproc")) {
-          int i;
-          if (!mpi->iproc) {
-            fprintf(stderr,"Error in ReadInputs(): iproc not allocated.\n");
-            fprintf(stderr,"Please specify ndims before iproc.\n"         );
-            return(1);
-          } else {
-            for (i=0; i<solver->ndims; i++) ferr = fscanf(in,"%d",&mpi->iproc[i]);
-            if (ferr != 1) return(1);
-          }
-  			} else if (!strcmp(word, "ghost"              ))	ferr = fscanf(in,"%d",&solver->ghosts           );
-	    	else if   (!strcmp(word, "n_iter"             ))  ferr = fscanf(in,"%d",&solver->n_iter           );
-	    	else if   (!strcmp(word, "restart_iter"       ))  ferr = fscanf(in,"%d",&solver->restart_iter     );
-   			else if   (!strcmp(word, "time_scheme"        ))  ferr = fscanf(in,"%s",solver->time_scheme       );
-   			else if   (!strcmp(word, "time_scheme_type"   ))  ferr = fscanf(in,"%s",solver->time_scheme_type  );
-   			else if   (!strcmp(word, "hyp_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_hyp);
-   			else if   (!strcmp(word, "hyp_interp_type"    ))  ferr = fscanf(in,"%s",solver->interp_type       );
-   			else if   (!strcmp(word, "par_space_type"     ))  ferr = fscanf(in,"%s",solver->spatial_type_par  );
-   			else if   (!strcmp(word, "par_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_par);
-   			else if   (!strcmp(word, "dt"                 ))  ferr = fscanf(in,"%lf",&solver->dt              );
-   			else if   (!strcmp(word, "conservation_check" ))  ferr = fscanf(in,"%s",solver->ConservationCheck );
-   			else if   (!strcmp(word, "screen_op_iter"     ))  ferr = fscanf(in,"%d",&solver->screen_op_iter   );
-   			else if   (!strcmp(word, "file_op_iter"       ))  ferr = fscanf(in,"%d",&solver->file_op_iter     );
-   			else if   (!strcmp(word, "op_file_format"     ))  ferr = fscanf(in,"%s",solver->op_file_format    );
-   			else if   (!strcmp(word, "ip_file_type"       ))  ferr = fscanf(in,"%s",solver->ip_file_type      );
-   			else if   (!strcmp(word, "input_mode"         ))  ferr = fscanf(in,"%s",solver->input_mode        );
-   			else if   (!strcmp(word, "op_overwrite"       ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
-   			else if   (!strcmp(word, "model"              ))  ferr = fscanf(in,"%s",solver->model             );
-        else if   ( strcmp(word, "end"                )) {
-          char useless[_MAX_STRING_SIZE_];
-          ferr = fscanf(in,"%s",useless);
-          printf("Warning: keyword %s in file \"solver.inp\" with value %s not recognized or extraneous. Ignoring.\n",
-                  word,useless);
-        }
-        if (ferr != 1) return(1);
-      }
-    } else {
-   		fprintf(stderr,"Error: Illegal format in file \"solver.inp\".\n");
+  if (!mpi->rank) {
+    FILE *in;
+    printf("Reading solver inputs from file \"solver.inp\".\n");
+    in = fopen("solver.inp","r");
+    if (!in) {
+      fprintf(stderr,"Error: File \"solver.inp\" not found.\n");
       return(1);
-    }
-    fclose(in);
+    } else {
+	    char word[_MAX_STRING_SIZE_];
+      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+      if (!strcmp(word, "begin")){
+	      while (strcmp(word, "end")){
+		      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+          if (!strcmp(word, "ndims")) {
+            ferr = fscanf(in,"%d",&solver->ndims); if (ferr != 1) return(1);
+            solver->dim_global = (int*) calloc (solver->ndims,sizeof(int));
+            mpi->iproc         = (int*) calloc (solver->ndims,sizeof(int));
+          } else if (!strcmp(word, "nvars")) ferr = fscanf(in,"%d",&solver->nvars);
+  			  else if   (!strcmp(word, "size")) {
+            int i;
+            if (!solver->dim_global) {
+              fprintf(stderr,"Error in ReadInputs(): dim_global not allocated.\n");
+              fprintf(stderr,"Please specify ndims before dimensions.\n"         );
+              return(1);
+            } else {
+              for (i=0; i<solver->ndims; i++) ferr = fscanf(in,"%d",&solver->dim_global[i]);
+              if (ferr != 1) return(1);
+            }
+          } else if (!strcmp(word, "iproc")) {
+            int i;
+            if (!mpi->iproc) {
+              fprintf(stderr,"Error in ReadInputs(): iproc not allocated.\n");
+              fprintf(stderr,"Please specify ndims before iproc.\n"         );
+              return(1);
+            } else {
+              for (i=0; i<solver->ndims; i++) ferr = fscanf(in,"%d",&mpi->iproc[i]);
+              if (ferr != 1) return(1);
+            }
+  			  } else if (!strcmp(word, "ghost"              ))	ferr = fscanf(in,"%d",&solver->ghosts           );
+	    	  else if   (!strcmp(word, "n_iter"             ))  ferr = fscanf(in,"%d",&solver->n_iter           );
+	    	  else if   (!strcmp(word, "restart_iter"       ))  ferr = fscanf(in,"%d",&solver->restart_iter     );
+   			  else if   (!strcmp(word, "time_scheme"        ))  ferr = fscanf(in,"%s",solver->time_scheme       );
+   		  	else if   (!strcmp(word, "time_scheme_type"   ))  ferr = fscanf(in,"%s",solver->time_scheme_type  );
+   		  	else if   (!strcmp(word, "hyp_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_hyp);
+   		  	else if   (!strcmp(word, "hyp_interp_type"    ))  ferr = fscanf(in,"%s",solver->interp_type       );
+   		  	else if   (!strcmp(word, "par_space_type"     ))  ferr = fscanf(in,"%s",solver->spatial_type_par  );
+   		  	else if   (!strcmp(word, "par_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_par);
+   		  	else if   (!strcmp(word, "dt"                 ))  ferr = fscanf(in,"%lf",&solver->dt              );
+   		  	else if   (!strcmp(word, "conservation_check" ))  ferr = fscanf(in,"%s",solver->ConservationCheck );
+   		  	else if   (!strcmp(word, "screen_op_iter"     ))  ferr = fscanf(in,"%d",&solver->screen_op_iter   );
+   		  	else if   (!strcmp(word, "file_op_iter"       ))  ferr = fscanf(in,"%d",&solver->file_op_iter     );
+   		  	else if   (!strcmp(word, "op_file_format"     ))  ferr = fscanf(in,"%s",solver->op_file_format    );
+   		  	else if   (!strcmp(word, "ip_file_type"       ))  ferr = fscanf(in,"%s",solver->ip_file_type      );
+   		  	else if   (!strcmp(word, "input_mode"         ))  ferr = fscanf(in,"%s",solver->input_mode        );
+   		  	else if   (!strcmp(word, "op_overwrite"       ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
+   		  	else if   (!strcmp(word, "model"              ))  ferr = fscanf(in,"%s",solver->model             );
+          else if   ( strcmp(word, "end"                )) {
+            char useless[_MAX_STRING_SIZE_];
+            ferr = fscanf(in,"%s",useless);
+            printf("Warning: keyword %s in file \"solver.inp\" with value %s not recognized or extraneous. Ignoring.\n",
+                    word,useless);
+          }
+          if (ferr != 1) return(1);
+        }
+      } else {
+   		  fprintf(stderr,"Error: Illegal format in file \"solver.inp\".\n");
+        return(1);
+      }
+      fclose(in);
 
-    /* Print to screen the inputs read */
-    if (!mpi->rank) {
+      /* Print to screen the inputs read */
       int i;
 	    printf("\tNo. of dimensions                          : %d\n",solver->ndims);
 	    printf("\tNo. of variables                           : %d\n",solver->nvars);
@@ -142,5 +142,38 @@ int ReadInputs(void *s,void *m)
       return(1);
     }
   }
+
+#ifndef serial
+  /* Broadcast the input parameters */
+  IERR MPIBroadcast_integer(&solver->ndims,1,0,&mpi->world); CHECKERR(ierr);
+  if (mpi->rank) {
+    solver->dim_global = (int*) calloc (solver->ndims,sizeof(int));
+    mpi->iproc         = (int*) calloc (solver->ndims,sizeof(int));
+  }
+  IERR MPIBroadcast_integer(&solver->nvars              ,1            ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer( solver->dim_global         ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer( mpi->iproc                 ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer(&solver->ghosts             ,1            ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer(&solver->n_iter             ,1            ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer(&solver->restart_iter       ,1            ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer(&solver->screen_op_iter     ,1            ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer(&solver->file_op_iter       ,1            ,0,&mpi->world); CHECKERR(ierr);
+
+  IERR MPIBroadcast_character(solver->time_scheme       ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->time_scheme_type  ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->spatial_scheme_hyp,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->interp_type       ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->spatial_type_par  ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->spatial_scheme_par,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->ConservationCheck ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->op_file_format    ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->ip_file_type      ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->input_mode        ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->op_overwrite      ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->model             ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+
+  IERR MPIBroadcast_double(&solver->dt,1,0,&mpi->world); CHECKERR(ierr);
+#endif
+
   return(0);
 }
