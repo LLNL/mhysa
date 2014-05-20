@@ -53,44 +53,55 @@ int Numa3DInitialize(void *s,void *m)
   physics->ExnerP = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
 
   /* reading physical model specific inputs - all processes */
-  FILE *in;
-  if (!mpi->rank) printf("Reading physical model inputs from file \"physics.inp\".\n");
-  in = fopen("physics.inp","r");
-  if (!in) {
-    if (!mpi->rank) printf("Warning: File \"physics.inp\" not found. Using default values.\n");
-  } else {
-    char word[_MAX_STRING_SIZE_];
-    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
-    if (!strcmp(word, "begin")){
-	    while (strcmp(word, "end")){
-		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
-        if (!strcmp(word, "gamma")) { 
-          ferr = fscanf(in,"%lf",&physics->gamma); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"R")) {
-          ferr = fscanf(in,"%lf",&physics->R); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"g")) {
-          ferr = fscanf(in,"%lf",&physics->g); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"Omega")) {
-          ferr = fscanf(in,"%lf",&physics->Omega); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"Pref")) {
-          ferr = fscanf(in,"%lf",&physics->Pref); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"Tref")) {
-          ferr = fscanf(in,"%lf",&physics->Tref); if (ferr != 1) return(1);
-        } else if (!strcmp(word,"init_atmos")) {
-          ferr = fscanf(in,"%d",&physics->init_atmos); if (ferr != 1) return(1);
-        } else if (strcmp(word,"end")) {
-          char useless[_MAX_STRING_SIZE_];
-          ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
-          printf("Warning: keyword %s in file \"physics.inp\" with value %s not ",word,useless);
-          printf("recognized or extraneous. Ignoring.\n");
+  if (!mpi->rank) {
+    FILE *in;
+    printf("Reading physical model inputs from file \"physics.inp\".\n");
+    in = fopen("physics.inp","r");
+    if (!in) printf("Warning: File \"physics.inp\" not found. Using default values.\n");
+    else {
+      char word[_MAX_STRING_SIZE_];
+      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+      if (!strcmp(word, "begin")){
+	      while (strcmp(word, "end")){
+		      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+          if (!strcmp(word, "gamma")) { 
+            ferr = fscanf(in,"%lf",&physics->gamma); if (ferr != 1) return(1);
+          } else if (!strcmp(word,"R")) {
+            ferr = fscanf(in,"%lf",&physics->R); if (ferr != 1) return(1);
+          } else if (!strcmp(word,"g")) {
+            ferr = fscanf(in,"%lf",&physics->g); if (ferr != 1) return(1);
+          } else if (!strcmp(word,"Omega")) {
+            ferr = fscanf(in,"%lf",&physics->Omega); if (ferr != 1) return(1);
+          } else if (!strcmp(word,"Pref")) {
+            ferr = fscanf(in,"%lf",&physics->Pref); if (ferr != 1) return(1);
+          } else if (!strcmp(word,"Tref")) {
+            ferr = fscanf(in,"%lf",&physics->Tref); if (ferr != 1) return(1);
+          } else if (!strcmp(word,"init_atmos")) {
+            ferr = fscanf(in,"%d",&physics->init_atmos); if (ferr != 1) return(1);
+          } else if (strcmp(word,"end")) {
+            char useless[_MAX_STRING_SIZE_];
+            ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
+            printf("Warning: keyword %s in file \"physics.inp\" with value %s not ",word,useless);
+            printf("recognized or extraneous. Ignoring.\n");
+          }
         }
-      }
-	  } else {
-    	fprintf(stderr,"Error: Illegal format in file \"physics.inp\".\n");
-      return(1);
-	  }
+	    } else {
+    	  fprintf(stderr,"Error: Illegal format in file \"physics.inp\".\n");
+        return(1);
+	    }
+    }
+    fclose(in);
   }
-  fclose(in);
+
+#ifndef serial
+  IERR MPIBroadcast_double  (&physics->gamma      ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double  (&physics->R          ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double  (&physics->g          ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double  (&physics->Omega      ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double  (&physics->Pref       ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double  (&physics->Tref       ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer (&physics->init_atmos ,1,0,&mpi->world); CHECKERR(ierr);
+#endif
 
   /* calculate the mean hydrostatic atmosphere as a function of altitude */
   double *zcoord = solver->x + (solver->dim_local[0]+2*solver->ghosts)
