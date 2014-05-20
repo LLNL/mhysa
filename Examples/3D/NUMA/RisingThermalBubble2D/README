@@ -7,6 +7,12 @@ atmosphere in hydrostatic balance. The initial solution
 comprises the balanced atmosphere with a temperature pertur-
 bation.
 
+Reference: F.X. Giraldo and M. Restelli, "A Study of Spectral 
+           Element and Discontinuous Galerkin Methods for the 
+           Navier-Stokes Equations in Nonhydrostatic Mesoscale 
+           Atmospheric Modeling: Equation Sets and Test Cases", 
+           J. Comp. Phys., Vol. 227, 3849-3877 (2008) 
+
 Domain:
 
   0 <= x,z <= 1000.0 (meters)
