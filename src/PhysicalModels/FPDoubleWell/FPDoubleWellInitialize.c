@@ -34,35 +34,41 @@ int FPDoubleWellInitialize(void *s,void *m)
   }
 
   /* reading physical model specific inputs - all processes */
-  FILE *in;
-  if (!mpi->rank) printf("Reading physical model inputs from file \"physics.inp\".\n");
-  in = fopen("physics.inp","r");
-  if (!in) {
-    fprintf(stderr,"Error: File \"physics.inp\" not found.\n");
-    return(1);
-  } else {
-    char word[_MAX_STRING_SIZE_];
-    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
-    if (!strcmp(word, "begin")){
-	    while (strcmp(word, "end")){
-		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
-        if (!strcmp(word, "q")) {
-          /* read diffusion coefficient */
-          ferr = fscanf(in,"%lf",&physics->q);
-          if (ferr != 1) return(1);
-        } else if (strcmp(word,"end")) {
-          char useless[_MAX_STRING_SIZE_];
-          ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
-          printf("Warning: keyword %s in file \"physics.inp\" with value %s not ",word,useless);
-          printf("recognized or extraneous. Ignoring.\n");
-        }
-      }
-	  } else {
-    	fprintf(stderr,"Error: Illegal format in file \"physics.inp\".\n");
+  if (!mpi->rank) {
+    FILE *in;
+    printf("Reading physical model inputs from file \"physics.inp\".\n");
+    in = fopen("physics.inp","r");
+    if (!in) {
+      fprintf(stderr,"Error: File \"physics.inp\" not found.\n");
       return(1);
-	  }
+    } else {
+      char word[_MAX_STRING_SIZE_];
+      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+      if (!strcmp(word, "begin")){
+	      while (strcmp(word, "end")){
+		      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+          if (!strcmp(word, "q")) {
+            /* read diffusion coefficient */
+            ferr = fscanf(in,"%lf",&physics->q);
+            if (ferr != 1) return(1);
+          } else if (strcmp(word,"end")) {
+            char useless[_MAX_STRING_SIZE_];
+            ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
+            printf("Warning: keyword %s in file \"physics.inp\" with value %s not ",word,useless);
+            printf("recognized or extraneous. Ignoring.\n");
+          }
+        }
+	    } else {
+    	  fprintf(stderr,"Error: Illegal format in file \"physics.inp\".\n");
+        return(1);
+	    }
+    }
+    fclose(in);
   }
-  fclose(in);
+
+#ifndef serial
+  IERR MPIBroadcast_double(&physics->q,1,0,&mpi->world); CHECKERR(ierr);
+#endif
 
   /* initializing physical model-specific functions */
   solver->ComputeCFL         = FPDoubleWellComputeCFL;
