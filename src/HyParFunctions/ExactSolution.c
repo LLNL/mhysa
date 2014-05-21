@@ -352,8 +352,7 @@ int ExactSolutionMPI_IO(void *s, void *m, double *uex, int *exact_flag)
 
       /* read the file */
       FileOffset = (MPI_Offset) (offset * sizeof(double));
-      MPI_File_seek(in,FileOffset,MPI_SEEK_SET);
-      MPI_File_read(in,buffer,(sizex+sizeu)*sizeof(double),MPI_BYTE,&status);
+      MPI_File_read_at_all(in,FileOffset,buffer,(sizex+sizeu)*sizeof(double),MPI_BYTE,&status);
 
       /* close the file */
       MPI_File_close(&in);
