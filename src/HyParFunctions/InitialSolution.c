@@ -5,19 +5,26 @@
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
+
 int VolumeIntegral(double*,double*,void*,void*);
 
 static int InitialSolutionSerial    (void*, void*);
+#ifndef serial
 static int InitialSolutionParallel  (void*, void*);
+static int InitialSolutionMPI_IO    (void*, void*);
+#endif
 
 int InitialSolution(void *s, void *m)
 {
   HyPar  *solver = (HyPar*) s;
   
   if      (!strcmp(solver->input_mode,"serial"  ))  return(InitialSolutionSerial  (s,m));
+#ifndef serial
   else if (!strcmp(solver->input_mode,"parallel"))  return(InitialSolutionParallel(s,m));
+  else if (!strcmp(solver->input_mode,"mpi-io"  ))  return(InitialSolutionMPI_IO  (s,m));
+#endif
   else {
-    fprintf(stderr,"Error: Illegal value (%s) for input_mode (may be \"serial\" or \"parallel\"\n",
+    fprintf(stderr,"Error: Illegal value (%s) for input_mode.\n",
             solver->input_mode);
     return(1);
   }
@@ -201,6 +208,8 @@ int InitialSolutionSerial(void *s, void *m)
   return(0);
 }
 
+#ifndef serial
+
 int InitialSolutionParallel(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
@@ -271,7 +280,6 @@ int InitialSolutionParallel(void *s, void *m)
           for (d=0; d<ndims  ; d++) recv_int[d+ndims+1] = size[d];
           recv_int[2*ndims+1] = nvars;
         } else {
-#ifndef serial
           /* allocate data array to send */
           int    *send_int     = (int*)     calloc (2*(ndims+1),sizeof(int   ));
           double *send_double  = (double*)  calloc (total_size ,sizeof(double));
@@ -290,9 +298,6 @@ int InitialSolutionParallel(void *s, void *m)
           MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
           free(send_int);
           free(send_double);
-#else
-          fprintf(stderr,"Error in InitialSolutionParallel(): Code should not have reached here!\n");
-#endif
         }
         flag[rank[ndims]] = 1;
         count++;
@@ -429,3 +434,170 @@ int InitialSolutionParallel(void *s, void *m)
 
   return(0);
 }
+
+int InitialSolutionMPI_IO(void *s, void *m)
+{
+  HyPar         *solver = (HyPar*)        s;
+  MPIVariables  *mpi    = (MPIVariables*) m;
+  int           i,proc,d;
+  _DECLARE_IERR_;
+
+  int ndims = solver->ndims;
+  int nvars = solver->nvars;
+  int ghosts = solver->ghosts;
+  int *dim_local = solver->dim_local;
+
+  if (!strcmp(solver->ip_file_type,"ascii")) {
+
+    fprintf(stderr,"Error in InitialSolutionMPI_IO(): Input file type must be binary.\n");
+    return(1);
+
+  } else if ((!strcmp(solver->ip_file_type,"binary")) || (!strcmp(solver->ip_file_type,"bin"))) {
+
+    if (!mpi->rank) printf("Reading initial solution from binary file initial_par.inp (MPI-IO mode).\n");
+
+    /* calculate offset */
+    long long offset = 0;
+    int is[ndims], ie[ndims], size;
+    for (proc=0; proc < mpi->rank; proc++) {
+
+      /* get the local domain limits for process proc */
+      IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
+
+      /* calculate the size of its local grid */
+      size = 0; for (d=0; d<ndims; d++) size += (ie[d]-is[d]);
+      offset += size;
+
+      /* calculate the size of the local solution */
+      size = nvars; for (d=0; d<ndims; d++) size *= (ie[d]-is[d]);
+      offset += size;
+    }
+
+    /* calculate size of the local grid on this rank */
+    int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];
+    int sizeu = nvars; for (d=0; d<ndims; d++) sizeu *= dim_local[d];
+
+    /* allocate buffer arrays to read in grid and solution */
+    double *buffer = (double*) calloc (sizex+sizeu, sizeof(double));
+
+    /* open and read the file using MPI-IO */
+    MPI_Offset  FileOffset;
+    MPI_File    in;
+    MPI_Status  status;
+    int         FileOpenError;
+
+    /* open the file */
+    FileOpenError = MPI_File_open(mpi->world,"initial.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
+    if ( (FileOpenError != MPI_SUCCESS) && (!mpi->rank) ) {
+      fprintf(stderr,"Error in InitialSolutionMPI_IO(): Unable to open file initial.inp through MPI_File_open.\n");
+      return(1);
+    }
+
+    /* read the file */
+    FileOffset = (MPI_Offset) (offset * sizeof(double));
+    MPI_File_seek(in,FileOffset,MPI_SEEK_SET);
+    MPI_File_read(in,buffer,(sizex+sizeu)*sizeof(double),MPI_BYTE,&status);
+
+    /* close the file */
+    MPI_File_close(&in);
+
+    /* copy the grid */
+    int offset1 = 0, offset2 = 0;
+    for (d = 0; d < ndims; d++) {
+      _ArrayCopy1D_((buffer+offset2),(solver->x+offset1+ghosts),dim_local[d]);
+      offset1 += (solver->dim_local[d]+2*ghosts);
+      offset2 +=  solver->dim_local[d];
+    }
+
+    /* copy the solution */
+    int index[ndims];
+    IERR ArrayCopynD(ndims,(buffer+sizex),solver->u,solver->dim_local,0,ghosts,index,solver->nvars); CHECKERR(ierr);
+
+    /* free buffers */
+    free(buffer);
+
+  } else {
+
+    fprintf(stderr,"Error in InitialSolutionParallel(): Illegal value (%s) for ip_file type. May be \"ascii\", \"binary\" or \"bin\".\n",
+            solver->ip_file_type);
+    return(1);
+
+  }
+
+  int offset;
+
+  /* exchange MPI-boundary values of x between processors */
+  offset = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    IERR MPIExchangeBoundaries1D(mpi,&solver->x[offset],solver->dim_local[d],
+                                   ghosts,d,solver->ndims); CHECKERR(ierr);
+    offset  += (solver->dim_local [d] + 2*ghosts);
+  }
+  /* fill in ghost values of x at physical boundaries by extrapolation */
+  offset = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    double *x     = &solver->x    [offset];
+    int    *dim   = solver->dim_local;
+    if (mpi->ip[d] == 0) {
+      /* fill left boundary along this dimension */
+      for (i = 0; i < ghosts; i++) {
+        int delta = ghosts - i;
+        x[i] = x[ghosts] + ((double) delta) * (x[ghosts]-x[ghosts+1]);
+      }
+    }
+    if (mpi->ip[d] == mpi->iproc[d]-1) {
+      /* fill right boundary along this dimension */
+      for (i = dim[d]+ghosts; i < dim[d]+2*ghosts; i++) {
+        int delta = i - (dim[d]+ghosts-1);
+        x[i] =  x[dim[d]+ghosts-1] 
+              + ((double) delta) * (x[dim[d]+ghosts-1]-x[dim[d]+ghosts-2]);
+      }
+    }
+    offset  += (dim[d] + 2*ghosts);
+  }
+
+  /* calculate dxinv */
+  offset = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    for (i = 0; i < solver->dim_local[d]; i++) 
+      solver->dxinv[i+offset+ghosts] = 2.0/(solver->x[i+1+offset+ghosts]-solver->x[i-1+offset+ghosts]);
+    offset += (solver->dim_local[d] + 2*ghosts);
+  }
+
+  /* exchange MPI-boundary values of dxinv between processors */
+  offset = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    IERR MPIExchangeBoundaries1D(mpi,&solver->dxinv[offset],solver->dim_local[d],
+                                   ghosts,d,solver->ndims); CHECKERR(ierr);
+    offset  += (solver->dim_local[d] + 2*ghosts);
+  }
+
+  /* fill in ghost values of dxinv at physical boundaries by extrapolation */
+  offset = 0;
+  for (d = 0; d < solver->ndims; d++) {
+    double *dxinv = &solver->dxinv[offset];
+    int    *dim   = solver->dim_local;
+    if (mpi->ip[d] == 0) {
+      /* fill left boundary along this dimension */
+      for (i = 0; i < ghosts; i++) dxinv[i] = dxinv[ghosts];
+    }
+    if (mpi->ip[d] == mpi->iproc[d]-1) {
+      /* fill right boundary along this dimension */
+      for (i = dim[d]+ghosts; i < dim[d]+2*ghosts; i++) dxinv[i] = dxinv[dim[d]+ghosts-1];
+    }
+    offset  += (dim[d] + 2*ghosts);
+  }
+
+  /* calculate volume integral of the initial solution */
+  IERR VolumeIntegral(solver->VolumeIntegralInitial,solver->u,solver,mpi); CHECKERR(ierr);
+  if (!mpi->rank) {
+    printf("Volume integral of the initial solution:\n");
+    for (d=0; d<solver->nvars; d++) printf("%2d:  %1.16E\n",d,solver->VolumeIntegralInitial[d]);
+  }
+  /* Set initial total boundary flux integral to zero */
+  _ArraySetValue_(solver->TotalBoundaryIntegral,solver->nvars,0);
+
+  return(0);
+}
+
+#endif
