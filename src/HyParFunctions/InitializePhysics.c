@@ -95,7 +95,7 @@ int InitializePhysics(void *s,void *m)
   }
 
   if ( ( (solver->GetLeftEigenvectors == NULL) || (solver->GetRightEigenvectors == NULL) )
-      && (!strcmp(solver->interp_type,_CHARACTERISTIC_)) ) {
+      && (!strcmp(solver->interp_type,_CHARACTERISTIC_)) && (solver->nvars > 1) ) {
     if (!mpi->rank) {
       fprintf(stderr,"Error: Interpolation type is defined as characteristic ");
       fprintf(stderr,"but physics initializations returned NULL pointers for ");
