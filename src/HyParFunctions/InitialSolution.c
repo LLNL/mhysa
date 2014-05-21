@@ -454,7 +454,7 @@ int InitialSolutionMPI_IO(void *s, void *m)
 
   } else if ((!strcmp(solver->ip_file_type,"binary")) || (!strcmp(solver->ip_file_type,"bin"))) {
 
-    if (!mpi->rank) printf("Reading initial solution from binary file initial_par.inp (MPI-IO mode).\n");
+    if (!mpi->rank) printf("Reading initial solution from binary file initial_mpi.inp (MPI-IO mode).\n");
 
     /* calculate offset */
     long long offset = 0;
@@ -487,7 +487,7 @@ int InitialSolutionMPI_IO(void *s, void *m)
     int         FileOpenError;
 
     /* open the file */
-    FileOpenError = MPI_File_open(mpi->world,"initial.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
+    FileOpenError = MPI_File_open(mpi->world,"initial_mpi.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
     if ( (FileOpenError != MPI_SUCCESS) && (!mpi->rank) ) {
       fprintf(stderr,"Error in InitialSolutionMPI_IO(): Unable to open file initial.inp through MPI_File_open.\n");
       return(1);
