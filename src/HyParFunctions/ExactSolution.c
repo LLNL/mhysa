@@ -7,16 +7,21 @@
 #include <hypar.h>
 
 static int ExactSolutionSerial    (void*, void*, double*, int*);
+#ifndef serial
 static int ExactSolutionParallel  (void*, void*, double*, int*);
+static int ExactSolutionMPI_IO    (void*, void*, double*, int*);
+#endif
 
 int ExactSolution(void *s, void *m, double *uex, int *flag)
 {
   HyPar  *solver = (HyPar*) s;
   if      (!strcmp(solver->input_mode,"serial"))    return(ExactSolutionSerial    (s,m,uex,flag));
+#ifndef serial
   else if (!strcmp(solver->input_mode,"parallel"))  return(ExactSolutionParallel  (s,m,uex,flag));
+  else if (!strcmp(solver->input_mode,"mpi-io"  ))  return(ExactSolutionMPI_IO    (s,m,uex,flag));
+#endif
   else {
-    fprintf(stderr,"Error: Illegal value (%s) for input_mode (may be \"serial\" or \"parallel\"\n",
-            solver->input_mode);
+    fprintf(stderr,"Error: Illegal value (%s) for input_mode.\n",solver->input_mode);
     return(1);
   }
 }
@@ -128,12 +133,14 @@ int ExactSolutionSerial(void *s, void *m, double *uex, int *exact_flag)
   return(0);
 }
 
+#ifndef serial
+
 int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   _DECLARE_IERR_;
-
+  
   *exact_flag = 0;
 
   if (!strcmp(solver->ip_file_type,"ascii")) {
@@ -208,7 +215,6 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
             for (d=0; d<ndims  ; d++) recv_int[d+ndims+1] = size[d];
             recv_int[2*ndims+1] = nvars;
           } else {
-#ifndef serial
             /* allocate data array to send */
             int    *send_int     = (int*)     calloc (2*(ndims+1),sizeof(int   ));
             double *send_double  = (double*)  calloc (total_size ,sizeof(double));
@@ -227,9 +233,6 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
             MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
             free(send_int);
             free(send_double);
-#else
-            fprintf(stderr,"Error in ExactSolutionParallel(): Code should not have reached here!\n");
-#endif
           }
           flag[rank[ndims]] = 1;
           count++;
@@ -287,3 +290,91 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
 
   }
 }
+
+int ExactSolutionMPI_IO(void *s, void *m, double *uex, int *exact_flag)
+{
+  HyPar         *solver = (HyPar*)        s;
+  MPIVariables  *mpi    = (MPIVariables*) m;
+  int           i,proc,d;
+  _DECLARE_IERR_;
+
+  int ndims = solver->ndims;
+  int nvars = solver->nvars; 
+  int ghosts = solver->ghosts;
+  int *dim_local = solver->dim_local;
+
+  *exact_flag = 0;
+
+  if (!strcmp(solver->ip_file_type,"ascii")) {
+
+    fprintf(stderr,"Error in ExactSolutionMPI_IO(): Exact solution must be a binary file.\n");
+    return(1);
+
+  } else if ((!strcmp(solver->ip_file_type,"binary")) || (!strcmp(solver->ip_file_type,"bin"))) {
+
+    /* open and read the file using MPI-IO */
+    MPI_Offset  FileOffset;
+    MPI_File    in;
+    MPI_Status  status;
+    int         FileOpenError;
+
+    /* try to open the file */
+    FileOpenError = MPI_File_open(mpi->world,"exact_mpi.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
+    if (FileOpenError != MPI_SUCCESS) return(0); /* no exact solution available */
+    else {
+
+      *exact_flag = 1;
+      if (!mpi->rank) printf("Reading exact solution from binary file exact_mpi.inp (MPI-IO mode).\n");
+
+      /* calculate offset */
+      long long offset = 0;
+      int is[ndims], ie[ndims], size;
+      for (proc=0; proc < mpi->rank; proc++) {
+
+        /* get the local domain limits for process proc */
+        IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
+
+        /* calculate the size of its local grid */
+        size = 0; for (d=0; d<ndims; d++) size += (ie[d]-is[d]);
+        offset += size;
+
+        /* calculate the size of the local solution */
+        size = nvars; for (d=0; d<ndims; d++) size *= (ie[d]-is[d]);
+        offset += size;
+      }
+
+      /* calculate size of the local grid on this rank */
+      int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];
+      int sizeu = nvars; for (d=0; d<ndims; d++) sizeu *= dim_local[d];
+
+      /* allocate buffer arrays to read in grid and solution */
+      double *buffer = (double*) calloc (sizex+sizeu, sizeof(double));
+
+      /* read the file */
+      FileOffset = (MPI_Offset) (offset * sizeof(double));
+      MPI_File_seek(in,FileOffset,MPI_SEEK_SET);
+      MPI_File_read(in,buffer,(sizex+sizeu)*sizeof(double),MPI_BYTE,&status);
+
+      /* close the file */
+      MPI_File_close(&in);
+
+      /* copy the solution */
+      int index[ndims];
+      IERR ArrayCopynD(ndims,(buffer+sizex),uex,solver->dim_local,0,ghosts,index,solver->nvars); CHECKERR(ierr);
+
+      /* free buffers */
+      free(buffer);
+      return(0);
+
+    }
+
+  } else {
+
+    fprintf(stderr,"Error in ExactSolutionMPI_IO(): Illegal value (%s) for ip_file type. May be \"binary\" or \"bin\".\n",
+            solver->ip_file_type);
+    return(1);
+
+  }
+}
+
+#endif
