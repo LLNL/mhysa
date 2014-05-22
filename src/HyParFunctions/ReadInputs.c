@@ -17,6 +17,7 @@ int ReadInputs(void *s,void *m)
   solver->dim_global      = NULL;
   solver->dim_local       = NULL;
   mpi->iproc              = NULL;
+  mpi->N_IORanks          = 1;
   solver->dt              = 0.0;
   solver->n_iter          = 0;
   solver->restart_iter    = 0;
@@ -89,8 +90,10 @@ int ReadInputs(void *s,void *m)
    		  	else if   (!strcmp(word, "file_op_iter"       ))  ferr = fscanf(in,"%d",&solver->file_op_iter     );
    		  	else if   (!strcmp(word, "op_file_format"     ))  ferr = fscanf(in,"%s",solver->op_file_format    );
    		  	else if   (!strcmp(word, "ip_file_type"       ))  ferr = fscanf(in,"%s",solver->ip_file_type      );
-   		  	else if   (!strcmp(word, "input_mode"         ))  ferr = fscanf(in,"%s",solver->input_mode        );
-   		  	else if   (!strcmp(word, "op_overwrite"       ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
+   		  	else if   (!strcmp(word, "input_mode"         ))  {
+            ferr = fscanf(in,"%s",solver->input_mode);
+            if (!strcmp(solver->input_mode,"mpi-io")) ferr = fscanf(in,"%d",&mpi->N_IORanks);
+          }	else if   (!strcmp(word, "op_overwrite"     ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
    		  	else if   (!strcmp(word, "model"              ))  ferr = fscanf(in,"%s",solver->model             );
           else if   ( strcmp(word, "end"                )) {
             char useless[_MAX_STRING_SIZE_];
@@ -131,7 +134,9 @@ int ReadInputs(void *s,void *m)
       printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter    );
       printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter      );
       printf("\tInitial solution file type                 : %s\n"     ,solver->ip_file_type      );
-      printf("\tInitial solution read mode                 : %s\n"     ,solver->input_mode        );
+      printf("\tInitial solution read mode                 : %s"       ,solver->input_mode        );
+      if (!strcmp(solver->input_mode,"mpi-io")) printf("\t[%d file IO rank(s)]\n",mpi->N_IORanks);
+      else                                      printf("\n");
       printf("\tSolution file format                       : %s\n"     ,solver->op_file_format    );
       printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite      );
       printf("\tPhysical model                             : %s\n"     ,solver->model             );
@@ -153,6 +158,7 @@ int ReadInputs(void *s,void *m)
   IERR MPIBroadcast_integer(&solver->nvars              ,1            ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer( solver->dim_global         ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer( mpi->iproc                 ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer(&mpi->N_IORanks             ,1            ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer(&solver->ghosts             ,1            ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer(&solver->n_iter             ,1            ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer(&solver->restart_iter       ,1            ,0,&mpi->world); CHECKERR(ierr);

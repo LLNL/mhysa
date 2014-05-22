@@ -49,6 +49,9 @@ int Initialize(void *s, void *m)
   /* initialize periodic BC flags to zero */
   for (i=0; i<solver->ndims; i++) mpi->bcperiodic[i] = 0;
 
+  /* create communication groups */
+  IERR MPICreateIOGroups(mpi); CHECKERR(ierr);
+
 #else
 
   for (i=0; i<solver->ndims; i++) {

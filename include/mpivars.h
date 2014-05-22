@@ -18,6 +18,13 @@ typedef struct mpi_variables {
   MPI_Comm  *comm;   /* sub-communicators                               */
 #endif
 
+  int N_IORanks;      /* number of IO ranks                             */
+  int IOParticipant;  /* whether this rank will handle file I/O         */
+  int CommGroup;      /* I/O group this rank is a part of               */
+  int IORank       ;  /* Rank of the process this rank will get I/O from*/
+  int GroupStartRank; /* Starting rank of the IO group                  */
+  int GroupEndRank;   /* Last rank of the IO group                      */
+
   double *sendbuf, *recvbuf; /* buffers to exchange data */
   double maxbuf;
 
@@ -28,6 +35,7 @@ int MPIBroadcast_double     (double*,int,int,void*);
 int MPIBroadcast_integer    (int*,int,int,void*);
 int MPIBroadcast_character  (char*,int,int,void*);
 int MPICreateCommunicators  (int,void*);
+int MPICreateIOGroups       (void*);
 int MPIExchangeBoundaries1D (void*,double*,int,int,int,int);
 int MPIExchangeBoundariesnD (int,int,int*,int,void*,double*);
 int MPIFreeCommunicators    (int,void*);

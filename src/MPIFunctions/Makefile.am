@@ -7,6 +7,7 @@ libMPIFunctions_a_SOURCES = \
   MPIGatherArray1D.c \
   MPIGatherArraynD.c \
   MPIGetArrayDatanD.c \
+	MPIIOGroups.c \
   MPILocalDomainLimits.c \
   MPIMax.c \
   MPIPartition1D.c \

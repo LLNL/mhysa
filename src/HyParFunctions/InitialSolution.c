@@ -456,23 +456,6 @@ int InitialSolutionMPI_IO(void *s, void *m)
 
     if (!mpi->rank) printf("Reading initial solution from binary file initial_mpi.inp (MPI-IO mode).\n");
 
-    /* calculate offset */
-    long long offset = 0;
-    int is[ndims], ie[ndims], size;
-    for (proc=0; proc < mpi->rank; proc++) {
-
-      /* get the local domain limits for process proc */
-      IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
-
-      /* calculate the size of its local grid */
-      size = 0; for (d=0; d<ndims; d++) size += (ie[d]-is[d]);
-      offset += size;
-
-      /* calculate the size of the local solution */
-      size = nvars; for (d=0; d<ndims; d++) size *= (ie[d]-is[d]);
-      offset += size;
-    }
-
     /* calculate size of the local grid on this rank */
     int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];
     int sizeu = nvars; for (d=0; d<ndims; d++) sizeu *= dim_local[d];
@@ -480,22 +463,70 @@ int InitialSolutionMPI_IO(void *s, void *m)
     /* allocate buffer arrays to read in grid and solution */
     double *buffer = (double*) calloc (sizex+sizeu, sizeof(double));
 
-    /* open and read the file using MPI-IO */
-    MPI_Offset  FileOffset;
-    MPI_File    in;
-    MPI_Status  status;
-    int         FileOpenError;
-
     /* open the file */
-    FileOpenError = MPI_File_open(mpi->world,"initial_mpi.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
-    if ( (FileOpenError != MPI_SUCCESS) && (!mpi->rank) ) {
-      fprintf(stderr,"Error in InitialSolutionMPI_IO(): Unable to open file initial.inp through MPI_File_open.\n");
+    MPI_Status  status;
+    MPI_File    in;
+    int         error;
+    error = MPI_File_open(mpi->world,"initial_mpi.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
+    if (error != MPI_SUCCESS) {
+      fprintf(stderr,"Error in InitialSolutionMPI_IO(): File initial_mpi.inp could not be opened.\n");
       return(1);
     }
 
-    /* read the file */
-    FileOffset = (MPI_Offset) (offset * sizeof(double));
-    MPI_File_read_at_all(in,FileOffset,buffer,(sizex+sizeu)*sizeof(double),MPI_BYTE,&status);
+    if (mpi->IOParticipant) {
+
+      /* if this rank is responsible for file I/O */
+      double *read_buffer = NULL;
+      int     read_size_x, read_size_u, read_total_size;
+      int     is[ndims], ie[ndims], size;
+
+      /* calculate offset */
+      long long offset = 0;
+      for (proc=0; proc < mpi->rank; proc++) {
+        /* get the local domain limits for process proc */
+        IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
+        /* calculate the size of its local grid */
+        size = 0; for (d=0; d<ndims; d++) size += (ie[d]-is[d]);
+        offset += size;
+        /* calculate the size of the local solution */
+        size = nvars; for (d=0; d<ndims; d++) size *= (ie[d]-is[d]);
+        offset += size;
+      }
+
+      /* set offset */
+      MPI_Offset FileOffset = (MPI_Offset) (offset * sizeof(double));
+      MPI_File_seek(in,FileOffset,MPI_SEEK_SET);
+
+      /* Read own data */
+      MPI_File_read(in,buffer,(sizex+sizeu)*sizeof(double),MPI_BYTE,&status);
+
+      /* read and send the data for the other processors in this IO rank's group */
+      for (proc=mpi->GroupStartRank+1; proc<mpi->GroupEndRank; proc++) {
+        /* get the local domain limits for process proc */
+        IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
+        /* calculate the size of its local data and allocate read buffer */
+        read_size_x = 0;      for (d=0; d<ndims; d++) read_size_x += (ie[d]-is[d]);
+        read_size_u = nvars;  for (d=0; d<ndims; d++) read_size_u *= (ie[d]-is[d]);
+        read_total_size = read_size_x + read_size_u;
+        read_buffer = (double*) calloc (read_total_size, sizeof(double));
+        /* read the data */
+        MPI_File_read(in,read_buffer,read_total_size*sizeof(double),MPI_BYTE,&status);
+        /* send the data */
+        MPI_Request req = MPI_REQUEST_NULL;
+        MPI_Isend(read_buffer,read_total_size,MPI_DOUBLE,proc,1100,mpi->world,&req);
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+        free(read_buffer);
+      }
+
+    } else {
+
+      /* all other processes, just receive the data from
+       * the rank responsible for file I/O */
+      MPI_Request req = MPI_REQUEST_NULL;
+      MPI_Irecv(buffer,(sizex+sizeu),MPI_DOUBLE,mpi->IORank,1100,mpi->world,&req);
+      MPI_Wait(&req,MPI_STATUS_IGNORE);
+
+    }
 
     /* close the file */
     MPI_File_close(&in);
