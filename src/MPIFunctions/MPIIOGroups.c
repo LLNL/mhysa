@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <mpivars.h>
 
 int MPICreateIOGroups(void *m)
@@ -35,6 +36,18 @@ int MPICreateIOGroups(void *m)
   mpi->GroupStartRank = mpi->IORank;
   mpi->GroupEndRank   = (mpi->CommGroup+1)*GroupSize;
   if (mpi->GroupEndRank > nproc); mpi->GroupEndRank = nproc;
+
+  /* create a new communicator with the IO participants */
+  int i,*FileIORanks;
+  MPI_Group WorldGroup, IOGroup;
+  FileIORanks = (int*) calloc (N_IORanks,sizeof(int));
+  for (i=0; i<N_IORanks; i++) FileIORanks[i] = i*GroupSize;
+  MPI_Comm_group(mpi->world,&WorldGroup);
+  MPI_Group_incl(WorldGroup,N_IORanks,FileIORanks,&IOGroup);
+  MPI_Comm_create(mpi->world,IOGroup,&mpi->IOWorld);
+  MPI_Group_free(&IOGroup);
+  MPI_Group_free(&WorldGroup);
+  free(FileIORanks);
 
   return(0);
 }

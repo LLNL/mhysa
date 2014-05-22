@@ -463,16 +463,6 @@ int InitialSolutionMPI_IO(void *s, void *m)
     /* allocate buffer arrays to read in grid and solution */
     double *buffer = (double*) calloc (sizex+sizeu, sizeof(double));
 
-    /* open the file */
-    MPI_Status  status;
-    MPI_File    in;
-    int         error;
-    error = MPI_File_open(mpi->world,"initial_mpi.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
-    if (error != MPI_SUCCESS) {
-      fprintf(stderr,"Error in InitialSolutionMPI_IO(): File initial_mpi.inp could not be opened.\n");
-      return(1);
-    }
-
     if (mpi->IOParticipant) {
 
       /* if this rank is responsible for file I/O */
@@ -491,6 +481,16 @@ int InitialSolutionMPI_IO(void *s, void *m)
         /* calculate the size of the local solution */
         size = nvars; for (d=0; d<ndims; d++) size *= (ie[d]-is[d]);
         offset += size;
+      }
+      
+      /* open the file */
+      MPI_Status  status;
+      MPI_File    in;
+      int         error;
+      error = MPI_File_open(mpi->IOWorld,"initial_mpi.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
+      if (error != MPI_SUCCESS) {
+        fprintf(stderr,"Error in InitialSolutionMPI_IO(): File initial_mpi.inp could not be opened.\n");
+        return(1);
       }
 
       /* set offset */
@@ -518,6 +518,9 @@ int InitialSolutionMPI_IO(void *s, void *m)
         free(read_buffer);
       }
 
+      /* close the file */
+      MPI_File_close(&in);
+
     } else {
 
       /* all other processes, just receive the data from
@@ -527,9 +530,6 @@ int InitialSolutionMPI_IO(void *s, void *m)
       MPI_Wait(&req,MPI_STATUS_IGNORE);
 
     }
-
-    /* close the file */
-    MPI_File_close(&in);
 
     /* copy the grid */
     int offset1 = 0, offset2 = 0;

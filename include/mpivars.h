@@ -24,6 +24,7 @@ typedef struct mpi_variables {
   int IORank       ;  /* Rank of the process this rank will get I/O from*/
   int GroupStartRank; /* Starting rank of the IO group                  */
   int GroupEndRank;   /* Last rank of the IO group                      */
+  MPI_Comm IOWorld;
 
   double *sendbuf, *recvbuf; /* buffers to exchange data */
   double maxbuf;
