@@ -35,7 +35,6 @@ int MPICreateIOGroups(void *m)
   /* save the first and last process of this group */
   mpi->GroupStartRank = mpi->IORank;
   mpi->GroupEndRank   = (mpi->CommGroup+1)*GroupSize;
-  if (mpi->GroupEndRank > nproc); mpi->GroupEndRank = nproc;
 
   /* create a new communicator with the IO participants */
   int i,*FileIORanks;
