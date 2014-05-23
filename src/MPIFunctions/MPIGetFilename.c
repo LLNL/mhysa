@@ -9,7 +9,7 @@ static void GetStringFromInteger(int,char*,int);
 
 void MPIGetFilename(char *root,void *c,char *filename)
 {
-  char  tail[_MAX_STRING_SIZE_];
+  char  tail[_MAX_STRING_SIZE_]="";
   int   rank;
 
 #ifndef serial
@@ -20,6 +20,7 @@ void MPIGetFilename(char *root,void *c,char *filename)
 #endif
 
   GetStringFromInteger(rank,tail,4);
+  strcpy(filename,"");
   strcat(filename,root);
   strcat(filename,"." );
   strcat(filename,tail);

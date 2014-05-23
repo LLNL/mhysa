@@ -229,7 +229,7 @@ int InitialSolutionParallel(void *s, void *m)
 
   } else if ((!strcmp(solver->ip_file_type,"binary")) || (!strcmp(solver->ip_file_type,"bin"))) {
 
-    if (!mpi->rank) printf("Reading initial solution from binary file initial_mpi.inp (MPI-IO mode).\n");
+    if (!mpi->rank) printf("Reading initial solution from binary file initial_par.inp.xxxx (parallel mode).\n");
 
     /* calculate size of the local grid on this rank */
     int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];

@@ -81,9 +81,10 @@ void GetStringFromInteger(int a,char *A,int width)
 
 void MPIGetFilename(char *root,int rank,char *filename)
 {
-  char  tail[_MAX_STRING_SIZE_];
+  char  tail[_MAX_STRING_SIZE_] = "";
 
   GetStringFromInteger(rank,tail,4);
+  strcpy(filename,"");
   strcat(filename,root);
   strcat(filename,"." );
   strcat(filename,tail);
@@ -197,7 +198,7 @@ void SplitDomain(char *fnamein, char *fnameout)
     printf("\n");
     printf("\tInitial solution file type                 : %s\n",ip_file_type);
     printf("\tInitial solution read mode                 : %s\n",input_mode  );
-    printf("\tNumber of IO ranks                         : %s\n",N_IORanks   );
+    printf("\tNumber of IO ranks                         : %d\n",N_IORanks   );
   }
 
   /* checks */
@@ -214,6 +215,9 @@ void SplitDomain(char *fnamein, char *fnameout)
   in = fopen(fnamein,"rb");
   if (!in) {
     printf("File %s not found.\n",fnamein);
+    free(dim_local);
+    free(dim_global);
+    free(iproc);
     return;
   }
   size = 0;
@@ -237,7 +241,7 @@ void SplitDomain(char *fnamein, char *fnameout)
   int nproc = 1;
   for (i=0; i<ndims; i++) nproc *= iproc[i];
   if (nproc%N_IORanks != 0) N_IORanks = 1;
-  printf("Splitting data into %d processes. Will generate %d files (one for each file IO rank.\n",nproc,N_IORanks);
+  printf("Splitting data into %d processes. Will generate %d files (one for each file IO rank).\n",nproc,N_IORanks);
 
   int proc,IORank;
   FILE *out;
