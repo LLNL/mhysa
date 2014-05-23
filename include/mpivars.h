@@ -46,6 +46,8 @@ int MPIGetArrayDatanD       (double*,double*,int*,int*,int*,int*,int,int,int,voi
 int MPILocalDomainLimits    (int,int,void*,int*,int*,int*);
 int MPIMax_integer          (int*,int*,int,void*);
 int MPIMax_double           (double*,double*,int,void*);
+int MPIMin_integer          (int*,int*,int,void*);
+int MPIMin_double           (double*,double*,int,void*);
 int MPIPartition1D          (int,int,int);
 int MPIPartitionArraynD     (int,void*,double*,double*,int*,int*,int,int); 
 int MPIPartitionArray1D     (void*,double*,double*,int,int,int,int); 

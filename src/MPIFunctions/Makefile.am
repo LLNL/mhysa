@@ -11,6 +11,7 @@ libMPIFunctions_a_SOURCES = \
 	MPIIOGroups.c \
   MPILocalDomainLimits.c \
   MPIMax.c \
+  MPIMin.c \
   MPIPartition1D.c \
   MPIPartitionArray1D.c \
   MPIPartitionArraynD.c \

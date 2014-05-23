@@ -139,156 +139,113 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
+  int           i,proc,d;
   _DECLARE_IERR_;
-  
-  *exact_flag = 0;
 
-  if (!strcmp(solver->ip_file_type,"ascii")) {
+  int ndims = solver->ndims;
+  int nvars = solver->nvars; 
+  int ghosts = solver->ghosts;
+  int *dim_local = solver->dim_local;
 
-    fprintf(stderr,"Error in ExactSolutionParallel(): Reading ASCII exact solution file in parallel not yet supported. Choose the binary option.\n");
-    return(1);
+  *exact_flag = 1;
 
-  } else if ((!strcmp(solver->ip_file_type,"binary")) || (!strcmp(solver->ip_file_type,"bin"))) {
-
-    int     ndims = solver->ndims, d, n, *recv_int;
-    double  *recv_double;
-
-    /* allocate arrays to receive data in */
-    int sizex = 0;             for (d=0; d<ndims; d++) sizex += solver->dim_local[d];
-    int sizeu = solver->nvars; for (d=0; d<ndims; d++) sizeu *= solver->dim_local[d];
-    int total_size = sizex + sizeu;
-
-    /* check if exact solution file exists */
-    if (!mpi->rank) {
-      FILE *in;
-      in = fopen("exact_par.inp","rb");
-      if (in) { *exact_flag = 1; fclose(in); }
-      else    *exact_flag = 0;
+  /* check for existence of exact solution file */
+  if (mpi->IOParticipant) {
+    FILE *in;
+    char filename[_MAX_STRING_SIZE_];
+    MPIGetFilename("exact_par.inp",&mpi->IOWorld,filename);
+    in = fopen(filename,"rb");
+    if (!in)  *exact_flag = 0;
+    else {
+      *exact_flag = 1;
+      fclose(in);
     }
-    /* Broadcast exact_flag to all processes */
-    IERR MPIBroadcast_integer(exact_flag,1,0,&mpi->world); CHECKERR(ierr);
+  }
+  IERR MPIMin_integer(exact_flag,exact_flag,1,&mpi->world);
 
-    if (*exact_flag) {
+  if (*exact_flag) {
 
-      recv_int    = (int*)    calloc (2*(ndims+1),sizeof(int  ));
-      recv_double = (double*) calloc (total_size,sizeof(double));
+    if (!mpi->rank) printf("Reading exact solution from binary file exact_par.inp.xxx (parallel mode).\n");
 
-      if (!mpi->rank) {
+    /* calculate size of the local grid on this rank */
+    int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];
+    int sizeu = nvars; for (d=0; d<ndims; d++) sizeu *= dim_local[d];
 
-        /* rank 0 opens the file, reads in the data and sends it to corresponding process */
-        FILE  *in;
-        int   ferr;
-        int *flag = (int*) calloc (mpi->nproc, sizeof(int));
-        for (n=0; n<mpi->nproc; n++) flag[n] = 0;
-        in = fopen("exact_par.inp","rb");
+    /* allocate buffer arrays to read in grid and solution */
+    double *buffer = (double*) calloc (sizex+sizeu, sizeof(double));
 
-        int count = 0;
-        printf("Reading exact solution from binary file exact_par.inp (parallel mode).\n");
-        while ((!feof(in)) && (count < mpi->nproc)) {
-          int rank[ndims+1],size[ndims],nvars;
-          ferr = fread(rank,sizeof(int),ndims+1,in);
-          if (ferr != (ndims+1)) {
-            fprintf(stderr,"Error (1) in reading binary file exact_par.inp in parallel mode on rank %d.\n", mpi->rank);
-            return(1);
-          }
-          ferr = fread(size,sizeof(int),ndims,in);
-          if (ferr != ndims) {
-            fprintf(stderr,"Error (2) in reading binary file exact_par.inp in parallel mode on rank %d.\n", mpi->rank);
-            return(1);
-          }
-          ferr = fread(&nvars,sizeof(int),1,in);
-          if (ferr != 1) {
-            fprintf(stderr,"Error (3) in reading binary file exact_par.inp in parallel mode on rank %d.\n", mpi->rank);
-            return(1);
-          }
-          int sizex = 0;    for (d=0; d<ndims; d++) sizex += size[d];
-          int sizeu = nvars;for (d=0; d<ndims; d++) sizeu *= size[d];
-          int total_size = sizex + sizeu;
-          if (!rank[ndims]) {
-            /* self */
-            ferr = fread(recv_double,sizeof(double),total_size,in);
-            if (ferr != total_size) {
-              fprintf(stderr,"Error (4) in reading binary file exact_par.inp in parallel mode on rank %d.\n", mpi->rank);
-              return(1);
-            }
-            for (d=0; d<ndims+1; d++) recv_int[d]         = rank[d];
-            for (d=0; d<ndims  ; d++) recv_int[d+ndims+1] = size[d];
-            recv_int[2*ndims+1] = nvars;
-          } else {
-            /* allocate data array to send */
-            int    *send_int     = (int*)     calloc (2*(ndims+1),sizeof(int   ));
-            double *send_double  = (double*)  calloc (total_size ,sizeof(double));
-            ferr = fread(send_double,sizeof(double),total_size,in);
-            if (ferr != total_size) {
-              fprintf(stderr,"Error (4) in reading binary file exact_par.inp in parallel mode on rank %d.\n", mpi->rank);
-              return(1);
-            }
-            for (d=0; d<ndims+1; d++) send_int[d]         = rank[d];
-            for (d=0; d<ndims  ; d++) send_int[d+ndims+1] = size[d];
-            send_int[2*ndims+1] = nvars;
-            /* send to the corresponding rank */
-            MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
-            MPI_Isend(send_int   ,2*(ndims+1),MPI_INT   ,rank[ndims],1247,mpi->world,&req[0]);
-            MPI_Isend(send_double,total_size ,MPI_DOUBLE,rank[ndims],1248,mpi->world,&req[1]);
-            MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
-            free(send_int);
-            free(send_double);
-          }
-          flag[rank[ndims]] = 1;
-          count++;
-        }
+    if (mpi->IOParticipant) {
 
-        /* check if data for all the processes have been read */
-        int check = 1;
-        for (n = 0; n < mpi->nproc; n++) {
-          if (!flag[n]) {
-            fprintf(stderr,"Error in ExactSolutionParallel(): Data for rank %d not found.\n",n);
-            check = 0;
-          }
-        }
-        if (!check) return(1);
-        free(flag);
+      /* if this rank is responsible for file I/O */
+      double *read_buffer = NULL;
+      int     read_size_x, read_size_u, read_total_size;
+      int     is[ndims], ie[ndims], size;
 
-        fclose(in);
+      /* open the file */
+      FILE *in;
+      int  bytes;
+      char filename[_MAX_STRING_SIZE_];
+      MPIGetFilename("exact_par.inp",&mpi->IOWorld,filename);
 
-      } else {
-
-        /* receive the stuff from rank 0 */
-        MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
-        MPI_Irecv(recv_int   ,2*(ndims+1),MPI_INT   ,0,1247,mpi->world,&req[0]);
-        MPI_Irecv(recv_double,total_size ,MPI_DOUBLE,0,1248,mpi->world,&req[1]);
-        MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
-
-      }
-
-      /* checks */
-      int check = 1;
-      for (n = 0; n < ndims; n++) {
-        if (recv_int[n]         != mpi->ip[n]          )  check = 0;
-        if (recv_int[n+ndims+1] != solver->dim_local[n])  check = 0;
-      }
-      if (recv_int[2*ndims+1] != solver->nvars) check = 0;
-      if (!check) {
-        fprintf(stderr,"Error in ExactSolutionParallel(): Inconsistent data read on rank %d.\n",mpi->rank);
+      in = fopen(filename,"rb");
+      if (!in) {
+        fprintf(stderr,"Error in ExactSolutionParallel(): File %s could not be opened.\n",filename);
         return(1);
       }
 
-      int index[ndims];
-      IERR ArrayCopynD(ndims,recv_double+sizex,uex,solver->dim_local,0,solver->ghosts,index,solver->nvars); CHECKERR(ierr);
+      /* Read own data */
+      bytes = fread(buffer,sizeof(double),(sizex+sizeu),in);
+      if (bytes != (sizex+sizeu)) {
+        fprintf(stderr,"Error in ExactSolutionParallel(): File %s contains insufficient data.\n",filename);
+        return(1);
+      }
 
-      free(recv_int);
-      free(recv_double);
+      /* read and send the data for the other processors in this IO rank's group */
+      for (proc=mpi->GroupStartRank+1; proc<mpi->GroupEndRank; proc++) {
+        /* get the local domain limits for process proc */
+        IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
+        /* calculate the size of its local data and allocate read buffer */
+        read_size_x = 0;      for (d=0; d<ndims; d++) read_size_x += (ie[d]-is[d]);
+        read_size_u = nvars;  for (d=0; d<ndims; d++) read_size_u *= (ie[d]-is[d]);
+        read_total_size = read_size_x + read_size_u;
+        read_buffer = (double*) calloc (read_total_size, sizeof(double));
+        /* read the data */
+        bytes = fread(read_buffer,sizeof(double),read_total_size,in);
+        if (bytes != read_total_size) {
+          fprintf(stderr,"Error in ExactSolutionParallel(): File %s contains insufficient data.\n",filename);
+          return(1);
+        }
+        /* send the data */
+        MPI_Request req = MPI_REQUEST_NULL;
+        MPI_Isend(read_buffer,read_total_size,MPI_DOUBLE,proc,1100,mpi->world,&req);
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+        free(read_buffer);
+      }
+
+      /* close the file */
+      fclose(in);
+
+    } else {
+
+      /* all other processes, just receive the data from
+       * the rank responsible for file I/O */
+      MPI_Request req = MPI_REQUEST_NULL;
+      MPI_Irecv(buffer,(sizex+sizeu),MPI_DOUBLE,mpi->IORank,1100,mpi->world,&req);
+      MPI_Wait(&req,MPI_STATUS_IGNORE);
 
     }
-    return(0);
 
-  } else {
+    /* copy the solution */
+    int index[ndims];
+    IERR ArrayCopynD(ndims,(buffer+sizex),uex,dim_local,0,ghosts,index,nvars); 
+    CHECKERR(ierr);
 
-    fprintf(stderr,"Error in ExactSolutionParallel(): Illegal value (%s) for ip_file type. May be \"ascii\", \"binary\" or \"bin\".\n",
-            solver->ip_file_type);
-    return(1);
-
+    /* free buffers */
+    free(buffer);
   }
+
+  return(0);
+
 }
 
 int ExactSolutionMPI_IO(void *s, void *m, double *uex, int *exact_flag)
@@ -305,75 +262,108 @@ int ExactSolutionMPI_IO(void *s, void *m, double *uex, int *exact_flag)
 
   *exact_flag = 0;
 
-  if (!strcmp(solver->ip_file_type,"ascii")) {
-
-    fprintf(stderr,"Error in ExactSolutionMPI_IO(): Exact solution must be a binary file.\n");
-    return(1);
-
-  } else if ((!strcmp(solver->ip_file_type,"binary")) || (!strcmp(solver->ip_file_type,"bin"))) {
-
-    /* open and read the file using MPI-IO */
-    MPI_Offset  FileOffset;
-    MPI_File    in;
-    MPI_Status  status;
-    int         FileOpenError;
-
-    /* try to open the file */
-    FileOpenError = MPI_File_open(mpi->world,"exact_mpi.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
-    if (FileOpenError != MPI_SUCCESS) return(0); /* no exact solution available */
+  /* check for existence of exact solution file */
+  if (!mpi->rank) {
+    FILE *in;
+    in = fopen("exact_mpi.inp","rb");
+    if (!in)  *exact_flag = 0;
     else {
-
       *exact_flag = 1;
-      if (!mpi->rank) printf("Reading exact solution from binary file exact_mpi.inp (MPI-IO mode).\n");
+      fclose(in);
+    }
+  }
+  IERR MPIBroadcast_integer(exact_flag,1,0,&mpi->world);
+
+  if (*exact_flag) {
+
+    if (!mpi->rank) printf("Reading exact solution from binary file exact_mpi.inp (MPI-IO mode).\n");
+
+    /* calculate size of the local grid on this rank */
+    int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];
+    int sizeu = nvars; for (d=0; d<ndims; d++) sizeu *= dim_local[d];
+
+    /* allocate buffer arrays to read in grid and solution */
+    double *buffer = (double*) calloc (sizex+sizeu, sizeof(double));
+
+    if (mpi->IOParticipant) {
+
+      /* if this rank is responsible for file I/O */
+      double *read_buffer = NULL;
+      int     read_size_x, read_size_u, read_total_size;
+      int     is[ndims], ie[ndims], size;
 
       /* calculate offset */
       long long offset = 0;
-      int is[ndims], ie[ndims], size;
       for (proc=0; proc < mpi->rank; proc++) {
-
         /* get the local domain limits for process proc */
         IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
-
         /* calculate the size of its local grid */
         size = 0; for (d=0; d<ndims; d++) size += (ie[d]-is[d]);
         offset += size;
-
         /* calculate the size of the local solution */
         size = nvars; for (d=0; d<ndims; d++) size *= (ie[d]-is[d]);
         offset += size;
       }
+    
+      /* open the file */
+      MPI_Status  status;
+      MPI_File    in;
+      int         error;
+      error = MPI_File_open(mpi->IOWorld,"exact_mpi.inp",MPI_MODE_RDONLY,MPI_INFO_NULL,&in);
+      if (error != MPI_SUCCESS) {
+        fprintf(stderr,"Error in ExactSolutionMPI_IO(): Unable to open exact_mpi.inp.\n");
+        return(1);
+      }
 
-      /* calculate size of the local grid on this rank */
-      int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];
-      int sizeu = nvars; for (d=0; d<ndims; d++) sizeu *= dim_local[d];
+      /* set offset */
+      MPI_Offset FileOffset = (MPI_Offset) (offset * sizeof(double));
+      MPI_File_seek(in,FileOffset,MPI_SEEK_SET);
 
-      /* allocate buffer arrays to read in grid and solution */
-      double *buffer = (double*) calloc (sizex+sizeu, sizeof(double));
+      /* Read own data */
+      MPI_File_read(in,buffer,(sizex+sizeu)*sizeof(double),MPI_BYTE,&status);
 
-      /* read the file */
-      FileOffset = (MPI_Offset) (offset * sizeof(double));
-      MPI_File_read_at_all(in,FileOffset,buffer,(sizex+sizeu)*sizeof(double),MPI_BYTE,&status);
+      /* read and send the data for the other processors in this IO rank's group */
+      for (proc=mpi->GroupStartRank+1; proc<mpi->GroupEndRank; proc++) {
+        /* get the local domain limits for process proc */
+        IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
+        /* calculate the size of its local data and allocate read buffer */
+        read_size_x = 0;      for (d=0; d<ndims; d++) read_size_x += (ie[d]-is[d]);
+        read_size_u = nvars;  for (d=0; d<ndims; d++) read_size_u *= (ie[d]-is[d]);
+        read_total_size = read_size_x + read_size_u;
+        read_buffer = (double*) calloc (read_total_size, sizeof(double));
+        /* read the data */
+        MPI_File_read(in,read_buffer,read_total_size*sizeof(double),MPI_BYTE,&status);
+        /* send the data */
+        MPI_Request req = MPI_REQUEST_NULL;
+        MPI_Isend(read_buffer,read_total_size,MPI_DOUBLE,proc,1100,mpi->world,&req);
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+        free(read_buffer);
+      }
 
       /* close the file */
       MPI_File_close(&in);
 
-      /* copy the solution */
-      int index[ndims];
-      IERR ArrayCopynD(ndims,(buffer+sizex),uex,solver->dim_local,0,ghosts,index,solver->nvars); CHECKERR(ierr);
+    } else {
 
-      /* free buffers */
-      free(buffer);
-      return(0);
+      /* all other processes, just receive the data from
+       * the rank responsible for file I/O */
+      MPI_Request req = MPI_REQUEST_NULL;
+      MPI_Irecv(buffer,(sizex+sizeu),MPI_DOUBLE,mpi->IORank,1100,mpi->world,&req);
+      MPI_Wait(&req,MPI_STATUS_IGNORE);
 
     }
 
-  } else {
+    /* copy the solution */
+    int index[ndims];
+    IERR ArrayCopynD(ndims,(buffer+sizex),uex,dim_local,0,ghosts,index,nvars); 
+    CHECKERR(ierr);
 
-    fprintf(stderr,"Error in ExactSolutionMPI_IO(): Illegal value (%s) for ip_file type. May be \"binary\" or \"bin\".\n",
-            solver->ip_file_type);
-    return(1);
-
+    /* free buffers */
+    free(buffer);
   }
+
+  return(0);
+
 }
 
 #endif
