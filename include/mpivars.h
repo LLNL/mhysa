@@ -53,3 +53,5 @@ int MPIRank1D               (int,int*,int*);
 int MPIRanknD               (int,int,int*,int*);
 int MPISum_double           (double*,double*,int,void*);
 int MPISum_integer          (int*,int*,int,void*);
+
+void MPIGetFilename         (char*,void*,char*);

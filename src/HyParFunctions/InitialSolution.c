@@ -214,144 +214,105 @@ int InitialSolutionParallel(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           i,d,offset;
-  int           ghosts = solver->ghosts;
+  int           i,proc,d;
   _DECLARE_IERR_;
+
+  int ndims = solver->ndims;
+  int nvars = solver->nvars;
+  int ghosts = solver->ghosts;
+  int *dim_local = solver->dim_local;
 
   if (!strcmp(solver->ip_file_type,"ascii")) {
 
-    fprintf(stderr,"Error in InitialSolutionParallel(): Reading ASCII initial solution file in parallel not yet supported. Choose the binary option.\n");
+    fprintf(stderr,"Error in InitialSolutionParallel(): Input file type must be binary.\n");
     return(1);
 
   } else if ((!strcmp(solver->ip_file_type,"binary")) || (!strcmp(solver->ip_file_type,"bin"))) {
 
-    int     ndims = solver->ndims, d, n, *recv_int;
-    double  *recv_double;
-    /* allocate arrays to receive data in */
-    int sizex = 0;             for (d=0; d<ndims; d++) sizex += solver->dim_local[d];
-    int sizeu = solver->nvars; for (d=0; d<ndims; d++) sizeu *= solver->dim_local[d];
-    int total_size = sizex + sizeu;
-    recv_int    = (int*)    calloc (2*(ndims+1),sizeof(int  ));
-    recv_double = (double*) calloc (total_size,sizeof(double));
+    if (!mpi->rank) printf("Reading initial solution from binary file initial_mpi.inp (MPI-IO mode).\n");
 
+    /* calculate size of the local grid on this rank */
+    int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];
+    int sizeu = nvars; for (d=0; d<ndims; d++) sizeu *= dim_local[d];
 
-    if (!mpi->rank) {
+    /* allocate buffer arrays to read in grid and solution */
+    double *buffer = (double*) calloc (sizex+sizeu, sizeof(double));
 
-      /* rank 0 opens the file, reads in the data and sends it to corresponding process */
-      FILE  *in;
-      int   ferr;
-      int *flag = (int*) calloc (mpi->nproc, sizeof(int));
-      for (n=0; n<mpi->nproc; n++) flag[n] = 0;
-      in = fopen("initial_par.inp","rb");
+    if (mpi->IOParticipant) {
+
+      /* if this rank is responsible for file I/O */
+      double *read_buffer = NULL;
+      int     read_size_x, read_size_u, read_total_size;
+      int     is[ndims], ie[ndims], size;
+
+      /* open the file */
+      FILE *in;
+      int  bytes;
+      char filename[_MAX_STRING_SIZE_];
+      MPIGetFilename("initial_par.inp",&mpi->IOWorld,filename);
+
+      in = fopen(filename,"rb");
       if (!in) {
-        fprintf(stderr,"Error in InitialSolutionParallel(): Could not open file initial_par.inp for reading.\n");
+        fprintf(stderr,"Error in InitialSolutionParallel(): File %s could not be opened.\n",filename);
         return(1);
       }
-      int count = 0;
-      printf("Reading initial solution from binary file initial_par.inp (parallel mode).\n");
-      while ((!feof(in)) && (count < mpi->nproc)) {
-        int rank[ndims+1],size[ndims],nvars;
-        ferr = fread(rank,sizeof(int),ndims+1,in);
-        if (ferr != (ndims+1)) {
-          fprintf(stderr,"Error (1) in reading binary file initial_par.inp in parallel mode on rank %d, count %d.\n", mpi->rank,count);
-          return(1);
-        }
-        ferr = fread(size,sizeof(int),ndims,in);
-        if (ferr != ndims) {
-          fprintf(stderr,"Error (2) in reading binary file initial_par.inp in parallel mode on rank %d, count %d.\n", mpi->rank,count);
-          return(1);
-        }
-        ferr = fread(&nvars,sizeof(int),1,in);
-        if (ferr != 1) {
-          fprintf(stderr,"Error (3) in reading binary file initial_par.inp in parallel mode on rank %d, count %d.\n", mpi->rank,count);
-          return(1);
-        }
-        int sizex = 0;    for (d=0; d<ndims; d++) sizex += size[d];
-        int sizeu = nvars;for (d=0; d<ndims; d++) sizeu *= size[d];
-        int total_size = sizex + sizeu;
-        if (!rank[ndims]) {
-          /* self */
-          ferr = fread(recv_double,sizeof(double),total_size,in);
-          if (ferr != total_size) {
-            fprintf(stderr,"Error (4) in reading binary file initial_par.inp in parallel mode on rank %d, count %d.\n", mpi->rank,count);
-            return(1);
-          }
-          for (d=0; d<ndims+1; d++) recv_int[d]         = rank[d];
-          for (d=0; d<ndims  ; d++) recv_int[d+ndims+1] = size[d];
-          recv_int[2*ndims+1] = nvars;
-        } else {
-          /* allocate data array to send */
-          int    *send_int     = (int*)     calloc (2*(ndims+1),sizeof(int   ));
-          double *send_double  = (double*)  calloc (total_size ,sizeof(double));
-          ferr = fread(send_double,sizeof(double),total_size,in);
-          if (ferr != total_size) {
-            fprintf(stderr,"Error (4) in reading binary file initial_par.inp in parallel mode on rank %d.\n", mpi->rank);
-            return(1);
-          }
-          for (d=0; d<ndims+1; d++) send_int[d]         = rank[d];
-          for (d=0; d<ndims  ; d++) send_int[d+ndims+1] = size[d];
-          send_int[2*ndims+1] = nvars;
-          /* send to the corresponding rank */
-          MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
-          MPI_Isend(send_int   ,2*(ndims+1),MPI_INT   ,rank[ndims],1247,mpi->world,&req[0]);
-          MPI_Isend(send_double,total_size ,MPI_DOUBLE,rank[ndims],1248,mpi->world,&req[1]);
-          MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
-          free(send_int);
-          free(send_double);
-        }
-        flag[rank[ndims]] = 1;
-        count++;
-      }
-      fclose(in);
 
-      /* check if data for all the processes have been read */
-      int check = 1;
-      for (n = 0; n < mpi->nproc; n++) {
-        if (!flag[n]) {
-          fprintf(stderr,"Error in InitialSolutionParallel(): Data for rank %d not found.\n",n);
-          check = 0;
-        }
+      /* Read own data */
+      bytes = fread(buffer,sizeof(double),(sizex+sizeu),in);
+      if (bytes != (sizex+sizeu)) {
+        fprintf(stderr,"Error in InitialSolutionParallel(): File %s contains insufficient data.\n");
+        return(1);
       }
-      if (!check) return(1);
-      free(flag);
+
+      /* read and send the data for the other processors in this IO rank's group */
+      for (proc=mpi->GroupStartRank+1; proc<mpi->GroupEndRank; proc++) {
+        /* get the local domain limits for process proc */
+        IERR MPILocalDomainLimits(ndims,proc,mpi,solver->dim_global,is,ie);
+        /* calculate the size of its local data and allocate read buffer */
+        read_size_x = 0;      for (d=0; d<ndims; d++) read_size_x += (ie[d]-is[d]);
+        read_size_u = nvars;  for (d=0; d<ndims; d++) read_size_u *= (ie[d]-is[d]);
+        read_total_size = read_size_x + read_size_u;
+        read_buffer = (double*) calloc (read_total_size, sizeof(double));
+        /* read the data */
+        bytes = fread(read_buffer,sizeof(double),read_total_size,in);
+        if (bytes != read_total_size) {
+          fprintf(stderr,"Error in InitialSolutionParallel(): File %s contains insufficient data.\n");
+          return(1);
+        }
+        /* send the data */
+        MPI_Request req = MPI_REQUEST_NULL;
+        MPI_Isend(read_buffer,read_total_size,MPI_DOUBLE,proc,1100,mpi->world,&req);
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+        free(read_buffer);
+      }
+
+      /* close the file */
+      fclose(in);
 
     } else {
 
-      /* receive the stuff from rank 0 */
-      MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
-      MPI_Irecv(recv_int   ,2*(ndims+1),MPI_INT   ,0,1247,mpi->world,&req[0]);
-      MPI_Irecv(recv_double,total_size ,MPI_DOUBLE,0,1248,mpi->world,&req[1]);
-      MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
+      /* all other processes, just receive the data from
+       * the rank responsible for file I/O */
+      MPI_Request req = MPI_REQUEST_NULL;
+      MPI_Irecv(buffer,(sizex+sizeu),MPI_DOUBLE,mpi->IORank,1100,mpi->world,&req);
+      MPI_Wait(&req,MPI_STATUS_IGNORE);
 
-    }
-
-    /* checks */
-    int check = 1;
-    for (n = 0; n < ndims; n++) {
-      if (recv_int[n]         != mpi->ip[n]          )  check = 0;
-      if (recv_int[n+ndims+1] != solver->dim_local[n])  check = 0;
-    }
-    if (recv_int[ndims]     != mpi->rank    ) check = 0;
-    if (recv_int[2*ndims+1] != solver->nvars) check = 0;
-    if (!check) {
-      fprintf(stderr,"Error in InitialSolutionParallel(): Inconsistent data read on rank %d.\n",mpi->rank);
-      return(1);
     }
 
     /* copy the grid */
     int offset1 = 0, offset2 = 0;
-    for (n = 0; n < ndims; n++) {
-      int i;
-      for (i = 0; i < solver->dim_local[n]; i++) solver->x[i+offset1+ghosts] = recv_double[i+offset2];
-      offset1 += (solver->dim_local[n]+2*ghosts);
-      offset2 += solver->dim_local[n];
+    for (d = 0; d < ndims; d++) {
+      _ArrayCopy1D_((buffer+offset2),(solver->x+offset1+ghosts),dim_local[d]);
+      offset1 += (solver->dim_local[d]+2*ghosts);
+      offset2 +=  solver->dim_local[d];
     }
 
+    /* copy the solution */
     int index[ndims];
-    IERR ArrayCopynD(ndims,recv_double+sizex,solver->u,solver->dim_local,0,ghosts,index,solver->nvars); CHECKERR(ierr);
+    IERR ArrayCopynD(ndims,(buffer+sizex),solver->u,solver->dim_local,0,ghosts,index,solver->nvars); CHECKERR(ierr);
 
-    free(recv_int);
-    free(recv_double);
+    /* free buffers */
+    free(buffer);
 
   } else {
 
@@ -360,6 +321,8 @@ int InitialSolutionParallel(void *s, void *m)
     return(1);
 
   }
+
+  int offset;
 
   /* exchange MPI-boundary values of x between processors */
   offset = 0;

@@ -92,7 +92,7 @@ int ReadInputs(void *s,void *m)
    		  	else if   (!strcmp(word, "ip_file_type"       ))  ferr = fscanf(in,"%s",solver->ip_file_type      );
    		  	else if   (!strcmp(word, "input_mode"         ))  {
             ferr = fscanf(in,"%s",solver->input_mode);
-            if (!strcmp(solver->input_mode,"mpi-io")) ferr = fscanf(in,"%d",&mpi->N_IORanks);
+            if (strcmp(solver->input_mode,"serial")) ferr = fscanf(in,"%d",&mpi->N_IORanks);
           }	else if   (!strcmp(word, "op_overwrite"     ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
    		  	else if   (!strcmp(word, "model"              ))  ferr = fscanf(in,"%s",solver->model             );
           else if   ( strcmp(word, "end"                )) {
@@ -135,8 +135,8 @@ int ReadInputs(void *s,void *m)
       printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter      );
       printf("\tInitial solution file type                 : %s\n"     ,solver->ip_file_type      );
       printf("\tInitial solution read mode                 : %s"       ,solver->input_mode        );
-      if (!strcmp(solver->input_mode,"mpi-io")) printf("\t[%d file IO rank(s)]\n",mpi->N_IORanks);
-      else                                      printf("\n");
+      if (strcmp(solver->input_mode,"serial"))    printf("\t[%d file IO rank(s)]\n",mpi->N_IORanks);
+      else                                        printf("\n");
       printf("\tSolution file format                       : %s\n"     ,solver->op_file_format    );
       printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite      );
       printf("\tPhysical model                             : %s\n"     ,solver->model             );
