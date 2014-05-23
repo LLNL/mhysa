@@ -3,9 +3,11 @@
  * the "initial.inp" and "exact.inp" files containing the 
  * initial and exact solutions of the complete domain
  *
- * The new files are "initial_par.inp" and "exact_par.inp".
+ * The new files are "initial_par.inp.xxxx" and 
+ * "exact_par.inp.xxxx" (where xxxx corresponds to
+ * the IO rank that the file is meant for).
  *
- * Binary files are supported. May add ASCII files later.
+ * Binary files are supported.
 */
 
 #define _MAX_STRING_SIZE_ 50
@@ -66,6 +68,28 @@ int main()
   return(0);
 }
 
+void GetStringFromInteger(int a,char *A,int width)
+{
+  int i;
+  for (i=0; i<width; i++) {
+    char digit = (char) (a%10 + '0'); 
+    a /= 10;
+    A[width-1-i] = digit;
+  }
+  return;
+}
+
+void MPIGetFilename(char *root,int rank,char *filename)
+{
+  char  tail[_MAX_STRING_SIZE_];
+
+  GetStringFromInteger(rank,tail,4);
+  strcat(filename,root);
+  strcat(filename,"." );
+  strcat(filename,tail);
+
+  return;
+}
 
 int MPIRanknD(int ndims,int rank,int* iproc,int *ip)
 {
@@ -109,7 +133,7 @@ int MPILocalDomainLimits(int ndims,int p,int *iproc,int *dim_global,int *is, int
 void SplitDomain(char *fnamein, char *fnameout)
 {
   FILE  *in;
-  int   ndims, nvars, size, bytes,i;
+  int   ndims, nvars, size, bytes,i,N_IORanks;
   int   *dim_global,*dim_local,*iproc;
   char  ip_file_type[_MAX_STRING_SIZE_], input_mode[_MAX_STRING_SIZE_];
   double *Xg, *Ug;
@@ -153,6 +177,7 @@ void SplitDomain(char *fnamein, char *fnameout)
           fscanf(in,"%s",ip_file_type);
         } else if (!strcmp(word, "input_mode")) {
           fscanf(in,"%s",input_mode);
+          if (strcmp(input_mode,"serial")) fscanf(in,"%d",&N_IORanks);
         }
       }
     } else {
@@ -172,6 +197,7 @@ void SplitDomain(char *fnamein, char *fnameout)
     printf("\n");
     printf("\tInitial solution file type                 : %s\n",ip_file_type);
     printf("\tInitial solution read mode                 : %s\n",input_mode  );
+    printf("\tNumber of IO ranks                         : %s\n",N_IORanks   );
   }
 
   /* checks */
@@ -210,59 +236,61 @@ void SplitDomain(char *fnamein, char *fnameout)
 
   int nproc = 1;
   for (i=0; i<ndims; i++) nproc *= iproc[i];
-  printf("Splitting data into %d processes.\n",nproc);
+  if (nproc%N_IORanks != 0) N_IORanks = 1;
+  printf("Splitting data into %d processes. Will generate %d files (one for each file IO rank.\n",nproc,N_IORanks);
 
-  int proc;
+  int proc,IORank;
   FILE *out;
-  out = fopen(fnameout,"wb");
-  for (proc=0; proc<nproc; proc++) {
-    int ip[ndims],is[ndims],ie[ndims];
-    double *Xl, *Ul;
+  int GroupSize = nproc / N_IORanks;
+  for (IORank = 0; IORank < N_IORanks; IORank++) {
+    char out_filename[_MAX_STRING_SIZE_];
+    MPIGetFilename(fnameout,IORank,out_filename);
 
-    MPIRanknD(ndims,proc,iproc,ip);
-    MPILocalDomainLimits(ndims,proc,iproc,dim_global,is,ie);
-    for (i=0; i<ndims; i++) dim_local[i] = ie[i]-is[i];
+    int Start = IORank      * GroupSize;
+    int End   = (IORank+1)  * GroupSize;
 
-    size = 0; for (i=0; i<ndims; i++) size += dim_local[i];
-    Xl = (double*) calloc (size, sizeof(double));
-    int offsetl=0, offsetg=0;
-    for (i=0; i<ndims; i++) {
-      int p; for (p=0; p<dim_local[i]; p++) Xl[p+offsetl] = Xg[p+is[i]+offsetg];
-      offsetl += dim_local[i];
-      offsetg += dim_global[i];
+    out = fopen(out_filename,"wb");
+    for (proc=Start; proc < End; proc++) {
+
+      int ip[ndims],is[ndims],ie[ndims];
+      double *Xl, *Ul;
+      MPIRanknD(ndims,proc,iproc,ip);
+      MPILocalDomainLimits(ndims,proc,iproc,dim_global,is,ie);
+      for (i=0; i<ndims; i++) dim_local[i] = ie[i]-is[i];
+
+      size = 0; for (i=0; i<ndims; i++) size += dim_local[i];
+      Xl = (double*) calloc (size, sizeof(double));
+      int offsetl=0, offsetg=0;
+      for (i=0; i<ndims; i++) {
+        int p; for (p=0; p<dim_local[i]; p++) Xl[p+offsetl] = Xg[p+is[i]+offsetg];
+        offsetl += dim_local[i];
+        offsetg += dim_global[i];
+      }
+
+      size = nvars; for (i=0; i<ndims; i++) size *= dim_local[i];
+      Ul = (double*) calloc (size, sizeof(double));
+      int done = 0; int index[ndims]; for(i=0; i<ndims; i++) index[i]=0;
+      while (!done) {
+        int p1; _ArrayIndex1DWO_(ndims,dim_global,index,is,0,p1);
+        int p2; _ArrayIndex1D_  (ndims,dim_local ,index,   0,p2);
+        int v; for (v=0; v<nvars; v++) Ul[nvars*p2+v] = Ug[nvars*p1+v];
+        _ArrayIncrementIndex_(ndims,dim_local,index,done);
+      }
+
+      size = 0; for (i=0; i<ndims; i++) size += dim_local[i];
+      bytes = fwrite(Xl,sizeof(double),size,out);
+      if (bytes != size) printf("Error: Unable to write data to file %s.\n",fnameout);
+      size = nvars; for (i=0; i<ndims; i++) size *= dim_local[i];
+      bytes = fwrite(Ul,sizeof(double),size,out);
+      if (bytes != size) printf("Error: Unable to write data to file %s.\n",fnameout);
+
+      free(Xl);
+      free(Ul);
     }
-
-    size = nvars; for (i=0; i<ndims; i++) size *= dim_local[i];
-    Ul = (double*) calloc (size, sizeof(double));
-    int done = 0; int index[ndims]; for(i=0; i<ndims; i++) index[i]=0;
-    while (!done) {
-      int p1; _ArrayIndex1DWO_(ndims,dim_global,index,is,0,p1);
-      int p2; _ArrayIndex1D_  (ndims,dim_local ,index,   0,p2);
-      int v; for (v=0; v<nvars; v++) Ul[nvars*p2+v] = Ug[nvars*p1+v];
-      _ArrayIncrementIndex_(ndims,dim_local,index,done);
-    }
-
-    bytes = fwrite(ip,sizeof(int),ndims,out); 
-    if (bytes != ndims) printf("Error: Unable to write data to file %s.\n",fnameout);
-    bytes = fwrite(&proc,sizeof(int),1,out);
-    if (bytes != 1) printf("Error: Unable to write data to file %s.\n",fnameout);
-    bytes = fwrite(dim_local,sizeof(int),ndims,out);
-    if (bytes != ndims) printf("Error: Unable to write data to file %s.\n",fnameout);
-    bytes = fwrite(&nvars,sizeof(int),1,out);
-    if (bytes != 1) printf("Error: Unable to write data to file %s.\n",fnameout);
-    size = 0; for (i=0; i<ndims; i++) size += dim_local[i];
-    bytes = fwrite(Xl,sizeof(double),size,out);
-    if (bytes != size) printf("Error: Unable to write data to file %s.\n",fnameout);
-    size = nvars; for (i=0; i<ndims; i++) size *= dim_local[i];
-    bytes = fwrite(Ul,sizeof(double),size,out);
-    if (bytes != size) printf("Error: Unable to write data to file %s.\n",fnameout);
-
-    free(Xl);
-    free(Ul);
+    fclose(out);
 
   }
-  fclose(out);
-
+  
   free(Xg);
   free(Ug);
   free(dim_local);
