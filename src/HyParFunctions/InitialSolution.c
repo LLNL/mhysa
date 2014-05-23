@@ -260,7 +260,7 @@ int InitialSolutionParallel(void *s, void *m)
       /* Read own data */
       bytes = fread(buffer,sizeof(double),(sizex+sizeu),in);
       if (bytes != (sizex+sizeu)) {
-        fprintf(stderr,"Error in InitialSolutionParallel(): File %s contains insufficient data.\n");
+        fprintf(stderr,"Error in InitialSolutionParallel(): File %s contains insufficient data.\n",filename);
         return(1);
       }
 
@@ -276,7 +276,7 @@ int InitialSolutionParallel(void *s, void *m)
         /* read the data */
         bytes = fread(read_buffer,sizeof(double),read_total_size,in);
         if (bytes != read_total_size) {
-          fprintf(stderr,"Error in InitialSolutionParallel(): File %s contains insufficient data.\n");
+          fprintf(stderr,"Error in InitialSolutionParallel(): File %s contains insufficient data.\n",filename);
           return(1);
         }
         /* send the data */
