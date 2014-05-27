@@ -35,6 +35,14 @@ PetscErrorCode PetscRHSFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt
     ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t);    CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
   }
+  if (solver->HyperbolicFunction1 && (context->flag_hyperbolic1 == _EXPLICIT_)) {
+    ierr = solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t);   CHECKERR(ierr);
+    _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+  }
+  if (solver->HyperbolicFunction2 && (context->flag_hyperbolic2 == _EXPLICIT_)) {
+    ierr = solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t);   CHECKERR(ierr);
+    _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+  }
   if (solver->ParabolicFunction && (context->flag_parabolic == _EXPLICIT_)) {
     ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);    CHECKERR(ierr);
     _ArrayAXPY_(solver->par, 1.0,rhs,size*solver->nvars);

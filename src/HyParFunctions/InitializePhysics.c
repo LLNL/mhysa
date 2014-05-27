@@ -29,6 +29,8 @@ int InitializePhysics(void *s,void *m)
   solver->ComputeCFL            = NULL;
   solver->ComputeDiffNumber     = NULL;
   solver->FFunction             = NULL;
+  solver->F1Function            = NULL;
+  solver->F2Function            = NULL;
   solver->GFunction             = NULL;
   solver->HFunction             = NULL;
   solver->SFunction             = NULL;
@@ -94,6 +96,7 @@ int InitializePhysics(void *s,void *m)
 
   }
 
+  /* some checks */
   if ( ( (solver->GetLeftEigenvectors == NULL) || (solver->GetRightEigenvectors == NULL) )
       && (!strcmp(solver->interp_type,_CHARACTERISTIC_)) && (solver->nvars > 1) ) {
     if (!mpi->rank) {
@@ -103,6 +106,25 @@ int InitializePhysics(void *s,void *m)
       fprintf(stderr,"reconstruction.\n");
     }
     return(1);
+  }
+
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    if ((solver->HyperbolicFunction1) && (!solver->F1Function)) {
+      if (!mpi->rank) 
+        fprintf(stderr,"Error: HyperbolicFunction1 requires F1Function but F1Function is NULL.\n");
+      return(1);
+    }
+    if ((solver->HyperbolicFunction2) && (!solver->F2Function)) {
+      if (!mpi->rank) 
+        fprintf(stderr,"Error: HyperbolicFunction2 requires F2Function but F2Function is NULL.\n");
+      return(1);
+    }
+  } else {
+    if ((solver->HyperbolicFunction) && (!solver->FFunction)) {
+      if (!mpi->rank) 
+        fprintf(stderr,"Error: HyperbolicFunction requires FFunction but FFunction is NULL.\n");
+      return(1);
+    }
   }
 
 

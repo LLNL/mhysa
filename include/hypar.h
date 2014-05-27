@@ -14,13 +14,15 @@ typedef struct main_parameters {
   int     restart_iter;               /* restart from this iteration number               */
   double  dt;                         /* time step size                                   */
 
-  char    time_scheme       [_MAX_STRING_SIZE_];/* time-integration scheme class (eg. RK)           */
-  char    time_scheme_type  [_MAX_STRING_SIZE_];/* specific time-integration scheme type            */
-  char    spatial_scheme_hyp[_MAX_STRING_SIZE_];/* spatial discretization scheme for hyperbolic term*/
-  char    spatial_type_par  [_MAX_STRING_SIZE_];/* spatial discretization type for parabolic  term  */
-  char    spatial_scheme_par[_MAX_STRING_SIZE_];/* spatial discretization scheme for parabolic  term*/
-  char    interp_type       [_MAX_STRING_SIZE_];/* type of interpolation - characteristic 
-                                                    or component-wise                               */
+  char    time_scheme         [_MAX_STRING_SIZE_];/* time-integration scheme class (eg. RK)           */
+  char    time_scheme_type    [_MAX_STRING_SIZE_];/* specific time-integration scheme type            */
+  char    spatial_scheme_hyp  [_MAX_STRING_SIZE_];/* spatial discretization scheme for hyperbolic term*/
+  char    spatial_type_par    [_MAX_STRING_SIZE_];/* spatial discretization type for parabolic  term  */
+  char    spatial_scheme_par  [_MAX_STRING_SIZE_];/* spatial discretization scheme for parabolic  term*/
+  char    interp_type         [_MAX_STRING_SIZE_];/* type of interpolation - characteristic 
+                                                     or component-wise                                */
+  char    SplitHyperbolicFlux [_MAX_STRING_SIZE_];/* split the hyperbolic flux into two terms         */
+
   /* Data arrays */
   int    *index;                      /* ndims-dimensional variable index                 */
   double *x;                          /* coordinate vector                                */
@@ -55,9 +57,13 @@ typedef struct main_parameters {
   int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
   int (*FirstDerivativePar)       (double*,double*,int,void*,void*);
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
-  int (*HyperbolicFunction)       (double*,double*,void*,void*,double);
-  int (*ParabolicFunction)        (double*,double*,void*,void*,double);
-  int (*SourceFunction)           (double*,double*,void*,void*,double);
+
+  /* right hand side functions */
+  int (*HyperbolicFunction)       (double*,double*,void*,void*,double);   /* hyperbolic terms         */
+  int (*HyperbolicFunction1)      (double*,double*,void*,void*,double);   /* split hyperbolic term 1  */
+  int (*HyperbolicFunction2)      (double*,double*,void*,void*,double);   /* split hyperbolic term 2  */
+  int (*ParabolicFunction)        (double*,double*,void*,void*,double);   /* parabolic terms          */
+  int (*SourceFunction)           (double*,double*,void*,void*,double);   /* source terms             */
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
@@ -68,6 +74,8 @@ typedef struct main_parameters {
   double (*ComputeCFL)         (void*,void*,double,double);
   double (*ComputeDiffNumber)  (void*,void*,double,double);
   int    (*FFunction)          (double*,double*,int,void*,double);
+  int    (*F1Function)         (double*,double*,int,void*,double);
+  int    (*F2Function)         (double*,double*,int,void*,double);
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*HFunction)          (double*,double*,int,int,void*,double);
   int    (*SFunction)          (double*,double*,void*,double);

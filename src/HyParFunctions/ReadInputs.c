@@ -24,18 +24,19 @@ int ReadInputs(void *s,void *m)
   solver->screen_op_iter  = 1;
   solver->file_op_iter    = 1000;
   solver->write_residual  = 0;
-  strcpy(solver->time_scheme       ,"euler"         );
-  strcpy(solver->time_scheme_type  ," "             );
-  strcpy(solver->spatial_scheme_hyp,"1"             );
-  strcpy(solver->spatial_type_par  ,_NC_1STAGE_     );
-  strcpy(solver->spatial_scheme_par,"2"             );
-  strcpy(solver->interp_type       ,"characteristic");
-  strcpy(solver->ip_file_type      ,"ascii"         );
-  strcpy(solver->input_mode        ,"serial"        );
-  strcpy(solver->op_file_format    ,"text"          );
-  strcpy(solver->op_overwrite      ,"no"            );
-  strcpy(solver->model             ,"none"          );
-  strcpy(solver->ConservationCheck ,"no"            );
+  strcpy(solver->time_scheme        ,"euler"         );
+  strcpy(solver->time_scheme_type   ," "             );
+  strcpy(solver->spatial_scheme_hyp ,"1"             );
+  strcpy(solver->spatial_type_par   ,_NC_1STAGE_     );
+  strcpy(solver->spatial_scheme_par ,"2"             );
+  strcpy(solver->interp_type        ,"characteristic");
+  strcpy(solver->ip_file_type       ,"ascii"         );
+  strcpy(solver->input_mode         ,"serial"        );
+  strcpy(solver->op_file_format     ,"text"          );
+  strcpy(solver->op_overwrite       ,"no"            );
+  strcpy(solver->model              ,"none"          );
+  strcpy(solver->ConservationCheck  ,"no"            );
+  strcpy(solver->SplitHyperbolicFlux,"no"            );
   /* reading solver inputs */
   if (!mpi->rank) {
     FILE *in;
@@ -75,21 +76,22 @@ int ReadInputs(void *s,void *m)
               for (i=0; i<solver->ndims; i++) ferr = fscanf(in,"%d",&mpi->iproc[i]);
               if (ferr != 1) return(1);
             }
-  			  } else if (!strcmp(word, "ghost"              ))	ferr = fscanf(in,"%d",&solver->ghosts           );
-	    	  else if   (!strcmp(word, "n_iter"             ))  ferr = fscanf(in,"%d",&solver->n_iter           );
-	    	  else if   (!strcmp(word, "restart_iter"       ))  ferr = fscanf(in,"%d",&solver->restart_iter     );
-   			  else if   (!strcmp(word, "time_scheme"        ))  ferr = fscanf(in,"%s",solver->time_scheme       );
-   		  	else if   (!strcmp(word, "time_scheme_type"   ))  ferr = fscanf(in,"%s",solver->time_scheme_type  );
-   		  	else if   (!strcmp(word, "hyp_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_hyp);
-   		  	else if   (!strcmp(word, "hyp_interp_type"    ))  ferr = fscanf(in,"%s",solver->interp_type       );
-   		  	else if   (!strcmp(word, "par_space_type"     ))  ferr = fscanf(in,"%s",solver->spatial_type_par  );
-   		  	else if   (!strcmp(word, "par_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_par);
-   		  	else if   (!strcmp(word, "dt"                 ))  ferr = fscanf(in,"%lf",&solver->dt              );
-   		  	else if   (!strcmp(word, "conservation_check" ))  ferr = fscanf(in,"%s",solver->ConservationCheck );
-   		  	else if   (!strcmp(word, "screen_op_iter"     ))  ferr = fscanf(in,"%d",&solver->screen_op_iter   );
-   		  	else if   (!strcmp(word, "file_op_iter"       ))  ferr = fscanf(in,"%d",&solver->file_op_iter     );
-   		  	else if   (!strcmp(word, "op_file_format"     ))  ferr = fscanf(in,"%s",solver->op_file_format    );
-   		  	else if   (!strcmp(word, "ip_file_type"       ))  ferr = fscanf(in,"%s",solver->ip_file_type      );
+  			  } else if (!strcmp(word, "ghost"              ))	ferr = fscanf(in,"%d",&solver->ghosts             );
+	    	  else if   (!strcmp(word, "n_iter"             ))  ferr = fscanf(in,"%d",&solver->n_iter             );
+	    	  else if   (!strcmp(word, "restart_iter"       ))  ferr = fscanf(in,"%d",&solver->restart_iter       );
+   			  else if   (!strcmp(word, "time_scheme"        ))  ferr = fscanf(in,"%s",solver->time_scheme         );
+   		  	else if   (!strcmp(word, "time_scheme_type"   ))  ferr = fscanf(in,"%s",solver->time_scheme_type    );
+   		  	else if   (!strcmp(word, "hyp_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_hyp  );
+   		  	else if   (!strcmp(word, "hyp_flux_split"     ))  ferr = fscanf(in,"%s",solver->SplitHyperbolicFlux );
+   		  	else if   (!strcmp(word, "hyp_interp_type"    ))  ferr = fscanf(in,"%s",solver->interp_type         );
+   		  	else if   (!strcmp(word, "par_space_type"     ))  ferr = fscanf(in,"%s",solver->spatial_type_par    );
+   		  	else if   (!strcmp(word, "par_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_par  );
+   		  	else if   (!strcmp(word, "dt"                 ))  ferr = fscanf(in,"%lf",&solver->dt                );
+   		  	else if   (!strcmp(word, "conservation_check" ))  ferr = fscanf(in,"%s",solver->ConservationCheck   );
+   		  	else if   (!strcmp(word, "screen_op_iter"     ))  ferr = fscanf(in,"%d",&solver->screen_op_iter     );
+   		  	else if   (!strcmp(word, "file_op_iter"       ))  ferr = fscanf(in,"%d",&solver->file_op_iter       );
+   		  	else if   (!strcmp(word, "op_file_format"     ))  ferr = fscanf(in,"%s",solver->op_file_format      );
+   		  	else if   (!strcmp(word, "ip_file_type"       ))  ferr = fscanf(in,"%s",solver->ip_file_type        );
    		  	else if   (!strcmp(word, "input_mode"         ))  {
             ferr = fscanf(in,"%s",solver->input_mode);
             if (strcmp(solver->input_mode,"serial")) ferr = fscanf(in,"%d",&mpi->N_IORanks);
@@ -121,25 +123,26 @@ int ReadInputs(void *s,void *m)
       for (i=0; i<solver->ndims; i++) printf ("%d ",mpi->iproc[i]);
       printf("\n");
 #endif
-	    printf("\tNo. of ghosts pts                          : %d\n"     ,solver->ghosts            );
-	    printf("\tNo. of iter.                               : %d\n"     ,solver->n_iter            );
-	    printf("\tRestart iteration                          : %d\n"     ,solver->restart_iter      );
+	    printf("\tNo. of ghosts pts                          : %d\n"     ,solver->ghosts              );
+	    printf("\tNo. of iter.                               : %d\n"     ,solver->n_iter              );
+	    printf("\tRestart iteration                          : %d\n"     ,solver->restart_iter        );
       printf("\tTime integration scheme                    : %s (%s)\n",
-             solver->time_scheme,solver->time_scheme_type                                         );
-      printf("\tSpatial discretization scheme (hyperbolic) : %s\n"     ,solver->spatial_scheme_hyp);
-      printf("\tSpatial discretization scheme (parabolic ) : %s\n"     ,solver->spatial_scheme_par);
-      printf("\tInterpolation type for hyperbolic term     : %s\n"     ,solver->interp_type       );
-    	printf("\tTime Step                                  : %E\n"     ,solver->dt                );
-    	printf("\tCheck for conservation                     : %s\n"     ,solver->ConservationCheck );
-      printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter    );
-      printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter      );
-      printf("\tInitial solution file type                 : %s\n"     ,solver->ip_file_type      );
-      printf("\tInitial solution read mode                 : %s"       ,solver->input_mode        );
-      if (strcmp(solver->input_mode,"serial"))    printf("\t[%d file IO rank(s)]\n",mpi->N_IORanks);
+             solver->time_scheme,solver->time_scheme_type                                           );
+      printf("\tSpatial discretization scheme (hyperbolic) : %s\n"     ,solver->spatial_scheme_hyp  );
+      printf("\tSplit hyperbolic flux term?                : %s\n"     ,solver->SplitHyperbolicFlux );
+      printf("\tSpatial discretization scheme (parabolic ) : %s\n"     ,solver->spatial_scheme_par  );
+      printf("\tInterpolation type for hyperbolic term     : %s\n"     ,solver->interp_type         );
+    	printf("\tTime Step                                  : %E\n"     ,solver->dt                  );
+    	printf("\tCheck for conservation                     : %s\n"     ,solver->ConservationCheck   );
+      printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter      );
+      printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter        );
+      printf("\tInitial solution file type                 : %s\n"     ,solver->ip_file_type        );
+      printf("\tInitial solution read mode                 : %s"       ,solver->input_mode          );
+      if (strcmp(solver->input_mode,"serial"))    printf("\t[%d file IO rank(s)]\n",mpi->N_IORanks  );
       else                                        printf("\n");
-      printf("\tSolution file format                       : %s\n"     ,solver->op_file_format    );
-      printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite      );
-      printf("\tPhysical model                             : %s\n"     ,solver->model             );
+      printf("\tSolution file format                       : %s\n"     ,solver->op_file_format      );
+      printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite        );
+      printf("\tPhysical model                             : %s\n"     ,solver->model               );
     }
     /* checks - restart only supported for binary output files */
     if ((solver->restart_iter != 0) && strcmp(solver->op_file_format,"binary")) {
@@ -165,18 +168,19 @@ int ReadInputs(void *s,void *m)
   IERR MPIBroadcast_integer(&solver->screen_op_iter     ,1            ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer(&solver->file_op_iter       ,1            ,0,&mpi->world); CHECKERR(ierr);
 
-  IERR MPIBroadcast_character(solver->time_scheme       ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->time_scheme_type  ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->spatial_scheme_hyp,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->interp_type       ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->spatial_type_par  ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->spatial_scheme_par,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->ConservationCheck ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->op_file_format    ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->ip_file_type      ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->input_mode        ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->op_overwrite      ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_character(solver->model             ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->time_scheme         ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->time_scheme_type    ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->spatial_scheme_hyp  ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->interp_type         ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->spatial_type_par    ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->spatial_scheme_par  ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->ConservationCheck   ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->SplitHyperbolicFlux ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->op_file_format      ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->ip_file_type        ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->input_mode          ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->op_overwrite        ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->model               ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
 
   IERR MPIBroadcast_double(&solver->dt,1,0,&mpi->world); CHECKERR(ierr);
 #endif

@@ -24,6 +24,14 @@ int TimeRHSFunctionExplicit(double *rhs,double *u,void *s,void *m, double t)
     IERR solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t);    CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp    ,-1.0,rhs,size*solver->nvars);
   }
+  if (solver->HyperbolicFunction1) {
+    IERR solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t);    CHECKERR(ierr);
+    _ArrayAXPY_(solver->hyp    ,-1.0,rhs,size*solver->nvars);
+  }
+  if (solver->HyperbolicFunction2) {
+    IERR solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t);    CHECKERR(ierr);
+    _ArrayAXPY_(solver->hyp    ,-1.0,rhs,size*solver->nvars);
+  }
   if (solver->ParabolicFunction) {
     IERR solver->ParabolicFunction (solver->par,u,solver,mpi,t);    CHECKERR(ierr);
     _ArrayAXPY_(solver->par    , 1.0,rhs,size*solver->nvars);
