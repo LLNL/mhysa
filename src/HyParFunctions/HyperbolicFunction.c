@@ -89,7 +89,7 @@ int HyperbolicFunction1(double *hyp,double *u,void *s,void *m,double t)
 
   _ArraySetValue_(hyp,size*nvars,0.0);
   _ArraySetValue_(solver->StageBoundaryIntegral,2*ndims*nvars,0.0);
-  if (!solver->FFunction) return(0); /* zero hyperbolic term */
+  if (!solver->F1Function) return(0); /* zero hyperbolic term */
 
   int offset = 0;
   for (d = 0; d < ndims; d++) {
@@ -150,7 +150,7 @@ int HyperbolicFunction2(double *hyp,double *u,void *s,void *m,double t)
 
   _ArraySetValue_(hyp,size*nvars,0.0);
   _ArraySetValue_(solver->StageBoundaryIntegral,2*ndims*nvars,0.0);
-  if (!solver->FFunction) return(0); /* zero hyperbolic term */
+  if (!solver->F2Function) return(0); /* zero hyperbolic term */
 
   int offset = 0;
   for (d = 0; d < ndims; d++) {

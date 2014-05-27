@@ -35,7 +35,7 @@ int InitializeSolvers(void *s, void *m)
   if (!mpi->rank) printf("Initializing solvers.\n");
 
   solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
-  if (!(solver->SplitHyperbolicFlux,"yes")) {
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     solver->HyperbolicFunction1     = HyperbolicFunction1;
     solver->HyperbolicFunction2     = HyperbolicFunction2;
     solver->HyperbolicFunction      = NULL;
