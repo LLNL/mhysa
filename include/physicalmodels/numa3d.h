@@ -64,6 +64,29 @@
     } \
   }
 
+#define _Numa3DSetLinearFlux_(f,dir,drho,uvel,vvel,wvel,dT,dP,rho0,T0) \
+  { \
+    if (dir == _XDIR_) { \
+      f[0] = (rho0+drho) * uvel; \
+      f[1] = dP; \
+      f[2] = 0.0; \
+      f[3] = 0.0; \
+      f[4] = (rho0+drho)*uvel*T0/rho0; \
+    } else if (dir == _YDIR_) { \
+      f[0] = (rho0+drho) * vvel; \
+      f[1] = 0.0; \
+      f[2] = dP; \
+      f[3] = 0.0; \
+      f[4] = (rho0+drho)*vvel*T0/rho0; \
+    } else if (dir == _ZDIR_) { \
+      f[0] = (rho0+drho) * wvel; \
+      f[1] = 0.0; \
+      f[2] = 0.0; \
+      f[3] = dP; \
+      f[4] = (rho0+drho)*wvel*T0/rho0; \
+    } \
+  }
+
 #define _Numa3DSetSource_(s,param,uvel,vvel,drho,rho0) \
   { \
     s[0] =  0.0; \

@@ -10,10 +10,12 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-double Numa3DComputeCFL        (void*,void*,double,double);
-int    Numa3DFlux              (double*,double*,int,void*,double);
-int    Numa3DSource            (double*,double*,void*,double);
-int    Numa3DRusanov           (double*,double*,double*,double*,double*,double*,int,void*,double);
+double Numa3DComputeCFL (void*,void*,double,double);
+int    Numa3DFlux       (double*,double*,int,void*,double);
+int    Numa3DSplitFlux1 (double*,double*,int,void*,double);
+int    Numa3DSplitFlux2 (double*,double*,int,void*,double);
+int    Numa3DSource     (double*,double*,void*,double);
+int    Numa3DRusanov    (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 static int Numa3DStandardAtmosphere_1(void*,double*,int);
 static int Numa3DStandardAtmosphere_2(void*,double*,int);
@@ -119,8 +121,11 @@ int Numa3DInitialize(void *s,void *m)
   CHECKERR(ierr);
 
   /* initializing physical model-specific functions */
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    solver->F1Function     = Numa3DSplitFlux1;
+    solver->F2Function     = Numa3DSplitFlux2;
+  } else solver->FFunction = Numa3DFlux;
   solver->ComputeCFL  = Numa3DComputeCFL;
-  solver->FFunction   = Numa3DFlux;
   solver->SFunction   = Numa3DSource;
   solver->Upwind      = Numa3DRusanov;
 
