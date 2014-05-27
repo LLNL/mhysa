@@ -81,6 +81,14 @@ int FPPowerSystemInitialize(void *s,void *m)
   }
   fclose(in);
 
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in FPPowerSystemInitialize: This physical model does not have a splitting ");
+      fprintf(stderr,"of the hyperbolic term defined.\n");
+    }
+    return(1);
+  }
+
   /* initializing physical model-specific functions */
   solver->ComputeCFL         = FPPowerSystemComputeCFL;
   solver->ComputeDiffNumber  = FPPowerSystemComputeDiffNumber;

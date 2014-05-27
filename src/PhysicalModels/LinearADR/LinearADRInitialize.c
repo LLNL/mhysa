@@ -71,6 +71,14 @@ int LinearADRInitialize(void *s,void *m)
   IERR MPIBroadcast_double(physics->d,solver->ndims*solver->nvars,0,&mpi->world); CHECKERR(ierr);
 #endif
 
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in LinearADRInitialize: This physical model does not have a splitting ");
+      fprintf(stderr,"of the hyperbolic term defined.\n");
+    }
+    return(1);
+  }
+
   /* initializing physical model-specific functions */
   solver->ComputeCFL         = LinearADRComputeCFL;
   solver->ComputeDiffNumber  = LinearADRComputeDiffNumber;

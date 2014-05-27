@@ -74,6 +74,14 @@ int Euler2DInitialize(void *s,void *m)
   IERR MPIBroadcast_character (physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world);  CHECKERR(ierr);
 #endif
 
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in Euler2DInitialize: This physical model does not have a splitting ");
+      fprintf(stderr,"of the hyperbolic term defined.\n");
+    }
+    return(1);
+  }
+
   /* initializing physical model-specific functions */
   solver->ComputeCFL  = Euler2DComputeCFL;
   solver->FFunction   = Euler2DFlux;
