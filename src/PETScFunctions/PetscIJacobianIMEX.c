@@ -33,53 +33,52 @@ PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
   double *u       = solver->u;
   double *uref    = solver->uref;
   double *rhsref  = solver->rhsref;
-  double *rhs     = (double*) calloc (size*solver->nvars,sizeof(double));
+  double *rhs     = solver->rhs;
 
   double t = context->waqt; /* current stage/step time */
 
   /* copy solution from PETSc vector */
-  ierr = TransferFromPETSc(u,Y,context);                                  CHECKERR(ierr);
+  ierr = TransferFromPETSc(u,Y,context);                                CHECKERR(ierr);
   _ArrayAXPY_(uref,1.0,u,size*solver->nvars);
   /* apply boundary conditions and exchange data over MPI interfaces */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u   ,NULL,0,t);       CHECKERR(ierr);
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,uref,NULL,0,t);       CHECKERR(ierr);
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u   ,NULL,0,t);     CHECKERR(ierr);
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,uref,NULL,0,t);     CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
-                                 solver->ghosts,mpi,u);                   CHECKERR(ierr);
+                                 solver->ghosts,mpi,u);                 CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
-                                 solver->ghosts,mpi,uref);                CHECKERR(ierr);
+                                 solver->ghosts,mpi,uref);              CHECKERR(ierr);
 
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS for U+dU */
   _ArraySetValue_(rhs,size*solver->nvars,0.0);
   if (solver->HyperbolicFunction && (context->flag_hyperbolic == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t);        CHECKERR(ierr);
+    ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t);       CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
   }
   if (solver->HyperbolicFunction1 && (context->flag_hyperbolic1 == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t);       CHECKERR(ierr);
+    ierr = solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t);      CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
   }
   if (solver->HyperbolicFunction2 && (context->flag_hyperbolic2 == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t);       CHECKERR(ierr);
+    ierr = solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t);      CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
   }
   if (solver->ParabolicFunction && (context->flag_parabolic == _IMPLICIT_)) {
-    ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);        CHECKERR(ierr);
+    ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);       CHECKERR(ierr);
     _ArrayAXPY_(solver->par, 1.0,rhs,size*solver->nvars);
   }
   if (solver->SourceFunction && (context->flag_source == _IMPLICIT_)) {
-    ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t);     CHECKERR(ierr);
-    _ArrayAXPY_(solver->source , 1.0,rhs,size*solver->nvars);
+    ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t);       CHECKERR(ierr);
+    _ArrayAXPY_(solver->source,1.0,rhs,size*solver->nvars);
   }
 
   _ArrayAXPY_(rhsref,-1.0,rhs,size*solver->nvars);
 
   /* Transfer RHS to PETSc vector */
-  ierr = TransferToPETSc(rhs,F,context);                                  CHECKERR(ierr);
+  ierr = TransferToPETSc(rhs,F,context);                                CHECKERR(ierr);
 
   /* [J]Y = aY - F(Y) */
-  ierr = VecAXPBY(F,context->shift,-1.0,Y);                               CHKERRQ(ierr);
+  ierr = VecAXPBY(F,context->shift,-1.0,Y);                             CHKERRQ(ierr);
 
-  free(rhs);
   return(0);
 }
 

@@ -81,7 +81,8 @@ int Initialize(void *s, void *m)
   if (solver->use_petscTS) {
     solver->uref    = (double*) calloc (solver->nvars*size,sizeof(double));
     solver->rhsref  = (double*) calloc (solver->nvars*size,sizeof(double));
-  } else solver->uref = solver->rhsref = NULL;
+    solver->rhs     = (double*) calloc (solver->nvars*size,sizeof(double));
+  } else solver->uref = solver->rhsref = solver->rhs = NULL;
 #endif
   solver->hyp     = (double*) calloc (solver->nvars*size,sizeof(double));
   solver->par     = (double*) calloc (solver->nvars*size,sizeof(double));

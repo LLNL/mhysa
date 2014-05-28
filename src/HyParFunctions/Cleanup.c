@@ -83,6 +83,7 @@ int Cleanup(void *s,void *m)
 #ifdef with_petsc
   if (solver->uref)   free(solver->uref);
   if (solver->rhsref) free(solver->rhsref);
+  if (solver->rhs)    free(solver->rhs);   
 #endif
   free(solver->hyp);
   free(solver->par);
