@@ -113,6 +113,7 @@ typedef struct main_parameters {
   /* PETSc */
   int     use_petscTS;  /* Use PETSc time-integration? */
   double  *uref;        /* copy of state vector        */
+  double  *rhsref;      /* copy of the RHS vector      */
 #endif
 
 } HyPar;

@@ -27,9 +27,6 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
   ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,u);               CHECKERR(ierr);
 
-  /* save a copy of the solution for use in BC application in IJacobian */
-  _ArrayCopy1D_(u,solver->uref,(size*solver->nvars));
-
   /* initialize right-hand side to zero */
   _ArraySetValue_(rhs,size*solver->nvars,0.0);
 
@@ -54,6 +51,10 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
     ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t); CHECKERR(ierr);
     _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
   }
+
+  /* save a copy of the solution and RHS for use in IJacobian */
+  _ArrayCopy1D_(u  ,solver->uref  ,(size*solver->nvars));
+  _ArrayCopy1D_(rhs,solver->rhsref,(size*solver->nvars));
 
   /* Transfer RHS to PETSc vector */
   ierr = TransferToPETSc(rhs,F,context);                              CHECKERR(ierr);
