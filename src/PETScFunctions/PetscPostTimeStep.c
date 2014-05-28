@@ -41,8 +41,8 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   ierr = MPIMax_double(&max_cfl ,&local_max_cfl ,1,&mpi->world); CHECKERR(ierr);
   ierr = MPIMax_double(&max_diff,&local_max_diff,1,&mpi->world); CHECKERR(ierr);
 
-  if ((!mpi->rank) && ((iter+1)%solver->screen_op_iter == 0)) {
-    printf("Iteration: %6d  "       ,iter+1  );
+  if ((!mpi->rank) && (iter%solver->screen_op_iter == 0)) {
+    printf("Iteration: %6d  "       ,iter    );
     printf("Time: %1.3E  "          ,waqt    );
     printf("Max CFL: %1.3E  "       ,max_cfl );
     printf("Max Diff. No.: %1.3E  " ,max_diff);
