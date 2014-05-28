@@ -15,9 +15,9 @@ int  WriteText                   (int,int,int*,double*,double*,char*,int*);
 int  WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
 int  WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
 int  ApplyBoundaryConditions     (void*,void*,double*,double*,int,double);
-int  HyperbolicFunction          (double*,double*,void*,void*,double);
-int  HyperbolicFunction1         (double*,double*,void*,void*,double);
-int  HyperbolicFunction2         (double*,double*,void*,void*,double);
+int  HyperbolicFunction          (double*,double*,void*,void*,double,double*);
+int  HyperbolicFunction1         (double*,double*,void*,void*,double,double*);
+int  HyperbolicFunction2         (double*,double*,void*,void*,double,double*);
 int  ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
@@ -235,6 +235,7 @@ int InitializeSolvers(void *s, void *m)
             solver->spatial_scheme_hyp);
     return(1);
   }
+  solver->SetInterpLimiterVar = InterpSetLimiterVar;
 
   /* Time integration */
   if (!strcmp(solver->time_scheme,_FORWARD_EULER_)) { 

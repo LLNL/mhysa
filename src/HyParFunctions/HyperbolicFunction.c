@@ -4,9 +4,9 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int ReconstructHyperbolic (double*,double*,double*,double*,int,void*,void*,double);
+int ReconstructHyperbolic (double*,double*,double*,double*,int,void*,void*,double,double*);
 
-int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
+int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t,double *LimVar)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -39,7 +39,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
     /* evaluate cell-centered flux */
     IERR solver->FFunction(FluxC,u,d,solver,t); CHECKERR(ierr);
     /* compute interface fluxes */
-    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t); CHECKERR(ierr);
+    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t,LimVar); CHECKERR(ierr);
 
     /* calculate the first derivative */
     done = 0; _ArraySetValue_(index,ndims,0);
@@ -67,7 +67,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t)
   return(0);
 }
 
-int HyperbolicFunction1(double *hyp,double *u,void *s,void *m,double t)
+int HyperbolicFunction1(double *hyp,double *u,void *s,void *m,double t,double *LimVar)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -100,7 +100,7 @@ int HyperbolicFunction1(double *hyp,double *u,void *s,void *m,double t)
     /* evaluate cell-centered flux */
     IERR solver->F1Function(FluxC,u,d,solver,t); CHECKERR(ierr);
     /* compute interface fluxes */
-    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t); CHECKERR(ierr);
+    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t,LimVar); CHECKERR(ierr);
 
     /* calculate the first derivative */
     done = 0; _ArraySetValue_(index,ndims,0);
@@ -128,7 +128,7 @@ int HyperbolicFunction1(double *hyp,double *u,void *s,void *m,double t)
   return(0);
 }
 
-int HyperbolicFunction2(double *hyp,double *u,void *s,void *m,double t)
+int HyperbolicFunction2(double *hyp,double *u,void *s,void *m,double t,double *LimVar)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -161,7 +161,7 @@ int HyperbolicFunction2(double *hyp,double *u,void *s,void *m,double t)
     /* evaluate cell-centered flux */
     IERR solver->F2Function(FluxC,u,d,solver,t); CHECKERR(ierr);
     /* compute interface fluxes */
-    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t); CHECKERR(ierr);
+    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t,LimVar); CHECKERR(ierr);
 
     /* calculate the first derivative */
     done = 0; _ArraySetValue_(index,ndims,0);

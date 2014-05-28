@@ -96,6 +96,9 @@ int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,i
    (for conservative discretization of the 2nd derivative) */
 int Interp2PrimSecondOrder  (double*,double*,int,void*,void*);
 
+/* other interpolation related functions */
+int InterpSetLimiterVar(void*,char*,double*);
+
 /* MUSCL scheme related parameters */
 typedef struct paramters_muscl {
   double eps;
@@ -119,6 +122,10 @@ typedef struct parameters_weno {
   /* data arrays for CRWENO scheme */
   double *A, *B, *C, *R;
   double *sendbuf, *recvbuf;
+
+  /* pointer to the variable on whose basis to compute the weights 
+     (usually it's the variable being interpolated)                */
+  double  *var;
 
 } WENOParameters;
 int WENOInitialize(void*,void*,char *scheme);

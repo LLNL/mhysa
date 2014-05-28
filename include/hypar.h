@@ -55,15 +55,16 @@ typedef struct main_parameters {
   int (*TimeIntegrate)            (void*);                                  
   int (*InterpolateInterfacesHyp) (double*,double*,double*,double*,int,int,void*,void*);
   int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
+  int (*SetInterpLimiterVar)      (void*,char*,double*);
   int (*FirstDerivativePar)       (double*,double*,int,void*,void*);
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
 
   /* right hand side functions */
-  int (*HyperbolicFunction)       (double*,double*,void*,void*,double);   /* hyperbolic terms         */
-  int (*HyperbolicFunction1)      (double*,double*,void*,void*,double);   /* split hyperbolic term 1  */
-  int (*HyperbolicFunction2)      (double*,double*,void*,void*,double);   /* split hyperbolic term 2  */
-  int (*ParabolicFunction)        (double*,double*,void*,void*,double);   /* parabolic terms          */
-  int (*SourceFunction)           (double*,double*,void*,void*,double);   /* source terms             */
+  int (*HyperbolicFunction)       (double*,double*,void*,void*,double,double*);   /* hyperbolic terms         */
+  int (*HyperbolicFunction1)      (double*,double*,void*,void*,double,double*);   /* split hyperbolic term 1  */
+  int (*HyperbolicFunction2)      (double*,double*,void*,void*,double,double*);   /* split hyperbolic term 2  */
+  int (*ParabolicFunction)        (double*,double*,void*,void*,double);           /* parabolic terms          */
+  int (*SourceFunction)           (double*,double*,void*,void*,double);           /* source terms             */
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/

@@ -28,6 +28,8 @@ int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   int             i;
 
+  if (!weno->var) weno->var = fC;
+
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
   int nvars  = solver->nvars;
@@ -77,6 +79,7 @@ int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double
       for (v=0; v<nvars; v++)  {
         /* Defining stencil points */
         double fm3, fm2, fm1, fp1, fp2;
+        double  m3,  m2,  m1,  p1,  p2;
         double xm3, xm2, xm1, xp1, xp2, xp3;
         fm3 = fC[qm3*nvars+v]; xm3 = *(x_int+ghosts+im3);
         fm2 = fC[qm2*nvars+v]; xm2 = *(x_int+ghosts+im2);
@@ -84,6 +87,11 @@ int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double
         fp1 = fC[qp1*nvars+v]; xp1 = *(x_int+ghosts+ip1);
         fp2 = fC[qp2*nvars+v]; xp2 = *(x_int+ghosts+ip2);
                                xp3 = *(x_int+ghosts+ip3);
+        m3 = weno->var[qm3*nvars+v];
+        m2 = weno->var[qm2*nvars+v];
+        m1 = weno->var[qm1*nvars+v];
+        p1 = weno->var[qp1*nvars+v];
+        p2 = weno->var[qp2*nvars+v];
 
         /* 3rd order reconstruction values */
         double f1, f2, f3, c1, c2, c3;
@@ -103,16 +111,16 @@ int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double
         /* Smoothness indicators */
         double fac1, fac2, b1, b2, b3;
 
-        fac1 = fm1 - 2.0*fp1 + fp2;
-        fac2 = 3.0*fm1 - 4.0*fp1 + fp2;
+        fac1 = m1 - 2.0*p1 + p2;
+        fac2 = 3.0*m1 - 4.0*p1 + p2;
         b1 = thirteen_by_twelve*fac1*fac1 + one_fourth*fac2*fac2;
 
-        fac1 = fm2 - 2.0*fm1 + fp1;
-        fac2 = fm2 - fp1;
+        fac1 = m2 - 2.0*m1 + p1;
+        fac2 = m2 - p1;
         b2 = thirteen_by_twelve*fac1*fac1 + one_fourth*fac2*fac2;
 
-        fac1 = fm3 - 2.0*fm2 + fm1;
-        fac2 = 3.0*fm1 - 4.0*fm2 + fm3;
+        fac1 = m3 - 2.0*m2 + m1;
+        fac2 = 3.0*m1 - 4.0*m2 + m3;
         b3 = thirteen_by_twelve*fac1*fac1 + one_fourth*fac2*fac2;
 
         /* optimal weights */
@@ -134,7 +142,7 @@ int Interp1PrimFifthOrderNonUniformWENO_N(double *fI,double *fC,double *u,double
              implementation of non-linear weights  */
           double tau;
           if (weno->borges)   tau = absolute(b3 - b1);
-          else if (weno->yc)  tau = (fm3-4*fm2+6*fm1-4*fp1+fp2)*(fm3-4*fm2+6*fm1-4*fp1+fp2);
+          else if (weno->yc)  tau = (m3-4*m2+6*m1-4*p1+p2)*(m3-4*m2+6*m1-4*p1+p2);
           else                tau = 0;
   
           /* Defining the non-linear weights */

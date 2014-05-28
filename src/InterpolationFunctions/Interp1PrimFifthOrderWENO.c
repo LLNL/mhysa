@@ -31,6 +31,8 @@ int Interp1PrimFifthOrderWENO_N(double *fI,double *fC,double *u,double *x,int up
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
 
+  if (!weno->var) weno->var = fC;
+
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
   int nvars  = solver->nvars;
@@ -71,17 +73,24 @@ int Interp1PrimFifthOrderWENO_N(double *fI,double *fC,double *u,double *x,int up
       for (v=0; v<nvars; v++)  {
         /* Defining stencil points */
         double m3, m2, m1, p1, p2;
-        m3 = fC[qm3*nvars+v];
-        m2 = fC[qm2*nvars+v];
-        m1 = fC[qm1*nvars+v];
-        p1 = fC[qp1*nvars+v];
-        p2 = fC[qp2*nvars+v];
+        m3 = weno->var[qm3*nvars+v];
+        m2 = weno->var[qm2*nvars+v];
+        m1 = weno->var[qm1*nvars+v];
+        p1 = weno->var[qp1*nvars+v];
+        p2 = weno->var[qp2*nvars+v];
+
+        double fm3, fm2, fm1, fp1, fp2;
+        fm3 = fC[qm3*nvars+v];
+        fm2 = fC[qm2*nvars+v];
+        fm1 = fC[qm1*nvars+v];
+        fp1 = fC[qp1*nvars+v];
+        fp2 = fC[qp2*nvars+v];
 
         /* Candidate stencils and their optimal weights*/
         double f1, f2, f3, c1, c2, c3;
-        f1 = (2*one_sixth)*m1 + (5*one_sixth)*p1 - (one_sixth)*p2;        c1 = 0.3;
-        f2 = (-one_sixth)*m2 + (5.0*one_sixth)*m1 + (2*one_sixth)*p1;     c2 = 0.6;
-        f3 = (2*one_sixth)*m3 - (7.0*one_sixth)*m2 + (11.0*one_sixth)*m1; c3 = 0.1;
+        f1 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;        c1 = 0.3;
+        f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;     c2 = 0.6;
+        f3 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1; c3 = 0.1;
 
         /* calculate WENO weights */
         double w1,w2,w3;
@@ -159,6 +168,8 @@ int Interp1PrimFifthOrderWENO_2(double *fI,double *fC,double *u,double *x,int up
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
 
+  if (!weno->var) weno->var = fC;
+
   int ghosts = solver->ghosts;
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
@@ -198,17 +209,24 @@ int Interp1PrimFifthOrderWENO_2(double *fI,double *fC,double *u,double *x,int up
       for (v=0; v<nvars; v++)  {
         /* Defining stencil points */
         double m3, m2, m1, p1, p2;
-        m3 = fC[qm3*nvars+v];
-        m2 = fC[qm2*nvars+v];
-        m1 = fC[qm1*nvars+v];
-        p1 = fC[qp1*nvars+v];
-        p2 = fC[qp2*nvars+v];
+        m3 = weno->var[qm3*nvars+v];
+        m2 = weno->var[qm2*nvars+v];
+        m1 = weno->var[qm1*nvars+v];
+        p1 = weno->var[qp1*nvars+v];
+        p2 = weno->var[qp2*nvars+v];
+
+        double fm3, fm2, fm1, fp1, fp2;
+        fm3 = fC[qm3*nvars+v];
+        fm2 = fC[qm2*nvars+v];
+        fm1 = fC[qm1*nvars+v];
+        fp1 = fC[qp1*nvars+v];
+        fp2 = fC[qp2*nvars+v];
 
         /* Candidate stencils and their optimal weights*/
         double f1, f2, f3, c1, c2, c3;
-        f1 = (2*one_sixth)*m1 + (5*one_sixth)*p1 - (one_sixth)*p2;        c1 = 0.3;
-        f2 = (-one_sixth)*m2 + (5.0*one_sixth)*m1 + (2*one_sixth)*p1;     c2 = 0.6;
-        f3 = (2*one_sixth)*m3 - (7.0*one_sixth)*m2 + (11.0*one_sixth)*m1; c3 = 0.1;
+        f1 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;        c1 = 0.3;
+        f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;     c2 = 0.6;
+        f3 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1; c3 = 0.1;
 
         /* calculate WENO weights */
         double w1,w2,w3;
@@ -286,6 +304,8 @@ int Interp1PrimFifthOrderWENO_3(double *fI,double *fC,double *u,double *x,int up
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
 
+  if (!weno->var) weno->var = fC;
+
   int ghosts = solver->ghosts;
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
@@ -325,17 +345,24 @@ int Interp1PrimFifthOrderWENO_3(double *fI,double *fC,double *u,double *x,int up
       for (v=0; v<nvars; v++)  {
         /* Defining stencil points */
         double m3, m2, m1, p1, p2;
-        m3 = fC[qm3*nvars+v];
-        m2 = fC[qm2*nvars+v];
-        m1 = fC[qm1*nvars+v];
-        p1 = fC[qp1*nvars+v];
-        p2 = fC[qp2*nvars+v];
+        m3 = weno->var[qm3*nvars+v];
+        m2 = weno->var[qm2*nvars+v];
+        m1 = weno->var[qm1*nvars+v];
+        p1 = weno->var[qp1*nvars+v];
+        p2 = weno->var[qp2*nvars+v];
+
+        double fm3, fm2, fm1, fp1, fp2;
+        fm3 = fC[qm3*nvars+v];
+        fm2 = fC[qm2*nvars+v];
+        fm1 = fC[qm1*nvars+v];
+        fp1 = fC[qp1*nvars+v];
+        fp2 = fC[qp2*nvars+v];
 
         /* Candidate stencils and their optimal weights*/
         double f1, f2, f3, c1, c2, c3;
-        f1 = (2*one_sixth)*m1 + (5*one_sixth)*p1 - (one_sixth)*p2;        c1 = 0.3;
-        f2 = (-one_sixth)*m2 + (5.0*one_sixth)*m1 + (2*one_sixth)*p1;     c2 = 0.6;
-        f3 = (2*one_sixth)*m3 - (7.0*one_sixth)*m2 + (11.0*one_sixth)*m1; c3 = 0.1;
+        f1 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;        c1 = 0.3;
+        f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;     c2 = 0.6;
+        f3 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1; c3 = 0.1;
 
         /* calculate WENO weights */
         double w1,w2,w3;

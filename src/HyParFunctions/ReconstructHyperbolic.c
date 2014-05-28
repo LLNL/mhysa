@@ -3,7 +3,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int dir,void *s,void *m,double t)
+int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int dir,void *s,void *m,double t,double *LimVar)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -25,6 +25,9 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int di
   double *uR     = solver->uR;
   double *fluxL  = solver->fL;
   double *fluxR  = solver->fR;
+
+  /* set the interpolation limiter variable */
+  IERR solver->SetInterpLimiterVar(solver->interp,solver->spatial_scheme_hyp,LimVar);
 
   /* Interpolation -> to calculate left and right-biased interface flux and state variable*/
   IERR solver->InterpolateInterfacesHyp(uL   ,u    ,u,x, 1,dir,solver,mpi); CHECKERR(ierr);

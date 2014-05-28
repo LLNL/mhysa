@@ -21,6 +21,7 @@ int WENOInitialize(void *s,void *m, char *scheme)
 
   weno->rc          = 0.3;
   weno->xi          = 0.001;
+  weno->var         = NULL;
 
   if (!mpi->rank) {
     FILE *in;

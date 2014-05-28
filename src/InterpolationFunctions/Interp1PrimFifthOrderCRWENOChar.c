@@ -23,6 +23,8 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
   int             sys,Nsys,d,done,v,k;
   _DECLARE_IERR_;
 
+  if (!weno->var) weno->var = fC;
+
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
   int nvars  = solver->nvars;
@@ -89,11 +91,21 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
         double m3, m2, m1, p1, p2;
         m3 = m2 = m1 = p1 = p2 = 0;
         for (k = 0; k < nvars; k++) {
-          m3 += L[v*nvars+k] * fC[qm3*nvars+k];
-          m2 += L[v*nvars+k] * fC[qm2*nvars+k];
-          m1 += L[v*nvars+k] * fC[qm1*nvars+k];
-          p1 += L[v*nvars+k] * fC[qp1*nvars+k];
-          p2 += L[v*nvars+k] * fC[qp2*nvars+k];
+          m3 += L[v*nvars+k] * weno->var[qm3*nvars+k];
+          m2 += L[v*nvars+k] * weno->var[qm2*nvars+k];
+          m1 += L[v*nvars+k] * weno->var[qm1*nvars+k];
+          p1 += L[v*nvars+k] * weno->var[qp1*nvars+k];
+          p2 += L[v*nvars+k] * weno->var[qp2*nvars+k];
+        }
+
+        double fm3, fm2, fm1, fp1, fp2;
+        fm3 = fm2 = fm1 = fp1 = fp2 = 0;
+        for (k = 0; k < nvars; k++) {
+          fm3 += L[v*nvars+k] * fC[qm3*nvars+k];
+          fm2 += L[v*nvars+k] * fC[qm2*nvars+k];
+          fm1 += L[v*nvars+k] * fC[qm1*nvars+k];
+          fp1 += L[v*nvars+k] * fC[qp1*nvars+k];
+          fp2 += L[v*nvars+k] * fC[qp2*nvars+k];
         }
 
         /* Candidate stencils and their optimal weights*/
@@ -101,14 +113,14 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
         if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
             || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
           /* Use WENO5 at the physical boundaries */
-          f1 = (2*one_sixth)*m3 - (7.0*one_sixth)*m2 + (11.0*one_sixth)*m1; c1 = 0.1;
-          f2 = (-one_sixth)*m2 + (5.0*one_sixth)*m1 + (2*one_sixth)*p1;     c2 = 0.6;
-          f3 = (2*one_sixth)*m1 + (5*one_sixth)*p1 - (one_sixth)*p2;        c3 = 0.3;
+          f1 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1; c1 = 0.1;
+          f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;     c2 = 0.6;
+          f3 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;        c3 = 0.3;
         } else {
           /* CRWENO5 at the interior points */
-          f1 = (one_sixth) * (m2 + 5*m1);                                   c1 = 0.2;
-          f2 = (one_sixth) * (5*m1 + p1);                                   c2 = 0.5;
-          f3 = (one_sixth) * (m1 + 5*p1);                                   c3 = 0.3;
+          f1 = (one_sixth) * (fm2 + 5*fm1);                                   c1 = 0.2;
+          f2 = (one_sixth) * (5*fm1 + fp1);                                   c2 = 0.5;
+          f3 = (one_sixth) * (fm1 + 5*fp1);                                   c3 = 0.3;
         }
 
         /* calculate WENO weights */
