@@ -126,8 +126,16 @@ int ReadInputs(void *s,void *m)
 	    printf("\tNo. of ghosts pts                          : %d\n"     ,solver->ghosts              );
 	    printf("\tNo. of iter.                               : %d\n"     ,solver->n_iter              );
 	    printf("\tRestart iteration                          : %d\n"     ,solver->restart_iter        );
+#ifdef with_petsc
+      if (solver->use_petscTS)
+        printf("\tTime integration scheme                    : PETSc \n"                            );
+      else
+        printf("\tTime integration scheme                    : %s (%s)\n",
+               solver->time_scheme,solver->time_scheme_type                                         );
+#else
       printf("\tTime integration scheme                    : %s (%s)\n",
              solver->time_scheme,solver->time_scheme_type                                           );
+#endif
       printf("\tSpatial discretization scheme (hyperbolic) : %s\n"     ,solver->spatial_scheme_hyp  );
       printf("\tSplit hyperbolic flux term?                : %s\n"     ,solver->SplitHyperbolicFlux );
       printf("\tSpatial discretization scheme (parabolic ) : %s\n"     ,solver->spatial_scheme_par  );
