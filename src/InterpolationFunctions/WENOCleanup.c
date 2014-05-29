@@ -24,5 +24,10 @@ int WENOCleanup(void *s)
   if (weno->sendbuf) free(weno->sendbuf);
   if (weno->recvbuf) free(weno->recvbuf);
 
+  free(weno->offset);
+  free(weno->w1);
+  free(weno->w2);
+  free(weno->w3);
+
   return(0);
 }

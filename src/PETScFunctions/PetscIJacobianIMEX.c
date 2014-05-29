@@ -48,15 +48,15 @@ PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS for U+dU */
   _ArraySetValue_(rhs,size*solver->nvars,0.0);
   if (solver->HyperbolicFunction && (context->flag_hyperbolic == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,uref);   CHECKERR(ierr);
+    ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0);      CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
   }
   if (solver->HyperbolicFunction1 && (context->flag_hyperbolic1 == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t,uref);  CHECKERR(ierr);
+    ierr = solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t,0);     CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
   }
   if (solver->HyperbolicFunction2 && (context->flag_hyperbolic2 == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t,uref);  CHECKERR(ierr);
+    ierr = solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t,0);     CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
   }
   if (solver->ParabolicFunction && (context->flag_parabolic == _IMPLICIT_)) {

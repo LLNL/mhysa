@@ -6,8 +6,6 @@
 #define _FIFTH_ORDER_CRWENO_    "crweno5"
 #define _FIFTH_ORDER_HCWENO_    "hcweno5"
 
-#define _FIFTH_ORDER_NONUNIFORM_WENO_ "non-uniform-weno5"
-
 /* interpolation type definitions */
 #define _CHARACTERISTIC_        "characteristic"
 #define _COMPONENTS_            "components"  
@@ -80,10 +78,6 @@ int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,i
 int Interp1PrimFifthOrderCRWENO           (double*,double*,double*,double*,int,int,void*,void*);
 int Interp1PrimFifthOrderHCWENO           (double*,double*,double*,double*,int,int,void*,void*);
 
-/* functions to interpolate the first primitive in a component-wise way
-   (for conservative discretization of the 1st derivative) on a non-uniform grid */
-int Interp1PrimFifthOrderNonUniformWENO   (double*,double*,double*,double*,int,int,void*,void*);
-
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) on a uniform grid */
 int Interp1PrimFirstOrderUpwindChar       (double*,double*,double*,double*,int,int,void*,void*);
@@ -97,7 +91,7 @@ int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,i
 int Interp2PrimSecondOrder  (double*,double*,int,void*,void*);
 
 /* other interpolation related functions */
-int InterpSetLimiterVar(void*,char*,double*);
+int InterpSetLimiterVar(double*,double*,double*,int,void*,void*);
 
 /* MUSCL scheme related parameters */
 typedef struct paramters_muscl {
@@ -123,11 +117,15 @@ typedef struct parameters_weno {
   double *A, *B, *C, *R;
   double *sendbuf, *recvbuf;
 
-  /* pointer to the variable on whose basis to compute the weights 
-     (usually it's the variable being interpolated)                */
-  double  *var;
+  /* WENO weights */
+  double *w1, *w2, *w3;
+  int *offset;
+  int size;
+
+  /* function pointer to the weight calculation function */
+  int (*CalculateWENOWeights) (double*,double*,double*,int,void*,void*);
 
 } WENOParameters;
-int WENOInitialize(void*,void*,char *scheme);
+int WENOInitialize(void*,void*,char*,char*);
 int WENOCleanup(void*);
 

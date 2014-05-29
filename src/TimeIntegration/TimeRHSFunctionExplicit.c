@@ -21,15 +21,15 @@ int TimeRHSFunctionExplicit(double *rhs,double *u,void *s,void *m, double t)
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
   _ArraySetValue_(rhs,size*solver->nvars,0.0);
   if (solver->HyperbolicFunction) {
-    IERR solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,NULL);   CHECKERR(ierr);
+    IERR solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1);      CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp    ,-1.0,rhs,size*solver->nvars);
   }
   if (solver->HyperbolicFunction1) {
-    IERR solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t,NULL);  CHECKERR(ierr);
+    IERR solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t,1);     CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp    ,-1.0,rhs,size*solver->nvars);
   }
   if (solver->HyperbolicFunction2) {
-    IERR solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t,NULL);  CHECKERR(ierr);
+    IERR solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t,1);     CHECKERR(ierr);
     _ArrayAXPY_(solver->hyp    ,-1.0,rhs,size*solver->nvars);
   }
   if (solver->ParabolicFunction) {

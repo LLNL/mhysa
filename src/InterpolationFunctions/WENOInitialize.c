@@ -5,11 +5,17 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int WENOInitialize(void *s,void *m, char *scheme)
+int WENOFifthOrderCalculateWeights    (double*,double*,double*,int,void*,void*);
+int WENOFifthOrderCalculateWeightsChar(double*,double*,double*,int,void*,void*);
+
+int WENOInitialize(void *s,void *m, char *scheme,char *type)
 {
   HyPar           *solver = (HyPar*) s;
   MPIVariables    *mpi    = (MPIVariables*) m;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
+
+  int nvars = solver->nvars;
+  int ndims = solver->ndims;
 
   /* default parameters */
   weno->mapped      = 0;
@@ -21,7 +27,6 @@ int WENOInitialize(void *s,void *m, char *scheme)
 
   weno->rc          = 0.3;
   weno->xi          = 0.001;
-  weno->var         = NULL;
 
   if (!mpi->rank) {
     FILE *in;
@@ -103,6 +108,36 @@ int WENOInitialize(void *s,void *m, char *scheme)
     weno->sendbuf = weno->recvbuf = NULL;
 
   }
+
+  weno->offset = (int*) calloc (ndims,sizeof(int));
+  int dir,d;
+  for (dir=0; dir<ndims; dir++) {
+    weno->offset[dir] = 0;
+    for (d=0; d<dir; d++) {
+      int size = nvars, i;
+      for (i=0; i<ndims; i++) 
+        size *= ( i==d ? solver->dim_local[i]+1 : solver->dim_local[i] );
+      weno->offset[dir] += size;
+    }
+  }
+
+  int total_size = 0;
+  for (d=0; d<ndims; d++) {
+    int size = nvars, i;
+    for (i=0; i<ndims; i++) 
+      size *= ( i==d ? solver->dim_local[i]+1 : solver->dim_local[i] );
+    total_size += size;
+  }
+  weno->size = total_size;
+
+  weno->w1 = (double*) calloc (4*total_size,sizeof(double));
+  weno->w2 = (double*) calloc (4*total_size,sizeof(double));
+  weno->w3 = (double*) calloc (4*total_size,sizeof(double));
+
+  if (!strcmp(type,_CHARACTERISTIC_))
+    weno->CalculateWENOWeights = WENOFifthOrderCalculateWeightsChar;
+  else
+    weno->CalculateWENOWeights = WENOFifthOrderCalculateWeights;
 
   return(0);
 }
