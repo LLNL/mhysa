@@ -36,3 +36,6 @@ end
 
 # For non-recurring and irrational numbers (1/3, pi, etc), 
 # write them out to 16 decimal places.
+
+# Rename it to time_method.inp in the run directory to
+# use it.
