@@ -134,10 +134,11 @@ int WENOInitialize(void *s,void *m, char *scheme,char *type)
   weno->w2 = (double*) calloc (4*total_size,sizeof(double));
   weno->w3 = (double*) calloc (4*total_size,sizeof(double));
 
-  if (!strcmp(type,_CHARACTERISTIC_))
+  if ((!strcmp(type,_CHARACTERISTIC_)) && (nvars > 1)) {
     weno->CalculateWENOWeights = WENOFifthOrderCalculateWeightsChar;
-  else
+  } else {
     weno->CalculateWENOWeights = WENOFifthOrderCalculateWeights;
+  }
 
   return(0);
 }

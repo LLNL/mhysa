@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -95,9 +94,9 @@ int Interp1PrimFifthOrderWENOChar(double *fI,double *fC,double *u,double *x,int 
 
         /* Candidate stencils and their optimal weights*/
         double f1, f2, f3;
-        f1 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;
+        f1 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1;
         f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;
-        f3 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1;
+        f3 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;
 
         /* calculate WENO weights */
         double w1,w2,w3;

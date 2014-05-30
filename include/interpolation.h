@@ -129,3 +129,56 @@ typedef struct parameters_weno {
 int WENOInitialize(void*,void*,char*,char*);
 int WENOCleanup(void*);
 
+/* define optimal weights */
+#define   _WENO_OPTIMAL_WEIGHT_1_   0.1
+#define   _WENO_OPTIMAL_WEIGHT_2_   0.6
+#define   _WENO_OPTIMAL_WEIGHT_3_   0.3
+#define   _CRWENO_OPTIMAL_WEIGHT_1_ 0.2
+#define   _CRWENO_OPTIMAL_WEIGHT_2_ 0.5
+#define   _CRWENO_OPTIMAL_WEIGHT_3_ 0.3
+
+/* macro to calculate fifth-order WENO weights */
+#define _WENOWeights_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno) \
+  { \
+    if (weno->no_limiting) { \
+      w1 = c1; \
+      w2 = c2; \
+      w3 = c3; \
+    } else { \
+      double b1, b2, b3; \
+      b1 = thirteen_by_twelve*(m3-2*m2+m1)*(m3-2*m2+m1) \
+           + one_fourth*(m3-4*m2+3*m1)*(m3-4*m2+3*m1);  \
+      b2 = thirteen_by_twelve*(m2-2*m1+p1)*(m2-2*m1+p1) \
+           + one_fourth*(m2-p1)*(m2-p1);                \
+      b3 = thirteen_by_twelve*(m1-2*p1+p2)*(m1-2*p1+p2) \
+           + one_fourth*(3*m1-4*p1+p2)*(3*m1-4*p1+p2);  \
+      double tau; \
+      if      (weno->borges) tau = absolute(b3 - b1);  \
+      else if (weno->yc)     tau = (m3-4*m2+6*m1-4*p1+p2)*(m3-4*m2+6*m1-4*p1+p2);  \
+      else                   tau = 0;  \
+      double a1, a2, a3;  \
+      if (weno->borges || weno->yc) { \
+        a1 = c1 * (1.0 + raiseto(tau/(b1+weno->eps),weno->p));  \
+        a2 = c2 * (1.0 + raiseto(tau/(b2+weno->eps),weno->p));  \
+        a3 = c3 * (1.0 + raiseto(tau/(b3+weno->eps),weno->p));  \
+      } else {  \
+        a1 = c1 / raiseto(b1+weno->eps,weno->p);  \
+        a2 = c2 / raiseto(b2+weno->eps,weno->p);  \
+        a3 = c3 / raiseto(b3+weno->eps,weno->p);  \
+      } \
+      double a_sum_inv; \
+      a_sum_inv = 1.0 / (a1 + a2 + a3); \
+      w1 = a1 * a_sum_inv;  \
+      w2 = a2 * a_sum_inv;  \
+      w3 = a3 * a_sum_inv;  \
+      if (weno->mapped) { \
+        a1 = w1 * (c1 + c1*c1 - 3*c1*w1 + w1*w1) / (c1*c1 + w1*(1.0-2.0*c1)); \
+        a2 = w2 * (c2 + c2*c2 - 3*c2*w2 + w2*w2) / (c2*c2 + w2*(1.0-2.0*c2)); \
+        a3 = w3 * (c3 + c3*c3 - 3*c3*w3 + w3*w3) / (c3*c3 + w3*(1.0-2.0*c3)); \
+        a_sum_inv = 1.0 / (a1 + a2 + a3); \
+        w1 = a1 * a_sum_inv;  \
+        w2 = a2 * a_sum_inv;  \
+        w3 = a3 * a_sum_inv;  \
+      } \
+    } \
+  }

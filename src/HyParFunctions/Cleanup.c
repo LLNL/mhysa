@@ -65,8 +65,9 @@ int Cleanup(void *s,void *m)
   }
 
   /* Clean up any spatial reconstruction related allocations */
-  if (   (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) 
-      || (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_HCWENO_))){
+  if (   (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_  )) 
+      || (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_))
+      || (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_HCWENO_)) ) {
     IERR WENOCleanup(solver->interp); CHECKERR(ierr);
   }
   if (solver->interp)   free(solver->interp);

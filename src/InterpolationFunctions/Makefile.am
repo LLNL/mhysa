@@ -15,5 +15,4 @@ libInterpolationFunctions_a_SOURCES = \
   MUSCLInitialize.c \
   WENOCleanup.c \
   WENOFifthOrderCalculateWeights.c \
-  WENOFifthOrderCalculateWeightsChar.c \
   WENOInitialize.c
