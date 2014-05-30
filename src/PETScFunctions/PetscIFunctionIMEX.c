@@ -31,23 +31,28 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
   _ArraySetValue_(rhs,size*solver->nvars,0.0);
 
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
-  if (solver->HyperbolicFunction && (context->flag_hyperbolic == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1);       CHECKERR(ierr);
-    _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    if (context->flag_hyperbolic_f == _IMPLICIT_) {
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction);  CHECKERR(ierr);
+      _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->dFFunction); CHECKERR(ierr);
+      _ArrayAXPY_(solver->hyp, 1.0,rhs,size*solver->nvars);
+    } 
+    if (context->flag_hyperbolic_df == _IMPLICIT_) {
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->dFFunction); CHECKERR(ierr);
+      _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+    }
+  } else {
+    if (context->flag_hyperbolic == _IMPLICIT_) {
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction);  CHECKERR(ierr);
+      _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+    }
   }
-  if (solver->HyperbolicFunction1 && (context->flag_hyperbolic1 == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction1(solver->hyp,u,solver,mpi,t,1);      CHECKERR(ierr);
-    _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
-  }
-  if (solver->HyperbolicFunction2 && (context->flag_hyperbolic2 == _IMPLICIT_)) {
-    ierr = solver->HyperbolicFunction2(solver->hyp,u,solver,mpi,t,1);      CHECKERR(ierr);
-    _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
-  }
-  if (solver->ParabolicFunction && (context->flag_parabolic == _IMPLICIT_)) {
+  if (context->flag_parabolic == _IMPLICIT_) {
     ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);        CHECKERR(ierr);
     _ArrayAXPY_(solver->par, 1.0,rhs,size*solver->nvars);
   }
-  if (solver->SourceFunction && (context->flag_source == _IMPLICIT_)) {
+  if (context->flag_source == _IMPLICIT_) {
     ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t);     CHECKERR(ierr);
     _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
   }

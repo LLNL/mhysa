@@ -60,11 +60,10 @@ typedef struct main_parameters {
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
 
   /* right hand side functions */
-  int (*HyperbolicFunction)       (double*,double*,void*,void*,double,int);       /* hyperbolic terms         */
-  int (*HyperbolicFunction1)      (double*,double*,void*,void*,double,int);       /* split hyperbolic term 1  */
-  int (*HyperbolicFunction2)      (double*,double*,void*,void*,double,int);       /* split hyperbolic term 2  */
-  int (*ParabolicFunction)        (double*,double*,void*,void*,double);           /* parabolic terms          */
-  int (*SourceFunction)           (double*,double*,void*,void*,double);           /* source terms             */
+  int (*HyperbolicFunction) (double*,double*,void*,void*,double,int,
+                             int(*)(double*,double*,int,void*,double)); /* hyperbolic terms */
+  int (*ParabolicFunction)  (double*,double*,void*,void*,double);       /* parabolic terms  */
+  int (*SourceFunction)     (double*,double*,void*,void*,double);       /* source terms     */
 
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
@@ -75,8 +74,7 @@ typedef struct main_parameters {
   double (*ComputeCFL)         (void*,void*,double,double);
   double (*ComputeDiffNumber)  (void*,void*,double,double);
   int    (*FFunction)          (double*,double*,int,void*,double);
-  int    (*F1Function)         (double*,double*,int,void*,double);
-  int    (*F2Function)         (double*,double*,int,void*,double);
+  int    (*dFFunction)         (double*,double*,int,void*,double);
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*HFunction)          (double*,double*,int,int,void*,double);
   int    (*SFunction)          (double*,double*,void*,double);

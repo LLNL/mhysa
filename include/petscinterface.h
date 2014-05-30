@@ -17,11 +17,11 @@ typedef struct _petsccontext_ {
   double    waqt;
 
   /* flags for implicit treatment */
-  int flag_hyperbolic;  /* whether the hyperbolic term is treated implicitly or explicitly    */
-  int flag_hyperbolic1; /* whether the hyperbolic term 1 is treated implicitly or explicitly  */
-  int flag_hyperbolic2; /* whether the hyperbolic term 2 is treated implicitly or explicitly  */
-  int flag_parabolic;   /* hether the parabolic term is treated implicitly or explicitly      */
-  int flag_source;      /* hether the source term is treated implicitly or explicitly         */
+  int flag_hyperbolic;    /* whether the hyperbolic term is treated implicitly or explicitly    */
+  int flag_hyperbolic_f;  /* whether the hyperbolic f - df is treated implicitly or explicitly  */
+  int flag_hyperbolic_df; /* whether the hyperbolic df     is treated implicitly or explicitly  */
+  int flag_parabolic;     /* hether the parabolic term is treated implicitly or explicitly      */
+  int flag_source;        /* hether the source term is treated implicitly or explicitly         */
 } PETScContext;
 
 /* Copy Functions */

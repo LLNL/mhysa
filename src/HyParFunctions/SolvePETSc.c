@@ -93,18 +93,18 @@ int SolvePETSc(void *s,void *m)
     if (flag == PETSC_TRUE) context.flag_hyperbolic = _IMPLICIT_; 
 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic1_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic1 = _EXPLICIT_; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_f_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_hyperbolic_f = _EXPLICIT_; 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic1_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic1 = _IMPLICIT_; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_f_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_hyperbolic_f = _IMPLICIT_; 
 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic2_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic2 = _EXPLICIT_; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_df_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_hyperbolic_df = _EXPLICIT_; 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic2_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic2 = _IMPLICIT_; 
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_df_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) context.flag_hyperbolic_df = _IMPLICIT_; 
 
     flag = PETSC_FALSE; 
     ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_explicit",&flag,PETSC_NULL);  CHKERRQ(ierr);

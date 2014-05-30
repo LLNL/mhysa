@@ -15,9 +15,8 @@ int  WriteText                   (int,int,int*,double*,double*,char*,int*);
 int  WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
 int  WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
 int  ApplyBoundaryConditions     (void*,void*,double*,double*,int,double);
-int  HyperbolicFunction          (double*,double*,void*,void*,double,int);
-int  HyperbolicFunction1         (double*,double*,void*,void*,double,int);
-int  HyperbolicFunction2         (double*,double*,void*,void*,double,int);
+int  HyperbolicFunction          (double*,double*,void*,void*,double,int,
+                                  int(*)(double*,double*,int,void*,double));
 int  ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
@@ -34,19 +33,11 @@ int InitializeSolvers(void *s, void *m)
 
   if (!mpi->rank) printf("Initializing solvers.\n");
 
-  solver->ApplyBoundaryConditions = ApplyBoundaryConditions;
-  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
-    solver->HyperbolicFunction1     = HyperbolicFunction1;
-    solver->HyperbolicFunction2     = HyperbolicFunction2;
-    solver->HyperbolicFunction      = NULL;
-  } else {
-    solver->HyperbolicFunction      = HyperbolicFunction;
-    solver->HyperbolicFunction1     = NULL;
-    solver->HyperbolicFunction2     = NULL;
-  }
-  solver->SourceFunction            = SourceFunction;
-  solver->VolumeIntegralFunction    = VolumeIntegral;
-  solver->BoundaryIntegralFunction  = BoundaryIntegral;
+  solver->ApplyBoundaryConditions  = ApplyBoundaryConditions;
+  solver->HyperbolicFunction       = HyperbolicFunction;
+  solver->SourceFunction           = SourceFunction;
+  solver->VolumeIntegralFunction   = VolumeIntegral;
+  solver->BoundaryIntegralFunction = BoundaryIntegral;
 
   /* choose the type of parabolic discretization */
   if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) 

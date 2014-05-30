@@ -12,8 +12,7 @@
 
 double Numa3DComputeCFL (void*,void*,double,double);
 int    Numa3DFlux       (double*,double*,int,void*,double);
-int    Numa3DSplitFlux1 (double*,double*,int,void*,double);
-int    Numa3DSplitFlux2 (double*,double*,int,void*,double);
+int    Numa3DStiffFlux  (double*,double*,int,void*,double);
 int    Numa3DSource     (double*,double*,void*,double);
 int    Numa3DRusanov    (double*,double*,double*,double*,double*,double*,int,void*,double);
 
@@ -121,13 +120,13 @@ int Numa3DInitialize(void *s,void *m)
   CHECKERR(ierr);
 
   /* initializing physical model-specific functions */
-  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
-    solver->F1Function     = Numa3DSplitFlux1;
-    solver->F2Function     = Numa3DSplitFlux2;
-  } else solver->FFunction = Numa3DFlux;
-  solver->ComputeCFL  = Numa3DComputeCFL;
-  solver->SFunction   = Numa3DSource;
-  solver->Upwind      = Numa3DRusanov;
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) 
+    solver->dFFunction    = Numa3DStiffFlux;
+  else solver->dFFunction = NULL;
+  solver->FFunction       = Numa3DFlux;
+  solver->ComputeCFL      = Numa3DComputeCFL;
+  solver->SFunction       = Numa3DSource;
+  solver->Upwind          = Numa3DRusanov;
 
   /* set the value of gamma in all the boundary objects */
   int n;
