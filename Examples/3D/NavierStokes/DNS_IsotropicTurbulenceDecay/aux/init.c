@@ -426,7 +426,7 @@ int main(){
 	  for (i = 0; i < N; i++) {
 	    for (j = 0; j < N; j++) {
 	      for (k = 0; k < N; k++) {
-          int p = i + N*j + N*N+k;
+          int p = i + N*j + N*N*k;
           fprintf(op,"%1.16E ",U[5*p+0]);
         }
       }
@@ -435,7 +435,7 @@ int main(){
   	for (i = 0; i < N; i++) {
 	    for (j = 0; j < N; j++) {
 	      for (k = 0; k < N; k++) {
-          int p = i + N*j + N*N+k;
+          int p = i + N*j + N*N*k;
           fprintf(op,"%1.16E ",U[5*p+1]);
         }
       }
@@ -444,7 +444,7 @@ int main(){
   	for (i = 0; i < N; i++) {
 	    for (j = 0; j < N; j++) {
 	      for (k = 0; k < N; k++) {
-          int p = i + N*j + N*N+k;
+          int p = i + N*j + N*N*k;
           fprintf(op,"%1.16E ",U[5*p+2]);
         }
       }
@@ -453,7 +453,7 @@ int main(){
 	  for (i = 0; i < N; i++) {
 	    for (j = 0; j < N; j++) {
 	      for (k = 0; k < N; k++) {
-          int p = i + N*j + N*N+k;
+          int p = i + N*j + N*N*k;
           fprintf(op,"%1.16E ",U[5*p+3]);
         }
       }
@@ -462,7 +462,7 @@ int main(){
   	for (i = 0; i < N; i++) {
 	    for (j = 0; j < N; j++) {
 	      for (k = 0; k < N; k++) {
-          int p = i + N*j + N*N+k;
+          int p = i + N*j + N*N*k;
           fprintf(op,"%1.16E ",U[5*p+4]);
         }
       }
