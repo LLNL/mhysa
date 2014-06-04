@@ -85,26 +85,32 @@ int SolvePETSc(void *s,void *m)
     context.flag_parabolic  = _IMPLICIT_; 
     context.flag_source     = _IMPLICIT_; 
 
-    flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic = _EXPLICIT_; 
-    flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic = _IMPLICIT_; 
+    if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
 
-    flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_f_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic_f = _EXPLICIT_; 
-    flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_f_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic_f = _IMPLICIT_; 
+      flag = PETSC_FALSE; 
+      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_f_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      if (flag == PETSC_TRUE) context.flag_hyperbolic_f = _EXPLICIT_; 
+      flag = PETSC_FALSE; 
+      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_f_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      if (flag == PETSC_TRUE) context.flag_hyperbolic_f = _IMPLICIT_; 
 
-    flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_df_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic_df = _EXPLICIT_; 
-    flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_df_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
-    if (flag == PETSC_TRUE) context.flag_hyperbolic_df = _IMPLICIT_; 
+      flag = PETSC_FALSE; 
+      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_df_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      if (flag == PETSC_TRUE) context.flag_hyperbolic_df = _EXPLICIT_; 
+      flag = PETSC_FALSE; 
+      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_df_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      if (flag == PETSC_TRUE) context.flag_hyperbolic_df = _IMPLICIT_; 
+
+    } else {
+
+      flag = PETSC_FALSE; 
+      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      if (flag == PETSC_TRUE) context.flag_hyperbolic = _EXPLICIT_; 
+      flag = PETSC_FALSE; 
+      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      if (flag == PETSC_TRUE) context.flag_hyperbolic = _IMPLICIT_; 
+
+    }
 
     flag = PETSC_FALSE; 
     ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_explicit",&flag,PETSC_NULL);  CHKERRQ(ierr);
@@ -119,6 +125,24 @@ int SolvePETSc(void *s,void *m)
     flag = PETSC_FALSE; 
     ierr = PetscOptionsGetBool(PETSC_NULL,"-source_implicit",&flag,PETSC_NULL);     CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_source = _IMPLICIT_; 
+
+    /* print out a summary of the treatment of each term */
+    if (!mpi->rank) {
+      printf("Implicit-Explicit time-integration:-\n");
+      if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+        if (context.flag_hyperbolic_f == _EXPLICIT_)  printf("Hyperbolic (f-df) term: Explicit\n");
+        else                                          printf("Hyperbolic (f-df) term: Implicit\n");
+        if (context.flag_hyperbolic_df == _EXPLICIT_) printf("Hyperbolic (df)   term: Explicit\n");
+        else                                          printf("Hyperbolic (df)   term: Implicit\n");
+      } else {
+        if (context.flag_hyperbolic == _EXPLICIT_)    printf("Hyperbolic        term: Explicit\n");
+        else                                          printf("Hyperbolic        term: Implicit\n");
+      }
+      if (context.flag_parabolic == _EXPLICIT_)       printf("Parabolic         term: Explicit\n");
+      else                                            printf("Parabolic         term: Implicit\n");
+      if (context.flag_source    == _EXPLICIT_)       printf("Source            term: Explicit\n");
+      else                                            printf("Source            term: Implicit\n");
+    }
 
   } else {
     fprintf(stderr,"Error in SolvePETSc: TSType %s not supported.\n",time_scheme);
