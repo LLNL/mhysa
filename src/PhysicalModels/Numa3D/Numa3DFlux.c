@@ -68,9 +68,9 @@ int Numa3DStiffFlux(double *f,double *u,int dir,void *s,double t)
     P0   = param->P0  [index[_ZDIR_]];
     T0   = param->T0  [index[_ZDIR_]];
 
-    _Numa3DGetFlowVars_     ((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT,rho0);
-    _Numa3DComputePressure_ (param,T0,dT,P0,dP);
-    _Numa3DSetLinearFlux_   ((f+_MODEL_NVARS_*p),dir,drho,uvel,vvel,wvel,dT,dP,rho0,T0);
+    _Numa3DGetFlowVars_               ((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT,rho0);
+    _Numa3DComputeLinearizedPressure_ (param,T0,dT,P0,dP);
+    _Numa3DSetLinearFlux_             ((f+_MODEL_NVARS_*p),dir,drho,uvel,vvel,wvel,dT,dP,rho0,T0);
 
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }

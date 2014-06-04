@@ -105,6 +105,12 @@
     dP  = P_total - P0; \
   }
 
+#define _Numa3DComputeLinearizedPressure_(params,T0,dT,P0,dP) \
+  { \
+    double gamma    = params->gamma; \
+    dP  = (gamma*P0/T0) * dT; \
+  }
+
 #define _Numa3DComputeSpeedofSound_(gamma,R,T0,dT,rho0,drho,EP,c) \
   { \
     c = sqrt(gamma*R*(T0+dT)*EP/(rho0+drho)); \
