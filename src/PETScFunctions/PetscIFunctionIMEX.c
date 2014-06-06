@@ -35,11 +35,11 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
     if (context->flag_hyperbolic_f == _IMPLICIT_) {
       ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction);  CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->dFFunction); CHECKERR(ierr);
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction); CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp, 1.0,rhs,size*solver->nvars);
     } 
     if (context->flag_hyperbolic_df == _IMPLICIT_) {
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->dFFunction); CHECKERR(ierr);
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction); CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
     }
   } else {
