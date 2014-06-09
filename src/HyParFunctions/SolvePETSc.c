@@ -81,9 +81,11 @@ int SolvePETSc(void *s,void *m)
     /* default -> hyperbolic - explicit, parabolic and source - implicit       */
     PetscBool flag = PETSC_FALSE;
 
-    context.flag_hyperbolic = _EXPLICIT_; 
-    context.flag_parabolic  = _IMPLICIT_; 
-    context.flag_source     = _IMPLICIT_; 
+    context.flag_hyperbolic     = _EXPLICIT_; 
+    context.flag_hyperbolic_f   = _EXPLICIT_; 
+    context.flag_hyperbolic_df  = _IMPLICIT_; 
+    context.flag_parabolic      = _IMPLICIT_; 
+    context.flag_source         = _IMPLICIT_; 
 
     if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
 

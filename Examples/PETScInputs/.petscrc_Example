@@ -37,11 +37,15 @@
 
 # If time-integration is implicit-explicit, specify
 # which terms are implicit and which are explicit
+
+# if hyperbolic flux is not split
 -hyperbolic_explicit  # treat hyperbolic term explicitly
+# else if it is split as [f(u)-df(u)] + [df(u)]
+-hyperbolic_f_explicit  # treat [f(u)-df(u)] explicitly
+-hyperbolic_df_implicit # treat [df(u)] implicitly
+# the other terms
 -parabolic_implicit   # treat parabolic  term implicitly
 -source_implicit      # treat source     term implicitly
-# This is the default, and can be changed depending on the 
-# problem.
 
 # If time-integration is implicit or implicit-explicit,
 # specify non-linear equation solver (SNES) options
