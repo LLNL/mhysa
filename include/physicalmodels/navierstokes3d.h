@@ -96,7 +96,6 @@
     uavg[4] = e; \
   }
 
-
 #define _NavierStokes3DEigenvalues_(u,D,p,dir) \
   { \
     double          gamma   = p->gamma; \
