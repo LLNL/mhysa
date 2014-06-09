@@ -92,7 +92,6 @@ int NavierStokes3DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *u
 
       _NavierStokes3DRoeAverage_(uavg,(uL+_MODEL_NVARS_*p),(uR+_MODEL_NVARS_*p),param);
 
-      _NavierStokes3DEigenvalues_(uavg,D,param,dir);
       _NavierStokes3DLeftEigenvectors_(uavg,L,param,dir);
       _NavierStokes3DRightEigenvectors_(uavg,R,param,dir);
 
@@ -165,7 +164,6 @@ int NavierStokes3DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
 
       _NavierStokes3DRoeAverage_(uavg,(uL+_MODEL_NVARS_*p),(uR+_MODEL_NVARS_*p),param);
 
-      _NavierStokes3DEigenvalues_(uavg,D,param,dir);
       _NavierStokes3DLeftEigenvectors_(uavg,L,param,dir);
       _NavierStokes3DRightEigenvectors_(uavg,R,param,dir);
 
