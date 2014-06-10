@@ -24,7 +24,16 @@ int Numa3DRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double 
     _ArrayCopy1D3_(index_outer,index_inter,_MODEL_NDIMS_);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D3_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
-      double udiff[_MODEL_NVARS_],drho,vel[3],dT,rho0,T0,EP,c;
+      double udiff[_MODEL_NVARS_],drho,vel[3],dT,rho0,P0,T0,EP,c;
+      double zcoordL, zcoordR;
+
+      if (dir == _ZDIR_) {
+        _GetCoordinate_(_ZDIR_,(index_inter[_ZDIR_]-1),dim,ghosts,solver->x,zcoordL);
+        _GetCoordinate_(_ZDIR_,(index_inter[_ZDIR_]  ),dim,ghosts,solver->x,zcoordR);
+      } else {
+        _GetCoordinate_(_ZDIR_,(index_inter[_ZDIR_]  ),dim,ghosts,solver->x,zcoordL);
+        zcoordR = zcoordL;
+      }
 
       /* Rusanov's upwinding scheme */
 
@@ -35,17 +44,13 @@ int Numa3DRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double 
       udiff[4] = 0.5 * (uR[_MODEL_NVARS_*p+4] - uL[_MODEL_NVARS_*p+4]);
 
       /* left of the interface */
-      rho0 = param->rho0  [(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
-      T0   = param->T0    [(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
-      EP   = param->ExnerP[(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
+      param->StandardAtmosphere(param,zcoordL,&EP,&P0,&rho0,&T0);
       _Numa3DGetFlowVars_         ((uL+_MODEL_NVARS_*p),drho,vel[0],vel[1],vel[2],dT,rho0);
       _Numa3DComputeSpeedofSound_ (param->gamma,param->R,T0,dT,rho0,drho,EP,c);
       double alphaL = c + absolute(vel[dir]);
 
       /* right of the interface */
-      rho0 = param->rho0  [index_inter[_ZDIR_]+ghosts];
-      T0   = param->T0    [index_inter[_ZDIR_]+ghosts];
-      EP   = param->ExnerP[index_inter[_ZDIR_]+ghosts];
+      param->StandardAtmosphere(param,zcoordR,&EP,&P0,&rho0,&T0);
       _Numa3DGetFlowVars_         ((uR+_MODEL_NVARS_*p),drho,vel[0],vel[1],vel[2],dT,rho0);
       _Numa3DComputeSpeedofSound_ (param->gamma,param->R,T0,dT,rho0,drho,EP,c);
       double alphaR = c + absolute(vel[dir]);
@@ -84,21 +89,23 @@ int Numa3DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,double
       int p; _ArrayIndex1D3_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
       double uavg[_MODEL_NVARS_], fcL[_MODEL_NVARS_], fcR[_MODEL_NVARS_], 
              ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_];
-
-      double rho0L, T0L, EPL;
-      rho0L = param->rho0  [(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
-      T0L   = param->T0    [(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
-      EPL   = param->ExnerP[(dir==_ZDIR_?index_inter[_ZDIR_]-1:index_inter[_ZDIR_])+ghosts];
-
-      double rho0R, T0R, EPR;
-      rho0R = param->rho0  [index_inter[_ZDIR_]+ghosts];
-      T0R   = param->T0    [index_inter[_ZDIR_]+ghosts];
-      EPR   = param->ExnerP[index_inter[_ZDIR_]+ghosts];
-
-      double rho0, T0, EP;
-      rho0  = 0.5 * (rho0L + rho0R);
-      T0    = 0.5 * (T0L   + T0R  );
-      EP    = 0.5 * (EPL   + EPR  );
+      double zcoordL,zcoordR,zcoord;
+      double rho0L, T0L, P0L, EPL, rho0R, T0R, P0R, EPR, rho0, T0, P0, EP;
+      if (dir == _ZDIR_) {
+        _GetCoordinate_(_ZDIR_,(index_inter[_ZDIR_]-1),dim,ghosts,solver->x,zcoordL);
+        _GetCoordinate_(_ZDIR_,(index_inter[_ZDIR_]  ),dim,ghosts,solver->x,zcoordR);
+        zcoord = 0.5 * (zcoordL + zcoordR);
+        param->StandardAtmosphere(param,zcoordL,&EPL,&P0L,&rho0L,&T0L);
+        param->StandardAtmosphere(param,zcoordR,&EPR,&P0R,&rho0R,&T0R);
+        param->StandardAtmosphere(param,zcoord ,&EP ,&P0 ,&rho0 ,&T0 );
+      } else {
+        _GetCoordinate_(_ZDIR_,(index_inter[_ZDIR_]  ),dim,ghosts,solver->x,zcoordL);
+        param->StandardAtmosphere(param,zcoordL,&EPL,&P0L,&rho0L,&T0L);
+        EP    = EPR     = EPL;
+        P0    = P0R     = P0L;
+        rho0  = rho0R   = rho0L;
+        T0    = T0R     = T0L;
+      }
 
       /* Roe-Fixed upwinding scheme */
 

@@ -377,8 +377,8 @@ typedef struct numa3d_parameters {
   /* pressure & temperature at zero altitude */
   double Pref, Tref;
 
-  /* mean hydrostatic flow variables */
-  double *rho0, *P0, *T0, *ExnerP;
+  /* function to calculate hydrostatically balanced flow variables */
+  void (*StandardAtmosphere)(void*,double,double*,double*,double*,double*);
 
   /* choice of upwinding scheme */
   char upwind[_MAX_STRING_SIZE_];

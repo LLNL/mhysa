@@ -21,12 +21,10 @@ double Numa3DComputeCFL(void *s,void *m,double dt,double t)
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-    double drho,uvel,vvel,wvel,dT,rho0,T0,EP,c;
+    double drho,uvel,vvel,wvel,dT,rho0,T0,P0,EP,c,zcoord;
 
-    rho0 = param->rho0  [index[_ZDIR_]+ghosts];
-    T0   = param->T0    [index[_ZDIR_]+ghosts];
-    EP   = param->ExnerP[index[_ZDIR_]+ghosts];
-
+    _GetCoordinate_(_ZDIR_,index[_ZDIR_],dim,ghosts,solver->x,zcoord);
+    param->StandardAtmosphere(param,zcoord,&EP,&P0,&rho0,&T0);
     _Numa3DGetFlowVars_         ((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT,rho0);
     _Numa3DComputeSpeedofSound_ (param->gamma,param->R,T0,dT,rho0,drho,EP,c);
 

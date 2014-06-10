@@ -17,8 +17,8 @@ int    Numa3DSource     (double*,double*,void*,double);
 int    Numa3DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Numa3DRusanov    (double*,double*,double*,double*,double*,double*,int,void*,double);
 
-static int Numa3DStandardAtmosphere_1(void*,double*,int);
-static int Numa3DStandardAtmosphere_2(void*,double*,int);
+void   Numa3DCalculateStandardAtmosphere_1(void*,double,double*,double*,double*,double*);
+void   Numa3DCalculateStandardAtmosphere_2(void*,double,double*,double*,double*,double*);
 
 int Numa3DInitialize(void *s,void *m)
 {
@@ -49,12 +49,6 @@ int Numa3DInitialize(void *s,void *m)
 
   /* default choice of initial atmosphere */
   physics->init_atmos = 1;
-
-  /* allocate rho0(z), P0(z), T0(z) */
-  physics->rho0   = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
-  physics->P0     = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
-  physics->T0     = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
-  physics->ExnerP = (double*) calloc (solver->dim_local[_ZDIR_]+2*solver->ghosts,sizeof(double));
 
   /* reading physical model specific inputs - all processes */
   if (!mpi->rank) {
@@ -114,9 +108,9 @@ int Numa3DInitialize(void *s,void *m)
   double *zcoord = solver->x + (solver->dim_local[0]+2*solver->ghosts)
                              + (solver->dim_local[1]+2*solver->ghosts);
   if (physics->init_atmos == 1) {
-    IERR Numa3DStandardAtmosphere_1(physics,zcoord,(solver->dim_local[2]+2*solver->ghosts)); 
+    physics->StandardAtmosphere = Numa3DCalculateStandardAtmosphere_1;
   } else if (physics->init_atmos == 2) {
-    IERR Numa3DStandardAtmosphere_2(physics,zcoord,(solver->dim_local[2]+2*solver->ghosts)); 
+    physics->StandardAtmosphere = Numa3DCalculateStandardAtmosphere_2;
   } else {
     if (!mpi->rank) {
       fprintf(stderr,"Error in Numa3DInitialize(): invalid choice of initial atmosphere (init_atmos).\n");
@@ -146,73 +140,5 @@ int Numa3DInitialize(void *s,void *m)
   DomainBoundary  *boundary = (DomainBoundary*) solver->boundary;
   for (n = 0; n < solver->nBoundaryZones; n++)  boundary[n].gamma = physics->gamma;
 
-  return(0);
-}
-
-int Numa3DStandardAtmosphere_1(void *p,double *z,int N)
-{
-  Numa3D *physics = (Numa3D*) p;
-
-  double R      = physics->R;
-  double gamma  = physics->gamma;
-  double g      = physics->g;
-
-  /* reference quantities at zero altitude */
-  double rho0, P0, T0; 
-  P0   = physics->Pref;
-  T0   = physics->Tref;
-
-  double *rho     = physics->rho0;
-  double *P       = physics->P0;
-  double *T       = physics->T0;
-  double *ExnerP  = physics->ExnerP;
-
-  double inv_gamma_m1 = 1.0/(gamma-1.0);
-  double Cp = gamma * inv_gamma_m1 * R;
-
-  int i;
-  for (i=0; i<N; i++) {
-    double zcoord = z[i];
-    double theta  = T0;
-    ExnerP[i] = 1.0 - (g/(Cp*theta))*zcoord;
-    P[i]      = P0 * raiseto(ExnerP[i],gamma*inv_gamma_m1);
-    rho[i]    = (P0/(R*theta)) * raiseto(ExnerP[i],inv_gamma_m1);
-    T[i]      = rho[i] * theta;
-  }
-  return(0);
-}
-
-int Numa3DStandardAtmosphere_2(void *p,double *z,int N)
-{
-  Numa3D *physics = (Numa3D*) p;
-
-  double R      = physics->R;
-  double gamma  = physics->gamma;
-  double g      = physics->g;
-
-  /* reference quantities at zero altitude */
-  double P0, T0; 
-  P0 = physics->Pref;
-  T0 = physics->Tref;
-
-  double *rho     = physics->rho0;
-  double *P       = physics->P0;
-  double *T       = physics->T0;
-  double *ExnerP  = physics->ExnerP;
-
-  double BV = 0.01; /* Brunt-Vaisala frequency */
-  double inv_gamma_m1 = 1.0/(gamma-1.0);
-  double Cp = gamma * inv_gamma_m1 * R;
-
-  int i;
-  for (i=0; i<N; i++) {
-    double zcoord = z[i];
-    double term   = BV*BV*zcoord/g;
-    double theta  = T0 * exp(term);
-    ExnerP[i] = 1.0 + (g*g/(Cp*T0*BV*BV)) * (exp(-term) - 1.0);
-    P[i]      = P0 * raiseto(ExnerP[i],gamma*inv_gamma_m1);
-    rho[i]    = (P0/(R*theta)) * raiseto(ExnerP[i],inv_gamma_m1);
-    T[i]      = rho[i]*theta;
-  }
   return(0);
 }

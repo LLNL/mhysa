@@ -25,11 +25,10 @@ int Numa3DFlux(double *f,double *u,int dir,void *s,double t)
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
-    double drho,uvel,vvel,wvel,dT,dP,rho0,T0,P0;
+    double drho,uvel,vvel,wvel,dT,dP,rho0,T0,P0,EP,zcoord;
 
-    rho0 = param->rho0[index[_ZDIR_]];
-    P0   = param->P0  [index[_ZDIR_]];
-    T0   = param->T0  [index[_ZDIR_]];
+    _GetCoordinate_(_ZDIR_,index[_ZDIR_]-ghosts,dim,ghosts,solver->x,zcoord);
+    param->StandardAtmosphere(param,zcoord,&EP,&P0,&rho0,&T0);
 
     _Numa3DGetFlowVars_     ((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT,rho0);
     _Numa3DComputePressure_ (param,T0,dT,P0,dP);
@@ -62,11 +61,10 @@ int Numa3DStiffFlux(double *f,double *u,int dir,void *s,double t)
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
-    double drho,uvel,vvel,wvel,dT,dP,rho0,T0,P0;
+    double drho,uvel,vvel,wvel,dT,dP,rho0,T0,P0,EP,zcoord;
 
-    rho0 = param->rho0[index[_ZDIR_]];
-    P0   = param->P0  [index[_ZDIR_]];
-    T0   = param->T0  [index[_ZDIR_]];
+    _GetCoordinate_(_ZDIR_,index[_ZDIR_]-ghosts,dim,ghosts,solver->x,zcoord);
+    param->StandardAtmosphere(param,zcoord,&EP,&P0,&rho0,&T0);
 
     _Numa3DGetFlowVars_               ((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT,rho0);
     _Numa3DComputeLinearizedPressure_ (param,T0,dT,P0,dP);

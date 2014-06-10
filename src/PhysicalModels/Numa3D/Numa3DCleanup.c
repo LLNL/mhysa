@@ -4,11 +4,5 @@
 
 int Numa3DCleanup(void *s)
 {
-  Numa3D *physics = (Numa3D*) s;
-
-  free(physics->rho0);
-  free(physics->P0);
-  free(physics->T0);
-  free(physics->ExnerP);
   return(0);
 }
