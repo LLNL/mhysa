@@ -40,32 +40,11 @@ int BCNoFluxU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *p
       _ArrayIndex1DWO_  (ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_    (ndims,size,indexi,ghosts,p2);
       
-      /* flow variables in the interior */
-      double drho, uvel, vvel, wvel, dT;
-      double drho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, dT_gpt;
-      _Numa3DGetFlowVars_((phi+nvars*p2),drho,uvel,vvel,wvel,dT,1.0);
-      /* set the ghost point values */
-      drho_gpt  = drho;
-      dT_gpt    = dT;
-      if (dim == _XDIR_) {
-        uvel_gpt = -uvel;
-        vvel_gpt =  vvel;
-        wvel_gpt =  wvel;
-      } else if (dim == _YDIR_) {
-        uvel_gpt =  uvel;
-        vvel_gpt = -vvel;
-        wvel_gpt =  wvel;
-      } else if (dim == _ZDIR_) {
-        uvel_gpt =  uvel;
-        vvel_gpt =  vvel;
-        wvel_gpt = -wvel;
-      }
-
-      phi[nvars*p1+0] = drho_gpt;
-      phi[nvars*p1+1] = uvel_gpt;
-      phi[nvars*p1+2] = vvel_gpt;
-      phi[nvars*p1+3] = wvel_gpt;
-      phi[nvars*p1+4] = dT_gpt;
+      phi[nvars*p1+0] = phi[nvars*p2+0];
+      phi[nvars*p1+1] = (dim == _XDIR_ ? -phi[nvars*p2+1] : phi[nvars*p2+1] );
+      phi[nvars*p1+2] = (dim == _YDIR_ ? -phi[nvars*p2+2] : phi[nvars*p2+2] );
+      phi[nvars*p1+3] = (dim == _ZDIR_ ? -phi[nvars*p2+3] : phi[nvars*p2+3] );
+      phi[nvars*p1+4] = phi[nvars*p2+4];
 
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
@@ -96,31 +75,11 @@ int BCNoFluxDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       _ArrayIndex1DWO_  (ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_    (ndims,size,indexi,ghosts,p2);
       
-      /* flow variables in the interior */
-      double drho, uvel, vvel, wvel, dT;
-      double drho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, dT_gpt;
-      _Numa3DGetFlowVars_((phi+nvars*p2),drho,uvel,vvel,wvel,dT,1.0);
-      /* setting the ghost point values for the total flow variables */
-      drho_gpt  = drho;
-      dT_gpt    = dT;
-      if (dim == _XDIR_) {
-        uvel_gpt = -uvel;
-        vvel_gpt =  vvel;
-        wvel_gpt =  wvel;
-      } else if (dim == _YDIR_) {
-        uvel_gpt =  uvel;
-        vvel_gpt = -vvel;
-        wvel_gpt =  wvel;
-      } else if (dim == _ZDIR_) {
-        uvel_gpt =  uvel;
-        vvel_gpt =  vvel;
-        wvel_gpt = -wvel;
-      }
-      phi[nvars*p1+0] = drho_gpt;
-      phi[nvars*p1+1] = uvel_gpt;
-      phi[nvars*p1+2] = vvel_gpt;
-      phi[nvars*p1+3] = wvel_gpt;
-      phi[nvars*p1+4] = dT_gpt;
+      phi[nvars*p1+0] = 0;
+      phi[nvars*p1+1] = 0;
+      phi[nvars*p1+2] = 0;
+      phi[nvars*p1+3] = 0;
+      phi[nvars*p1+4] = 0;
 
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
