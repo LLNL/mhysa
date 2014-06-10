@@ -14,6 +14,7 @@ double Numa3DComputeCFL (void*,void*,double,double);
 int    Numa3DFlux       (double*,double*,int,void*,double);
 int    Numa3DStiffFlux  (double*,double*,int,void*,double);
 int    Numa3DSource     (double*,double*,void*,double);
+int    Numa3DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Numa3DRusanov    (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 static int Numa3DStandardAtmosphere_1(void*,double*,int);
@@ -43,6 +44,8 @@ int Numa3DInitialize(void *s,void *m)
 
   physics->Pref   = 101327.0;       /* N m^{-2}         */
   physics->Tref   = 288.15;         /* Kelvin           */
+
+  strcpy(physics->upwind,"rf-char");
 
   /* default choice of initial atmosphere */
   physics->init_atmos = 1;
@@ -79,6 +82,8 @@ int Numa3DInitialize(void *s,void *m)
             ferr = fscanf(in,"%lf",&physics->Tref); if (ferr != 1) return(1);
           } else if (!strcmp(word,"init_atmos")) {
             ferr = fscanf(in,"%d",&physics->init_atmos); if (ferr != 1) return(1);
+          } else if (!strcmp(word,"upwinding")) {
+            ferr = fscanf(in,"%s",physics->upwind); if (ferr != 1) return(1);
           } else if (strcmp(word,"end")) {
             char useless[_MAX_STRING_SIZE_];
             ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
@@ -95,13 +100,14 @@ int Numa3DInitialize(void *s,void *m)
   }
 
 #ifndef serial
-  IERR MPIBroadcast_double  (&physics->gamma      ,1,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double  (&physics->R          ,1,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double  (&physics->g          ,1,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double  (&physics->Omega      ,1,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double  (&physics->Pref       ,1,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double  (&physics->Tref       ,1,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_integer (&physics->init_atmos ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->gamma      ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->R          ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->g          ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Omega      ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Pref       ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Tref       ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer   (&physics->init_atmos ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character ( physics->upwind     ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
 #endif
 
   /* calculate the mean hydrostatic atmosphere as a function of altitude */
@@ -126,7 +132,14 @@ int Numa3DInitialize(void *s,void *m)
   solver->FFunction       = Numa3DFlux;
   solver->ComputeCFL      = Numa3DComputeCFL;
   solver->SFunction       = Numa3DSource;
-  solver->Upwind          = Numa3DRusanov;
+  if (!strcmp(physics->upwind,"rusanov"))
+    solver->Upwind        = Numa3DRusanov;
+  else if (!strcmp(physics->upwind,"rf-char"))
+    solver->Upwind        = Numa3DUpwindRF;
+  else {
+    if (!mpi->rank) fprintf(stderr,"Error in Numa3DInitialize(): Invalid choice of upwinding scheme.\n");
+    return(1);
+  }
 
   /* set the value of gamma in all the boundary objects */
   int n;
