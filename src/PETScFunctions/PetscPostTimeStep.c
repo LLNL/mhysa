@@ -52,7 +52,7 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   }
 
   /* Write intermediate solution to file */
-  if ((iter+1)%solver->file_op_iter == 0) 
+  if (iter%solver->file_op_iter == 0) 
     ierr = OutputSolution(solver,mpi); CHECKERR(ierr);
 
   return(0);
