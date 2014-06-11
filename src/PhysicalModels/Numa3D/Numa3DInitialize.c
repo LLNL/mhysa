@@ -45,7 +45,7 @@ int Numa3DInitialize(void *s,void *m)
   physics->Pref   = 101327.0;       /* N m^{-2}         */
   physics->Tref   = 288.15;         /* Kelvin           */
 
-  strcpy(physics->upwind,"rf-char");
+  strcpy(physics->upwind,_RUSANOV_UPWINDING_);
 
   /* default choice of initial atmosphere */
   physics->init_atmos = 1;
@@ -126,10 +126,8 @@ int Numa3DInitialize(void *s,void *m)
   solver->FFunction       = Numa3DFlux;
   solver->ComputeCFL      = Numa3DComputeCFL;
   solver->SFunction       = Numa3DSource;
-  if (!strcmp(physics->upwind,"rusanov"))
-    solver->Upwind        = Numa3DRusanov;
-  else if (!strcmp(physics->upwind,"rf-char"))
-    solver->Upwind        = Numa3DUpwindRF;
+  if (!strcmp(physics->upwind,_RUSANOV_UPWINDING_))       solver->Upwind = Numa3DRusanov;
+  else if (!strcmp(physics->upwind,_RF_CHAR_UPWINDING_))  solver->Upwind = Numa3DUpwindRF;
   else {
     if (!mpi->rank) fprintf(stderr,"Error in Numa3DInitialize(): Invalid choice of upwinding scheme.\n");
     return(1);

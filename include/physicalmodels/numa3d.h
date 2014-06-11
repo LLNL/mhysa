@@ -386,3 +386,7 @@ typedef struct numa3d_parameters {
 
 int Numa3DInitialize (void*,void*);
 int Numa3DCleanup    (void*);
+
+/* Available upwinding schemes */
+#define _RUSANOV_UPWINDING_ "rusanov"
+#define _RF_CHAR_UPWINDING_ "rf-char" /* does not work! */
