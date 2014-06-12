@@ -27,6 +27,7 @@ HyPar_LDADD = \
   PhysicalModels/Euler2D/libEuler2D.a \
   PhysicalModels/NavierStokes2D/libNavierStokes2D.a \
   PhysicalModels/NavierStokes3D/libNavierStokes3D.a \
+  PhysicalModels/Numa2D/libNuma2D.a \
   PhysicalModels/Numa3D/libNuma3D.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   FirstDerivative/libFirstDerivative.a \

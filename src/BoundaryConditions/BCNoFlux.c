@@ -3,10 +3,11 @@
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
+#include <physicalmodels/numa2d.h>
 #include <physicalmodels/numa3d.h>
 
 /* 
- * No-Flux BC - specific to the NUMA 3D system
+ * No-Flux BC - specific to the NUMA 2D/3D systems
  * Used for inviscid walls or symmetry boundaries
  * (It's equivalent to the slip-wall BC of the Euler/
  * Navier-Stokes system, but the solution vector 
@@ -40,11 +41,18 @@ int BCNoFluxU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *p
       _ArrayIndex1DWO_  (ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_    (ndims,size,indexi,ghosts,p2);
       
-      phi[nvars*p1+0] = phi[nvars*p2+0];
-      phi[nvars*p1+1] = (dim == _XDIR_ ? -phi[nvars*p2+1] : phi[nvars*p2+1] );
-      phi[nvars*p1+2] = (dim == _YDIR_ ? -phi[nvars*p2+2] : phi[nvars*p2+2] );
-      phi[nvars*p1+3] = (dim == _ZDIR_ ? -phi[nvars*p2+3] : phi[nvars*p2+3] );
-      phi[nvars*p1+4] = phi[nvars*p2+4];
+      if (nvars == 4) {
+        phi[nvars*p1+0] = phi[nvars*p2+0];
+        phi[nvars*p1+1] = (dim == _XDIR_ ? -phi[nvars*p2+1] : phi[nvars*p2+1] );
+        phi[nvars*p1+2] = (dim == _YDIR_ ? -phi[nvars*p2+2] : phi[nvars*p2+2] );
+        phi[nvars*p1+3] = phi[nvars*p2+3];
+      } else if (nvars == 5) {
+        phi[nvars*p1+0] = phi[nvars*p2+0];
+        phi[nvars*p1+1] = (dim == _XDIR_ ? -phi[nvars*p2+1] : phi[nvars*p2+1] );
+        phi[nvars*p1+2] = (dim == _YDIR_ ? -phi[nvars*p2+2] : phi[nvars*p2+2] );
+        phi[nvars*p1+3] = (dim == _ZDIR_ ? -phi[nvars*p2+3] : phi[nvars*p2+3] );
+        phi[nvars*p1+4] = phi[nvars*p2+4];
+      }
 
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
@@ -75,11 +83,7 @@ int BCNoFluxDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       _ArrayIndex1DWO_  (ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_    (ndims,size,indexi,ghosts,p2);
       
-      phi[nvars*p1+0] = 0;
-      phi[nvars*p1+1] = 0;
-      phi[nvars*p1+2] = 0;
-      phi[nvars*p1+3] = 0;
-      phi[nvars*p1+4] = 0;
+      for (v-0; v<nvars; v++) phi[nvars*p1+v] = 0;
 
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }

@@ -15,6 +15,7 @@
 #include <physicalmodels/euler2d.h>
 #include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
+#include <physicalmodels/numa2d.h>
 #include <physicalmodels/numa3d.h>
 
 int InitializePhysics(void *s,void *m)
@@ -82,6 +83,11 @@ int InitializePhysics(void *s,void *m)
 
     solver->physics = (NavierStokes3D*) calloc (1,sizeof(NavierStokes3D));
     IERR NavierStokes3DInitialize(solver,mpi); CHECKERR(ierr);
+
+  } else if (!strcmp(solver->model,_NUMA2D_)) {
+
+    solver->physics = (Numa2D*) calloc (1,sizeof(Numa2D));
+    IERR Numa2DInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_NUMA3D_)) {
 
