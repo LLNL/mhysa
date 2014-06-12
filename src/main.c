@@ -175,6 +175,9 @@ int main(int argc,char **argv)
   }
   if (!mpi.rank) printf("Finished.\n");
 
+#ifdef with_petsc
+  PetscFinalize();
+#endif
 
 #ifndef serial
   MPI_Comm_free(&mpi.world);
