@@ -9,6 +9,7 @@ begin
   time_scheme_type    ssprk3
   hyp_space_scheme    weno5
   hyp_interp_type     components
+  hyp_flux_split      yes
   dt                  0.5
   screen_op_iter      10
   file_op_iter        100
