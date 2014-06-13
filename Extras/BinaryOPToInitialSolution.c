@@ -1,6 +1,9 @@
 /*
-  This code converts a binary solution file to an
-  initial solution file initial.inp.
+  This code converts a binary solution file to file 
+  solution.inp in the same format as a binary initial.inp.
+  To use is as an initial solution (for example, in a 
+  restart run), rename it to initial.inp and place it in
+  the run directory.
   If input mode is parallel, use ParallelInput.c
   thereafter.
 */
@@ -69,7 +72,7 @@ int main()
     fclose(in);
 
     /* write initial solution file */
-    out = fopen("initial.inp","wb");
+    out = fopen("solution.inp","wb");
     fwrite(x,sizeof(double),sizex,out);
     fwrite(U,sizeof(double),sizeu,out);
     fclose(out);
