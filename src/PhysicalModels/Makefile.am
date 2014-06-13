@@ -8,4 +8,5 @@ SUBDIRS = \
   NavierStokes2D \
   NavierStokes3D \
   Numa2D \
+  Numa2DCons \
   Numa3D
