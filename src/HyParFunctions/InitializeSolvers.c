@@ -24,6 +24,8 @@ int  SourceFunction              (double*,double*,void*,void*,double);
 int  VolumeIntegral              (double*,double*,void*,void*);
 int  BoundaryIntegral            (void*,void*);
 void IncrementFilename           (char*);
+int  NonLinearInterpolation      (double*,void*,void*,double,
+                                  int(*)(double*,double*,int,void*,double));
 
 int InitializeSolvers(void *s, void *m)
 {
@@ -38,6 +40,7 @@ int InitializeSolvers(void *s, void *m)
   solver->SourceFunction           = SourceFunction;
   solver->VolumeIntegralFunction   = VolumeIntegral;
   solver->BoundaryIntegralFunction = BoundaryIntegral;
+  solver->NonlinearInterp          = NonLinearInterpolation;
 
   /* choose the type of parabolic discretization */
   if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) 

@@ -33,7 +33,7 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     if (context->flag_hyperbolic_f == _IMPLICIT_) {
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction);  CHECKERR(ierr);
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction);  CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
       ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction); CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp, 1.0,rhs,size*solver->nvars);
@@ -44,7 +44,7 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
     }
   } else {
     if (context->flag_hyperbolic == _IMPLICIT_) {
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction);  CHECKERR(ierr);
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction);  CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
     }
   }

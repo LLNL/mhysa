@@ -11,6 +11,7 @@ libHyParFunctions_a_SOURCES = \
   InitializeBoundaries.c \
   InitializePhysics.c \
   InitializeSolvers.c \
+  NonLinearInterpolation.c \
   OutputSolution.c \
   ParabolicFunctionCons1Stage.c \
   ParabolicFunctionNC1Stage.c \

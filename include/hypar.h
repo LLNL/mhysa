@@ -65,6 +65,10 @@ typedef struct main_parameters {
   int (*ParabolicFunction)  (double*,double*,void*,void*,double);       /* parabolic terms  */
   int (*SourceFunction)     (double*,double*,void*,void*,double);       /* source terms     */
 
+  /* function to calculate non-linear interpolation coefficients */
+  int (*NonlinearInterp)    (double*,void*,void*,double,
+                             int(*)(double*,double*,int,void*,double));
+
   /* Physics  */
   char model[_MAX_STRING_SIZE_];          /* name of model, ie, linear advection, euler...*/
   void *physics;                          /* object containing the physics                */

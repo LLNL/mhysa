@@ -152,6 +152,7 @@ int SolvePETSc(void *s,void *m)
   }
 
   /* Set pre/post-stage and post-timestep function */
+  ierr = TSSetPreStep (ts,PetscPreTimeStep );                             CHKERRQ(ierr);
   ierr = TSSetPreStage(ts,PetscPreStage    );                             CHKERRQ(ierr);
   ierr = TSSetPostStage(ts,PetscPostStage  );                             CHKERRQ(ierr);
   ierr = TSSetPostStep(ts,PetscPostTimeStep);                             CHKERRQ(ierr);

@@ -6,13 +6,15 @@
 #include <petscinterface.h>
 #include <hypar.h>
 
-PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec *Y)
+PetscErrorCode PetscPreTimeStep(TS ts)
 {
   PETScContext    *context  = NULL;
   HyPar           *solver   = NULL;
   MPIVariables    *mpi      = NULL;
-  TSType          time_scheme;
   PetscErrorCode  ierr      = 0;
+  Vec             Y;
+  TSType          time_scheme;
+  double          waqt;
 
   ierr = TSGetApplicationContext(ts,&context); CHKERRQ(ierr);
   if (!context) {
@@ -23,17 +25,25 @@ PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec 
   mpi     = context->mpi;
 
   /* get solution */
-  ierr = TransferFromPETSc(solver->u,Y[stageindex],context); CHECKERR(ierr);
+  ierr = TSGetSolution(ts,&Y);                    CHKERRQ(ierr);
+  ierr = TransferFromPETSc(solver->u,Y,context);  CHECKERR(ierr);
+  ierr = TSGetTime(ts,&waqt);                     CHKERRQ(ierr);
+
+  /* Call any physics-specific pre-step function */
+  if (solver->PreStep)  { 
+    ierr = solver->PreStep(solver->u,solver,mpi,waqt); 
+    CHECKERR(ierr); 
+  }
 
   /* If using a non-linear scheme with ARKIMEX methods, 
      compute the non-linear finite-difference operator */
-  ierr = TSGetType(ts,&time_scheme); CHKERRQ(ierr);
+  ierr = TSGetType(ts,&time_scheme);        CHKERRQ(ierr);
   if (!strcmp(time_scheme,TSARKIMEX)) {
-    ierr = solver->NonlinearInterp(solver->u,solver,mpi,(double)stagetime,
-                                   solver->FFunction); CHECKERR(ierr);
+    ierr = solver->NonlinearInterp(solver->u,solver,mpi,waqt,solver->FFunction); 
+    CHECKERR(ierr);
   }
 
-
+  return(0);
 }
 
 #endif

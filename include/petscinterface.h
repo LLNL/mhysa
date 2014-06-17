@@ -43,5 +43,6 @@ PetscErrorCode PetscJacobianFunctionIMEX  (Mat,Vec,Vec);
 /* Other functions */
 PetscErrorCode PetscPreStage        (TS,PetscReal);
 PetscErrorCode PetscPostStage       (TS,PetscReal,PetscInt,Vec*);
+PetscErrorCode PetscPreTimeStep     (TS);
 PetscErrorCode PetscPostTimeStep    (TS);
 
