@@ -33,7 +33,7 @@ PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec 
                                    solver->FFunction); CHECKERR(ierr);
   }
 
-
+  return(0);
 }
 
 #endif
