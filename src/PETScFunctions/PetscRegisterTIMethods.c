@@ -5,10 +5,16 @@
 #include <string.h>
 #include <petscinterface.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "PetscRegisterTIMethods"
+
 int PetscRegisterTIMethods(int rank)
 {
   PetscErrorCode ierr;
   int            ierr2;
+
+  PetscFunctionBegin;
+
   /* Note: all processors read and register the custom methods */
   /* instead of root doing it and broadcasting.                */
   FILE *in;
@@ -255,7 +261,7 @@ int PetscRegisterTIMethods(int rank)
     
     }
   }
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif

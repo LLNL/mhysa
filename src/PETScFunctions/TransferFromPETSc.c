@@ -6,12 +6,17 @@
 #include <petscinterface.h>
 #include <hypar.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "TransferFromPETSc"
+
 int TransferFromPETSc(double *u,Vec Y,void *ctxt) 
 {
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;
   PetscErrorCode  ierr     = 0;
   double          *Yarr;
+
+  PetscFunctionBegin;
 
   int *index = (int*) calloc (solver->ndims,sizeof(int));
 
@@ -21,7 +26,7 @@ int TransferFromPETSc(double *u,Vec Y,void *ctxt)
   ierr = VecRestoreArray(Y,&Yarr); CHKERRQ(ierr);
 
   free(index);
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif

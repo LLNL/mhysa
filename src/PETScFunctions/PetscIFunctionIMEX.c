@@ -7,12 +7,17 @@
 #include <hypar.h>
 #include <petscinterface.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "PetscIFunctionIMEX"
+
 PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, void *ctxt)
 {
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;
   MPIVariables    *mpi     = (MPIVariables*) context->mpi;
   int             ierr     = 0, d;
+
+  PetscFunctionBegin;
 
   int size = 1;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
@@ -67,7 +72,7 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
   /* LHS = Ydot - F(u) */
   ierr = VecAYPX(F,-1.0,Ydot); CHKERRQ(ierr);
 
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif

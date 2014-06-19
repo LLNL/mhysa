@@ -7,14 +7,21 @@
 #include <hypar.h>
 #include <petscinterface.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "PetscIJacobianIMEX"
+
 PetscErrorCode PetscIJacobianIMEX(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
                                   Mat A,Mat B,void *ctxt)
 {
   PETScContext *context = (PETScContext*) ctxt;
+  PetscFunctionBegin;
   context->shift = a;
   context->waqt  = t;
-  return(0);
+  PetscFunctionReturn(0);
 }
+
+#undef __FUNCT__
+#define __FUNCT__ "PetscJacobianFunctionIMEX"
 
 PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
 {
@@ -22,6 +29,8 @@ PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
   HyPar           *solver  = NULL;
   MPIVariables    *mpi     = NULL;
   int             ierr     = 0, d;
+
+  PetscFunctionBegin;
 
   ierr   = MatShellGetContext(Jacobian,&context); CHKERRQ(ierr);
   solver = context->solver;
@@ -81,7 +90,7 @@ PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
   /* [J]Y = aY - F(Y) */
   ierr = VecAXPBY(F,context->shift,-1.0,Y);                               CHKERRQ(ierr);
 
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif

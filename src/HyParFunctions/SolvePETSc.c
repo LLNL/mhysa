@@ -11,6 +11,9 @@
 #include <hypar.h>
 #include <petscinterface.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "SolvePETSc"
+
 int SolvePETSc(void *s,void *m)
 {
   HyPar           *solver = (HyPar*)        s;
@@ -20,6 +23,8 @@ int SolvePETSc(void *s,void *m)
   Vec             Y;  /* PETSc solution vector    */
   Mat             A;  /* Jacobian matrix          */
   TSType          time_scheme;
+
+  PetscFunctionBegin;
 
   /* Register custom time-integration methods, if specified */
   ierr = PetscRegisterTIMethods(mpi->rank);                               CHECKERR(ierr);
@@ -176,7 +181,7 @@ int SolvePETSc(void *s,void *m)
   }
   ierr = TSDestroy(&ts);                                                  CHKERRQ(ierr);
   ierr = VecDestroy(&Y);                                                  CHKERRQ(ierr);
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif

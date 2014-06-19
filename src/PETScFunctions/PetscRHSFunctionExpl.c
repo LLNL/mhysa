@@ -7,12 +7,17 @@
 #include <hypar.h>
 #include <petscinterface.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "PetscRHSFunctionExpl"
+
 PetscErrorCode PetscRHSFunctionExpl(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt)
 {
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;
   MPIVariables    *mpi     = (MPIVariables*) context->mpi;
   int             ierr     = 0, d;
+
+  PetscFunctionBegin;
   
   int size = 1;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
@@ -40,7 +45,7 @@ PetscErrorCode PetscRHSFunctionExpl(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt
   /* Transfer RHS to PETSc vector */
   ierr = TransferToPETSc(rhs,F,context);                                            CHECKERR(ierr);
 
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif

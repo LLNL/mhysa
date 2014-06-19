@@ -2,9 +2,13 @@
 
 #include <petscinterface.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "PetscPreStage"
+
 PetscErrorCode PetscPreStage(TS ts,PetscReal waqt)
 {
-  return(0);
+  PetscFunctionBegin;
+  PetscFunctionReturn(0);
 }
 
 #endif

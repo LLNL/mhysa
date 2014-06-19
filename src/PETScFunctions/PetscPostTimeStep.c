@@ -6,6 +6,9 @@
 #include <petscinterface.h>
 #include <hypar.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "PetscPostTimeStep"
+
 PetscErrorCode PetscPostTimeStep(TS ts)
 {
   PETScContext    *context  = NULL;
@@ -13,6 +16,8 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   MPIVariables    *mpi      = NULL;
   PetscErrorCode  ierr;
   Vec             Y;
+
+  PetscFunctionBegin;
 
   ierr = TSGetApplicationContext(ts,&context); CHKERRQ(ierr);
   if (!context) {
@@ -55,7 +60,7 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   if (iter%solver->file_op_iter == 0) 
     ierr = OutputSolution(solver,mpi); CHECKERR(ierr);
 
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif

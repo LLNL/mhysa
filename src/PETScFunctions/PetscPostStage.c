@@ -6,6 +6,9 @@
 #include <petscinterface.h>
 #include <hypar.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "PetscPostStage"
+
 PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec *Y)
 {
   PETScContext    *context  = NULL;
@@ -13,6 +16,8 @@ PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec 
   MPIVariables    *mpi      = NULL;
   TSType          time_scheme;
   PetscErrorCode  ierr      = 0;
+
+  PetscFunctionBegin;
 
   ierr = TSGetApplicationContext(ts,&context); CHKERRQ(ierr);
   if (!context) {
@@ -33,7 +38,7 @@ PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec 
                                    solver->FFunction); CHECKERR(ierr);
   }
 
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif

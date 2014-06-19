@@ -6,6 +6,9 @@
 #include <petscinterface.h>
 #include <hypar.h>
 
+#undef __FUNCT__
+#define __FUNCT__ "PetscPreTimeStep"
+
 PetscErrorCode PetscPreTimeStep(TS ts)
 {
   PETScContext    *context  = NULL;
@@ -15,6 +18,8 @@ PetscErrorCode PetscPreTimeStep(TS ts)
   Vec             Y;
   TSType          time_scheme;
   double          waqt;
+
+  PetscFunctionBegin;
 
   ierr = TSGetApplicationContext(ts,&context); CHKERRQ(ierr);
   if (!context) {
@@ -43,7 +48,7 @@ PetscErrorCode PetscPreTimeStep(TS ts)
     CHECKERR(ierr);
   }
 
-  return(0);
+  PetscFunctionReturn(0);
 }
 
 #endif
