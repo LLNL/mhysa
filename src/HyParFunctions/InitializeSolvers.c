@@ -69,8 +69,10 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Spatial interpolation for hyperbolic term */
-  solver->interp    = NULL;
-  solver->lusolver  = NULL;
+  solver->interp                = NULL;
+  solver->lusolver              = NULL;
+  solver->SetInterpLimiterVar   = NULL;
+  solver->flag_nonlinearinterp  = 1;
   if (!strcmp(solver->spatial_scheme_hyp,_FIRST_ORDER_UPWIND_)) {
     /* First order upwind scheme */
     if (solver->nvars > 1) {
@@ -144,6 +146,7 @@ int InitializeSolvers(void *s, void *m)
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
     IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp,solver->interp_type); CHECKERR(ierr);
+    solver->flag_nonlinearinterp = !(((WENOParameters*)solver->interp)->no_limiting);
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
     /* Fifth order CRWENO scheme */
     if (solver->nvars > 1) {
@@ -169,6 +172,7 @@ int InitializeSolvers(void *s, void *m)
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
     IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp,solver->interp_type); CHECKERR(ierr);
+    solver->flag_nonlinearinterp = !(((WENOParameters*)solver->interp)->no_limiting);
     solver->lusolver = (TridiagLU*) calloc (1,sizeof(TridiagLU));
     IERR tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_HCWENO_)) {
@@ -196,6 +200,7 @@ int InitializeSolvers(void *s, void *m)
     }
     solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
     IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp,solver->interp_type); CHECKERR(ierr);
+    solver->flag_nonlinearinterp = !(((WENOParameters*)solver->interp)->no_limiting);
     solver->lusolver = (TridiagLU*) calloc (1,sizeof(TridiagLU));
     IERR tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
   } else {
@@ -203,7 +208,6 @@ int InitializeSolvers(void *s, void *m)
             solver->spatial_scheme_hyp);
     return(1);
   }
-  solver->SetInterpLimiterVar = InterpSetLimiterVar;
 
   /* Time integration */
   if (!strcmp(solver->time_scheme,_FORWARD_EULER_)) { 

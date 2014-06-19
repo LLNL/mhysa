@@ -120,6 +120,9 @@ typedef struct main_parameters {
   double  *rhs;         /* RHS vector                  */
 #endif
 
+  /* hack-y parameters */
+  int flag_nonlinearinterp; /* flag to globally switch on/off non-linear interpolation */
+
 } HyPar;
 
 /* Functions */

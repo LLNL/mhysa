@@ -122,9 +122,6 @@ typedef struct parameters_weno {
   int *offset;
   int size;
 
-  /* function pointer to the weight calculation function */
-  int (*CalculateWENOWeights) (double*,double*,double*,int,void*,void*);
-
 } WENOParameters;
 int WENOInitialize(void*,void*,char*,char*);
 int WENOCleanup(void*);

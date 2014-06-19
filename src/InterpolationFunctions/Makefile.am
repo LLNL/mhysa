@@ -11,8 +11,8 @@ libInterpolationFunctions_a_SOURCES = \
   Interp1PrimFifthOrderWENO.c \
   Interp1PrimFifthOrderWENOChar.c \
   Interp2PrimSecondOrder.c \
-  InterpSetLimiterVar.c \
   MUSCLInitialize.c \
   WENOCleanup.c \
   WENOFifthOrderCalculateWeights.c \
+  WENOFifthOrderInitializeWeights.c \
   WENOInitialize.c

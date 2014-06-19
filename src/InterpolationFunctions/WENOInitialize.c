@@ -7,6 +7,7 @@
 
 int WENOFifthOrderCalculateWeights    (double*,double*,double*,int,void*,void*);
 int WENOFifthOrderCalculateWeightsChar(double*,double*,double*,int,void*,void*);
+int WENOFifthOrderInitializeWeights   (int,void*,void*);
 
 int WENOInitialize(void *s,void *m, char *scheme,char *type)
 {
@@ -134,11 +135,12 @@ int WENOInitialize(void *s,void *m, char *scheme,char *type)
   weno->w2 = (double*) calloc (4*total_size,sizeof(double));
   weno->w3 = (double*) calloc (4*total_size,sizeof(double));
 
-  if ((!strcmp(type,_CHARACTERISTIC_)) && (nvars > 1)) {
-    weno->CalculateWENOWeights = WENOFifthOrderCalculateWeightsChar;
-  } else {
-    weno->CalculateWENOWeights = WENOFifthOrderCalculateWeights;
-  }
+  if ((!strcmp(type,_CHARACTERISTIC_)) && (nvars > 1)) 
+    solver->SetInterpLimiterVar = WENOFifthOrderCalculateWeightsChar;
+  else solver->SetInterpLimiterVar = WENOFifthOrderCalculateWeights;
+
+  /* initialize WENO weights to their optimal values */
+  for (d=0; d<ndims; d++) WENOFifthOrderInitializeWeights(d,solver,mpi);
 
   return(0);
 }
