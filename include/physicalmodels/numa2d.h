@@ -91,9 +91,9 @@
     dP  = (gamma*P0/T0) * dT; \
   }
 
-#define _Numa2DComputeSpeedofSound_(gamma,R,T0,dT,rho0,drho,EP,c) \
+#define _Numa2DComputeSpeedofSound_(gamma,R,T0,rho0,EP,c) \
   { \
-    c = sqrt(gamma*R*(T0+dT)*EP/(rho0+drho)); \
+    c = sqrt(gamma*R*T0*EP/rho0); \
   }
 
 #define _Numa2DRoeAverage_(uavg,u1,u2,params,rho01,rho02,rho0,T01,T02,T0,EP1,EP2,EP) \

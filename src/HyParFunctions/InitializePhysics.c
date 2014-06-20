@@ -36,6 +36,7 @@ int InitializePhysics(void *s,void *m)
   solver->HFunction             = NULL;
   solver->SFunction             = NULL;
   solver->Upwind                = NULL;
+  solver->UpwinddF              = NULL;
   solver->PreStage              = NULL;
   solver->PostStage             = NULL;
   solver->PreStep               = NULL;
@@ -120,11 +121,12 @@ int InitializePhysics(void *s,void *m)
   }
 
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
-    if (!solver->dFFunction) {
+    if ((!solver->dFFunction) || (!solver->UpwinddF)) {
       if (!mpi->rank) {
-        fprintf(stderr,"Error: Splitting of hyperbolic flux requires a dFFunction.\n");
+        fprintf(stderr,"Error: Splitting of hyperbolic flux requires a dFFunction ");
+        fprintf(stderr,"and its upwinding function UpwinddF.\n");
         fprintf(stderr,"Error: f(u) = [f(u) - df(u)] + df(u).\n");
-        fprintf(stderr,"Error: dFFunction is NULL.\n");
+        fprintf(stderr,"Error: dFFunction or UpwinddF (or both) is (are) NULL.\n");
       }
       return(1);
     }

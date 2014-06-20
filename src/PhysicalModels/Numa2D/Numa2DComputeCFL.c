@@ -26,7 +26,7 @@ double Numa2DComputeCFL(void *s,void *m,double dt,double t)
     _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,solver->x,ycoord);
     param->StandardAtmosphere   (param,ycoord,&EP,&P0,&rho0,&T0);
     _Numa2DGetFlowVars_         ((u+_MODEL_NVARS_*p),drho,uvel,vvel,dT,rho0);
-    _Numa2DComputeSpeedofSound_ (param->gamma,param->R,T0,dT,rho0,drho,EP,c);
+    _Numa2DComputeSpeedofSound_ (param->gamma,param->R,T0,rho0,EP,c);
 
     double dxinv, dyinv;
     _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv,dxinv); /* 1/dx */

@@ -38,21 +38,21 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     if (context->flag_hyperbolic_f == _IMPLICIT_) {
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction);  
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction,solver->Upwind);  
       CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction); 
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction,solver->UpwinddF); 
       CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp, 1.0,rhs,size*solver->nvars);
     } 
     if (context->flag_hyperbolic_df == _IMPLICIT_) {
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction); 
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction,solver->UpwinddF); 
       CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
     }
   } else {
     if (context->flag_hyperbolic == _IMPLICIT_) {
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction);  
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction,solver->Upwind);  
       CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
     }

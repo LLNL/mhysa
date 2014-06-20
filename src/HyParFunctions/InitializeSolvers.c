@@ -16,7 +16,9 @@ int  WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
 int  WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
 int  ApplyBoundaryConditions     (void*,void*,double*,double*,int,double);
 int  HyperbolicFunction          (double*,double*,void*,void*,double,int,
-                                  int(*)(double*,double*,int,void*,double));
+                                  int(*)(double*,double*,int,void*,double),
+                                  int(*)(double*,double*,double*,double*,double*,
+                                         double*,int,void*,double));
 int  ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);

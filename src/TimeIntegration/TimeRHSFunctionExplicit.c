@@ -19,7 +19,8 @@ int TimeRHSFunctionExplicit(double *rhs,double *u,void *s,void *m, double t)
                                  solver->ghosts,mpi,u);                             CHECKERR(ierr);
 
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
-  IERR solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction);  CHECKERR(ierr);
+  IERR solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction,solver->Upwind);
+                                                                                    CHECKERR(ierr);
   IERR solver->ParabolicFunction (solver->par,u,solver,mpi,t);                      CHECKERR(ierr);
   IERR solver->SourceFunction    (solver->source,u,solver,mpi,t);                   CHECKERR(ierr);
 

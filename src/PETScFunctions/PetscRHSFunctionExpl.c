@@ -33,7 +33,8 @@ PetscErrorCode PetscRHSFunctionExpl(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt
                                  solver->ghosts,mpi,u);                             CHECKERR(ierr);
 
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
-  ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction);CHECKERR(ierr);
+  ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction,solver->Upwind);
+                                                                                    CHECKERR(ierr);
   ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);                    CHECKERR(ierr);
   ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t);                 CHECKERR(ierr);
 

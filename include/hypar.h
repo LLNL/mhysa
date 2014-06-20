@@ -61,7 +61,9 @@ typedef struct main_parameters {
 
   /* right hand side functions */
   int (*HyperbolicFunction) (double*,double*,void*,void*,double,int,
-                             int(*)(double*,double*,int,void*,double)); /* hyperbolic terms */
+                             int(*)(double*,double*,int,void*,double),
+                             int(*)(double*,double*,double*,double*,double*,double*,
+                                    int,void*,double));                 /* hyperbolic terms */
   int (*ParabolicFunction)  (double*,double*,void*,void*,double);       /* parabolic terms  */
   int (*SourceFunction)     (double*,double*,void*,void*,double);       /* source terms     */
 
@@ -82,8 +84,9 @@ typedef struct main_parameters {
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*HFunction)          (double*,double*,int,int,void*,double);
   int    (*SFunction)          (double*,double*,void*,double);
-  int    (*Upwind)             (double*,double*,double*,double*,double*,double*,
-                                int,void*,double);
+  int    (*Upwind)             (double*,double*,double*,double*,double*,double*,int,void*,double);
+  int    (*UpwinddF)           (double*,double*,double*,double*,double*,double*,int,void*,double);
+
   /* physics-specific pre/post-time-step/stage functions */
   int    (*PreStage)           (int,double**,void*,void*,double);
   int    (*PostStage)          (int,double**,void*,void*,double);

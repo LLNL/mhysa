@@ -4,10 +4,12 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-static int ReconstructHyperbolic (double*,double*,double*,double*,int,void*,void*,double,int);
+static int ReconstructHyperbolic (double*,double*,double*,double*,int,void*,void*,double,int,
+                                  int(*)(double*,double*,double*,double*,double*,double*,int,void*,double));
 
 int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t,int LimFlag,
-                       int(*FluxFunction)(double*,double*,int,void*,double))
+                       int(*FluxFunction)(double*,double*,int,void*,double),
+                       int(*UpwindFunction)(double*,double*,double*,double*,double*,double*,int,void*,double))
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -42,7 +44,8 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t,int LimFla
     /* evaluate cell-centered flux */
     IERR FluxFunction(FluxC,u,d,solver,t); CHECKERR(ierr);
     /* compute interface fluxes */
-    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t,LimFlag); CHECKERR(ierr);
+    IERR ReconstructHyperbolic(FluxI,FluxC,u,x+offset,d,solver,mpi,t,LimFlag,UpwindFunction); 
+    CHECKERR(ierr);
 
     /* calculate the first derivative */
     done = 0; _ArraySetValue_(index,ndims,0);
@@ -70,7 +73,8 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t,int LimFla
   return(0);
 }
 
-int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int dir,void *s,void *m,double t,int LimFlag)
+int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int dir,void *s,void *m,double t,int LimFlag,
+                          int(*UpwindFunction)(double*,double*,double*,double*,double*,double*,int,void*,double))
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -106,7 +110,7 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int di
   IERR solver->InterpolateInterfacesHyp(fluxR,fluxC,u,x,-1,dir,solver,mpi); CHECKERR(ierr);
 
   /* Upwind -> to calculate the final interface flux */
-  IERR solver->Upwind(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 
+  IERR UpwindFunction(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 
 
   return(0);
 }

@@ -15,7 +15,9 @@ int    Numa2DFlux       (double*,double*,int,void*,double);
 int    Numa2DStiffFlux  (double*,double*,int,void*,double);
 int    Numa2DSource     (double*,double*,void*,double);
 int    Numa2DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
-int    Numa2DRusanov    (double*,double*,double*,double*,double*,double*,int,void*,double);
+
+int    Numa2DRusanovFlux      (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    Numa2DRusanovLinearFlux(double*,double*,double*,double*,double*,double*,int,void*,double);
 
 void   Numa2DCalculateStandardAtmosphere_1(void*,double,double*,double*,double*,double*);
 void   Numa2DCalculateStandardAtmosphere_2(void*,double,double*,double*,double*,double*);
@@ -124,8 +126,12 @@ int Numa2DInitialize(void *s,void *m)
   solver->FFunction       = Numa2DFlux;
   solver->ComputeCFL      = Numa2DComputeCFL;
   solver->SFunction       = Numa2DSource;
-  if (!strcmp(physics->upwind,_RUSANOV_UPWINDING_)) solver->Upwind = Numa2DRusanov;
-  else {
+  if (!strcmp(physics->upwind,_RUSANOV_UPWINDING_)) {
+    solver->Upwind        = Numa2DRusanovFlux;
+    if (!strcmp(solver->SplitHyperbolicFlux,"yes")) 
+      solver->UpwinddF    = Numa2DRusanovLinearFlux;
+    else solver->UpwinddF = NULL;
+  } else {
     if (!mpi->rank) fprintf(stderr,"Error in Numa2DInitialize(): Invalid choice of upwinding scheme.\n");
     return(1);
   }
