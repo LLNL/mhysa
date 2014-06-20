@@ -91,7 +91,12 @@
     dP  = (gamma*P0/T0) * dT; \
   }
 
-#define _Numa2DComputeSpeedofSound_(gamma,R,T0,rho0,EP,c) \
+#define _Numa2DComputeSpeedofSound_(gamma,R,T0,dT,rho0,drho,EP,c) \
+  { \
+    c = sqrt(gamma*R*(T0+dT)*EP/(rho0+drho)); \
+  }
+
+#define _Numa2DComputeLinearizedSpeedofSound_(gamma,R,T0,rho0,EP,c) \
   { \
     c = sqrt(gamma*R*T0*EP/rho0); \
   }
