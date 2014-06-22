@@ -21,10 +21,8 @@ int TimePrintStep(void *ts)
     /* calculate and print conservation error */
     if (!strcmp(solver->ConservationCheck,"yes")) {
       double error = 0;
-      for (v=0; v<solver->nvars; v++) {
-        error += (solver->VolumeIntegral[v]+solver->TotalBoundaryIntegral[v]-solver->VolumeIntegralInitial[v]) 
-               * (solver->VolumeIntegral[v]+solver->TotalBoundaryIntegral[v]-solver->VolumeIntegralInitial[v]);
-      }
+      for (v=0; v<solver->nvars; v++) 
+        error += solver->ConservationError[v] * solver->ConservationError[v];
       error = sqrt(error);
       printf("Conservation error: %1.4E",error);
     }

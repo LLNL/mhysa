@@ -123,6 +123,7 @@ int Initialize(void *s, void *m)
   solver->StageBoundaryIntegral = (double*) calloc (2*solver->ndims*solver->nvars,sizeof(double));
   solver->StepBoundaryIntegral  = (double*) calloc (2*solver->ndims*solver->nvars,sizeof(double));
   solver->TotalBoundaryIntegral = (double*) calloc (solver->nvars,sizeof(double));
+  solver->ConservationError     = (double*) calloc (solver->nvars,sizeof(double));
 
   return(0);
 }

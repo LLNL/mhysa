@@ -25,6 +25,7 @@ int  ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
 int  SourceFunction              (double*,double*,void*,void*,double);
 int  VolumeIntegral              (double*,double*,void*,void*);
 int  BoundaryIntegral            (void*,void*);
+int  CalculateConservationError  (void*,void*);
 void IncrementFilename           (char*);
 int  NonLinearInterpolation      (double*,void*,void*,double,
                                   int(*)(double*,double*,int,void*,double));
@@ -37,12 +38,13 @@ int InitializeSolvers(void *s, void *m)
 
   if (!mpi->rank) printf("Initializing solvers.\n");
 
-  solver->ApplyBoundaryConditions  = ApplyBoundaryConditions;
-  solver->HyperbolicFunction       = HyperbolicFunction;
-  solver->SourceFunction           = SourceFunction;
-  solver->VolumeIntegralFunction   = VolumeIntegral;
-  solver->BoundaryIntegralFunction = BoundaryIntegral;
-  solver->NonlinearInterp          = NonLinearInterpolation;
+  solver->ApplyBoundaryConditions     = ApplyBoundaryConditions;
+  solver->HyperbolicFunction          = HyperbolicFunction;
+  solver->SourceFunction              = SourceFunction;
+  solver->VolumeIntegralFunction      = VolumeIntegral;
+  solver->BoundaryIntegralFunction    = BoundaryIntegral;
+  solver->CalculateConservationError  = CalculateConservationError;
+  solver->NonlinearInterp             = NonLinearInterpolation;
 
   /* choose the type of parabolic discretization */
   if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) 

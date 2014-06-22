@@ -117,6 +117,7 @@ int Cleanup(void *s,void *m)
   free(solver->StageBoundaryIntegral);
   free(solver->StepBoundaryIntegral);
   free(solver->TotalBoundaryIntegral);
+  free(solver->ConservationError);
 
   return(0);
 }

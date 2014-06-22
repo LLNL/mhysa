@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <basic.h>
+#include <arrayfunctions.h>
 #include <mpivars.h>
 #include <petscinterface.h>
 #include <hypar.h>
@@ -47,6 +48,9 @@ PetscErrorCode PetscPreTimeStep(TS ts)
     ierr = solver->NonlinearInterp(solver->u,solver,mpi,waqt,solver->FFunction); 
     CHECKERR(ierr);
   }
+  
+  /* set the step boundary flux integral value to zero */
+  _ArraySetValue_(solver->StepBoundaryIntegral,2*solver->ndims*solver->nvars,0.0);
 
   PetscFunctionReturn(0);
 }

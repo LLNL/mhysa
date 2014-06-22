@@ -37,6 +37,8 @@ int TimePostStep(void *ts)
     IERR solver->VolumeIntegralFunction(solver->VolumeIntegral,solver->u,solver,mpi); CHECKERR(ierr);
     /* calculate surface integral of the flux at this time step */
     IERR solver->BoundaryIntegralFunction(solver,mpi); CHECKERR(ierr);
+    /* calculate the conservation error at this time step       */
+    IERR solver->CalculateConservationError(solver,mpi); CHECKERR(ierr);
   }
 
   return(0);

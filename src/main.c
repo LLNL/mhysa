@@ -153,16 +153,26 @@ int main(int argc,char **argv)
 
   /* print error and walltime to file and on screen */
   if (!mpi.rank) {
-    FILE *out; out = fopen("errors.dat","w");
+    FILE *out; 
+    out = fopen("errors.dat","w");
     for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",solver.dim_global[d]);
     for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",mpi.iproc[d]);
     fprintf(out,"%1.16E  ",solver.dt);
     fprintf(out,"%1.16E %1.16E %1.16E   ",solver.error[0],solver.error[1],solver.error[2]);
     fprintf(out,"%1.16E %1.16E\n",solver_runtime,main_runtime);
     fclose(out);
+    out = fopen("conservation.dat","w");
+    for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",solver.dim_global[d]);
+    for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",mpi.iproc[d]);
+    fprintf(out,"%1.16E  ",solver.dt);
+    for (d=0; d<solver.nvars; d++) fprintf(out,"%1.16E ",solver.ConservationError[d]);
+    fprintf(out,"\n");
+    fclose(out);
     printf("L1         Error           : %1.16E\n",solver.error[0]);
     printf("L2         Error           : %1.16E\n",solver.error[1]);
     printf("Linfinity  Error           : %1.16E\n",solver.error[2]);
+    printf("Conservation Errors:\n");
+    for (d=0; d<solver.nvars; d++) printf("\t%1.16E\n",solver.ConservationError[d]);
     printf("Solver runtime (in seconds): %1.16E\n",solver_runtime);
     printf("Total  runtime (in seconds): %1.16E\n",main_runtime);
   }

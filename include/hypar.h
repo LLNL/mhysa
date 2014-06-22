@@ -106,6 +106,7 @@ typedef struct main_parameters {
 
   /* Errors */
   double error[3];                /* L1,L2,Linf errors, if calculated                             */
+  double *ConservationError;      /* conservation error                                           */
   char   ConservationCheck[_MAX_STRING_SIZE_];
   double *VolumeIntegral;         /* volume integral of the solution variable                     */
   double *VolumeIntegralInitial;  /* initial volume integral of the solution variable             */
@@ -114,6 +115,7 @@ typedef struct main_parameters {
   double *TotalBoundaryIntegral;  /* total boundary integral of flux                              */
   int    (*VolumeIntegralFunction)    (double*,double*,void*,void*);
   int    (*BoundaryIntegralFunction)  (void*,void*);
+  int    (*CalculateConservationError)(void*,void*);
 
 #ifdef with_petsc
   /* PETSc */
