@@ -27,7 +27,7 @@ int Numa3DSource(double *S,double *u,void *s,double t)
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
     double drho,uvel,vvel,wvel,dT,rho0,P0,EP,T0,zcoord;
 
-    _GetCoordinate_(_ZDIR_,index[_ZDIR_],dim,ghosts,solver->x,zcoord);
+    _GetCoordinate_(_ZDIR_,index[_ZDIR_]-ghosts,dim,ghosts,solver->x,zcoord);
     param->StandardAtmosphere(param,zcoord,&EP,&P0,&rho0,&T0);
     _Numa3DGetFlowVars_((u+_MODEL_NVARS_*p),drho,uvel,vvel,wvel,dT,rho0);
     _Numa3DSetSource_  ((S+_MODEL_NVARS_*p),param,uvel,vvel,drho,rho0);
