@@ -14,7 +14,6 @@ double Numa2DComputeCFL (void*,void*,double,double);
 int    Numa2DFlux       (double*,double*,int,void*,double);
 int    Numa2DStiffFlux  (double*,double*,int,void*,double);
 int    Numa2DSource     (double*,double*,void*,double);
-int    Numa2DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 int    Numa2DRusanovFlux      (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Numa2DRusanovLinearFlux(double*,double*,double*,double*,double*,double*,int,void*,double);
@@ -41,7 +40,6 @@ int Numa2DInitialize(void *s,void *m)
   /* default values */
   physics->gamma  = 1.4; 
   physics->R      = 287.058;        /* J kg^{-1} K^{-1} */
-  physics->Omega  = 7.2921150E-05;  /* rad s^{-1}       */
   physics->g      = 9.8;            /* m s^{-2}         */
 
   physics->Pref   = 101327.0;       /* N m^{-2}         */
@@ -70,8 +68,6 @@ int Numa2DInitialize(void *s,void *m)
             ferr = fscanf(in,"%lf",&physics->R); if (ferr != 1) return(1);
           } else if (!strcmp(word,"g")) {
             ferr = fscanf(in,"%lf",&physics->g); if (ferr != 1) return(1);
-          } else if (!strcmp(word,"Omega")) {
-            ferr = fscanf(in,"%lf",&physics->Omega); if (ferr != 1) return(1);
           } else if (!strcmp(word,"Pref")) {
             ferr = fscanf(in,"%lf",&physics->Pref); if (ferr != 1) return(1);
           } else if (!strcmp(word,"Tref")) {
@@ -99,7 +95,6 @@ int Numa2DInitialize(void *s,void *m)
   IERR MPIBroadcast_double    (&physics->gamma      ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->R          ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->g          ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->Omega      ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->Pref       ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->Tref       ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer   (&physics->init_atmos ,1                ,0,&mpi->world); CHECKERR(ierr);

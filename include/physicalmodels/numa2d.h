@@ -101,39 +101,9 @@
     c = sqrt(gamma*R*T0*EP/rho0); \
   }
 
-#define _Numa2DRoeAverage_(uavg,u1,u2,params,rho01,rho02,rho0,T01,T02,T0,EP1,EP2,EP) \
-  { \
-    double gamma = params->gamma; \
-    double GasConst = params->R; \
-    double drho1,uvel1,vvel1,dT1,c1,rho1,H1,t1; \
-    _Numa2DGetFlowVars_(u1,drho1,uvel1,vvel1,dT1,rho01); \
-    _Numa2DComputeSpeedofSound_(gamma,GasConst,T01,dT1,rho01,drho1,EP1,c1); \
-    rho1 = rho01 + drho1; \
-    H1   = 0.5*(uvel1*uvel1+vvel1*vvel1) + c1*c1 / (gamma-1.0); \
-    t1   = sqrt(rho1); \
-    double drho2,uvel2,vvel2,dT2,c2,rho2,H2,t2; \
-    _Numa2DGetFlowVars_(u2,drho2,uvel2,vvel2,dT2,rho02); \
-    _Numa2DComputeSpeedofSound_(gamma,GasConst,T02,dT2,rho02,drho2,EP2,c2); \
-    rho2 = rho02 + drho2; \
-    H2   = 0.5*(uvel2*uvel2+vvel2*vvel2) + c2*c2 / (gamma-1.0); \
-    t2   = sqrt(rho2); \
-    double rho_avg,uvel_avg,vvel_avg,H_avg,c_sq_avg,T_avg; \
-    rho_avg   = t1 * t2; \
-    uvel_avg  = (t1*uvel1 + t2*uvel2) / (t1 + t2); \
-    vvel_avg  = (t1*vvel1 + t2*vvel2) / (t1 + t2); \
-    H_avg     = (t1*H1    + t2*H2   ) / (t1 + t2); \
-    c_sq_avg = (gamma-1.0) * (H_avg - 0.5*(uvel_avg*uvel_avg+vvel_avg*vvel_avg)); \
-    T_avg = ((c_sq_avg/(gamma*GasConst))/EP) * rho_avg; \
-    uavg[0] = rho_avg-rho0; \
-    uavg[1] = rho_avg*uvel_avg; \
-    uavg[2] = rho_avg*vvel_avg; \
-    uavg[3] = T_avg-T0; \
-  }
-
 typedef struct numa2d_parameters {
   double  gamma;      /* Ratio of heat capacities       */
   double  R;          /* Universal gas constant         */
-  double  Omega;      /* Angular speed of Earth         */
   double  g;          /* acceleration due to gravity    */
   int     init_atmos; /* choice of initial atmosphere   */
 
