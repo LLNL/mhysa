@@ -91,6 +91,11 @@
     dP  = (gamma*P0/T0) * dT; \
   }
 
+#define _Numa2DComputeTemperature_(rho0,drho,T0,dT,temperature) \
+  { \
+    temperature = (T0+dT)*EP/(rho0+drho); \
+  }
+
 #define _Numa2DComputeSpeedofSound_(gamma,R,T0,dT,rho0,drho,EP,c) \
   { \
     c = sqrt(gamma*R*(T0+dT)*EP/(rho0+drho)); \
@@ -102,10 +107,11 @@
   }
 
 typedef struct numa2d_parameters {
-  double  gamma;      /* Ratio of heat capacities       */
-  double  R;          /* Universal gas constant         */
-  double  g;          /* acceleration due to gravity    */
-  int     init_atmos; /* choice of initial atmosphere   */
+  double  gamma;      /* Ratio of heat capacities         */
+  double  R;          /* Universal gas constant           */
+  double  g;          /* acceleration due to gravity      */
+  int     init_atmos; /* choice of initial atmosphere     */
+  double  mu;         /* coefficient of dynamic viscosity */
 
   /* pressure & temperature at zero altitude */
   double Pref, Tref;
