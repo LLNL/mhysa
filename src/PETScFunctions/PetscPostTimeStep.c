@@ -67,7 +67,7 @@ PetscErrorCode PetscPostTimeStep(TS ts)
       for (v=0; v<solver->nvars; v++) 
         error += solver->ConservationError[v] * solver->ConservationError[v];
       error = sqrt(error);
-      printf("Conservation error: %1.4E",error);
+      printf("Conservation loss: %1.4E",error);
     }
     printf("\n");
 
