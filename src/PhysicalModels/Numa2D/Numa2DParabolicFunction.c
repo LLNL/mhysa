@@ -33,7 +33,6 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
   if (physics->mu <= 0) return(0); /* inviscid flow */
 
   static double two_third = 2.0/3.0;
-  double        Cp        = (physics->gamma * physics->R) / (physics->gamma-1.0);
   double        mu        = physics->mu;        
 
   /* allocate some arrays */
@@ -81,10 +80,10 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
     vx  = QDeriv[_MODEL_NVARS_*p+2] / dxinv;
     tx  = QDeriv[_MODEL_NVARS_*p+3] / dxinv;
     
-    (FViscous+_MODEL_NVARS_*p)[0] = 0.0;
-    (FViscous+_MODEL_NVARS_*p)[1] = mu * rho * ux;
-    (FViscous+_MODEL_NVARS_*p)[2] = mu * rho * vx;
-    (FViscous+_MODEL_NVARS_*p)[3] = mu * rho * tx;
+    FViscous[_MODEL_NVARS_*p+0] = 0.0;
+    FViscous[_MODEL_NVARS_*p+1] = mu * rho * ux;
+    FViscous[_MODEL_NVARS_*p+2] = mu * rho * vx;
+    FViscous[_MODEL_NVARS_*p+3] = mu * rho * tx;
 
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
   }
@@ -113,10 +112,10 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
     vy  = QDeriv[_MODEL_NVARS_*p+2] / dyinv;
     ty  = QDeriv[_MODEL_NVARS_*p+3] / dyinv;
 
-    (FViscous+_MODEL_NVARS_*p)[0] = 0.0;
-    (FViscous+_MODEL_NVARS_*p)[1] = mu * rho * uy;
-    (FViscous+_MODEL_NVARS_*p)[2] = mu * rho * vy;
-    (FViscous+_MODEL_NVARS_*p)[3] = mu * rho * ty;
+    FViscous[_MODEL_NVARS_*p+0] = 0.0;
+    FViscous[_MODEL_NVARS_*p+1] = mu * rho * uy;
+    FViscous[_MODEL_NVARS_*p+2] = mu * rho * vy;
+    FViscous[_MODEL_NVARS_*p+3] = mu * rho * ty;
 
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
   }
