@@ -7,6 +7,7 @@ libHyParFunctions_a_SOURCES = \
   Cleanup.c \
   ExactSolution.c \
   HyperbolicFunction.c \
+  IncrementFilename.c \
   Initialize.c \
   InitialSolution.c \
   InitializeBoundaries.c \

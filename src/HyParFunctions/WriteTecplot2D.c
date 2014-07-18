@@ -15,7 +15,6 @@ int WriteTecplot2D(int ndims,int nvars,int *dim,double *x,double *u,char *f,int 
   int imax = dim[0];
   int jmax = dim[1];
 
-  printf("Writing tecplot solution file %s.\n",f);
   FILE *out;
   out = fopen(f,"w");
   if (!out) {

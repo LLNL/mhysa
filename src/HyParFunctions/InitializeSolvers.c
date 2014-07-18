@@ -230,31 +230,46 @@ int InitializeSolvers(void *s, void *m)
 
   /* Solution output function */
   solver->WriteOutput = NULL; /* default - no output */
-  if (!strcmp(solver->op_overwrite,"no")) strcpy(solver->op_filename,"op_00000");
-  else                                    strcpy(solver->op_filename,"op");
-  if (!strcmp(solver->op_file_format,"text")) {
-    solver->WriteOutput = WriteText;
-    strcat(solver->op_filename,".dat");
-  } else if (!strcmp(solver->op_file_format,"tecplot2d")) {
-    solver->WriteOutput = WriteTecplot2D;
-    strcat(solver->op_filename,".dat");
-  } else if (!strcmp(solver->op_file_format,"tecplot3d")) {
-    solver->WriteOutput = WriteTecplot3D;
-    strcat(solver->op_filename,".dat");
-  } else if ((!strcmp(solver->op_file_format,"binary")) || (!strcmp(solver->op_file_format,"bin"))) {
-    solver->WriteOutput = WriteBinary;
-    strcat(solver->op_filename,".bin");
-  } else if (!strcmp(solver->op_file_format,"none")) {
-    solver->WriteOutput = NULL;
+  if (!strcmp(solver->output_mode,"serial")) {
+    if (!strcmp(solver->op_overwrite,"no")) strcpy(solver->op_filename,"op_00000");
+    else                                    strcpy(solver->op_filename,"op");
+    if (!strcmp(solver->op_file_format,"text")) {
+      solver->WriteOutput = WriteText;
+      strcat(solver->op_filename,".dat");
+    } else if (!strcmp(solver->op_file_format,"tecplot2d")) {
+      solver->WriteOutput = WriteTecplot2D;
+      strcat(solver->op_filename,".dat");
+    } else if (!strcmp(solver->op_file_format,"tecplot3d")) {
+      solver->WriteOutput = WriteTecplot3D;
+      strcat(solver->op_filename,".dat");
+    } else if ((!strcmp(solver->op_file_format,"binary")) || (!strcmp(solver->op_file_format,"bin"))) {
+      solver->WriteOutput = WriteBinary;
+      strcat(solver->op_filename,".bin");
+    } else if (!strcmp(solver->op_file_format,"none")) {
+      solver->WriteOutput = NULL;
+    } else {
+      fprintf(stderr,"Error: %s is not a supported file format.\n",solver->op_file_format);
+      return(1);
+    }
+    if ((!strcmp(solver->op_overwrite,"no")) && solver->restart_iter) {
+      /* if it's a restart run, fast-forward the filename */
+      int t;
+      for (t=0; t<solver->restart_iter; t++) 
+        if ((t+1)%solver->file_op_iter == 0) IncrementFilename(solver->op_filename);
+    }
+  } else if (!strcmp(solver->output_mode,"parallel")) {
+    strcpy(solver->op_filename,"op"); /* unsteady solutions are appended to the same file */
+    if (!strcmp(solver->op_file_format,"none")) solver->WriteOutput = NULL;
+    else {
+      /* only binary file writing supported in parallel mode */
+      /* use post-processing scripts to convert              */
+      solver->WriteOutput = WriteBinary;
+      strcat(solver->op_filename,".bin");
+    }
   } else {
-    fprintf(stderr,"Error: %s is not a supported file format.\n",solver->op_file_format);
+    fprintf(stderr,"Error: %s is not a supported output mode.\n",solver->output_mode);
+    fprintf(stderr,"Should be \"serial\" or \"parallel\".    \n");
     return(1);
-  }
-  if ((!strcmp(solver->op_overwrite,"no")) && solver->restart_iter) {
-    /* if it's a restart run, fast-forward the filename */
-    int t;
-    for (t=0; t<solver->restart_iter; t++) 
-      if ((t+1)%solver->file_op_iter == 0) IncrementFilename(solver->op_filename);
   }
 
   return(0);

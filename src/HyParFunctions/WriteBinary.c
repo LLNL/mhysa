@@ -8,7 +8,6 @@ int WriteBinary(int ndims,int nvars,int *dim,double *x,double *u,char *f,int *in
 {
   int size, d;
   size_t bytes;
-  printf("Writing solution file %s in binary format.\n",f);
   FILE *out;
   out = fopen(f,"wb");
   if (!out) {

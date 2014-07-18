@@ -16,7 +16,6 @@ int WriteTecplot3D(int ndims,int nvars,int *dim,double *x,double *u,char *f,int 
   int jmax = dim[1];
   int kmax = dim[2];
 
-  printf("Writing tecplot solution file %s.\n",f);
   FILE *out;
   out = fopen(f,"w");
   if (!out) {

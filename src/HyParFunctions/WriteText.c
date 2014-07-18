@@ -6,7 +6,6 @@
 
 int WriteText(int ndims,int nvars,int *dim,double *x,double *u,char *f,int *index)
 {
-  printf("Writing solution file %s in ASCII text format.\n",f);
   FILE *out;
   out = fopen(f,"w");
   if (!out) {

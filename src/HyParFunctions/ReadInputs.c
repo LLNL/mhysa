@@ -32,6 +32,7 @@ int ReadInputs(void *s,void *m)
   strcpy(solver->interp_type        ,"characteristic");
   strcpy(solver->ip_file_type       ,"ascii"         );
   strcpy(solver->input_mode         ,"serial"        );
+  strcpy(solver->output_mode        ,"serial"        );
   strcpy(solver->op_file_format     ,"text"          );
   strcpy(solver->op_overwrite       ,"no"            );
   strcpy(solver->model              ,"none"          );
@@ -94,8 +95,11 @@ int ReadInputs(void *s,void *m)
    		  	else if   (!strcmp(word, "ip_file_type"       ))  ferr = fscanf(in,"%s",solver->ip_file_type        );
    		  	else if   (!strcmp(word, "input_mode"         ))  {
             ferr = fscanf(in,"%s",solver->input_mode);
-            if (strcmp(solver->input_mode,"serial")) ferr = fscanf(in,"%d",&mpi->N_IORanks);
-          }	else if   (!strcmp(word, "op_overwrite"     ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
+            if (strcmp(solver->input_mode,"serial"))        ferr = fscanf(in,"%d",&mpi->N_IORanks);
+   		  	} else if (!strcmp(word, "output_mode"        ))  {
+            ferr = fscanf(in,"%s",solver->output_mode);
+            if (strcmp(solver->output_mode,"serial"))       ferr = fscanf(in,"%d",&mpi->N_IORanks);
+          } else if   (!strcmp(word, "op_overwrite"     ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
    		  	else if   (!strcmp(word, "model"              ))  ferr = fscanf(in,"%s",solver->model             );
           else if   ( strcmp(word, "end"                )) {
             char useless[_MAX_STRING_SIZE_];
@@ -148,6 +152,9 @@ int ReadInputs(void *s,void *m)
       printf("\tInitial solution read mode                 : %s"       ,solver->input_mode          );
       if (strcmp(solver->input_mode,"serial"))    printf("\t[%d file IO rank(s)]\n",mpi->N_IORanks  );
       else                                        printf("\n");
+      printf("\tSolution file write mode                   : %s"       ,solver->output_mode         );
+      if (strcmp(solver->output_mode,"serial"))   printf("\t[%d file IO rank(s)]\n",mpi->N_IORanks  );
+      else                                        printf("\n");
       printf("\tSolution file format                       : %s\n"     ,solver->op_file_format      );
       printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite        );
       printf("\tPhysical model                             : %s\n"     ,solver->model               );
@@ -187,6 +194,7 @@ int ReadInputs(void *s,void *m)
   IERR MPIBroadcast_character(solver->op_file_format      ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character(solver->ip_file_type        ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character(solver->input_mode          ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->output_mode         ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character(solver->op_overwrite        ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character(solver->model               ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
 
