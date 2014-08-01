@@ -13,7 +13,7 @@
 double Numa3DComputeCFL (void*,void*,double,double);
 int    Numa3DFlux       (double*,double*,int,void*,double);
 int    Numa3DStiffFlux  (double*,double*,int,void*,double);
-int    Numa3DSource     (double*,double*,void*,double);
+int    Numa3DSource     (double*,double*,void*,void*,double);
 
 int    Numa3DRusanovFlux      (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Numa3DRusanovLinearFlux(double*,double*,double*,double*,double*,double*,int,void*,double);

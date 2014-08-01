@@ -13,7 +13,7 @@
 double Numa2DConsComputeCFL (void*,void*,double,double);
 int    Numa2DConsFlux       (double*,double*,int,void*,double);
 int    Numa2DConsStiffFlux  (double*,double*,int,void*,double);
-int    Numa2DConsSource     (double*,double*,void*,double);
+int    Numa2DConsSource     (double*,double*,void*,void*,double);
 int    Numa2DConsUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Numa2DConsRusanov    (double*,double*,double*,double*,double*,double*,int,void*,double);
 

@@ -22,15 +22,14 @@ int SourceFunction(double *source,double *u,void *s,void *m,double t)
   int     ndims   = solver->ndims;
   int     *dim    = solver->dim_local;
 
+  /* initialize to zero */
   int size = 1;
   for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
-
-  /* initialize to zero */
   _ArraySetValue_(source,size*nvars,0.0);
 
   /* call the source function of the physics model, if available */
   if (solver->SFunction) {
-    IERR solver->SFunction(source,u,solver,t); CHECKERR(ierr);
+    IERR solver->SFunction(source,u,solver,mpi,t); CHECKERR(ierr);
   }
 
   /* Apart from other source terms, implement sponge BC as a source */

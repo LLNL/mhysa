@@ -4,7 +4,7 @@
 #include <physicalmodels/numa2d-cons.h>
 #include <hypar.h>
 
-int Numa2DConsSource(double *S,double *u,void *s,double t)
+int Numa2DConsSource(double *S,double *u,void *s,void *m,double t)
 {
   HyPar       *solver = (HyPar*)   s;
   Numa2DCons  *param  = (Numa2DCons*) solver->physics;

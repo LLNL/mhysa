@@ -84,7 +84,7 @@ typedef struct main_parameters {
   int    (*dFFunction)         (double*,double*,int,void*,double);
   int    (*GFunction)          (double*,double*,int,void*,double);
   int    (*HFunction)          (double*,double*,int,int,void*,double);
-  int    (*SFunction)          (double*,double*,void*,double);
+  int    (*SFunction)          (double*,double*,void*,void*,double);
   int    (*Upwind)             (double*,double*,double*,double*,double*,double*,int,void*,double);
   int    (*UpwinddF)           (double*,double*,double*,double*,double*,double*,int,void*,double);
 

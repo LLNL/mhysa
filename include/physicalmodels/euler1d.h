@@ -36,6 +36,10 @@
 #define _LLF_     "llf-char"
 #define _SWFS_    "steger-warming"
 
+/* grid direction */
+#undef _XDIR_
+#define _XDIR_ 0
+
 #define _Euler1DGetFlowVar_(u,rho,v,e,P,p) \
   { \
     double gamma = p->gamma; \
@@ -50,6 +54,15 @@
     f[0] = (rho) * (v); \
     f[1] = (rho) * (v) * (v) + (P); \
     f[2] = ((e) + (P)) * (v); \
+  }
+
+#define _Euler1DSetSource_(f,rho,P,p,x) \
+  { \
+    double g    = p->grav; \
+    double term = exp(-(rho*g*x)/(P)); \
+    f[0] = 0; \
+    f[1] = term; \
+    f[2] = term; \
   }
 
 #define _Euler1DRoeAverage_(uavg,uL,uR,p) \
@@ -134,7 +147,9 @@
 
 typedef struct euler1d_parameters {
   double  gamma;  /* Ratio of heat capacities */
+  double  grav;   /* acceleration due to gravity */
   char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */
+
 } Euler1D;
 
 int    Euler1DInitialize (void*,void*);

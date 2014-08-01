@@ -4,7 +4,7 @@
 #include <physicalmodels/numa2d.h>
 #include <hypar.h>
 
-int Numa2DSource(double *S,double *u,void *s,double t)
+int Numa2DSource(double *S,double *u,void *s,void *m,double t)
 {
   HyPar  *solver = (HyPar*)   s;
   Numa2D *param  = (Numa2D*) solver->physics;

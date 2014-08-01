@@ -13,7 +13,7 @@
 double Numa2DComputeCFL         (void*,void*,double,double);
 int    Numa2DFlux               (double*,double*,int,void*,double);
 int    Numa2DStiffFlux          (double*,double*,int,void*,double);
-int    Numa2DSource             (double*,double*,void*,double);
+int    Numa2DSource             (double*,double*,void*,void*,double);
 int    Numa2DParabolicFunction  (double*,double*,void*,void*,double);
 
 int    Numa2DRusanovFlux      (double*,double*,double*,double*,double*,double*,int,void*,double);

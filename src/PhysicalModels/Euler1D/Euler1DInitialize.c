@@ -9,6 +9,7 @@
 
 double Euler1DComputeCFL (void*,void*,double,double);
 int    Euler1DFlux       (double*,double*,int,void*,double);
+int    Euler1DSource     (double*,double*,void*,void*,double);
 int    Euler1DUpwindRoe  (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindLLF  (double*,double*,double*,double*,double*,double*,int,void*,double);
@@ -35,6 +36,7 @@ int Euler1DInitialize(void *s,void *m)
 
   /* default values */
   physics->gamma = 1.4; 
+  physics->grav  = 0.0;
   strcpy(physics->upw_choice,"roe");
 
 
@@ -52,6 +54,9 @@ int Euler1DInitialize(void *s,void *m)
 		      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
           if (!strcmp(word, "gamma")) { 
             ferr = fscanf(in,"%lf",&physics->gamma); 
+            if (ferr != 1) return(1);
+          } else if (!strcmp(word, "gravity")) { 
+            ferr = fscanf(in,"%lf",&physics->grav); 
             if (ferr != 1) return(1);
           } else if (!strcmp(word,"upwinding")) {
             ferr = fscanf(in,"%s",physics->upw_choice); 
@@ -73,6 +78,7 @@ int Euler1DInitialize(void *s,void *m)
 
 #ifndef serial
   IERR MPIBroadcast_double    (&physics->gamma,1,0,&mpi->world);                      CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->grav ,1,0,&mpi->world);                      CHECKERR(ierr);
   IERR MPIBroadcast_character (physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world);  CHECKERR(ierr);
 #endif
 
@@ -87,6 +93,7 @@ int Euler1DInitialize(void *s,void *m)
   /* initializing physical model-specific functions */
   solver->ComputeCFL         = Euler1DComputeCFL;
   solver->FFunction          = Euler1DFlux;
+  solver->SFunction          = Euler1DSource;
   if      (!strcmp(physics->upw_choice,_ROE_ )) solver->Upwind = Euler1DUpwindRoe;
   else if (!strcmp(physics->upw_choice,_RF_  )) solver->Upwind = Euler1DUpwindRF;
   else if (!strcmp(physics->upw_choice,_LLF_ )) solver->Upwind = Euler1DUpwindLLF;
