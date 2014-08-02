@@ -126,6 +126,7 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
           double alpha = kappa * max3(absolute(eigL),absolute(eigC),absolute(eigR));
           fc[k] = 0.5 * (fcL[k] + fcR[k] + alpha * (ucL[k]-ucR[k]));
         }
+
       }
 
       /* calculate the interface flux from the characteristic flux */
