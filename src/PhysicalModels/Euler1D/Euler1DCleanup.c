@@ -3,5 +3,7 @@
 
 int Euler1DCleanup(void *s)
 {
+  Euler1D *param  = (Euler1D*) s;
+  free(param->grav_field);
   return(0);
 }

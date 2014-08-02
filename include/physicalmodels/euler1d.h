@@ -56,15 +56,6 @@
     f[2] = ((e) + (P)) * (v); \
   }
 
-#define _Euler1DSetSource_(f,rho,P,p,x) \
-  { \
-    double g    = p->grav; \
-    double term = exp(-(rho*g*x)/(P)); \
-    f[0] = 0; \
-    f[1] = term; \
-    f[2] = term; \
-  }
-
 #define _Euler1DRoeAverage_(uavg,uL,uR,p) \
   { \
     double rho ,v ,e ,P ,H ,csq; \
@@ -148,8 +139,9 @@
 typedef struct euler1d_parameters {
   double  gamma;  /* Ratio of heat capacities */
   double  grav;   /* acceleration due to gravity */
+  double  *grav_field; /* gravity potential field */
   char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */
-
+  int     (*SourceUpwind)(double*,double*,double*,double*,int,void*,double);
 } Euler1D;
 
 int    Euler1DInitialize (void*,void*);

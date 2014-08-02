@@ -14,9 +14,14 @@ int    Euler1DUpwindRoe  (double*,double*,double*,double*,double*,double*,int,vo
 int    Euler1DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindLLF  (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindSWFS (double*,double*,double*,double*,double*,double*,int,void*,double);
+
 int    Euler1DRoeAverage        (double*,double*,double*,void*);
 int    Euler1DLeftEigenvectors  (double*,double*,void*,int);
 int    Euler1DRightEigenvectors (double*,double*,void*,int);
+
+int    Euler1DGravityField      (void*,void*);
+int    Euler1DSourceUpwindLLF   (double*,double*,double*,double*,int,void*,double);
+int    Euler1DSourceUpwindRF    (double*,double*,double*,double*,int,void*,double);
 
 int Euler1DInitialize(void *s,void *m)
 {
@@ -90,6 +95,14 @@ int Euler1DInitialize(void *s,void *m)
     return(1);
   }
 
+  if ((physics->grav != 0.0) && (strcmp(physics->upw_choice,_LLF_)) && (strcmp(physics->upw_choice,_RF_))) {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in Euler1DInitialize: \"llf-char\" or \"rf-char\" upwinding is needed for flows ");
+      fprintf(stderr,"with gravitational forces.\n");
+    }
+    return(1);
+  }
+
   /* initializing physical model-specific functions */
   solver->ComputeCFL         = Euler1DComputeCFL;
   solver->FFunction          = Euler1DFlux;
@@ -106,6 +119,12 @@ int Euler1DInitialize(void *s,void *m)
   solver->AveragingFunction     = Euler1DRoeAverage;
   solver->GetLeftEigenvectors   = Euler1DLeftEigenvectors;
   solver->GetRightEigenvectors  = Euler1DRightEigenvectors;
+   
+  if      (!strcmp(physics->upw_choice,_LLF_ )) physics->SourceUpwind = Euler1DSourceUpwindLLF;
+  else if (!strcmp(physics->upw_choice,_RF_  )) physics->SourceUpwind = Euler1DSourceUpwindRF;
+
+  /* calculate the initial gravity field */
+  IERR Euler1DGravityField(solver,mpi); CHECKERR(ierr);
 
   return(0);
 }
