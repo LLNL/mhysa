@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <secondderivative.h>
+#include <firstderivative.h>
+
 #include <mpivars.h>
 #include <hypar.h>
+typedef MPIVariables  MPIContext;
+typedef HyPar         SolverContext;
 
 /* 
   Fourth order central differencing
@@ -12,7 +15,7 @@
 
 int FirstDerivativeFourthOrderCentral(double *Df,double *f,int dir,void *s,void *m)
 {
-  HyPar         *solver = (HyPar*) s;
+  SolverContext *solver = (SolverContext*) s;
   int           i, v;
 
   int ghosts = solver->ghosts;

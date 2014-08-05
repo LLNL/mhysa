@@ -1,5 +1,11 @@
 #include <stdio.h>
 
+/* Matrix-matrix and matrix-vector operations:-
+ * Note that all matrices are 1D arrays of size N*N, stored in
+ * row-major format
+*/
+
+/* A = [0] */
 #define _MatrixZero_(A,N) \
   { \
     int arraycounter; \

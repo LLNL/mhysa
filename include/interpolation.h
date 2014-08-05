@@ -7,13 +7,13 @@
 #define _FIFTH_ORDER_HCWENO_    "hcweno5"
 
 /* interpolation type definitions */
-#define _CHARACTERISTIC_        "characteristic"
-#define _COMPONENTS_            "components"  
+#define _CHARACTERISTIC_        "characteristic" /* characteristic-based interpolation */
+#define _COMPONENTS_            "components"     /* component-wise interpolation       */
 
 /*
-  One-dimensional Interpolation Functions
-  Functions to interpolate the primitive of a function 
-  at interfaces from its  cell-centered values.
+  One-dimensional Interpolation Functions:-
+    Functions to interpolate the primitive of a function at interfaces from its 
+    cell-centered values.
 
   Arguments:-
 
@@ -72,25 +72,36 @@
 
 /* functions to interpolate the first primitive in a component-wise way
    (for conservative discretization of the 1st derivative) on a uniform grid */
+/* First-order upwind */
 int Interp1PrimFirstOrderUpwind           (double*,double*,double*,double*,int,int,void*,void*);
+/* Third-order MUSCL scheme */
 int Interp1PrimThirdOrderMUSCL            (double*,double*,double*,double*,int,int,void*,void*);
+/* Fifth-order WENO scheme */
 int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,int,void*,void*);
+/* Fifth-order CRWENO scheme */
 int Interp1PrimFifthOrderCRWENO           (double*,double*,double*,double*,int,int,void*,void*);
+/* Fifth-order hybrid-compact WENO scheme */
 int Interp1PrimFifthOrderHCWENO           (double*,double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) on a uniform grid */
+/* First-order upwind */
 int Interp1PrimFirstOrderUpwindChar       (double*,double*,double*,double*,int,int,void*,void*);
+/* Third-order MUSCL scheme */
 int Interp1PrimThirdOrderMUSCLChar        (double*,double*,double*,double*,int,int,void*,void*);
+/* Fifth-order WENO scheme */
 int Interp1PrimFifthOrderWENOChar         (double*,double*,double*,double*,int,int,void*,void*);
+/* Fifth-order CRWENO scheme */
 int Interp1PrimFifthOrderCRWENOChar       (double*,double*,double*,double*,int,int,void*,void*);
+/* Fifth-order hybrid-compact WENO scheme */
 int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,int,void*,void*);
 
 /* functions to interpolate the second primitive 
    (for conservative discretization of the 2nd derivative) */
+/* Second-order central */
 int Interp2PrimSecondOrder  (double*,double*,int,void*,void*);
 
-/* other interpolation related functions */
+/* Function to calculate and save the nonlinear interpolation coefficients */
 int InterpSetLimiterVar(double*,double*,double*,int,void*,void*);
 
 /* MUSCL scheme related parameters */
@@ -109,18 +120,24 @@ typedef struct parameters_weno {
   double  eps;		      /* epsilon parameter                                      */
   double	p;			      /* p parameter                                            */
 
-  /* hybrid compact-WENO scheme related parameters */
-  double  rc;
-  double  xi;
+  /* hybrid compact-WENO scheme related parameters 
+   * References: 
+   * + http://dx.doi.org/10.1006/jcph.2002.7021
+   * + http://dx.doi.org/10.1016/j.jcp.2003.07.006
+  */
+  double  rc, xi;
 
-  /* data arrays for CRWENO scheme */
+  /* CRWENO scheme: sub-, main-, and super-diagonals
+   * and the right-hand-side */
   double *A, *B, *C, *R;
+  /* CRWENO scheme: buffer arrays for sending and
+   * receiving data */
   double *sendbuf, *recvbuf;
 
-  /* WENO weights */
+  /* Arrays to save the WENO weights */
   double *w1, *w2, *w3;
-  int *offset;
-  int size;
+  /* size and offset for the WENO weights arrays */
+  int *offset, size;
 
 } WENOParameters;
 int WENOInitialize(void*,void*,char*,char*);
@@ -134,14 +151,33 @@ int WENOCleanup(void*);
 #define   _CRWENO_OPTIMAL_WEIGHT_2_ 0.5
 #define   _CRWENO_OPTIMAL_WEIGHT_3_ 0.3
 
-/* macro to calculate fifth-order WENO weights */
+/* Macro to calculate the fifth-order WENO weights 
+ *
+ * Arguments:-
+ *  w1,w2,w3      : the nonlinear WENO weights
+ *  c1,c2,c3      : optimal coefficients
+ *  m3,m2,m1,p1,p2: function value at stencil points corresponding 
+ *                  to the interface i-1/2: i-3,i-2,i-1,i,i+1
+ *  weno          : object of type WENOParameters containing 
+ *                  parameters for the WENO method
+ *
+ * References:
+ *  + http://dx.doi.org/10.1006/jcph.1996.0130
+ *  + http://dx.doi.org/10.1016/j.jcp.2005.01.023
+ *  + http://dx.doi.org/10.1016/j.jcp.2007.11.038
+ *  + http://dx.doi.org/10.1016/j.jcp.2009.03.002
+ *  + http://dx.doi.org/10.1007/s10915-014-9818-0
+ *  
+ */
 #define _WENOWeights_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno) \
   { \
     if (weno->no_limiting) { \
+      /* set optimal weights */\
       w1 = c1; \
       w2 = c2; \
       w3 = c3; \
     } else { \
+      /* calculate smoothness indicators */\
       double b1, b2, b3; \
       b1 = thirteen_by_twelve*(m3-2*m2+m1)*(m3-2*m2+m1) \
            + one_fourth*(m3-4*m2+3*m1)*(m3-4*m2+3*m1);  \
@@ -149,10 +185,12 @@ int WENOCleanup(void*);
            + one_fourth*(m2-p1)*(m2-p1);                \
       b3 = thirteen_by_twelve*(m1-2*p1+p2)*(m1-2*p1+p2) \
            + one_fourth*(3*m1-4*p1+p2)*(3*m1-4*p1+p2);  \
+      /* calculate the tau parameter for the WENO-Z and WENO-YC weights */\
       double tau; \
       if      (weno->borges) tau = absolute(b3 - b1);  \
       else if (weno->yc)     tau = (m3-4*m2+6*m1-4*p1+p2)*(m3-4*m2+6*m1-4*p1+p2);  \
       else                   tau = 0;  \
+      /* calculate the WENO weights */\
       double a1, a2, a3;  \
       if (weno->borges || weno->yc) { \
         a1 = c1 * (1.0 + raiseto(tau/(b1+weno->eps),weno->p));  \
@@ -168,6 +206,7 @@ int WENOCleanup(void*);
       w1 = a1 * a_sum_inv;  \
       w2 = a2 * a_sum_inv;  \
       w3 = a3 * a_sum_inv;  \
+      /* apply mapping if required */\
       if (weno->mapped) { \
         a1 = w1 * (c1 + c1*c1 - 3*c1*w1 + w1*w1) / (c1*c1 + w1*(1.0-2.0*c1)); \
         a2 = w2 * (c2 + c2*c2 - 3*c2*w2 + w2*w2) / (c2*c2 + w2*(1.0-2.0*c2)); \

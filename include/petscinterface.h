@@ -10,7 +10,9 @@
 #define _IMPLICIT_  1
 
 typedef struct _petsccontext_ {
+  /* object containing the solver context */
   void *solver;
+  /* object containing the MPI context */
   void *mpi;
 
   PetscReal shift;

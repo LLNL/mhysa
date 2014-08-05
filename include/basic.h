@@ -9,6 +9,17 @@
   #define CHECKERR(ierr)
 #endif
 
+/* Macro to get the coordinate value from the array containing the coordinate values
+ * along all the dimensions.
+ * Arguments:-
+ *  dir       : coordinate dimension (x is 0, y is 1, z is 2, ...) (int)
+ *  i         : grid index along that dimension (int)
+ *  dim       : array of the grid sizes in each dimension (int[])
+ *  ghosts    : number of ghost points 
+ *  x         : array containing the coordinate values in all dimensions
+ * Output:
+ *  coord     : the coordinate value
+*/
 #define _GetCoordinate_(dir,i,dim,ghosts,x,coord) \
   { \
     int arraycounter,offset = 0; \
