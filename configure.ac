@@ -82,7 +82,6 @@ AC_CONFIG_FILES([
    src/PhysicalModels/NavierStokes2D/Makefile
    src/PhysicalModels/NavierStokes3D/Makefile
    src/PhysicalModels/Numa2D/Makefile
-   src/PhysicalModels/Numa2DCons/Makefile
    src/PhysicalModels/Numa3D/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile

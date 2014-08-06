@@ -16,7 +16,6 @@
 #include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 #include <physicalmodels/numa2d.h>
-#include <physicalmodels/numa2d-cons.h>
 #include <physicalmodels/numa3d.h>
 
 int InitializePhysics(void *s,void *m)
@@ -90,11 +89,6 @@ int InitializePhysics(void *s,void *m)
 
     solver->physics = (Numa2D*) calloc (1,sizeof(Numa2D));
     IERR Numa2DInitialize(solver,mpi); CHECKERR(ierr);
-
-  } else if (!strcmp(solver->model,_NUMA2D_CONS_)) {
-
-    solver->physics = (Numa2DCons*) calloc (1,sizeof(Numa2DCons));
-    IERR Numa2DConsInitialize(solver,mpi); CHECKERR(ierr);
 
   } else if (!strcmp(solver->model,_NUMA3D_)) {
 

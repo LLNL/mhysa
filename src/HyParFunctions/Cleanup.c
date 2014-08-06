@@ -19,7 +19,6 @@
 #include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 #include <physicalmodels/numa2d.h>
-#include <physicalmodels/numa2d-cons.h>
 #include <physicalmodels/numa3d.h>
 
 int Cleanup(void *s,void *m)
@@ -57,8 +56,6 @@ int Cleanup(void *s,void *m)
     IERR NavierStokes3DCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_NUMA2D_)) {
     IERR Numa2DCleanup(solver->physics); CHECKERR(ierr);
-  } else if (!strcmp(solver->model,_NUMA2D_CONS_)) {
-    IERR Numa2DConsCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_NUMA3D_)) {
     IERR Numa3DCleanup(solver->physics); CHECKERR(ierr);
   }
