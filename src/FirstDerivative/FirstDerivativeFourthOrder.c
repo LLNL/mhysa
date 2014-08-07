@@ -9,6 +9,10 @@
 typedef MPIVariables  MPIContext;
 typedef HyPar         SolverContext;
 
+#ifdef with_omp
+#include <omp.h>
+#endif
+
 /* 
   Fourth order central differencing
 */
@@ -16,7 +20,7 @@ typedef HyPar         SolverContext;
 int FirstDerivativeFourthOrderCentral(double *Df,double *f,int dir,void *s,void *m)
 {
   SolverContext *solver = (SolverContext*) s;
-  int           i, v;
+  int           i, j, v;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
@@ -35,9 +39,11 @@ int FirstDerivativeFourthOrderCentral(double *Df,double *f,int dir,void *s,void 
      dimension "dir"                                                                    */
   int indexC[ndims], index_outer[ndims], bounds_outer[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  int N_outer; _ArrayProduct1D_(bounds_outer,ndims,N_outer);
 
-  int done = 0; _ArraySetValue_(index_outer,ndims,0);
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(i,j,v,index_outer,indexC)
+  for (j=0; j<N_outer; j++) {
+    _ArrayIndexnD_(ndims,j,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     /* left boundary */
     for (i = -ghosts; i < -ghosts+1; i++) {
@@ -92,7 +98,6 @@ int FirstDerivativeFourthOrderCentral(double *Df,double *f,int dir,void *s,void 
       for (v=0; v<nvars; v++)  
         Df[qC*nvars+v] = (3*f[qm4*nvars+v]-16*f[qm3*nvars+v]+36*f[qm2*nvars+v]-48*f[qm1*nvars+v]+25*f[qC*nvars+v])*one_twelve;
     }
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
   
   return(0);
