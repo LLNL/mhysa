@@ -19,7 +19,7 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, done;
+  int             upw, i;
   double          *ww1, *ww2, *ww3;
 
 
@@ -41,6 +41,7 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
+  int N_outer; _ArrayProduct1D_(bounds_outer,ndims,N_outer);
 
   /* calculate weights for a left-biased interpolation */
   upw = 1;
@@ -48,8 +49,9 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
   ww1 = weno->w1 + offset;
   ww2 = weno->w2 + offset;
   ww3 = weno->w3 + offset;
-  done = 0; _ArraySetValue_(index_outer,ndims,0);
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
+  for (i=0; i<N_outer; i++) {
+    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
@@ -110,14 +112,14 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
         *(ww3+p*nvars+v) = w3;
       }
     }
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   ww1 = weno->w1 + weno->size + offset;
   ww2 = weno->w2 + weno->size + offset;
   ww3 = weno->w3 + weno->size + offset;
-  done = 0; _ArraySetValue_(index_outer,ndims,0);
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
+  for (i=0; i<N_outer; i++) {
+    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
@@ -178,7 +180,6 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
         *(ww3+p*nvars+v) = w3;
       }
     }
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   /* calculate weights for a right-biased interpolation */
@@ -187,8 +188,9 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
   ww1 = weno->w1 + 2*weno->size + offset;
   ww2 = weno->w2 + 2*weno->size + offset;
   ww3 = weno->w3 + 2*weno->size + offset;
-  done = 0; _ArraySetValue_(index_outer,ndims,0);
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
+  for (i=0; i<N_outer; i++) {
+    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
@@ -249,14 +251,14 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
         *(ww3+p*nvars+v) = w3;
       }
     }
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   ww1 = weno->w1 + 2*weno->size + weno->size + offset;
   ww2 = weno->w2 + 2*weno->size + weno->size + offset;
   ww3 = weno->w3 + 2*weno->size + weno->size + offset;
-  done = 0; _ArraySetValue_(index_outer,ndims,0);
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
+  for (i=0; i<N_outer; i++) {
+    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
@@ -317,7 +319,6 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
         *(ww3+p*nvars+v) = w3;
       }
     }
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   return(0);

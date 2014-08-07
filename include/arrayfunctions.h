@@ -2,6 +2,27 @@
 #include <stdlib.h>
 #include <basic.h>
 
+/* Returns the n-D index in the n-D array, given a 1D index in a 1D array
+ * Arguments:-
+ *  N     : number of dimensions (int)
+ *  index : the 1-D index (int)
+ *  imax  : array of size N, with the size of the n-D array in each dimension (int[])
+ *          (not including ghost points)
+ *  i     : the n-D index (integer array of size N) (int[])
+ *  ghosts: number of ghost points (int)
+*/
+#define _ArrayIndexnD_(N,index,imax,i,ghost)  \
+  { \
+    int arraycounter, term=1, index_copy=index; \
+    for (arraycounter=0; arraycounter<N; arraycounter++) term *= (imax[arraycounter]+2*(ghost));\
+    for (arraycounter=N-1; arraycounter>=0; arraycounter--) {\
+      term /= imax[arraycounter]; \
+      i[arraycounter] = index_copy/term; \
+      index_copy -= i[arraycounter]*term; \
+    } \
+    for (arraycounter=0; arraycounter<N; arraycounter++) i[arraycounter] -= (ghost);\
+  }
+
 /* Returns the 1D index in the 1D array, given an n-D index in an n-D array
  * Input arguments:-
  *  N     : number of dimensions (int)
@@ -178,6 +199,14 @@
     y[1] = x[1]; \
     y[2] = x[2]; \
   }
+
+/* Product of all the elements of an array x */
+#define _ArrayProduct1D_(x,size,p) \
+  { \
+    int arraycounter = 0; p = 1; \
+    for (arraycounter=0; arraycounter<size; arraycounter++) p *= x[arraycounter]; \
+  }
+
 
 #if !defined(INLINE)
 # define INLINE inline

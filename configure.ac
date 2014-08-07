@@ -9,6 +9,7 @@ AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT('$(top_srcdir)')
 
 AC_ARG_WITH([mpidir],AC_HELP_STRING([--with-mpidir],[Specify path where mpicc is installed.]))
+AC_ARG_ENABLE([omp],AS_HELP_STRING([--enable-omp],[Enable OpenMP threads]))
 
 if test "x$with_mpidir" != "x" ; then
   AC_MSG_CHECKING([for mpicc in $with_mpidir/bin/])
@@ -36,6 +37,12 @@ fi
 CFLAGS="$CFLAGS -I/opt/local/include -I$includedir -std=c99"
 LDFLAGS="$LDFLAGS -L/opt/local/lib"
 LIBS="$LIBS -lm"
+
+if test "x$enable_omp" = "xyes" ; then
+  AC_MSG_NOTICE([Compiling with OpenMP support.])
+  CFLAGS="$CFLAGS -Dwith_omp -fopenmp"
+  LIBS="$LIBS -lgomp"
+fi
 
 if test "x$PETSC_DIR" = "x"; then
   AC_MSG_NOTICE([Environment variable PETSC_DIR not set. Compiling without PETSc interface.])

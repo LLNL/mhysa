@@ -50,7 +50,7 @@ lower bounds of x_i) is discretized with a Cartesian grid.
   + Plain text
   + Tecplot (2D and 3D problems only)
 
-- Serial as well as parallel (MPI)
+- Serial as well as hybrid-parallel (MPI + OpenMP)
 
 The solver provides a standardized template for discretization schemes and 
 physical models. New physical models can be easily incorporated by defining 
@@ -104,7 +104,7 @@ If obtained by cloning the GIT/SVN repository, run these commands:-
 > autoreconf -i
 
 This will generate the required files for:
-> [CFLAGS="..."] ./configure [--with-mpidir=/path/to/mpi] [--prefix=/install/dir]
+> [CFLAGS="..."] ./configure [--with-mpidir=/path/to/mpi] [--prefix=/install/dir] [--enable-omp]
 > make
 > make install
 
@@ -114,6 +114,7 @@ make install.
 ** A serial version can be compiled using the "-Dserial" compile flag.
 ** If MPI is unavailable or the configure script is unable to detect MPI, then a 
    serial version of the code will get compiled.
+** Use --enable-omp to enable OpenMP threads
 
 COMPILING WITH PETSc:
 - install PETSc (http://www.mcs.anl.gov/petsc/)
