@@ -7,6 +7,10 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+#ifdef with_omp
+#include <omp.h>
+#endif
+
 /* 
   Third order MUSCL characteristic-based interpolation (uniform grid )
 */
@@ -16,9 +20,9 @@
 
 int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
 {
-  HyPar           *solver = (HyPar*) s;
-  MUSCLParameters  *muscl   = (MUSCLParameters*) solver->interp;
-  int             k, v;
+  HyPar             *solver = (HyPar*) s;
+  MUSCLParameters   *muscl   = (MUSCLParameters*) solver->interp;
+  int               i, k, v;
   _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;
@@ -35,14 +39,15 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,double *x,int
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
+  int N_outer; _ArrayProduct1D_(bounds_outer,ndims,N_outer);
 
   /* allocate arrays for the averaged state, eigenvectors and characteristic interpolated f */
   double R[nvars*nvars], L[nvars*nvars], uavg[nvars], fchar[nvars];
 
-  int done = 0; _ArraySetValue_(index_outer,ndims,0);
   if (upw > 0) {
-    while (!done) {
-
+#pragma omp parallel for schedule(auto) default(shared) private(i,k,v,R,L,uavg,fchar,index_outer,indexC,indexI)
+    for (i=0; i<N_outer; i++) {
+      _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
       _ArrayCopy1D_(index_outer,indexC,ndims);
       _ArrayCopy1D_(index_outer,indexI,ndims);
 
@@ -85,11 +90,11 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,double *x,int
         /* calculate the interface u from the characteristic u */
         IERR MatVecMult(nvars,(fI+nvars*p),R,fchar); CHECKERR(ierr);
       }
-      _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
     }
   } else {
-    while (!done) {
-
+#pragma omp parallel for schedule(auto) default(shared) private(i,k,v,R,L,uavg,fchar,index_outer,indexC,indexI)
+    for (i=0; i<N_outer; i++) {
+      _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
       _ArrayCopy1D_(index_outer,indexC,ndims);
       _ArrayCopy1D_(index_outer,indexI,ndims);
 
@@ -132,7 +137,6 @@ int Interp1PrimThirdOrderMUSCLChar(double *fI,double *fC,double *u,double *x,int
         /* calculate the interface u from the characteristic u */
         IERR MatVecMult(nvars,(fI+nvars*p),R,fchar); CHECKERR(ierr);
       }
-      _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
     }
   }
 
