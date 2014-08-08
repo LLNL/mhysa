@@ -6,6 +6,10 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+#ifdef with_omp
+#include <omp.h>
+#endif
+
 /* 
   First order upwind interpolation (uniform grid)
 */
@@ -27,9 +31,12 @@ int Interp1PrimFirstOrderUpwind(double *fI,double *fC,double *u,double *x,int up
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
+  int N_outer; _ArrayProduct1D_(bounds_outer,ndims,N_outer);
 
-  int done = 0; _ArraySetValue_(index_outer,ndims,0);
-  while (!done) {
+  int i;
+#pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
+  for (i=0; i<N_outer; i++) {
+    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
@@ -38,7 +45,6 @@ int Interp1PrimFirstOrderUpwind(double *fI,double *fC,double *u,double *x,int up
       int q; _ArrayIndex1D_(ndims,dim         ,indexC,ghosts,q);
       int v; for (v=0; v<nvars; v++)  fI[p*nvars+v] = fC[q*nvars+v];
     }
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
   return(0);
