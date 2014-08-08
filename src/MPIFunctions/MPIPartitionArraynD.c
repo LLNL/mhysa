@@ -39,7 +39,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
       while (!done) {
         int p1; _ArrayIndex1DWO_(ndims,dim_global,index,is,0,p1);
         int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
-        int v; for (v=0; v<nvars; v++) buffer[nvars*p2+v] = xg[nvars*p1+v];
+        _ArrayCopy1D_((xg+nvars*p1),(buffer+nvars*p2),nvars);
         _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
       if (proc) {
@@ -51,7 +51,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
         while (!done) {
           int p1; _ArrayIndex1D_(ndims,dim_local,index,ghosts,p1);
           int p2; _ArrayIndex1D_(ndims,dim_local,index,0,p2);
-          int v; for (v=0; v<nvars; v++) x[nvars*p1+v] = buffer[nvars*p2+v];
+          _ArrayCopy1D_((buffer+nvars*p2),(x+nvars*p1),nvars);
           _ArrayIncrementIndex_(ndims,dim_local,index,done);
         }
       }
@@ -70,7 +70,7 @@ int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,i
     while (!done) {
       int p1; _ArrayIndex1D_(ndims,dim_local,index,ghosts,p1);
       int p2; _ArrayIndex1D_(ndims,dim_local,index,0,p2);
-      int v; for (v=0; v<nvars; v++) x[nvars*p1+v] = buffer[nvars*p2+v];
+      _ArrayCopy1D_((buffer+nvars*p2),(x+nvars*p1),nvars);
       _ArrayIncrementIndex_(ndims,dim_local,index,done);
     }
     free(buffer);

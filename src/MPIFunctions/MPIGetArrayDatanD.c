@@ -28,7 +28,7 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
     while (!done) {
       int p1; _ArrayIndex1D_(ndims,bounds,index,0,p1);
       int p2; _ArrayIndex1DWO_(ndims,dim,index,is,ghosts,p2);
-      int v; for (v=0; v<nvars; v++) xbuf[nvars*p1+v] = x[nvars*p2+v];
+      _ArrayCopy1D_((x+nvars*p2),(xbuf+nvars*p1),nvars);
       _ArrayIncrementIndex_(ndims,bounds,index,done);
     }
   } else {
@@ -44,7 +44,7 @@ int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
       while (!done) {
         int p1; _ArrayIndex1D_(ndims,bounds,index,0,p1);
         int p2; _ArrayIndex1DWO_(ndims,dim,index,is,ghosts,p2);
-        int v; for (v=0; v<nvars; v++) buf[nvars*p1+v] = x[nvars*p2+v];
+        _ArrayCopy1D_((x+nvars*p2),(buf+nvars*p1),nvars);
         _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
       MPI_Send(buf,size*nvars,MPI_DOUBLE,dest_rank,2211,mpi->world);

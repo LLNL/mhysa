@@ -67,7 +67,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       while (!done) {
         int p1; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p1);
         int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
-        int v; for (v=0; v<nvars; v++) sendbuf[2*d*stride+nvars*p2+v] = var[nvars*p1+v];
+        _ArrayCopy1D_((var+nvars*p1),(sendbuf+2*d*stride+nvars*p2),nvars);
         _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
     }
@@ -77,7 +77,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       while (!done) {
         int p1; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p1);
         int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
-        int v; for (v=0; v<nvars; v++) sendbuf[(2*d+1)*stride+nvars*p2+v] = var[nvars*p1+v];
+        _ArrayCopy1D_((var+nvars*p1),(sendbuf+(2*d+1)*stride+nvars*p2),nvars);
         _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
     }
@@ -107,7 +107,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       while (!done) {
         int p1; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p1);
         int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
-        int v; for (v=0; v<nvars; v++) var[nvars*p1+v] = recvbuf[2*d*stride+nvars*p2+v];
+        _ArrayCopy1D_((recvbuf+2*d*stride+nvars*p2),(var+nvars*p1),nvars);
         _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
     }
@@ -117,7 +117,7 @@ int MPIExchangeBoundariesnD(int ndims,int nvars,int *dim,int ghosts,void *m,doub
       while (!done) {
         int p1; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p1);
         int p2; _ArrayIndex1D_(ndims,bounds,index,0,p2);
-        int v; for (v=0; v<nvars; v++) var[nvars*p1+v] = recvbuf[(2*d+1)*stride+nvars*p2+v];
+        _ArrayCopy1D_((recvbuf+(2*d+1)*stride+nvars*p2),(var+nvars*p1),nvars);
         _ArrayIncrementIndex_(ndims,bounds,index,done);
       }
     }

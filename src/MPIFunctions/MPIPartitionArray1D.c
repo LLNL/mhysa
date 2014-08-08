@@ -40,12 +40,12 @@ int MPIPartitionArray1D(void *m,double *xg,double *x,int istart,int iend,
       }
       int size = ie - is;
       double *buffer = (double*) calloc (size, sizeof(double));
-      for (i=0; i<size; i++) buffer[i] = xg[i+is];
+      _ArrayCopy1D_((xg+is),buffer,size);
       if (proc) {
 #ifndef serial
         MPI_Send(buffer,size,MPI_DOUBLE,proc,1539,mpi->world);
 #endif
-      } else for (i=0; i<N_local; i++) x[i] = buffer[i];
+      } else _ArrayCopy1D_(buffer,x,N_local);
       free(buffer);
     }
 
@@ -57,7 +57,7 @@ int MPIPartitionArray1D(void *m,double *xg,double *x,int istart,int iend,
     MPI_Send(&iend  ,1,MPI_INT,0,1443,mpi->world);
     double *buffer = (double*) calloc (N_local, sizeof(buffer));
     MPI_Recv(buffer,N_local,MPI_DOUBLE,0,1539,mpi->world,&status);
-    for (i=0; i<N_local; i++) x[i+ghosts] = buffer[i];
+    _ArrayCopy1D_(buffer,x,N_local);
     free(buffer);
 #endif
   }

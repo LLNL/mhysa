@@ -245,7 +245,7 @@ INLINE int ArrayCopynD(int ndims,double *x,double *y,int *dim,int g1,int g2,int 
     int p1, p2, n;
     _ArrayIndex1D_(ndims,dim,index,g1,p1); 
     _ArrayIndex1D_(ndims,dim,index,g2,p2);
-    for (n=0; n<nvars; n++) y[p2*nvars+n] = x[p1*nvars+n];
+    _ArrayCopy1D_((x+p1*nvars),(y+p2*nvars),nvars);
     _ArrayIncrementIndex_(ndims,dim,index,done);
   }
   return(0);

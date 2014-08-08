@@ -52,7 +52,7 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
         while (!done) {
           int p1; _ArrayIndex1D_(ndims,bounds,index,0,p1);
           int p2; _ArrayIndex1DWO_(ndims,dim_global,index,is,0,p2);
-          int v; for (v=0; v<nvars; v++) xg[nvars*p2+v] = recvbuf[nvars*p1+v];
+          _ArrayCopy1D_((recvbuf+nvars*p1),(xg+nvars*p2),nvars);
           _ArrayIncrementIndex_(ndims,bounds,index,done);
         }
         free(recvbuf);
@@ -62,7 +62,7 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
         while (!done) {
           int p1; _ArrayIndex1D_(ndims,bounds,index,0,p1);
           int p2; _ArrayIndex1DWO_(ndims,dim_global,index,is,0,p2);
-          int v; for (v=0; v<nvars; v++) xg[nvars*p2+v] = buffer[nvars*p1+v];
+          _ArrayCopy1D_((buffer+nvars*p1),(xg+nvars*p2),nvars);
           _ArrayIncrementIndex_(ndims,bounds,index,done);
         }
       }
