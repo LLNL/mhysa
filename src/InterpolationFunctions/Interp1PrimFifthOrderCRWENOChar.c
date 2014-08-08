@@ -7,6 +7,10 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+#ifdef with_omp
+#include <omp.h>
+#endif
+
 /* 
   Fifth order CRWENO characteristic-based interpolation (uniform grid)
 */
@@ -20,7 +24,7 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
   MPIVariables    *mpi    = (MPIVariables*)   m;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   TridiagLU       *lu     = (TridiagLU*)      solver->lusolver;
-  int             sys,Nsys,d,done,v,k;
+  int             sys,Nsys,d,v,k;
   _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;
@@ -46,7 +50,7 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
 
   /* calculate total number of block tridiagonal systems to solve */
-  Nsys = 1; for (d=0; d<ndims; d++) Nsys *= bounds_outer[d];
+  _ArrayProduct1D_(bounds_outer,ndims,Nsys);
 
   /* allocate arrays for the averaged state, eigenvectors and characteristic interpolated f */
   double R[nvars*nvars], L[nvars*nvars], uavg[nvars], fchar[nvars];
@@ -57,9 +61,9 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
   double *C = weno->C;
   double *F = weno->R;
 
-  done = 0; _ArraySetValue_(index_outer,ndims,0);
-  sys = 0;
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,fchar,index_outer,indexC,indexI)
+  for (sys=0; sys<Nsys; sys++) {
+    _ArrayIndexnD_(ndims,sys,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
@@ -147,8 +151,6 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
         F[(Nsys*indexI[dir]+sys)*nvars+v] = w1*f1 + w2*f2 + w3*f3;
       }
     }
-    sys++;
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
 #ifdef serial
@@ -179,16 +181,14 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
 #endif
 
   /* save the solution to fI */
-  done = 0; _ArraySetValue_(index_outer,ndims,0);
-  sys = 0;
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,fchar,index_outer,indexC,indexI)
+  for (sys=0; sys<Nsys; sys++) {
+    _ArrayIndexnD_(ndims,sys,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
       int p; _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
       int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = F[sys*nvars+v+Nsys*nvars*indexI[dir]];
     }
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
-    sys++;
   }
 
   return(0);
