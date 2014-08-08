@@ -163,7 +163,7 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int up
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
       int p; _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
-      int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = R[sys*nvars+v+Nsys*indexI[dir]];
+      _ArrayCopy1D_((R+sys*nvars+Nsys*indexI[dir]),(fI+nvars*p),nvars);
     }
   }
 
