@@ -7,6 +7,10 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+#ifdef with_omp
+#include <omp.h>
+#endif
+
 /* 
   Fifth order CRWENO interpolation (uniform grid)
 */
@@ -20,7 +24,7 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int up
   MPIVariables    *mpi    = (MPIVariables*)   m;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   TridiagLU       *lu     = (TridiagLU*)      solver->lusolver;
-  int             sys,Nsys,d,done;
+  int             sys,Nsys,d;
   _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;
@@ -44,9 +48,10 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int up
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
+  int N_outer; _ArrayProduct1D_(bounds_outer,ndims,N_outer);
 
   /* calculate total number of tridiagonal systems to solve */
-  Nsys = 1; for (d=0; d<ndims; d++) Nsys *= bounds_outer[d]; Nsys *= nvars;
+  _ArrayProduct1D_(bounds_outer,ndims,Nsys); Nsys *= nvars;
 
   /* Allocate arrays for tridiagonal system */
   double *A = weno->A;
@@ -54,9 +59,9 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int up
   double *C = weno->C;
   double *R = weno->R;
 
-  done = 0; _ArraySetValue_(index_outer,ndims,0);
-  sys = 0;
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(sys,d,index_outer,indexC,indexI)
+  for (sys=0; sys < N_outer; sys++) {
+    _ArrayIndexnD_(ndims,sys,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
@@ -125,8 +130,6 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int up
         R[sys*nvars+v+Nsys*indexI[dir]] = w1*f1 + w2*f2 + w3*f3;
       }
     }
-    sys++;
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
 
 #ifdef serial
@@ -154,16 +157,14 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int up
 #endif
 
   /* save the solution to fI */
-  done = 0; _ArraySetValue_(index_outer,ndims,0);
-  sys = 0;
-  while (!done) {
+#pragma omp parallel for schedule(auto) default(shared) private(sys,d,index_outer,indexC,indexI)
+  for (sys=0; sys < N_outer; sys++) {
+    _ArrayIndexnD_(ndims,sys,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
       int p; _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
       int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = R[sys*nvars+v+Nsys*indexI[dir]];
     }
-    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
-    sys++;
   }
 
   return(0);
