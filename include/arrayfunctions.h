@@ -200,6 +200,17 @@
     y[2] = x[2]; \
   }
 
+/* Element-wise scale and copy y = a*x
+ * x,y    : the arrays (int/float/double/char [])
+ * a      : a constant
+ * size   : size of the arrays (int)
+*/
+#define _ArrayScaleCopy1D_(x,a,y,size) \
+  { \
+    int arraycounter; \
+    for (arraycounter = 0; arraycounter < size; arraycounter++) y[arraycounter] = a*x[arraycounter]; \
+  }
+
 /* Product of all the elements of an array x */
 #define _ArrayProduct1D_(x,size,p) \
   { \

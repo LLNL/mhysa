@@ -25,7 +25,7 @@ int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       else return(1);
       _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
-      for (v=0; v<nvars; v++) phi[nvars*p1+v] = -phi[nvars*p2+v];
+      _ArrayScaleCopy1D_((phi+nvars*p2),(-1.0),(phi+nvars*p1),nvars);
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }
@@ -54,7 +54,7 @@ int BCReflectDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
       else return(1);
       _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
-      for (v=0; v<nvars; v++) phi[nvars*p1+v] = -phi[nvars*p2+v];
+      _ArrayScaleCopy1D_((phi+nvars*p2),(-1.0),(phi+nvars*p1),nvars);
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }

@@ -82,9 +82,7 @@ int BCNoFluxDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
       else return(1);
       _ArrayIndex1DWO_  (ndims,size,indexb,boundary->is,ghosts,p1);
       _ArrayIndex1D_    (ndims,size,indexi,ghosts,p2);
-      
-      for (v-0; v<nvars; v++) phi[nvars*p1+v] = 0;
-
+      _ArraySetValue_   ((phi+nvars*p1),nvars,0.0);
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }

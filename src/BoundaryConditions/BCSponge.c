@@ -30,8 +30,7 @@ int BCSpongeSource(void *b,int ndims,int nvars,int ghosts,int *size,double *grid
       else          sigma = (x - xend  ) / (xstart - xend);
       /* add to the source term */
       int p; _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p);
-      for (v=0; v<nvars; v++) 
-        source[nvars*p+v] -= (sigma * (u[nvars*p+v]-uref[v]));
+      for (v=0; v<nvars; v++) source[nvars*p+v] -= (sigma * (u[nvars*p+v]-uref[v]));
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }

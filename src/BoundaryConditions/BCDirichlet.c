@@ -15,7 +15,7 @@ int BCDirichletU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
     int done = 0;
     while (!done) {
       int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
-      for (v=0; v<nvars; v++) phi[nvars*p+v] = boundary->DirichletValue[v];
+      _ArrayCopy1D_((boundary->DirichletValue),(phi+nvars*p),nvars);
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }
@@ -34,7 +34,7 @@ int BCDirichletDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,doubl
     int done = 0;
     while (!done) {
       int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
-      for (v=0; v<nvars; v++) phi[nvars*p+v] = 0.0;
+      _ArraySetValue_((phi+nvars*p),nvars,0.0);
       _ArrayIncrementIndex_(ndims,bounds,indexb,done);
     }
   }
