@@ -354,6 +354,7 @@ int main()
 
     for (IORank=0; IORank < N_IORanks; IORank++) {
       /* for each IO group, calculate its range of processes */
+      GroupSize = nproc / N_IORanks;
       int Start = IORank      * GroupSize;
       int End   = (IORank+1)  * GroupSize;
       /* for each process in this IO group, read the solution and
