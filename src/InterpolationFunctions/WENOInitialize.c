@@ -88,6 +88,13 @@ int WENOInitialize(void *s,void *m, char *scheme,char *type)
   weno->rc          = real_data   [2];
   weno->xi          = real_data   [3];
 
+  /* WENO weight calculation is hard-coded for p=2, so return error if p != 2 in
+   * user input file, so that there's no confusion */
+  if (weno->p != 2.0) {
+    if (!mpi->rank) fprintf(stderr, "Error in WENOInitialize(): \"p\" parameter must be 2.0!");
+    return(1);
+  }
+
   if (   (!strcmp(scheme,_FIFTH_ORDER_CRWENO_))
       || (!strcmp(scheme,_FIFTH_ORDER_HCWENO_)) ) {
     int size = 1, d;
