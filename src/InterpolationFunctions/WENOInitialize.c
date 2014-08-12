@@ -91,8 +91,7 @@ int WENOInitialize(void *s,void *m, char *scheme,char *type)
   /* WENO weight calculation is hard-coded for p=2, so return error if p != 2 in
    * user input file, so that there's no confusion */
   if (weno->p != 2.0) {
-    if (!mpi->rank) fprintf(stderr, "Error in WENOInitialize(): \"p\" parameter must be 2.0!");
-    return(1);
+    if (!mpi->rank) printf("Warning from WENOInitialize(): \"p\" parameter is 2.0. Any other value will be ignored!\n");
   }
 
   if (   (!strcmp(scheme,_FIFTH_ORDER_CRWENO_))
