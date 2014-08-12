@@ -20,12 +20,14 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
   int             upw, i;
-  double          *ww1, *ww2, *ww3;
+  double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
+  double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
+  int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
   static const double one_sixth          = 1.0/6.0;
@@ -42,41 +44,63 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
   int N_outer; _ArrayProduct1D_(bounds_outer,ndims,N_outer);
 
-  /* calculate weights for a left-biased interpolation */
-  upw = 1;
-
-  ww1 = weno->w1 + offset;
-  ww2 = weno->w2 + offset;
-  ww3 = weno->w3 + offset;
+  ww1LF = weno->w1 + offset;
+  ww2LF = weno->w2 + offset;
+  ww3LF = weno->w3 + offset;
+  ww1RF = weno->w1 + 2*weno->size + offset;
+  ww2RF = weno->w2 + 2*weno->size + offset;
+  ww3RF = weno->w3 + 2*weno->size + offset;
+  ww1LU = weno->w1 + weno->size + offset;
+  ww2LU = weno->w2 + weno->size + offset;
+  ww3LU = weno->w3 + weno->size + offset;
+  ww1RU = weno->w1 + 2*weno->size + weno->size + offset;
+  ww2RU = weno->w2 + 2*weno->size + weno->size + offset;
+  ww3RU = weno->w3 + 2*weno->size + weno->size + offset;
 #pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
   for (i=0; i<N_outer; i++) {
     _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
-      int qm1,qm2,qm3,qp1,qp2,p;
+      int qm1L,qm2L,qm3L,qp1L,qp2L,p,qm1R,qm2R,qm3R,qp1R,qp2R;
       _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
-      if (upw > 0) {
-        indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
-      } else {
-        indexC[dir] = indexI[dir]+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
-      }
+      indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1L);
+      qm3L = qm1L - 2*stride[dir];
+      qm2L = qm1L -   stride[dir];
+      qp1L = qm1L +   stride[dir];
+      qp2L = qm1L + 2*stride[dir];
+
+      indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1R);
+      qm3R = qm1R + 2*stride[dir];
+      qm2R = qm1R +   stride[dir];
+      qp1R = qm1R -   stride[dir];
+      qp2R = qm1R - 2*stride[dir];
         
       /* Defining stencil points */
-      double m3[nvars], m2[nvars], m1[nvars], p1[nvars], p2[nvars];
-      _ArrayCopy1D_((fC+qm3*nvars),m3,nvars);
-      _ArrayCopy1D_((fC+qm2*nvars),m2,nvars);
-      _ArrayCopy1D_((fC+qm1*nvars),m1,nvars);
-      _ArrayCopy1D_((fC+qp1*nvars),p1,nvars);
-      _ArrayCopy1D_((fC+qp2*nvars),p2,nvars);
+      double *m3LF, *m2LF, *m1LF, *p1LF, *p2LF;
+      m3LF = (fC+qm3L*nvars);
+      m2LF = (fC+qm2L*nvars);
+      m1LF = (fC+qm1L*nvars);
+      p1LF = (fC+qp1L*nvars);
+      p2LF = (fC+qp2L*nvars);
+      double *m3RF, *m2RF, *m1RF, *p1RF, *p2RF;
+      m3RF = (fC+qm3R*nvars);
+      m2RF = (fC+qm2R*nvars);
+      m1RF = (fC+qm1R*nvars);
+      p1RF = (fC+qp1R*nvars);
+      p2RF = (fC+qp2R*nvars);
+      double *m3LU, *m2LU, *m1LU, *p1LU, *p2LU;
+      m3LU = (uC+qm3L*nvars);
+      m2LU = (uC+qm2L*nvars);
+      m1LU = (uC+qm1L*nvars);
+      p1LU = (uC+qp1L*nvars);
+      p2LU = (uC+qp2L*nvars);
+      double *m3RU, *m2RU, *m1RU, *p1RU, *p2RU;
+      m3RU = (uC+qm3R*nvars);
+      m2RU = (uC+qm2R*nvars);
+      m1RU = (uC+qm1R*nvars);
+      p1RU = (uC+qp1R*nvars);
+      p2RU = (uC+qp2R*nvars);
 
       /* optimal weights*/
       double c1, c2, c3;
@@ -101,194 +125,10 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
       }
 
       /* calculate WENO weights */
-      double w1[nvars],w2[nvars],w3[nvars];
-      _WENOWeights_v_((ww1+p*nvars),(ww2+p*nvars),(ww3+p*nvars),c1,c2,c3,m3,m2,m1,p1,p2,weno,nvars);
-    }
-  }
-
-  ww1 = weno->w1 + weno->size + offset;
-  ww2 = weno->w2 + weno->size + offset;
-  ww3 = weno->w3 + weno->size + offset;
-#pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
-  for (i=0; i<N_outer; i++) {
-    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
-    _ArrayCopy1D_(index_outer,indexC,ndims);
-    _ArrayCopy1D_(index_outer,indexI,ndims);
-    for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
-      int qm1,qm2,qm3,qp1,qp2,p;
-      _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
-      if (upw > 0) {
-        indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
-      } else {
-        indexC[dir] = indexI[dir]+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
-      }
-
-      /* Defining stencil points */
-      double m3[nvars], m2[nvars], m1[nvars], p1[nvars], p2[nvars];
-      _ArrayCopy1D_((uC+qm3*nvars),m3,nvars);
-      _ArrayCopy1D_((uC+qm2*nvars),m2,nvars);
-      _ArrayCopy1D_((uC+qm1*nvars),m1,nvars);
-      _ArrayCopy1D_((uC+qp1*nvars),p1,nvars);
-      _ArrayCopy1D_((uC+qp2*nvars),p2,nvars);
-
-      /* optimal weights*/
-      double c1, c2, c3;
-      if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          /* Use WENO5 at the physical boundaries */
-          c1 = _WENO_OPTIMAL_WEIGHT_1_;
-          c2 = _WENO_OPTIMAL_WEIGHT_2_;
-          c3 = _WENO_OPTIMAL_WEIGHT_3_;
-        } else {
-          /* CRWENO5 at the interior points */
-          c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
-          c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
-          c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
-        }
-      } else {
-        /* WENO5 and HCWENO5 */
-        c1 = _WENO_OPTIMAL_WEIGHT_1_;
-        c2 = _WENO_OPTIMAL_WEIGHT_2_;
-        c3 = _WENO_OPTIMAL_WEIGHT_3_;
-      }
-
-      /* calculate WENO weights */
-      double w1[nvars],w2[nvars],w3[nvars];
-      _WENOWeights_v_((ww1+p*nvars),(ww2+p*nvars),(ww3+p*nvars),c1,c2,c3,m3,m2,m1,p1,p2,weno,nvars);
-    }
-  }
-
-  /* calculate weights for a right-biased interpolation */
-  upw = -1;
-
-  ww1 = weno->w1 + 2*weno->size + offset;
-  ww2 = weno->w2 + 2*weno->size + offset;
-  ww3 = weno->w3 + 2*weno->size + offset;
-#pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
-  for (i=0; i<N_outer; i++) {
-    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
-    _ArrayCopy1D_(index_outer,indexC,ndims);
-    _ArrayCopy1D_(index_outer,indexI,ndims);
-    for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
-      int qm1,qm2,qm3,qp1,qp2,p;
-      _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
-      if (upw > 0) {
-        indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
-      } else {
-        indexC[dir] = indexI[dir]+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
-      }
-
-      /* Defining stencil points */
-      double m3[nvars], m2[nvars], m1[nvars], p1[nvars], p2[nvars];
-      _ArrayCopy1D_((fC+qm3*nvars),m3,nvars);
-      _ArrayCopy1D_((fC+qm2*nvars),m2,nvars);
-      _ArrayCopy1D_((fC+qm1*nvars),m1,nvars);
-      _ArrayCopy1D_((fC+qp1*nvars),p1,nvars);
-      _ArrayCopy1D_((fC+qp2*nvars),p2,nvars);
-
-      /* optimal weights*/
-      double c1, c2, c3;
-      if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          /* Use WENO5 at the physical boundaries */
-          c1 = _WENO_OPTIMAL_WEIGHT_1_;
-          c2 = _WENO_OPTIMAL_WEIGHT_2_;
-          c3 = _WENO_OPTIMAL_WEIGHT_3_;
-        } else {
-          /* CRWENO5 at the interior points */
-          c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
-          c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
-          c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
-        }
-      } else {
-        /* WENO5 and HCWENO5 */
-        c1 = _WENO_OPTIMAL_WEIGHT_1_;
-        c2 = _WENO_OPTIMAL_WEIGHT_2_;
-        c3 = _WENO_OPTIMAL_WEIGHT_3_;
-      }
-
-      /* calculate WENO weights */
-      double w1[nvars],w2[nvars],w3[nvars];
-      _WENOWeights_v_((ww1+p*nvars),(ww2+p*nvars),(ww3+p*nvars),c1,c2,c3,m3,m2,m1,p1,p2,weno,nvars);
-    }
-  }
-
-  ww1 = weno->w1 + 2*weno->size + weno->size + offset;
-  ww2 = weno->w2 + 2*weno->size + weno->size + offset;
-  ww3 = weno->w3 + 2*weno->size + weno->size + offset;
-#pragma omp parallel for schedule(auto) default(shared) private(i,index_outer,indexC,indexI)
-  for (i=0; i<N_outer; i++) {
-    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
-    _ArrayCopy1D_(index_outer,indexC,ndims);
-    _ArrayCopy1D_(index_outer,indexI,ndims);
-    for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
-      int qm1,qm2,qm3,qp1,qp2,p;
-      _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
-      if (upw > 0) {
-        indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
-      } else {
-        indexC[dir] = indexI[dir]+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
-      }
-
-      /* Defining stencil points */
-      double m3[nvars], m2[nvars], m1[nvars], p1[nvars], p2[nvars];
-      _ArrayCopy1D_((uC+qm3*nvars),m3,nvars);
-      _ArrayCopy1D_((uC+qm2*nvars),m2,nvars);
-      _ArrayCopy1D_((uC+qm1*nvars),m1,nvars);
-      _ArrayCopy1D_((uC+qp1*nvars),p1,nvars);
-      _ArrayCopy1D_((uC+qp2*nvars),p2,nvars);
-
-      /* optimal weights*/
-      double c1, c2, c3;
-      if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          /* Use WENO5 at the physical boundaries */
-          c1 = _WENO_OPTIMAL_WEIGHT_1_;
-          c2 = _WENO_OPTIMAL_WEIGHT_2_;
-          c3 = _WENO_OPTIMAL_WEIGHT_3_;
-        } else {
-          /* CRWENO5 at the interior points */
-          c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
-          c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
-          c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
-        }
-      } else {
-        /* WENO5 and HCWENO5 */
-        c1 = _WENO_OPTIMAL_WEIGHT_1_;
-        c2 = _WENO_OPTIMAL_WEIGHT_2_;
-        c3 = _WENO_OPTIMAL_WEIGHT_3_;
-      }
-
-      /* calculate WENO weights */
-      double w1[nvars],w2[nvars],w3[nvars];
-      _WENOWeights_v_((ww1+p*nvars),(ww2+p*nvars),(ww3+p*nvars),c1,c2,c3,m3,m2,m1,p1,p2,weno,nvars);
+      upw =  1; _WENOWeights_v_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      upw = -1; _WENOWeights_v_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      upw =  1; _WENOWeights_v_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      upw = -1; _WENOWeights_v_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 

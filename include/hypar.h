@@ -272,6 +272,10 @@ typedef struct main_parameters {
   /* "hack-y" parameters */
   int flag_nonlinearinterp; /* flag to globally switch on/off non-linear interpolation */
 
+  /* strides along each dimension for arrays with and without ghost padding */
+  int *stride_with_ghosts;
+  int *stride_without_ghosts;
+
 } HyPar;
 
 /* The following functions are called by main() */

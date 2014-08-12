@@ -26,6 +26,7 @@ int Interp1PrimFifthOrderWENO(double *fI,double *fC,double *u,double *x,int upw,
   int ndims  = solver->ndims;
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
+  int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
   static const double one_sixth          = 1.0/6.0;
@@ -54,17 +55,17 @@ int Interp1PrimFifthOrderWENO(double *fI,double *fC,double *u,double *x,int upw,
       int qm1,qm2,qm3,qp1,qp2,p;
       _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
       if (upw > 0) {
-        indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
         indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
+        qm3 = qm1 - 2*stride[dir];
+        qm2 = qm1 -   stride[dir];
+        qp1 = qm1 +   stride[dir];
+        qp2 = qm1 + 2*stride[dir];
       } else {
-        indexC[dir] = indexI[dir]+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
         indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
+        qm3 = qm1 + 2*stride[dir];
+        qm2 = qm1 +   stride[dir];
+        qp1 = qm1 -   stride[dir];
+        qp2 = qm1 - 2*stride[dir];
       }
 
       /* Defining stencil points */

@@ -72,6 +72,15 @@ int Initialize(void *s, void *m)
   /* Allocations */
   if (!mpi->rank) printf("Allocating data arrays.\n");
   solver->index = (int*) calloc (solver->ndims,sizeof(int));
+  solver->stride_with_ghosts    = (int*) calloc (solver->ndims,sizeof(int));
+  solver->stride_without_ghosts = (int*) calloc (solver->ndims,sizeof(int));
+  int accu1 = 1, accu2 = 1;
+  for (i=0; i<solver->ndims; i++) {
+    solver->stride_with_ghosts[i]    = accu1;
+    solver->stride_without_ghosts[i] = accu2;
+    accu1 *= (solver->dim_local[i]+2*solver->ghosts);
+    accu2 *=  solver->dim_local[i];
+  }
   int size;
   /* state variable */
   size = 1;

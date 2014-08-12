@@ -115,6 +115,8 @@ int Cleanup(void *s,void *m)
   free(solver->StepBoundaryIntegral);
   free(solver->TotalBoundaryIntegral);
   free(solver->ConservationError);
+  free(solver->stride_with_ghosts);
+  free(solver->stride_without_ghosts);
 
   return(0);
 }
