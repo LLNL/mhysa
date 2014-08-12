@@ -69,47 +69,40 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
         indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
         indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       }
-      int v; 
-      for (v=0; v<nvars; v++)  {
-        /* Defining stencil points */
-        double m3, m2, m1, p1, p2;
-        m3 = fC[qm3*nvars+v];
-        m2 = fC[qm2*nvars+v];
-        m1 = fC[qm1*nvars+v];
-        p1 = fC[qp1*nvars+v];
-        p2 = fC[qp2*nvars+v];
+        
+      /* Defining stencil points */
+      double m3[nvars], m2[nvars], m1[nvars], p1[nvars], p2[nvars];
+      _ArrayCopy1D_((fC+qm3*nvars),m3,nvars);
+      _ArrayCopy1D_((fC+qm2*nvars),m2,nvars);
+      _ArrayCopy1D_((fC+qm1*nvars),m1,nvars);
+      _ArrayCopy1D_((fC+qp1*nvars),p1,nvars);
+      _ArrayCopy1D_((fC+qp2*nvars),p2,nvars);
 
-        /* optimal weights*/
-        double c1, c2, c3;
-        if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-          if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-              || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-            /* Use WENO5 at the physical boundaries */
-            c1 = _WENO_OPTIMAL_WEIGHT_1_;
-            c2 = _WENO_OPTIMAL_WEIGHT_2_;
-            c3 = _WENO_OPTIMAL_WEIGHT_3_;
-          } else {
-            /* CRWENO5 at the interior points */
-            c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
-            c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
-            c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
-          }
-        } else {
-          /* WENO5 and HCWENO5 */
+      /* optimal weights*/
+      double c1, c2, c3;
+      if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
+        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+          /* Use WENO5 at the physical boundaries */
           c1 = _WENO_OPTIMAL_WEIGHT_1_;
           c2 = _WENO_OPTIMAL_WEIGHT_2_;
           c3 = _WENO_OPTIMAL_WEIGHT_3_;
+        } else {
+          /* CRWENO5 at the interior points */
+          c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
+          c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
+          c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
         }
-
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        _WENOWeights_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno);
-
-        /* save the weights */
-        *(ww1+p*nvars+v) = w1;
-        *(ww2+p*nvars+v) = w2;
-        *(ww3+p*nvars+v) = w3;
+      } else {
+        /* WENO5 and HCWENO5 */
+        c1 = _WENO_OPTIMAL_WEIGHT_1_;
+        c2 = _WENO_OPTIMAL_WEIGHT_2_;
+        c3 = _WENO_OPTIMAL_WEIGHT_3_;
       }
+
+      /* calculate WENO weights */
+      double w1[nvars],w2[nvars],w3[nvars];
+      _WENOWeights_v_((ww1+p*nvars),(ww2+p*nvars),(ww3+p*nvars),c1,c2,c3,m3,m2,m1,p1,p2,weno,nvars);
     }
   }
 
@@ -137,47 +130,40 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
         indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
         indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       }
-      int v; 
-      for (v=0; v<nvars; v++)  {
-        /* Defining stencil points */
-        double m3, m2, m1, p1, p2;
-        m3 = uC[qm3*nvars+v];
-        m2 = uC[qm2*nvars+v];
-        m1 = uC[qm1*nvars+v];
-        p1 = uC[qp1*nvars+v];
-        p2 = uC[qp2*nvars+v];
 
-        /* optimal weights*/
-        double c1, c2, c3;
-        if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-          if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-              || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-            /* Use WENO5 at the physical boundaries */
-            c1 = _WENO_OPTIMAL_WEIGHT_1_;
-            c2 = _WENO_OPTIMAL_WEIGHT_2_;
-            c3 = _WENO_OPTIMAL_WEIGHT_3_;
-          } else {
-            /* CRWENO5 at the interior points */
-            c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
-            c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
-            c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
-          }
-        } else {
-          /* WENO5 and HCWENO5 */
+      /* Defining stencil points */
+      double m3[nvars], m2[nvars], m1[nvars], p1[nvars], p2[nvars];
+      _ArrayCopy1D_((uC+qm3*nvars),m3,nvars);
+      _ArrayCopy1D_((uC+qm2*nvars),m2,nvars);
+      _ArrayCopy1D_((uC+qm1*nvars),m1,nvars);
+      _ArrayCopy1D_((uC+qp1*nvars),p1,nvars);
+      _ArrayCopy1D_((uC+qp2*nvars),p2,nvars);
+
+      /* optimal weights*/
+      double c1, c2, c3;
+      if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
+        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+          /* Use WENO5 at the physical boundaries */
           c1 = _WENO_OPTIMAL_WEIGHT_1_;
           c2 = _WENO_OPTIMAL_WEIGHT_2_;
           c3 = _WENO_OPTIMAL_WEIGHT_3_;
+        } else {
+          /* CRWENO5 at the interior points */
+          c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
+          c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
+          c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
         }
-
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        _WENOWeights_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno);
-
-        /* save the weights */
-        *(ww1+p*nvars+v) = w1;
-        *(ww2+p*nvars+v) = w2;
-        *(ww3+p*nvars+v) = w3;
+      } else {
+        /* WENO5 and HCWENO5 */
+        c1 = _WENO_OPTIMAL_WEIGHT_1_;
+        c2 = _WENO_OPTIMAL_WEIGHT_2_;
+        c3 = _WENO_OPTIMAL_WEIGHT_3_;
       }
+
+      /* calculate WENO weights */
+      double w1[nvars],w2[nvars],w3[nvars];
+      _WENOWeights_v_((ww1+p*nvars),(ww2+p*nvars),(ww3+p*nvars),c1,c2,c3,m3,m2,m1,p1,p2,weno,nvars);
     }
   }
 
@@ -208,47 +194,40 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
         indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
         indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       }
-      int v; 
-      for (v=0; v<nvars; v++)  {
-        /* Defining stencil points */
-        double m3, m2, m1, p1, p2;
-        m3 = fC[qm3*nvars+v];
-        m2 = fC[qm2*nvars+v];
-        m1 = fC[qm1*nvars+v];
-        p1 = fC[qp1*nvars+v];
-        p2 = fC[qp2*nvars+v];
 
-        /* optimal weights*/
-        double c1, c2, c3;
-        if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-          if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-              || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-            /* Use WENO5 at the physical boundaries */
-            c1 = _WENO_OPTIMAL_WEIGHT_1_;
-            c2 = _WENO_OPTIMAL_WEIGHT_2_;
-            c3 = _WENO_OPTIMAL_WEIGHT_3_;
-          } else {
-            /* CRWENO5 at the interior points */
-            c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
-            c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
-            c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
-          }
-        } else {
-          /* WENO5 and HCWENO5 */
+      /* Defining stencil points */
+      double m3[nvars], m2[nvars], m1[nvars], p1[nvars], p2[nvars];
+      _ArrayCopy1D_((fC+qm3*nvars),m3,nvars);
+      _ArrayCopy1D_((fC+qm2*nvars),m2,nvars);
+      _ArrayCopy1D_((fC+qm1*nvars),m1,nvars);
+      _ArrayCopy1D_((fC+qp1*nvars),p1,nvars);
+      _ArrayCopy1D_((fC+qp2*nvars),p2,nvars);
+
+      /* optimal weights*/
+      double c1, c2, c3;
+      if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
+        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+          /* Use WENO5 at the physical boundaries */
           c1 = _WENO_OPTIMAL_WEIGHT_1_;
           c2 = _WENO_OPTIMAL_WEIGHT_2_;
           c3 = _WENO_OPTIMAL_WEIGHT_3_;
+        } else {
+          /* CRWENO5 at the interior points */
+          c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
+          c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
+          c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
         }
-
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        _WENOWeights_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno);
-
-        /* save the weights */
-        *(ww1+p*nvars+v) = w1;
-        *(ww2+p*nvars+v) = w2;
-        *(ww3+p*nvars+v) = w3;
+      } else {
+        /* WENO5 and HCWENO5 */
+        c1 = _WENO_OPTIMAL_WEIGHT_1_;
+        c2 = _WENO_OPTIMAL_WEIGHT_2_;
+        c3 = _WENO_OPTIMAL_WEIGHT_3_;
       }
+
+      /* calculate WENO weights */
+      double w1[nvars],w2[nvars],w3[nvars];
+      _WENOWeights_v_((ww1+p*nvars),(ww2+p*nvars),(ww3+p*nvars),c1,c2,c3,m3,m2,m1,p1,p2,weno,nvars);
     }
   }
 
@@ -276,47 +255,40 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
         indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
         indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       }
-      int v; 
-      for (v=0; v<nvars; v++)  {
-        /* Defining stencil points */
-        double m3, m2, m1, p1, p2;
-        m3 = uC[qm3*nvars+v];
-        m2 = uC[qm2*nvars+v];
-        m1 = uC[qm1*nvars+v];
-        p1 = uC[qp1*nvars+v];
-        p2 = uC[qp2*nvars+v];
 
-        /* optimal weights*/
-        double c1, c2, c3;
-        if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
-          if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-              || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-            /* Use WENO5 at the physical boundaries */
-            c1 = _WENO_OPTIMAL_WEIGHT_1_;
-            c2 = _WENO_OPTIMAL_WEIGHT_2_;
-            c3 = _WENO_OPTIMAL_WEIGHT_3_;
-          } else {
-            /* CRWENO5 at the interior points */
-            c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
-            c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
-            c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
-          }
-        } else {
-          /* WENO5 and HCWENO5 */
+      /* Defining stencil points */
+      double m3[nvars], m2[nvars], m1[nvars], p1[nvars], p2[nvars];
+      _ArrayCopy1D_((uC+qm3*nvars),m3,nvars);
+      _ArrayCopy1D_((uC+qm2*nvars),m2,nvars);
+      _ArrayCopy1D_((uC+qm1*nvars),m1,nvars);
+      _ArrayCopy1D_((uC+qp1*nvars),p1,nvars);
+      _ArrayCopy1D_((uC+qp2*nvars),p2,nvars);
+
+      /* optimal weights*/
+      double c1, c2, c3;
+      if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_)) {
+        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+          /* Use WENO5 at the physical boundaries */
           c1 = _WENO_OPTIMAL_WEIGHT_1_;
           c2 = _WENO_OPTIMAL_WEIGHT_2_;
           c3 = _WENO_OPTIMAL_WEIGHT_3_;
+        } else {
+          /* CRWENO5 at the interior points */
+          c1 = _CRWENO_OPTIMAL_WEIGHT_1_;
+          c2 = _CRWENO_OPTIMAL_WEIGHT_2_;
+          c3 = _CRWENO_OPTIMAL_WEIGHT_3_;
         }
-
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        _WENOWeights_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno);
-
-        /* save the weights */
-        *(ww1+p*nvars+v) = w1;
-        *(ww2+p*nvars+v) = w2;
-        *(ww3+p*nvars+v) = w3;
+      } else {
+        /* WENO5 and HCWENO5 */
+        c1 = _WENO_OPTIMAL_WEIGHT_1_;
+        c2 = _WENO_OPTIMAL_WEIGHT_2_;
+        c3 = _WENO_OPTIMAL_WEIGHT_3_;
       }
+
+      /* calculate WENO weights */
+      double w1[nvars],w2[nvars],w3[nvars];
+      _WENOWeights_v_((ww1+p*nvars),(ww2+p*nvars),(ww3+p*nvars),c1,c2,c3,m3,m2,m1,p1,p2,weno,nvars);
     }
   }
 

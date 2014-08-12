@@ -80,55 +80,53 @@ int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int up
         indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
         indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       }
-      int v; 
-      for (v=0; v<nvars; v++)  {
-        /* Defining stencil points */
-        double fm3, fm2, fm1, fp1, fp2;
-        fm3 = fC[qm3*nvars+v];
-        fm2 = fC[qm2*nvars+v];
-        fm1 = fC[qm1*nvars+v];
-        fp1 = fC[qp1*nvars+v];
-        fp2 = fC[qp2*nvars+v];
 
-        /* Candidate stencils and their optimal weights*/
-        double f1, f2, f3;
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          /* Use WENO5 at the physical boundaries */
-          f1 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1;
-          f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;
-          f3 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;
-        } else {
-          /* CRWENO5 at the interior points */
-          f1 = (one_sixth) * (fm2 + 5*fm1);
-          f2 = (one_sixth) * (5*fm1 + fp1);
-          f3 = (one_sixth) * (fm1 + 5*fp1);
-        }
+      /* Defining stencil points */
+      double *fm3, *fm2, *fm1, *fp1, *fp2;
+      fm3 = fC+qm3*nvars;
+      fm2 = fC+qm2*nvars;
+      fm1 = fC+qm1*nvars;
+      fp1 = fC+qp1*nvars;
+      fp2 = fC+qp2*nvars;
 
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        w1 = *(ww1+p*nvars+v);
-        w2 = *(ww2+p*nvars+v);
-        w3 = *(ww3+p*nvars+v);
-
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          A[sys*nvars+v+Nsys*indexI[dir]] = 0.0;
-          B[sys*nvars+v+Nsys*indexI[dir]] = 1.0;
-          C[sys*nvars+v+Nsys*indexI[dir]] = 0.0;
-        } else {
-          if (upw > 0) {
-            A[sys*nvars+v+Nsys*indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
-            B[sys*nvars+v+Nsys*indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
-            C[sys*nvars+v+Nsys*indexI[dir]] = (one_third)*w3;
-          } else {
-            C[sys*nvars+v+Nsys*indexI[dir]] = (2*one_third)*w1 + (one_third)*w2;
-            B[sys*nvars+v+Nsys*indexI[dir]] = (one_third)*w1 + (2*one_third)*(w2+w3);
-            A[sys*nvars+v+Nsys*indexI[dir]] = (one_third)*w3;
-          }
-        }
-        R[sys*nvars+v+Nsys*indexI[dir]] = w1*f1 + w2*f2 + w3*f3;
+      /* Candidate stencils and their optimal weights*/
+      double f1[nvars], f2[nvars], f3[nvars];
+      if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+          || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+        /* Use WENO5 at the physical boundaries */
+        _ArrayAXBYCZ_(f1,(2*one_sixth),fm3,(-7*one_sixth) ,fm2,(11*one_sixth) ,fm1,nvars);
+        _ArrayAXBYCZ_(f2,(-one_sixth) ,fm2,(5*one_sixth)  ,fm1,(2*one_sixth)  ,fp1,nvars);
+        _ArrayAXBYCZ_(f3,(2*one_sixth),fm1,(5*one_sixth)  ,fp1,(-one_sixth)   ,fp2,nvars);
+      } else {
+        /* CRWENO5 at the interior points */
+        _ArrayAXBY_(f1,(one_sixth)  ,fm2,(5*one_sixth),fm1,nvars);
+        _ArrayAXBY_(f2,(5*one_sixth),fm1,(one_sixth)  ,fp1,nvars);
+        _ArrayAXBY_(f3,(one_sixth)  ,fm1,(5*one_sixth),fp1,nvars);
       }
+
+      /* calculate WENO weights */
+      double *w1, *w2, *w3;
+      w1 = (ww1+p*nvars);
+      w2 = (ww2+p*nvars);
+      w3 = (ww3+p*nvars);
+
+      if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+          || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+        _ArraySetValue_     ((A+Nsys*indexI[dir]+sys*nvars),nvars,0.0)
+        _ArraySetValue_     ((B+Nsys*indexI[dir]+sys*nvars),nvars,1.0)
+        _ArraySetValue_     ((C+Nsys*indexI[dir]+sys*nvars),nvars,0.0)
+      } else {
+        if (upw > 0) {
+          _ArrayAXBY_       ((A+Nsys*indexI[dir]+sys*nvars),(2*one_third) ,w1,(one_third)  ,w2,nvars);
+          _ArrayAXBYCZ_     ((B+Nsys*indexI[dir]+sys*nvars),(one_third)   ,w1,(2*one_third),w2,(2*one_third),w3,nvars);
+          _ArrayScaleCopy1D_(w3,(one_third),(C+Nsys*indexI[dir]+sys*nvars),nvars);
+        } else {
+          _ArrayAXBY_       ((C+Nsys*indexI[dir]+sys*nvars),(2*one_third) ,w1,(one_third)  ,w2,nvars);
+          _ArrayAXBYCZ_     ((B+Nsys*indexI[dir]+sys*nvars),(one_third)   ,w1,(2*one_third),w2,(2*one_third),w3,nvars);
+          _ArrayScaleCopy1D_(w3,(one_third),(A+Nsys*indexI[dir]+sys*nvars),nvars);
+        }
+      }
+      _ArrayMultiply3Add1D_ ((R+Nsys*indexI[dir]+sys*nvars),w1,f1,w2,f2,w3,f3,nvars);
     }
   }
 

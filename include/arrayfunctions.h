@@ -163,6 +163,29 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) x[arraycounter] = a[arraycounter] + b[arraycounter];    \
   }
 
+/* Element-wise multiplication x = a * b (Dot product)
+ * Arguments:
+ *  a,b,x   : the arrays (x=a*b) (int/float/double [])
+ *  size    : size of the arrays (int)
+*/
+#define _ArrayMultiply1D_(x,a,b,size)                                                                                    \
+  {                                                                                                                 \
+    int arraycounter;                                                                                               \
+    for (arraycounter=0; arraycounter<size; arraycounter++) x[arraycounter] = a[arraycounter] * b[arraycounter];    \
+  }
+
+/* Element-wise x = a*b + c*d + e*f (Sum of dot products)
+ * Arguments:
+ *  a,b,c,d,e,f,x  : the arrays (int/float/double [])
+ *  size           : size of the arrays (int)
+*/
+#define _ArrayMultiply3Add1D_(x,a,b,c,d,e,f,size)                                                                                    \
+  {                                                                                                                 \
+    int arraycounter;                                                                                               \
+    for (arraycounter=0; arraycounter<size; arraycounter++) \
+      x[arraycounter] = a[arraycounter]*b[arraycounter]+c[arraycounter]*d[arraycounter]+e[arraycounter]*f[arraycounter]; \
+  }
+
 /* Element-wise AXPY y = y + a*x
  * Arguments:
  *  x,y     : the arrays (y=y+a*x) (int/float/double [])
@@ -173,6 +196,30 @@
   {                                                                                                                 \
     int arraycounter;                                                                                               \
     for (arraycounter=0; arraycounter<size; arraycounter++) y[arraycounter] += a*x[arraycounter];                   \
+  }
+
+/* Element-wise AXBY z = a*x + b*y
+ * Arguments:
+ *  x,y     : the arrays (int/float/double [])
+ *  a,b     : the constant values (int/float/double)
+ *  size    : size of the arrays (int)
+*/
+#define _ArrayAXBY_(z,a,x,b,y,size)                                                                                 \
+  {                                                                                                                 \
+    int arraycounter;                                                                                               \
+    for (arraycounter=0; arraycounter<size; arraycounter++) z[arraycounter] = a*x[arraycounter]+b*y[arraycounter];  \
+  }
+
+/* Element-wise AXBYCZ w = a*x + b*y + c*z
+ * Arguments:
+ *  x,y,z   : the arrays (int/float/double [])
+ *  a,b,c   : the constant values (int/float/double)
+ *  size    : size of the arrays (int)
+*/
+#define _ArrayAXBYCZ_(w,a,x,b,y,c,z,size)                                                                                 \
+  {                                                                                                                 \
+    int arraycounter;                                                                                               \
+    for (arraycounter=0; arraycounter<size; arraycounter++) w[arraycounter] = a*x[arraycounter]+b*y[arraycounter]+c*z[arraycounter];  \
   }
 
 /* Element-wise copy y = x
@@ -217,7 +264,6 @@
     int arraycounter = 0; p = 1; \
     for (arraycounter=0; arraycounter<size; arraycounter++) p *= x[arraycounter]; \
   }
-
 
 #if !defined(INLINE)
 # define INLINE inline

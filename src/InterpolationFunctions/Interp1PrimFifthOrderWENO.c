@@ -66,30 +66,28 @@ int Interp1PrimFifthOrderWENO(double *fI,double *fC,double *u,double *x,int upw,
         indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
         indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       }
-      int v; 
-      for (v=0; v<nvars; v++)  {
-        /* Defining stencil points */
-        double fm3, fm2, fm1, fp1, fp2;
-        fm3 = fC[qm3*nvars+v];
-        fm2 = fC[qm2*nvars+v];
-        fm1 = fC[qm1*nvars+v];
-        fp1 = fC[qp1*nvars+v];
-        fp2 = fC[qp2*nvars+v];
 
-        /* Candidate stencils and their optimal weights*/
-        double f1, f2, f3;
-        f1 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1;
-        f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;
-        f3 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;
+      /* Defining stencil points */
+      double *fm3, *fm2, *fm1, *fp1, *fp2;
+      fm3 = (fC+qm3*nvars);
+      fm2 = (fC+qm2*nvars);
+      fm1 = (fC+qm1*nvars);
+      fp1 = (fC+qp1*nvars);
+      fp2 = (fC+qp2*nvars);
 
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        w1 = *(ww1+p*nvars+v);
-        w2 = *(ww2+p*nvars+v);
-        w3 = *(ww3+p*nvars+v);
+      /* Candidate stencils and their optimal weights*/
+      double f1[nvars], f2[nvars], f3[nvars];
+      _ArrayAXBYCZ_(f1,(2*one_sixth),fm3,(-7*one_sixth) ,fm2,(11*one_sixth) ,fm1,nvars);
+      _ArrayAXBYCZ_(f2,(-one_sixth) ,fm2,(5*one_sixth)  ,fm1,(2*one_sixth)  ,fp1,nvars);
+      _ArrayAXBYCZ_(f3,(2*one_sixth),fm1,(5*one_sixth)  ,fp1,(-one_sixth)   ,fp2,nvars);
 
-        fI[p*nvars+v] = w1*f1 + w2*f2 + w3*f3;
-      }
+      /* calculate WENO weights */
+      double *w1,*w2,*w3;
+      w1 = (ww1+p*nvars);
+      w2 = (ww2+p*nvars);
+      w3 = (ww3+p*nvars);
+
+      _ArrayMultiply3Add1D_((fI+p*nvars),w1,f1,w2,f2,w3,f3,nvars);
     }
   }
 
