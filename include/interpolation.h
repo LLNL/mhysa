@@ -215,125 +215,97 @@ int WENOCleanup(void*);
 #define _WENOWeights_v_JS_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \
-    /* calculate smoothness indicators */\
-    double b1[N], b2[N], b3[N]; \
+    /* calculate smoothness indicators and the WENO weights */\
+    double b1, b2, b3, a1, a2, a3, a_sum_inv; \
     for (idx=0; idx<N; idx++) { \
-      b1[idx] = thirteen_by_twelve*(m3[idx]-2*m2[idx]+m1[idx])*(m3[idx]-2*m2[idx]+m1[idx]) \
-                + one_fourth*(m3[idx]-4*m2[idx]+3*m1[idx])*(m3[idx]-4*m2[idx]+3*m1[idx]);  \
-      b2[idx] = thirteen_by_twelve*(m2[idx]-2*m1[idx]+p1[idx])*(m2[idx]-2*m1[idx]+p1[idx]) \
-                + one_fourth*(m2[idx]-p1[idx])*(m2[idx]-p1[idx]);                \
-      b3[idx] = thirteen_by_twelve*(m1[idx]-2*p1[idx]+p2[idx])*(m1[idx]-2*p1[idx]+p2[idx]) \
-                + one_fourth*(3*m1[idx]-4*p1[idx]+p2[idx])*(3*m1[idx]-4*p1[idx]+p2[idx]);  \
+      b1 = thirteen_by_twelve*(m3[idx]-2*m2[idx]+m1[idx])*(m3[idx]-2*m2[idx]+m1[idx]) \
+           + one_fourth*(m3[idx]-4*m2[idx]+3*m1[idx])*(m3[idx]-4*m2[idx]+3*m1[idx]);  \
+      a1 = c1 / ( (b1+weno->eps) * (b1+weno->eps) );  \
+      b2 = thirteen_by_twelve*(m2[idx]-2*m1[idx]+p1[idx])*(m2[idx]-2*m1[idx]+p1[idx]) \
+           + one_fourth*(m2[idx]-p1[idx])*(m2[idx]-p1[idx]);                \
+      a2 = c2 / ( (b2+weno->eps) * (b2+weno->eps) );  \
+      b3 = thirteen_by_twelve*(m1[idx]-2*p1[idx]+p2[idx])*(m1[idx]-2*p1[idx]+p2[idx]) \
+           + one_fourth*(3*m1[idx]-4*p1[idx]+p2[idx])*(3*m1[idx]-4*p1[idx]+p2[idx]);  \
+      a3 = c3 / ( (b3+weno->eps) * (b3+weno->eps) );  \
+      a_sum_inv = 1.0 / (a1 + a2 + a3); \
+      w1[idx] = a1 * a_sum_inv; \
+      w2[idx] = a2 * a_sum_inv; \
+      w3[idx] = a3 * a_sum_inv; \
     } \
-    /* calculate the WENO weights */\
-    double a1[N], a2[N], a3[N];  \
-    for (idx=0; idx<N; idx++) { \
-      a1[idx] = c1 / ( (b1[idx]+weno->eps) * (b1[idx]+weno->eps) );  \
-      a2[idx] = c2 / ( (b2[idx]+weno->eps) * (b2[idx]+weno->eps) );  \
-      a3[idx] = c3 / ( (b3[idx]+weno->eps) * (b3[idx]+weno->eps) );  \
-    } \
-    double a_sum_inv[N]; \
-    for (idx=0; idx<N; idx++) a_sum_inv[idx] = 1.0 / (a1[idx] + a2[idx] + a3[idx]); \
-    _ArrayMultiply1D_(w1,a1,a_sum_inv,N); \
-    _ArrayMultiply1D_(w2,a2,a_sum_inv,N); \
-    _ArrayMultiply1D_(w3,a3,a_sum_inv,N); \
   }
 
 #define _WENOWeights_v_M_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \
-    /* calculate smoothness indicators */\
-    double b1[N], b2[N], b3[N]; \
+    /* calculate smoothness indicators and the WENO weights */\
+    double b1, b2, b3, a1, a2, a3, a_sum_inv; \
     for (idx=0; idx<N; idx++) { \
-      b1[idx] = thirteen_by_twelve*(m3[idx]-2*m2[idx]+m1[idx])*(m3[idx]-2*m2[idx]+m1[idx]) \
-                + one_fourth*(m3[idx]-4*m2[idx]+3*m1[idx])*(m3[idx]-4*m2[idx]+3*m1[idx]);  \
-      b2[idx] = thirteen_by_twelve*(m2[idx]-2*m1[idx]+p1[idx])*(m2[idx]-2*m1[idx]+p1[idx]) \
-                + one_fourth*(m2[idx]-p1[idx])*(m2[idx]-p1[idx]);                \
-      b3[idx] = thirteen_by_twelve*(m1[idx]-2*p1[idx]+p2[idx])*(m1[idx]-2*p1[idx]+p2[idx]) \
-                + one_fourth*(3*m1[idx]-4*p1[idx]+p2[idx])*(3*m1[idx]-4*p1[idx]+p2[idx]);  \
+      b1 = thirteen_by_twelve*(m3[idx]-2*m2[idx]+m1[idx])*(m3[idx]-2*m2[idx]+m1[idx]) \
+           + one_fourth*(m3[idx]-4*m2[idx]+3*m1[idx])*(m3[idx]-4*m2[idx]+3*m1[idx]);  \
+      a1 = c1 / ( (b1+weno->eps) * (b1+weno->eps) );  \
+      b2 = thirteen_by_twelve*(m2[idx]-2*m1[idx]+p1[idx])*(m2[idx]-2*m1[idx]+p1[idx]) \
+           + one_fourth*(m2[idx]-p1[idx])*(m2[idx]-p1[idx]);                \
+      a2 = c2 / ( (b2+weno->eps) * (b2+weno->eps) );  \
+      b3 = thirteen_by_twelve*(m1[idx]-2*p1[idx]+p2[idx])*(m1[idx]-2*p1[idx]+p2[idx]) \
+           + one_fourth*(3*m1[idx]-4*p1[idx]+p2[idx])*(3*m1[idx]-4*p1[idx]+p2[idx]);  \
+      a3 = c3 / ( (b3+weno->eps) * (b3+weno->eps) );  \
+      a_sum_inv = 1.0 / (a1 + a2 + a3); \
+      w1[idx] = a1 * a_sum_inv; \
+      w2[idx] = a2 * a_sum_inv; \
+      w3[idx] = a3 * a_sum_inv; \
+      /* apply mapping if required */\
+      a1 = w1[idx] * (c1 + c1*c1 - 3*c1*w1[idx] + w1[idx]*w1[idx]) / (c1*c1 + w1[idx]*(1.0-2.0*c1)); \
+      a2 = w2[idx] * (c2 + c2*c2 - 3*c2*w2[idx] + w2[idx]*w2[idx]) / (c2*c2 + w2[idx]*(1.0-2.0*c2)); \
+      a3 = w3[idx] * (c3 + c3*c3 - 3*c3*w3[idx] + w3[idx]*w3[idx]) / (c3*c3 + w3[idx]*(1.0-2.0*c3)); \
+      a_sum_inv = 1.0 / (a1 + a2 + a3); \
+      w1[idx] = a1 * a_sum_inv; \
+      w2[idx] = a2 * a_sum_inv; \
+      w3[idx] = a3 * a_sum_inv; \
     } \
-    /* calculate the WENO weights */\
-    double a1[N], a2[N], a3[N];  \
-    for (idx=0; idx<N; idx++) { \
-      a1[idx] = c1 / ( (b1[idx]+weno->eps) * (b1[idx]+weno->eps) );  \
-      a2[idx] = c2 / ( (b2[idx]+weno->eps) * (b2[idx]+weno->eps) );  \
-      a3[idx] = c3 / ( (b3[idx]+weno->eps) * (b3[idx]+weno->eps) );  \
-    } \
-    double a_sum_inv[N]; \
-    for (idx=0; idx<N; idx++) a_sum_inv[idx] = 1.0 / (a1[idx] + a2[idx] + a3[idx]); \
-    _ArrayMultiply1D_(w1,a1,a_sum_inv,N); \
-    _ArrayMultiply1D_(w2,a2,a_sum_inv,N); \
-    _ArrayMultiply1D_(w3,a3,a_sum_inv,N); \
-    /* apply mapping if required */\
-    for (idx=0; idx<N; idx++) { \
-      a1[idx] = w1[idx] * (c1 + c1*c1 - 3*c1*w1[idx] + w1[idx]*w1[idx]) / (c1*c1 + w1[idx]*(1.0-2.0*c1)); \
-      a2[idx] = w2[idx] * (c2 + c2*c2 - 3*c2*w2[idx] + w2[idx]*w2[idx]) / (c2*c2 + w2[idx]*(1.0-2.0*c2)); \
-      a3[idx] = w3[idx] * (c3 + c3*c3 - 3*c3*w3[idx] + w3[idx]*w3[idx]) / (c3*c3 + w3[idx]*(1.0-2.0*c3)); \
-    } \
-    for (idx=0; idx<N; idx++) a_sum_inv[idx] = 1.0 / (a1[idx] + a2[idx] + a3[idx]); \
-    _ArrayMultiply1D_(w1,a1,a_sum_inv,N); \
-    _ArrayMultiply1D_(w2,a2,a_sum_inv,N); \
-    _ArrayMultiply1D_(w3,a3,a_sum_inv,N); \
   }
 
 #define _WENOWeights_v_Z_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \
-    /* calculate smoothness indicators */\
-    double b1[N], b2[N], b3[N]; \
+    /* calculate smoothness indicators and the WENO weights */\
+    double b1, b2, b3, a1, a2, a3, a_sum_inv, tau; \
     for (idx=0; idx<N; idx++) { \
-      b1[idx] = thirteen_by_twelve*(m3[idx]-2*m2[idx]+m1[idx])*(m3[idx]-2*m2[idx]+m1[idx]) \
-                + one_fourth*(m3[idx]-4*m2[idx]+3*m1[idx])*(m3[idx]-4*m2[idx]+3*m1[idx]);  \
-      b2[idx] = thirteen_by_twelve*(m2[idx]-2*m1[idx]+p1[idx])*(m2[idx]-2*m1[idx]+p1[idx]) \
-                + one_fourth*(m2[idx]-p1[idx])*(m2[idx]-p1[idx]);                \
-      b3[idx] = thirteen_by_twelve*(m1[idx]-2*p1[idx]+p2[idx])*(m1[idx]-2*p1[idx]+p2[idx]) \
-                + one_fourth*(3*m1[idx]-4*p1[idx]+p2[idx])*(3*m1[idx]-4*p1[idx]+p2[idx]);  \
+      b1 = thirteen_by_twelve*(m3[idx]-2*m2[idx]+m1[idx])*(m3[idx]-2*m2[idx]+m1[idx]) \
+           + one_fourth*(m3[idx]-4*m2[idx]+3*m1[idx])*(m3[idx]-4*m2[idx]+3*m1[idx]);  \
+      b2 = thirteen_by_twelve*(m2[idx]-2*m1[idx]+p1[idx])*(m2[idx]-2*m1[idx]+p1[idx]) \
+           + one_fourth*(m2[idx]-p1[idx])*(m2[idx]-p1[idx]);                \
+      b3 = thirteen_by_twelve*(m1[idx]-2*p1[idx]+p2[idx])*(m1[idx]-2*p1[idx]+p2[idx]) \
+           + one_fourth*(3*m1[idx]-4*p1[idx]+p2[idx])*(3*m1[idx]-4*p1[idx]+p2[idx]);  \
+      tau = absolute(b3 - b1);  \
+      a1 = c1 * (1.0 + (tau/(b1+weno->eps)) * (tau/(b1+weno->eps)) );  \
+      a2 = c2 * (1.0 + (tau/(b2+weno->eps)) * (tau/(b2+weno->eps)) );  \
+      a3 = c3 * (1.0 + (tau/(b3+weno->eps)) * (tau/(b3+weno->eps)) );  \
+      a_sum_inv = 1.0 / (a1 + a2 + a3); \
+      w1[idx] = a1 * a_sum_inv; \
+      w2[idx] = a2 * a_sum_inv; \
+      w3[idx] = a3 * a_sum_inv; \
     } \
-    /* calculate the tau parameter for the WENO-Z and WENO-YC weights */\
-    double tau[N]; \
-    for (idx=0; idx<N; idx++) tau[idx] = absolute(b3[idx] - b1[idx]);  \
-    /* calculate the WENO weights */\
-    double a1[N], a2[N], a3[N];  \
-    for (idx=0; idx<N; idx++) { \
-      a1[idx] = c1 * (1.0 + (tau[idx]/(b1[idx]+weno->eps)) * (tau[idx]/(b1[idx]+weno->eps)) );  \
-      a2[idx] = c2 * (1.0 + (tau[idx]/(b2[idx]+weno->eps)) * (tau[idx]/(b2[idx]+weno->eps)) );  \
-      a3[idx] = c3 * (1.0 + (tau[idx]/(b3[idx]+weno->eps)) * (tau[idx]/(b3[idx]+weno->eps)) );  \
-    }\
-    double a_sum_inv[N]; \
-    for (idx=0; idx<N; idx++) a_sum_inv[idx] = 1.0 / (a1[idx] + a2[idx] + a3[idx]); \
-    _ArrayMultiply1D_(w1,a1,a_sum_inv,N); \
-    _ArrayMultiply1D_(w2,a2,a_sum_inv,N); \
-    _ArrayMultiply1D_(w3,a3,a_sum_inv,N); \
   }
 
 #define _WENOWeights_v_YC_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \
-    /* calculate smoothness indicators */\
-    double b1[N], b2[N], b3[N]; \
+    /* calculate smoothness indicators and the WENO weights */\
+    double b1, b2, b3, a1, a2, a3, a_sum_inv, tau; \
     for (idx=0; idx<N; idx++) { \
-      b1[idx] = thirteen_by_twelve*(m3[idx]-2*m2[idx]+m1[idx])*(m3[idx]-2*m2[idx]+m1[idx]) \
-                + one_fourth*(m3[idx]-4*m2[idx]+3*m1[idx])*(m3[idx]-4*m2[idx]+3*m1[idx]);  \
-      b2[idx] = thirteen_by_twelve*(m2[idx]-2*m1[idx]+p1[idx])*(m2[idx]-2*m1[idx]+p1[idx]) \
-                + one_fourth*(m2[idx]-p1[idx])*(m2[idx]-p1[idx]);                \
-      b3[idx] = thirteen_by_twelve*(m1[idx]-2*p1[idx]+p2[idx])*(m1[idx]-2*p1[idx]+p2[idx]) \
-                + one_fourth*(3*m1[idx]-4*p1[idx]+p2[idx])*(3*m1[idx]-4*p1[idx]+p2[idx]);  \
+      b1 = thirteen_by_twelve*(m3[idx]-2*m2[idx]+m1[idx])*(m3[idx]-2*m2[idx]+m1[idx]) \
+           + one_fourth*(m3[idx]-4*m2[idx]+3*m1[idx])*(m3[idx]-4*m2[idx]+3*m1[idx]);  \
+      b2 = thirteen_by_twelve*(m2[idx]-2*m1[idx]+p1[idx])*(m2[idx]-2*m1[idx]+p1[idx]) \
+           + one_fourth*(m2[idx]-p1[idx])*(m2[idx]-p1[idx]);                \
+      b3 = thirteen_by_twelve*(m1[idx]-2*p1[idx]+p2[idx])*(m1[idx]-2*p1[idx]+p2[idx]) \
+           + one_fourth*(3*m1[idx]-4*p1[idx]+p2[idx])*(3*m1[idx]-4*p1[idx]+p2[idx]);  \
+      tau = (m3[idx]-4*m2[idx]+6*m1[idx]-4*p1[idx]+p2[idx])*(m3[idx]-4*m2[idx]+6*m1[idx]-4*p1[idx]+p2[idx]);  \
+      a1 = c1 * (1.0 + (tau/(b1+weno->eps)) * (tau/(b1+weno->eps)) );  \
+      a2 = c2 * (1.0 + (tau/(b2+weno->eps)) * (tau/(b2+weno->eps)) );  \
+      a3 = c3 * (1.0 + (tau/(b3+weno->eps)) * (tau/(b3+weno->eps)) );  \
+      a_sum_inv = 1.0 / (a1 + a2 + a3); \
+      w1[idx] = a1 * a_sum_inv; \
+      w2[idx] = a2 * a_sum_inv; \
+      w3[idx] = a3 * a_sum_inv; \
     } \
-    /* calculate the tau parameter for the WENO-Z and WENO-YC weights */\
-    double tau[N]; \
-    for (idx=0; idx<N; idx++) {\
-      tau[idx] = (m3[idx]-4*m2[idx]+6*m1[idx]-4*p1[idx]+p2[idx])*(m3[idx]-4*m2[idx]+6*m1[idx]-4*p1[idx]+p2[idx]);  \
-    } \
-    /* calculate the WENO weights */\
-    double a1[N], a2[N], a3[N];  \
-    for (idx=0; idx<N; idx++) { \
-      a1[idx] = c1 * (1.0 + (tau[idx]/(b1[idx]+weno->eps)) * (tau[idx]/(b1[idx]+weno->eps)) );  \
-      a2[idx] = c2 * (1.0 + (tau[idx]/(b2[idx]+weno->eps)) * (tau[idx]/(b2[idx]+weno->eps)) );  \
-      a3[idx] = c3 * (1.0 + (tau[idx]/(b3[idx]+weno->eps)) * (tau[idx]/(b3[idx]+weno->eps)) );  \
-    }\
-    double a_sum_inv[N]; \
-    for (idx=0; idx<N; idx++) a_sum_inv[idx] = 1.0 / (a1[idx] + a2[idx] + a3[idx]); \
-    _ArrayMultiply1D_(w1,a1,a_sum_inv,N); \
-    _ArrayMultiply1D_(w2,a2,a_sum_inv,N); \
-    _ArrayMultiply1D_(w3,a3,a_sum_inv,N); \
   }
