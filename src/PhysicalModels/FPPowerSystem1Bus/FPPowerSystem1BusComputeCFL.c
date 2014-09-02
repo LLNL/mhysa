@@ -10,8 +10,8 @@ double FPPowerSystem1BusDriftFunction(int,void*,double,double,double);
 
 double FPPowerSystem1BusComputeCFL(void *s,void *m,double dt,double t)
 {
-  HyPar         *solver = (HyPar*)        s;
-  FPPowerSystem1Bus *params = (FPPowerSystem1Bus*)solver->physics;
+  HyPar             *solver = (HyPar*)              s;
+  FPPowerSystem1Bus *params = (FPPowerSystem1Bus*)  solver->physics;
 
   int     ndims  = solver->ndims;
   int     ghosts = solver->ghosts;
@@ -21,12 +21,12 @@ double FPPowerSystem1BusComputeCFL(void *s,void *m,double dt,double t)
   int     index[ndims];
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    double x;     _GetCoordinate_(0,index[0],dim,ghosts,solver->x,x);
-    double y;     _GetCoordinate_(1,index[1],dim,ghosts,solver->x,y);
-    double dxinv; _GetCoordinate_(0,index[0],dim,ghosts,solver->dxinv,dxinv);
-    double dyinv; _GetCoordinate_(1,index[1],dim,ghosts,solver->dxinv,dyinv);
-    double drift_x= FPPowerSystem1BusDriftFunction(0,params,x,y,t);
-    double drift_y= FPPowerSystem1BusDriftFunction(1,params,x,y,t);
+    double x;     _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,solver->x,x);
+    double y;     _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,solver->x,y);
+    double dxinv; _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv,dxinv);
+    double dyinv; _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,solver->dxinv,dyinv);
+    double drift_x= FPPowerSystem1BusDriftFunction(_XDIR_,params,x,y,t);
+    double drift_y= FPPowerSystem1BusDriftFunction(_YDIR_,params,x,y,t);
 
     double local_cfl_x = absolute(drift_x) * dt * dxinv;
     double local_cfl_y = absolute(drift_y) * dt * dyinv;

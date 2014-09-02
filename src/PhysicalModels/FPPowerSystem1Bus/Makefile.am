@@ -7,6 +7,4 @@ libFPPowerSystem1Bus_a_SOURCES = \
   FPPowerSystem1BusDiffusion.c \
   FPPowerSystem1BusFunctions.c \
   FPPowerSystem1BusInitialize.c \
-  FPPowerSystem1BusPostStep.c \
-  FPPowerSystem1BusPrintStep.c \
   FPPowerSystem1BusUpwind.c

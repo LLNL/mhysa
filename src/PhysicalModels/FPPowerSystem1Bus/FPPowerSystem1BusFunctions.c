@@ -6,27 +6,29 @@ double FPPowerSystem1BusDriftFunction(int dir,void *p,double x,double y, double 
   FPPowerSystem1Bus *params = (FPPowerSystem1Bus*) p;
 
   double drift = 0;
-  if (dir == 0)   drift = params->O_s * (y - 1.0);
-  else if (dir == 1) {
-    if      (t < params->tf)    params->Pmax = params->E*params->V/params->g1;
-    else if (t < params->tcl)   params->Pmax = 0.0;
-    else                        params->Pmax = params->E*params->V/params->g2;
-    drift = (1.0/(2.0*params->H)) * (params->Pm - params->Pmax*sin(x) - params->D*(y-1.0));
+  if (dir == _XDIR_) {
+    drift = params->omegaB * (y - params->omegaS);
+  } else if (dir == _YDIR_) {
+    drift = (params->omegaS/(2*params->H)) 
+          * (params->Pm_avg - params->Pmax*sin(x) - params->D*(y-params->omegaS));
   }
 
   return drift;
 }
 
-double FPPowerSystem1BusDissipationFunction(int dir,void *p,double t)
+double FPPowerSystem1BusDissipationFunction(int dir1,int dir2,void *p,double t)
 {
   FPPowerSystem1Bus *params = (FPPowerSystem1Bus*) p;
 
   double dissp = 0;
-  if (dir == 1) {
-    double gamma = params->D / (2.0*params->H);
-    dissp =   (1.0/(2.0*params->H)) * (1.0/(2.0*params->H)) 
-            * ((params->l*params->q*params->q)/(params->l*gamma+1.0))
-            * (1.0 - exp(-(gamma+1.0/params->l)*t));
+  if (dir1 == _YDIR_) {
+    if (dir2 == _XDIR_) {
+      dissp = (params->sigma*params->sigma*params->omegaS*params->omegaS)/(4*params->H*params->H) 
+              * params->lambda * params->lambda * params->omegaB;
+    } else if (dir2 == _YDIR_) {
+      dissp = (params->sigma*params->sigma*params->omegaS*params->omegaS)/(4*params->H*params->H) 
+              * params->lambda * (1.0 - params->lambda * (params->D*params->omegaS)/(2*params->H));
+    }
   }
 
   return(dissp);

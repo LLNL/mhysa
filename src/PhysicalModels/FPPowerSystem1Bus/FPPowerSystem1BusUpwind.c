@@ -7,11 +7,11 @@
 double FPPowerSystem1BusDriftFunction(int,void*,double,double,double);
 
 int FPPowerSystem1BusUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
-                        double *u,int dir,void *s,double t)
+                            double *u,int dir,void *s,double t)
 {
-  HyPar         *solver = (HyPar*) s;
-  FPPowerSystem1Bus *params = (FPPowerSystem1Bus*)solver->physics;
-  int           done,v;
+  HyPar             *solver = (HyPar*)              s;
+  FPPowerSystem1Bus *params = (FPPowerSystem1Bus*)  solver->physics;
+  int               done,v;
 
   int ndims   = solver->ndims;
   int nvars   = solver->nvars;
@@ -31,16 +31,16 @@ int FPPowerSystem1BusUpwind(double *fI,double *fL,double *fR,double *uL,double *
       if (dir == 0) {
         /* x-interface */
         double x1, x2;
-        _GetCoordinate_(0,index_inter[0]-1,dim,ghosts,solver->x,x1);
-        _GetCoordinate_(0,index_inter[0]  ,dim,ghosts,solver->x,x2);
+        _GetCoordinate_(_XDIR_,index_inter[_XDIR_]-1,dim,ghosts,solver->x,x1);
+        _GetCoordinate_(_XDIR_,index_inter[_XDIR_]  ,dim,ghosts,solver->x,x2);
         x = 0.5 * ( x1 + x2 );
-        _GetCoordinate_(1,index_inter[1],dim,ghosts,solver->x,y);
+        _GetCoordinate_(_YDIR_,index_inter[_YDIR_],dim,ghosts,solver->x,y);
       } else if (dir == 1) {
         /* y-interface */
-        _GetCoordinate_(0,index_inter[0],dim,ghosts,solver->x,x);
+        _GetCoordinate_(_XDIR_,index_inter[_XDIR_],dim,ghosts,solver->x,x);
         double y1, y2;
-        _GetCoordinate_(1,index_inter[1]-1,dim,ghosts,solver->x,y1);
-        _GetCoordinate_(1,index_inter[1]  ,dim,ghosts,solver->x,y2);
+        _GetCoordinate_(_YDIR_,index_inter[_YDIR_]-1,dim,ghosts,solver->x,y1);
+        _GetCoordinate_(_YDIR_,index_inter[_YDIR_]  ,dim,ghosts,solver->x,y2);
         y = 0.5 * ( y1 + y2 );
       }
       double drift = FPPowerSystem1BusDriftFunction(dir,params,x,y,t);

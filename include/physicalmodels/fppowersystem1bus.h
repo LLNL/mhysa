@@ -8,36 +8,38 @@ Reference:
   Stochastic ODEs of Power Systems with Uncertain 
   Power Input", Preprint
 
-  dp    d[mu(x,y)p]    d[nu(x,y)p]        d^2 p
-  -- +  ----------- +  ----------- = f(t) -----
-  dt        dx             dy             dy^2
+  dp    d[mu(x,y)p]    d[nu(x,y)p]        d^2 p        d^2 p
+  -- +  ----------- +  ----------- = D_yx ----- + D_yy -----
+  dt        dx             dy             dy dx        dy^2
 
-  mu(x,y) = O_s(y-1)
-  nu(x,y) = (1/2H)[Pm - Pmax sin(x) - D(y-1)]
-  f(t)    = (1/2H)^2 (l^2 q)/(lr+1) (1 - exp[-(r+1/l)t])
+  p(x,y): probability
+  x     : angle between axis of generator and the magnetic field (theta in paper)
+  y     : generator angular speed (omega in paper)
+  t     : time
 
-  where 
-    r = D/2H
+  mu(x,y) = omegaB * (y-omegaS)
+  nu(x,y) = (omegaS/2H)[Pm_avg - Pmax sin(x) - D(y-omegaS)]
 
-           [ EV/g1; t < tf
-    Pmax = [ 0    ; tf < t < tcl
-           [ EV/g2; tcl < t
+             sigma^2 omegaS^2
+  D_yx    =  ---------------- lambda^2 omegaB
+                  4 H^2
 
+             sigma^2 omegaS^2                      D omegaS
+  D_yy    =  ---------------- lambda ( 1 - lambda ---------- )
+                  4 H^2                              2 H
+                  
   Physical Parameters:
-    
-    O_s   Synchronous Speed
-    H     Inertia constant
-    D     Damping constant
-    l     Correlation time
-    q     Noise strength
-    Pm    Mean mechanical power input
-    Pmax  Maximum power output
-    E     Internal voltage
-    V     Terminal voltage
-    tf    Fault incident time
-    tcl   Clearing time
-    g1    Pre-fault impedance
-    g2    Post-clearing impedance
+
+    omegaB  : base speed
+    omegaS  : synchronization speed
+    H       : generator intertia
+    D       : damping factor
+    Pm_avg  : average power input
+    Pmax    : EV/X where E is internal voltage, 
+                         V is bus voltage,
+                         X is total system reactance
+    sigma   : square root of variance
+    lambda  : correlation time
 
 */
 
@@ -49,24 +51,15 @@ Reference:
 #define _MODEL_NDIMS_ 2
 #define _MODEL_NVARS_ 1
 
+/* define grid directions */
+#define _XDIR_ 0
+#define _YDIR_ 1
+
 typedef struct fp_power_system_1bus_parameters {
 
   /* input parameters */
-  double O_s;
-  double H;
-  double E;
-  double V;
-  double g1,g2;
-  double D;
-  double Pm;
-  double l;
-  double q;
-  double tf, tcl;
+  double omegaB, omegaS, H, D, Pm_avg, Pmax, sigma, lambda;
 
-  /* computed/constant parameters */
-  double Pmax;
-
-  double pdf_integral; /* not an input          */
 } FPPowerSystem1Bus;
 
 int FPPowerSystem1BusInitialize    (void*,void*);
