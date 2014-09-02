@@ -2,6 +2,7 @@ SUBDIRS = \
   LinearADR \
   FPDoubleWell \
   FPPowerSystem \
+  FPPowerSystem1Bus \
   FPPowerSystem3Bus \
   Euler1D \
   Euler2D \
