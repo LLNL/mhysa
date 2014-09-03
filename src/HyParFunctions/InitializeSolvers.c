@@ -47,20 +47,57 @@ int InitializeSolvers(void *s, void *m)
   solver->NonlinearInterp             = NonLinearInterpolation;
 
   /* choose the type of parabolic discretization */
-  if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) 
+  solver->ParabolicFunction         = NULL;
+  solver->SecondDerivativePar       = NULL;
+  solver->FirstDerivativePar        = NULL;
+  solver->InterpolateInterfacesPar  = NULL;
+  if (!strcmp(solver->spatial_type_par,_NC_1STAGE_)) {
     solver->ParabolicFunction = ParabolicFunctionNC1Stage;
-  else if (!strcmp(solver->spatial_type_par,_NC_2STAGE_))
+    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
+      solver->SecondDerivativePar      = SecondDerivativeSecondOrderCentral; 
+    } else if (!strcmp(solver->spatial_scheme_par,_FOURTH_ORDER_CENTRAL_)) {
+      solver->SecondDerivativePar      = SecondDerivativeFourthOrderCentral; 
+    } else {
+      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+            solver->spatial_type_par);
+    }
+  } else if (!strcmp(solver->spatial_type_par,_NC_2STAGE_)) {
     solver->ParabolicFunction = ParabolicFunctionNC2Stage;
-  else if (!strcmp(solver->spatial_type_par,_CONS_1STAGE_))
+    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
+      solver->FirstDerivativePar       = FirstDerivativeFirstOrder; 
+      /* why first order? see ParabolicFunctionNC2Stage.c. 2nd order central
+         approximation to the 2nd derivative can be expressed as a conjugation
+         of 1st order approximations to the 1st derivative (one forward and 
+         one backward) -- this prevents odd-even decoupling */ 
+    } else if (!strcmp(solver->spatial_scheme_par,_FOURTH_ORDER_CENTRAL_)) {
+      solver->FirstDerivativePar       = FirstDerivativeFourthOrderCentral; 
+      /* why 4th order? I could not derive the decomposition of the 
+         4th order central approximation to the 2nd derivative! Some problems
+         may show odd-even decoupling */ 
+    } else {
+      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+            solver->spatial_type_par);
+    }
+  } else if (!strcmp(solver->spatial_type_par,_CONS_1STAGE_)) {
     solver->ParabolicFunction = ParabolicFunctionCons1Stage;
-  else {
+    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
+      solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
+    } else {
+      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+            solver->spatial_type_par);
+    }
+  } else {
     fprintf(stderr,"Error: %s is not a supported ",solver->spatial_type_par);
     fprintf(stderr,"spatial discretization type for the parabolic terms.\n");
     return(1);
   }
   if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
     solver->SecondDerivativePar      = SecondDerivativeSecondOrderCentral; 
-    solver->FirstDerivativePar       = FirstDerivativeSecondOrderCentral; 
+    solver->FirstDerivativePar       = FirstDerivativeFirstOrder; 
+                                       /* first order?! why? see ParabolicFunctionNC2Stage.c! */ 
     solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
   } else if (!strcmp(solver->spatial_scheme_par,_FOURTH_ORDER_CENTRAL_)) {
     solver->SecondDerivativePar      = SecondDerivativeFourthOrderCentral; 

@@ -17,7 +17,7 @@ typedef HyPar         SolverContext;
   Second order central differencing
 */
 
-int FirstDerivativeSecondOrderCentral(double *Df,double *f,int dir,void *s,void *m)
+int FirstDerivativeSecondOrderCentral(double *Df,double *f,int dir,int bias,void *s,void *m)
 {
   SolverContext *solver = (SolverContext*) s;
   int           i, j, v;

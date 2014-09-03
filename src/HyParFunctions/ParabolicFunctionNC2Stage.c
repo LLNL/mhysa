@@ -4,6 +4,22 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+/*
+
+  Note: the second derivative is computed in a two-stage fashion, each
+  stage computing a first derivative.
+
+  A (n)-th order central approximation to the second derivative is the
+  conjugation of two (n-1)-th order approximations to the first derivative,
+  one forward and one backward. Computing it this way avoids odd-even
+  decoupling. Thus, where possible solver->FirstDerivativePar should point 
+  to the function computing (n-1)-th order first derivative where (n) is 
+  the desired order.
+
+  Currently, this is implemented only for n=2.
+
+*/
+
 int ParabolicFunctionNC2Stage(double *par,double *u,void *s,void *m,double t)
 {
   HyPar         *solver = (HyPar*)        s;
@@ -34,9 +50,9 @@ int ParabolicFunctionNC2Stage(double *par,double *u,void *s,void *m,double t)
 
       /* calculate the diffusion function */
       IERR solver->HFunction(Func,u,d1,d2,solver,t);                    CHECKERR(ierr);
-      IERR solver->FirstDerivativePar(Deriv1,Func  ,d1,solver,mpi);     CHECKERR(ierr);
+      IERR solver->FirstDerivativePar(Deriv1,Func  ,d1, 1,solver,mpi);  CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,Deriv1);  CHECKERR(ierr);
-      IERR solver->FirstDerivativePar(Deriv2,Deriv1,d2,solver,mpi);     CHECKERR(ierr);
+      IERR solver->FirstDerivativePar(Deriv2,Deriv1,d2,-1,solver,mpi);  CHECKERR(ierr);
 
       /* calculate the final term - second derivative of the diffusion function */
       done = 0; _ArraySetValue_(index,ndims,0);

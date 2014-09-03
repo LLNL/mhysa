@@ -160,7 +160,7 @@ typedef struct main_parameters {
   int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
 
   /* Function to calculate the cell-centered first derivative of a given function */
-  int (*FirstDerivativePar)       (double*,double*,int,void*,void*);
+  int (*FirstDerivativePar)       (double*,double*,int,int,void*,void*);
 
   /* Function to calculate the cell-centered second derivative of a given function */
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);

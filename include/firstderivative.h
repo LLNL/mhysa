@@ -1,4 +1,5 @@
 /* first derivative scheme definitions */
+#define _FIRST_ORDER_           "1"
 #define _SECOND_ORDER_CENTRAL_  "2"
 #define _FOURTH_ORDER_CENTRAL_  "4"
 
@@ -16,6 +17,9 @@
  *                        (1D array representing an n-D solution)
  *
  *  dir       int         dimension (x/y/z/...) along which to compute the first derivative
+ *
+ *  bias      int         forward or backward differencing for odd-ordered approximations
+ *                        (-1: backward, 1: forward)
  *
  *  s         void*       pointer to an object providing the solver context. The object must
  *                        contain at least the following:
@@ -36,5 +40,6 @@
 */
 
 /* First derivative functions */
-int FirstDerivativeSecondOrderCentral (double*,double*,int,void*,void*);
-int FirstDerivativeFourthOrderCentral (double*,double*,int,void*,void*);
+int FirstDerivativeFirstOrder         (double*,double*,int,int,void*,void*);
+int FirstDerivativeSecondOrderCentral (double*,double*,int,int,void*,void*);
+int FirstDerivativeFourthOrderCentral (double*,double*,int,int,void*,void*);
