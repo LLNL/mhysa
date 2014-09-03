@@ -14,6 +14,8 @@ int    FPPowerSystem1BusAdvection         (double*,double*,int,void*,double);
 int    FPPowerSystem1BusDiffusion         (double*,double*,int,int,void*,double);
 int    FPPowerSystem1BusUpwind            (double*,double*,double*,double*,
                                            double*,double*,int,void*,double);
+int    FPPowerSystem1BusPostStep          (double*,void*,void*,double);
+int    FPPowerSystem1BusPrintStep         (void*,void*,double);
 
 int FPPowerSystem1BusInitialize(void *s,void *m)
 {
@@ -96,6 +98,8 @@ int FPPowerSystem1BusInitialize(void *s,void *m)
   solver->FFunction          = FPPowerSystem1BusAdvection;
   solver->HFunction          = FPPowerSystem1BusDiffusion;
   solver->Upwind             = FPPowerSystem1BusUpwind;
+  solver->PostStep           = FPPowerSystem1BusPostStep;
+  solver->PrintStep          = FPPowerSystem1BusPrintStep;
 
   /* check that solver is using the correct diffusion formulation */
   if (strcmp(solver->spatial_type_par,_NC_2STAGE_)) {

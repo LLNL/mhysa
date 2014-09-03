@@ -60,6 +60,9 @@ typedef struct fp_power_system_1bus_parameters {
   /* input parameters */
   double omegaB, omegaS, H, D, Pm_avg, Pmax, sigma, lambda;
 
+  /* calculated, not an input */
+  double pdf_integral;
+
 } FPPowerSystem1Bus;
 
 int FPPowerSystem1BusInitialize    (void*,void*);
