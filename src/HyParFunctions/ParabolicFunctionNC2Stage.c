@@ -33,9 +33,10 @@ int ParabolicFunctionNC2Stage(double *par,double *u,void *s,void *m,double t)
     for (d2 = 0; d2 < ndims; d2++) {
 
       /* calculate the diffusion function */
-      IERR solver->HFunction(Func,u,d1,d2,solver,t);                CHECKERR(ierr);
-      IERR solver->FirstDerivativePar(Deriv1,Func  ,d1,solver,mpi); CHECKERR(ierr);
-      IERR solver->FirstDerivativePar(Deriv2,Deriv1,d2,solver,mpi); CHECKERR(ierr);
+      IERR solver->HFunction(Func,u,d1,d2,solver,t);                    CHECKERR(ierr);
+      IERR solver->FirstDerivativePar(Deriv1,Func  ,d1,solver,mpi);     CHECKERR(ierr);
+      IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,Deriv1);  CHECKERR(ierr);
+      IERR solver->FirstDerivativePar(Deriv2,Deriv1,d2,solver,mpi);     CHECKERR(ierr);
 
       /* calculate the final term - second derivative of the diffusion function */
       done = 0; _ArraySetValue_(index,ndims,0);
