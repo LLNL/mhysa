@@ -62,12 +62,6 @@ int FPPowerSystem1BusInitialize(void *s,void *m)
           else if (!strcmp(word, "Pmax"  )) {ferr=fscanf(in,"%lf",&physics->Pmax  );if(ferr!=1)return(1);}
           else if (!strcmp(word, "sigma" )) {ferr=fscanf(in,"%lf",&physics->sigma );if(ferr!=1)return(1);}
           else if (!strcmp(word, "lambda")) {ferr=fscanf(in,"%lf",&physics->lambda);if(ferr!=1)return(1);}
-          else if (strcmp(word,"end")) {
-            char useless[_MAX_STRING_SIZE_];
-            ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
-            printf("Warning: keyword %s in file \"physics.inp\" with value %s not ",word,useless);
-            printf("recognized or extraneous. Ignoring.\n");
-          }
         }
 	    } else {
     	  fprintf(stderr,"Error: Illegal format in file \"physics.inp\".\n");
