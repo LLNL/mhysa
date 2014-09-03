@@ -63,9 +63,9 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   double *QDerivY = (double*) calloc (size,sizeof(double));
   double *QDerivZ = (double*) calloc (size,sizeof(double));
 
-  IERR solver->FirstDerivativePar(QDerivX,Q,_XDIR_,solver,mpi); CHECKERR(ierr);
-  IERR solver->FirstDerivativePar(QDerivY,Q,_YDIR_,solver,mpi); CHECKERR(ierr);
-  IERR solver->FirstDerivativePar(QDerivZ,Q,_ZDIR_,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(QDerivX,Q,_XDIR_,1,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(QDerivY,Q,_YDIR_,1,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(QDerivZ,Q,_ZDIR_,1,solver,mpi); CHECKERR(ierr);
 
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,QDerivX); CHECKERR(ierr);
@@ -134,7 +134,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
       }
     }
   }
-  IERR solver->FirstDerivativePar(FDeriv,FViscous,_XDIR_,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(FDeriv,FViscous,_XDIR_,-1,solver,mpi); CHECKERR(ierr);
   for (i=0; i<imax; i++) {
     for (j=0; j<jmax; j++) {
       for (k=0; k<kmax; k++) {
@@ -188,7 +188,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
       }
     }
   }
-  IERR solver->FirstDerivativePar(FDeriv,FViscous,_YDIR_,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(FDeriv,FViscous,_YDIR_,-1,solver,mpi); CHECKERR(ierr);
   for (i=0; i<imax; i++) {
     for (j=0; j<jmax; j++) {
       for (k=0; k<kmax; k++) {
@@ -242,7 +242,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
       }
     }
   }
-  IERR solver->FirstDerivativePar(FDeriv,FViscous,_ZDIR_,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(FDeriv,FViscous,_ZDIR_,-1,solver,mpi); CHECKERR(ierr);
   for (i=0; i<imax; i++) {
     for (j=0; j<jmax; j++) {
       for (k=0; k<kmax; k++) {

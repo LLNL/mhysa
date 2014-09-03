@@ -146,5 +146,13 @@ int Numa2DInitialize(void *s,void *m)
    * the dissipation terms in the general form                      */
   solver->ParabolicFunction = Numa2DParabolicFunction;
 
+  /* check that solver has the correct choice of diffusion formulation */
+  if (strcmp(solver->spatial_type_par,_NC_2STAGE_)) {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in Numa2DInitialize(): Parabolic term spatial discretization must be \"%s\"\n",_NC_2STAGE_);
+    }
+    return(1);
+  }
+
   return(0);
 }

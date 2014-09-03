@@ -67,7 +67,7 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
 
   /* Along X */
   _ArraySetValue_(QDeriv,size,0.0);
-  IERR solver->FirstDerivativePar(QDeriv,Q,_XDIR_,solver,mpi);                    CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(QDeriv,Q,_XDIR_,1,solver,mpi);                    CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(_MODEL_NDIMS_,_MODEL_NVARS_,dim,ghosts,mpi,QDeriv);CHECKERR(ierr);
   done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
   while (!done) {
@@ -88,7 +88,7 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
   }
   _ArraySetValue_(FDeriv,size,0.0);
-  IERR solver->FirstDerivativePar(FDeriv,FViscous,_XDIR_,solver,mpi);             CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(FDeriv,FViscous,_XDIR_,-1,solver,mpi);             CHECKERR(ierr);
   done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
   while (!done) {
     int p; _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
@@ -99,7 +99,7 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
 
   /* Along Y */
   _ArraySetValue_(QDeriv,size,0.0);
-  IERR solver->FirstDerivativePar(QDeriv,Q,_YDIR_,solver,mpi);                    CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(QDeriv,Q,_YDIR_,1,solver,mpi);                    CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(_MODEL_NDIMS_,_MODEL_NVARS_,dim,ghosts,mpi,QDeriv);CHECKERR(ierr);
   done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
   while (!done) {
@@ -120,7 +120,7 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
   }
   _ArraySetValue_(FDeriv,size,0.0);
-  IERR solver->FirstDerivativePar(FDeriv,FViscous,_YDIR_,solver,mpi);             CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(FDeriv,FViscous,_YDIR_,-1,solver,mpi);             CHECKERR(ierr);
   done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
   while (!done) {
     int p; _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;

@@ -53,8 +53,8 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
   double *QDerivX = (double*) calloc (size,sizeof(double));
   double *QDerivY = (double*) calloc (size,sizeof(double));
 
-  IERR solver->FirstDerivativePar(QDerivX,Q,_XDIR_,solver,mpi); CHECKERR(ierr);
-  IERR solver->FirstDerivativePar(QDerivY,Q,_YDIR_,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(QDerivX,Q,_XDIR_,1,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(QDerivY,Q,_YDIR_,1,solver,mpi); CHECKERR(ierr);
 
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,dim,
                                solver->ghosts,mpi,QDerivX);     CHECKERR(ierr);
@@ -106,7 +106,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       (FViscous+p)[3] = uvel*tau_xx + vvel*tau_xy + qx;
     }
   }
-  IERR solver->FirstDerivativePar(FDeriv,FViscous,_XDIR_,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(FDeriv,FViscous,_XDIR_,-1,solver,mpi); CHECKERR(ierr);
   for (i=0; i<imax; i++) {
     for (j=0; j<jmax; j++) {
       int p,index[2]; index[0]=i; index[1]=j;
@@ -147,7 +147,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
       (FViscous+p)[3] = uvel*tau_yx + vvel*tau_yy + qy;
     }
   }
-  IERR solver->FirstDerivativePar(FDeriv,FViscous,_YDIR_,solver,mpi); CHECKERR(ierr);
+  IERR solver->FirstDerivativePar(FDeriv,FViscous,_YDIR_,-1,solver,mpi); CHECKERR(ierr);
   for (i=0; i<imax; i++) {
     for (j=0; j<jmax; j++) {
       int p,index[2]; index[0]=i; index[1]=j;
