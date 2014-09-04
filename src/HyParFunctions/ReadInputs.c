@@ -142,8 +142,9 @@ int ReadInputs(void *s,void *m)
 #endif
       printf("\tSpatial discretization scheme (hyperbolic) : %s\n"     ,solver->spatial_scheme_hyp  );
       printf("\tSplit hyperbolic flux term?                : %s\n"     ,solver->SplitHyperbolicFlux );
-      printf("\tSpatial discretization scheme (parabolic ) : %s\n"     ,solver->spatial_scheme_par  );
       printf("\tInterpolation type for hyperbolic term     : %s\n"     ,solver->interp_type         );
+      printf("\tSpatial discretization type   (parabolic ) : %s\n"     ,solver->spatial_type_par    );
+      printf("\tSpatial discretization scheme (parabolic ) : %s\n"     ,solver->spatial_scheme_par  );
     	printf("\tTime Step                                  : %E\n"     ,solver->dt                  );
     	printf("\tCheck for conservation                     : %s\n"     ,solver->ConservationCheck   );
       printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter      );
