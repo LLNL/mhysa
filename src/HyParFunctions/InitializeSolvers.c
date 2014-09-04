@@ -108,20 +108,6 @@ int InitializeSolvers(void *s, void *m)
     fprintf(stderr,"spatial discretization type for the parabolic terms.\n");
     return(1);
   }
-  if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
-    solver->SecondDerivativePar      = SecondDerivativeSecondOrderCentral; 
-    solver->FirstDerivativePar       = FirstDerivativeFirstOrder; 
-                                       /* first order?! why? see ParabolicFunctionNC2Stage.c! */ 
-    solver->InterpolateInterfacesPar = Interp2PrimSecondOrder; 
-  } else if (!strcmp(solver->spatial_scheme_par,_FOURTH_ORDER_CENTRAL_)) {
-    solver->SecondDerivativePar      = SecondDerivativeFourthOrderCentral; 
-    solver->FirstDerivativePar       = FirstDerivativeFourthOrderCentral; 
-    solver->InterpolateInterfacesPar = NULL; /* not yet coded, setting to NULL so that the code crashes */
-  } else {
-    fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
-    fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
-            solver->spatial_type_par);
-  }
 
   /* Spatial interpolation for hyperbolic term */
   solver->interp                = NULL;
