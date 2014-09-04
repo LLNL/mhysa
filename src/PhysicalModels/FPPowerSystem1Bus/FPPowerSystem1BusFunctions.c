@@ -25,11 +25,17 @@ double FPPowerSystem1BusDissipationFunction(int dir1,int dir2,void *p,double t)
   double dissp = 0;
   if (dir1 == _YDIR_) {
     if (dir2 == _XDIR_) {
-      dissp = term * (params->lambda*params->omegaB) * (params->lambda*(1-expterm) - t*expterm);
+      dissp = 0.0;
+      /* dissp = term * (params->lambda*params->omegaB) * (params->lambda*(1-expterm) - t*expterm); */
+      /* dissp = term * params->lambda*params->omegaB*params->lambda; */
     } else if (dir2 == _YDIR_) {
-      dissp = term * (params->lambda*(1-expterm) 
+      double gamma = params->D * params->omegaS / (2.0*params->H);
+      dissp =   term * (params->lambda/(params->lambda*gamma+1.0))
+              * (1.0 - exp(-(gamma+1.0/params->lambda)*t));
+      /* dissp = term * (params->lambda*(1-expterm) 
                       + (  ( (params->D*params->omegaS)/(2*params->H) ) * params->lambda
-                         * ( t*expterm - params->lambda*(1-expterm) ) ) );
+                         * ( t*expterm - params->lambda*(1-expterm) ) ) ); */
+      /* dissp = term * params->lambda * (1 - params->lambda*gamma); */
     }
   }
 
