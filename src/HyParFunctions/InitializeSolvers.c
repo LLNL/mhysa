@@ -21,6 +21,7 @@ int  HyperbolicFunction          (double*,double*,void*,void*,double,int,
                                          double*,int,void*,double));
 int  ParabolicFunctionNC1Stage   (double*,double*,void*,void*,double);
 int  ParabolicFunctionNC2Stage   (double*,double*,void*,void*,double);
+int  ParabolicFunctionNC1_5Stage (double*,double*,void*,void*,double);
 int  ParabolicFunctionCons1Stage (double*,double*,void*,void*,double);
 int  SourceFunction              (double*,double*,void*,void*,double);
 int  VolumeIntegral              (double*,double*,void*,void*);
@@ -75,6 +76,19 @@ int InitializeSolvers(void *s, void *m)
       /* why 4th order? I could not derive the decomposition of the 
          4th order central approximation to the 2nd derivative! Some problems
          may show odd-even decoupling */ 
+    } else {
+      fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
+      fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",
+            solver->spatial_type_par);
+    }
+  } else if (!strcmp(solver->spatial_type_par,_NC_1_5STAGE_)) {
+    solver->ParabolicFunction = ParabolicFunctionNC1_5Stage;
+    if (!strcmp(solver->spatial_scheme_par,_SECOND_ORDER_CENTRAL_)) {
+      solver->FirstDerivativePar       = FirstDerivativeSecondOrderCentral; 
+      solver->SecondDerivativePar      = SecondDerivativeSecondOrderCentral; 
+    } else if (!strcmp(solver->spatial_scheme_par,_FOURTH_ORDER_CENTRAL_)) {
+      solver->FirstDerivativePar       = FirstDerivativeFourthOrderCentral; 
+      solver->SecondDerivativePar      = SecondDerivativeFourthOrderCentral; 
     } else {
       fprintf(stderr,"Error: %s is not a supported ",solver->spatial_scheme_par);
       fprintf(stderr,"spatial scheme of type %s for the parabolic terms.\n",

@@ -296,7 +296,10 @@ int SolvePETSc            (void*,void*);    /* Solve the PDE using PETSc TS */
 
 /* Some definitions - types of discretizations available 
    for the parabolic (2nd derivative) term                */
-#define _NC_1STAGE_   "nonconservative-1stage"/* Non-conservative, direct evaluation of the 2nd deriv  */
-#define _NC_2STAGE_   "nonconservative-2stage"/* Non-conservative, two-stage evaluation of the 2nd deriv  */
-#define _CONS_1STAGE_ "conservative-1stage"   /* Conservative, direct evaluation of the 2nd deriv      */
+#define _NC_1STAGE_   "nonconservative-1stage"    /* Non-conservative, direct evaluation of the 2nd deriv               */
+#define _NC_2STAGE_   "nonconservative-2stage"    /* Non-conservative, two-stage evaluation of the 2nd deriv            */
+#define _NC_1_5STAGE_ "nonconservative-1.5stage"  /* Non-conservative, "1.5"-stage evaluation of the 2nd deriv  
+                                                     + direct, 1-stage evaluation of the 2nd derivative in one variable
+                                                     + 2-stage evaluation of cross-derivatives                          */
+#define _CONS_1STAGE_ "conservative-1stage"       /* Conservative, direct evaluation of the 2nd deriv                   */
 

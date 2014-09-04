@@ -4,6 +4,17 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+/*
+
+  1-stage evaluation of the parabolic term: this function is used
+  only for systems where the diffusion term is a Laplacian (i.e. 
+  no cross-derivatives).
+
+  Each second derivative term is computed using a central finite
+  difference approximation.
+
+*/
+
 int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
 {
   HyPar         *solver = (HyPar*)        s;

@@ -6,22 +6,18 @@
 
 /*
 
-  Note: the second derivative is computed in a two-stage fashion, each
-  stage computing a first derivative.
+  "1.5"-stage evaluation of the parabolic terms:
 
-  A (n)-th order central approximation to the second derivative can be exp-
-  ressed as a conjugation of two (n-1)-th order approximations to the first 
-  derivative, one forward and one backward. Computing it this way avoids 
-  odd-even decoupling. Thus, where possible solver->FirstDerivativePar should 
-  point to the function computing (n-1)-th order first derivative where (n) 
-  is the desired order.
+  + Second derivatives in one independent variable (i.e. d^2/dx^2, d^2/dy^2,etc)
+    are computed directly using a finite-difference approximation to the second
+    derivative.
 
-  Currently, this is implemented only for n=2. For other values of n, the first
-  derivative is also computed with a (n)-th order approximation.
+  + Cross derivatives (i.e. d^2/dxdy, etc) are computed in a two-stage fashion - 
+    each stage computes the first derivative along one of the dimensions.
 
 */
 
-int ParabolicFunctionNC2Stage(double *par,double *u,void *s,void *m,double t)
+int ParabolicFunctionNC1_5Stage(double *par,double *u,void *s,void *m,double t)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -50,10 +46,16 @@ int ParabolicFunctionNC2Stage(double *par,double *u,void *s,void *m,double t)
     for (d2 = 0; d2 < ndims; d2++) {
 
       /* calculate the diffusion function */
-      IERR solver->HFunction(Func,u,d1,d2,solver,t);                    CHECKERR(ierr);
-      IERR solver->FirstDerivativePar(Deriv1,Func  ,d1, 1,solver,mpi);  CHECKERR(ierr);
-      IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,Deriv1);  CHECKERR(ierr);
-      IERR solver->FirstDerivativePar(Deriv2,Deriv1,d2,-1,solver,mpi);  CHECKERR(ierr);
+      IERR solver->HFunction(Func,u,d1,d2,solver,t);                      CHECKERR(ierr);
+      if (d1 == d2) {
+        /* second derivative with respect to the same independent variable */
+        IERR solver->SecondDerivativePar(Deriv2,Func,d1,solver,mpi);      CHECKERR(ierr);
+      } else {
+        /* cross derivative */
+        IERR solver->FirstDerivativePar(Deriv1,Func  ,d1, 1,solver,mpi);  CHECKERR(ierr);
+        IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,Deriv1);  CHECKERR(ierr);
+        IERR solver->FirstDerivativePar(Deriv2,Deriv1,d2,-1,solver,mpi);  CHECKERR(ierr);
+      }
 
       /* calculate the final term - second derivative of the diffusion function */
       done = 0; _ArraySetValue_(index,ndims,0);

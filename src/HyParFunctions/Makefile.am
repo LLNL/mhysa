@@ -18,6 +18,7 @@ libHyParFunctions_a_SOURCES = \
   ParabolicFunctionCons1Stage.c \
   ParabolicFunctionNC1Stage.c \
   ParabolicFunctionNC2Stage.c \
+  ParabolicFunctionNC1.5Stage.c \
   ReadInputs.c \
   Solve.c \
   SolvePETSc.c \
