@@ -102,9 +102,10 @@ int FPPowerSystem1BusInitialize(void *s,void *m)
   solver->PrintStep          = FPPowerSystem1BusPrintStep;
 
   /* check that solver is using the correct diffusion formulation */
-  if (strcmp(solver->spatial_type_par,_NC_2STAGE_)) {
+  if ((strcmp(solver->spatial_type_par,_NC_2STAGE_)) && (strcmp(solver->spatial_type_par,_NC_1_5STAGE_))) {
     if (!mpi->rank) {
-      fprintf(stderr,"Error in FPPowerSystem1BusInitialize(): Parabolic term spatial discretization must be \"%s\"\n",_NC_2STAGE_);
+      fprintf(stderr,"Error in FPPowerSystem1BusInitialize(): Parabolic term spatial discretization must be ");
+      fprintf(stderr,"\"%s\" or \"%s\".\n",_NC_2STAGE_,_NC_1_5STAGE_);
     }
     return(1);
   }
