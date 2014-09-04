@@ -1,0 +1,26 @@
+begin
+  ndims               2
+  nvars               1
+  size                60 60
+  iproc               4 4
+  ghost               3
+  n_iter              1000
+  restart_iter        0
+  time_scheme         rk
+  time_scheme_type    ssprk3
+  hyp_space_scheme    weno5
+  hyp_flux_split      no
+  hyp_interp_type     components
+  par_space_type      nonconservative-2stage
+  par_space_scheme    4
+  dt                  0.001
+  conservation_check  yes
+  screen_op_iter      10
+  file_op_iter        100
+  ip_file_type        binary
+  input_mode          serial
+  op_file_format      tecplot2d
+  output_mode         serial
+  op_overwrite        yes
+  model               fp-power-system-1bus
+end

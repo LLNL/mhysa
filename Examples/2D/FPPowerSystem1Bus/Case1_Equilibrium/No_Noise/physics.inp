@@ -1,0 +1,14 @@
+begin
+  omegaS    1.0
+  omegaB    376.9911184307751886
+  H         5.0
+  D         5.0
+  Pm_avg    0.9
+  Pmax      2.1
+  sigma     0.0
+  lambda    0.025
+  xmin      0.0
+  xmax      1.0
+  ymin      0.99
+  ymax      1.01
+end
