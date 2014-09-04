@@ -31,8 +31,8 @@
  *
  * Notes:
  *
- *  + The second derivative is computed at the ghost points too. Thus, biased schemes are used
- *    at and near the boundaries.
+ *  + Df and f are arrays with halos / ghost points. However, the second derivative is computed
+ *    only in the interior. So the ghost points of Df contain uninitialized/unusable values.
 */
 
 /* Second derivative functions */

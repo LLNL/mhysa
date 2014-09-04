@@ -43,15 +43,14 @@ int SecondDerivativeFourthOrderCentral(double *D2f,double *f,int dir,void *s,voi
   while (!done) {
     _ArrayCopy1D_(index_outer,indexC,ndims);
     for (i = 0; i < dim[dir]; i++) {
-      int p, qm2, qm1, qC, qp1, qp2;
-      indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,0     ,p  );
+      int qm2, qm1, qC, qp1, qp2;
       indexC[dir] = i-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
       indexC[dir] = i-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
       indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qC );
       indexC[dir] = i+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
       indexC[dir] = i+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
       for (v=0; v<nvars; v++)  
-        D2f[p*nvars+v] = (-f[qm2*nvars+v]+16*f[qm1*nvars+v]-30*f[qC*nvars+v]+16*f[qp1*nvars+v]-f[qp2*nvars+v])*one_twelve;
+        D2f[qC*nvars+v] = (-f[qm2*nvars+v]+16*f[qm1*nvars+v]-30*f[qC*nvars+v]+16*f[qp1*nvars+v]-f[qp2*nvars+v])*one_twelve;
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }

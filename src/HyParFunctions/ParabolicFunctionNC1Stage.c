@@ -51,10 +51,9 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
     int p, q;
     while (!done) {
       _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-      _ArrayIndex1D_(ndims,dim,index,0     ,q);
       for (v=0; v<nvars; v++)
         par[nvars*p+v] += (   dxinv[offset+ghosts+index[d]]*dxinv[offset+ghosts+index[d]] 
-                            * Deriv2[nvars*q+v] );
+                            * Deriv2[nvars*p+v] );
       _ArrayIncrementIndex_(ndims,dim,index,done);
     }
 

@@ -42,12 +42,11 @@ int SecondDerivativeSecondOrderCentral(double *D2f,double *f,int dir,void *s,voi
   while (!done) {
     _ArrayCopy1D_(index_outer,indexC,ndims);
     for (i = 0; i < dim[dir]; i++) {
-      int p, qL, qC, qR;
-      indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,0     ,p);
+      int qL, qC, qR;
       indexC[dir] = i-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qL);
       indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qC);
       indexC[dir] = i+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qR);
-      for (v=0; v<nvars; v++)  D2f[p*nvars+v] = f[qL*nvars+v]-2*f[qC*nvars+v]+f[qR*nvars+v];
+      for (v=0; v<nvars; v++)  D2f[qC*nvars+v] = f[qL*nvars+v]-2*f[qC*nvars+v]+f[qR*nvars+v];
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
   }
