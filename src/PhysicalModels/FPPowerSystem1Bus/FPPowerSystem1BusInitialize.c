@@ -11,7 +11,8 @@
 double FPPowerSystem1BusComputeCFL        (void*,void*,double,double);
 double FPPowerSystem1BusComputeDiffNumber (void*,void*,double,double);
 int    FPPowerSystem1BusAdvection         (double*,double*,int,void*,double);
-int    FPPowerSystem1BusDiffusion         (double*,double*,int,int,void*,double);
+int    FPPowerSystem1BusDiffusionLaplacian(double*,double*,int,void*,double);
+int    FPPowerSystem1BusDiffusionGeneral  (double*,double*,int,int,void*,double);
 int    FPPowerSystem1BusUpwind            (double*,double*,double*,double*,
                                            double*,double*,int,void*,double);
 int    FPPowerSystem1BusPostStep          (double*,void*,void*,double);
@@ -96,12 +97,14 @@ int FPPowerSystem1BusInitialize(void *s,void *m)
   solver->ComputeCFL         = FPPowerSystem1BusComputeCFL;
   solver->ComputeDiffNumber  = FPPowerSystem1BusComputeDiffNumber;
   solver->FFunction          = FPPowerSystem1BusAdvection;
-  solver->HFunction          = FPPowerSystem1BusDiffusion;
+  solver->GFunction          = FPPowerSystem1BusDiffusionLaplacian;
+  solver->HFunction          = FPPowerSystem1BusDiffusionGeneral;
   solver->Upwind             = FPPowerSystem1BusUpwind;
   solver->PostStep           = FPPowerSystem1BusPostStep;
   solver->PrintStep          = FPPowerSystem1BusPrintStep;
 
   /* check that solver is using the correct diffusion formulation */
+/*
   if ((strcmp(solver->spatial_type_par,_NC_2STAGE_)) && (strcmp(solver->spatial_type_par,_NC_1_5STAGE_))) {
     if (!mpi->rank) {
       fprintf(stderr,"Error in FPPowerSystem1BusInitialize(): Parabolic term spatial discretization must be ");
@@ -109,6 +112,7 @@ int FPPowerSystem1BusInitialize(void *s,void *m)
     }
     return(1);
   }
+*/
 
   return(0);
 }
