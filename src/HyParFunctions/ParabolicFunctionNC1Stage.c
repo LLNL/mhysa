@@ -20,7 +20,7 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   double        *Func   = solver->fluxC;
-  double        *Deriv2 = solver->fluxI;
+  double        *Deriv2 = solver->Deriv2;
   int           d, v, i, done;
   _DECLARE_IERR_;
 
