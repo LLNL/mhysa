@@ -14,6 +14,7 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;
+  int ghosts= solver->ghosts;
   int *dim  = solver->dim_local;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
@@ -27,25 +28,30 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
     _ArrayCopy1D_(index_outer,index_inter,ndims);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D_(ndims,bounds_inter,index_inter,0,p);
+      int indexL[ndims]; _ArrayCopy1D_(index_inter,indexL,ndims); indexL[dir]--;
+      int indexR[ndims]; _ArrayCopy1D_(index_inter,indexR,ndims);
+      int pL; _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
+      int pR; _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
       double udiff[_MODEL_NVARS_], uavg[_MODEL_NVARS_],udiss[_MODEL_NVARS_];
 
       /* Roe's upwinding scheme */
 
-      udiff[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] - uL[_MODEL_NVARS_*p+0]);
-      udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
-      udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
+      double termL = (1.0/param->grav_field[pL]);
+      double termR = (1.0/param->grav_field[pR]);
+      double kappa = max(param->grav_field[pL],param->grav_field[pR]);
 
-      _Euler1DRoeAverage_(uavg,(uL+_MODEL_NVARS_*p),(uR+_MODEL_NVARS_*p),param); 
+      udiff[0] = 0.5 * (termR*u[_MODEL_NVARS_*pR+0] - termL*u[_MODEL_NVARS_*pL+0]);
+      udiff[1] = 0.5 * (termR*u[_MODEL_NVARS_*pR+1] - termL*u[_MODEL_NVARS_*pL+1]);
+      udiff[2] = 0.5 * (termR*u[_MODEL_NVARS_*pR+2] - termL*u[_MODEL_NVARS_*pL+2]);
 
-      _Euler1DEigenvalues_(uavg,D,param,0);
-      _Euler1DLeftEigenvectors_(uavg,L,param,0);
-      _Euler1DRightEigenvectors_ (uavg,R,param,0);
+      _Euler1DRoeAverage_         (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param); 
+      _Euler1DEigenvalues_        (uavg,D,param,0);
+      _Euler1DLeftEigenvectors_   (uavg,L,param,0);
+      _Euler1DRightEigenvectors_  (uavg,R,param,0);
 
-      /* Harten's Entropy Fix - Page 362 of Leveque */
-      double delta = 0.000001, delta2 = delta*delta;
-      k = 0; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
-      k = 4; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
-      k = 8; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k = 0; D[k] = kappa*absolute(D[k]);
+      k = 4; D[k] = kappa*absolute(D[k]);
+      k = 8; D[k] = kappa*absolute(D[k]);
 
       MatMult3(3,DL,D,L);
       MatMult3(3,modA,R,DL);

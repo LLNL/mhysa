@@ -21,7 +21,7 @@ int    Euler1DRightEigenvectors (double*,double*,void*,int);
 
 int    Euler1DGravityField      (void*,void*);
 int    Euler1DSourceUpwindLLF   (double*,double*,double*,double*,int,void*,double);
-int    Euler1DSourceUpwindRF    (double*,double*,double*,double*,int,void*,double);
+int    Euler1DSourceUpwindRoe   (double*,double*,double*,double*,int,void*,double);
 
 int Euler1DInitialize(void *s,void *m)
 {
@@ -95,9 +95,9 @@ int Euler1DInitialize(void *s,void *m)
     return(1);
   }
 
-  if ((physics->grav != 0.0) && (strcmp(physics->upw_choice,_LLF_)) && (strcmp(physics->upw_choice,_RF_))) {
+  if ((physics->grav != 0.0) && (strcmp(physics->upw_choice,_LLF_)) && (strcmp(physics->upw_choice,_ROE_))) {
     if (!mpi->rank) {
-      fprintf(stderr,"Error in Euler1DInitialize: \"llf-char\" or \"rf-char\" upwinding is needed for flows ");
+      fprintf(stderr,"Error in Euler1DInitialize: %s or %s upwinding is needed for flows ",_LLF_,_ROE_);
       fprintf(stderr,"with gravitational forces.\n");
     }
     return(1);
@@ -121,7 +121,7 @@ int Euler1DInitialize(void *s,void *m)
   solver->GetRightEigenvectors  = Euler1DRightEigenvectors;
    
   if      (!strcmp(physics->upw_choice,_LLF_ )) physics->SourceUpwind = Euler1DSourceUpwindLLF;
-  else if (!strcmp(physics->upw_choice,_RF_  )) physics->SourceUpwind = Euler1DSourceUpwindRF;
+  else if (!strcmp(physics->upw_choice,_ROE_ )) physics->SourceUpwind = Euler1DSourceUpwindRoe;
 
   /* calculate the initial gravity field */
   IERR Euler1DGravityField(solver,mpi); CHECKERR(ierr);
