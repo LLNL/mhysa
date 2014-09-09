@@ -17,7 +17,7 @@ int TimeForwardEuler(void *ts)
 
   if (solver->PreStep)  { IERR solver->PreStep (solver->u,solver,mpi,TS->waqt);   CHECKERR(ierr); }
   if (solver->PreStage) 
-    { IERR solver->PreStage(1,&solver->u,solver,mpi,TS->waqt);                    CHECKERR(ierr); }
+    { IERR solver->PreStage(0,&solver->u,solver,mpi,TS->waqt);                    CHECKERR(ierr); }
 
   /* Evaluate right-hand side and update solution */
   IERR TS->RHSFunction(TS->rhs,solver->u,solver,mpi,TS->waqt);                    CHECKERR(ierr);
