@@ -5,22 +5,17 @@
 #include <hypar.h>
 #include <mpivars.h>
 
-int Euler1DGravityField(void *s,void *m)
+int Euler1DGravityField(void *s,void *m,double *u)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   Euler1D       *param  = (Euler1D*)      solver->physics;
 
-  int *dim    = solver->dim_local;
-  int ghosts  = solver->ghosts;
-  int index[_MODEL_NDIMS_], bounds[_MODEL_NDIMS_],offset[_MODEL_NDIMS_], d, done;
-
-  int size = 1;
-  for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
-
-  /* allocate the array to hold the gravity field */
-  param->grav_field = (double*) calloc (size, sizeof(double)); /* freed in Euler1DCleanup.c */
-  double *S = param->grav_field;
+  double  *S      = param->grav_field;
+  int     *dim    = solver->dim_local;
+  int     ghosts  = solver->ghosts;
+  int     index[_MODEL_NDIMS_], bounds[_MODEL_NDIMS_],
+          offset[_MODEL_NDIMS_], d, done;
 
   /* set bounds for array index to include ghost points */
   _ArrayCopy1D_(dim,bounds,_MODEL_NDIMS_);
@@ -31,8 +26,8 @@ int Euler1DGravityField(void *s,void *m)
   /* set the value of the gravity field */
   done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
   while (!done) {
-    int p; _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
-    double xcoord; _GetCoordinate_(_XDIR_,index[_XDIR_]-ghosts,dim,ghosts,solver->x,xcoord);
+    int p;                _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
+    double xcoord;        _GetCoordinate_(_XDIR_,index[_XDIR_]-ghosts,dim,ghosts,solver->x,xcoord);
     S[p] = exp(-param->grav*xcoord);
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
   }

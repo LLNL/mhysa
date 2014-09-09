@@ -23,6 +23,8 @@ int    Euler1DGravityField      (void*,void*);
 int    Euler1DSourceUpwindLLF   (double*,double*,double*,double*,int,void*,double);
 int    Euler1DSourceUpwindRoe   (double*,double*,double*,double*,int,void*,double);
 
+int    Euler1DPreStage  (int,double**,void*,void*,double);
+
 int Euler1DInitialize(void *s,void *m)
 {
   HyPar         *solver  = (HyPar*)         s;
@@ -119,12 +121,16 @@ int Euler1DInitialize(void *s,void *m)
   solver->AveragingFunction     = Euler1DRoeAverage;
   solver->GetLeftEigenvectors   = Euler1DLeftEigenvectors;
   solver->GetRightEigenvectors  = Euler1DRightEigenvectors;
+  solver->PreStage              = Euler1DPreStage;
    
   if      (!strcmp(physics->upw_choice,_LLF_ )) physics->SourceUpwind = Euler1DSourceUpwindLLF;
   else if (!strcmp(physics->upw_choice,_ROE_ )) physics->SourceUpwind = Euler1DSourceUpwindRoe;
 
-  /* calculate the initial gravity field */
-  IERR Euler1DGravityField(solver,mpi); CHECKERR(ierr);
+  /* allocate array to hold the gravity field */
+  int *dim    = solver->dim_local;
+  int ghosts  = solver->ghosts;
+  int d, size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
+  physics->grav_field = (double*) calloc (size, sizeof(double));
 
   return(0);
 }
