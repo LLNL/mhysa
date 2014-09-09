@@ -21,14 +21,13 @@ int TimeRK(void *ts)
   /* Calculate stage values */
   for (stage = 0; stage < params->nstages; stage++) {
     double stagetime = TS->waqt + params->c[stage]*TS->dt;
-    if (solver->PreStage) { 
-      if (stage) { IERR solver->PreStage(stage,TS->U ,solver,mpi,stagetime); CHECKERR(ierr); }
-      else       { IERR solver->PreStage(1,&solver->u,solver,mpi,stagetime); CHECKERR(ierr); }
-    }
     _ArrayCopy1D_(solver->u,TS->U[stage],size*solver->nvars);
     for (i = 0; i < stage; i++) {
       _ArrayAXPY_(TS->Udot[i],solver->dt*params->A[stage*params->nstages+i],
                   TS->U[stage],size*solver->nvars); 
+    }
+    if (solver->PreStage) { 
+      IERR solver->PreStage(stage,TS->U ,solver,mpi,stagetime); CHECKERR(ierr); 
     }
     IERR TS->RHSFunction(TS->Udot[stage],TS->U[stage],solver,mpi,stagetime);
     if (solver->PostStage) 
