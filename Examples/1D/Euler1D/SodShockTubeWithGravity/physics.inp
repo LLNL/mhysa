@@ -1,0 +1,5 @@
+begin
+  gamma       1.4
+  gravity     1.0
+  upwinding   roe
+end
