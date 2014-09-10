@@ -40,9 +40,9 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       double termR = (1.0/param->grav_field[pR]);
       double kappa = max(param->grav_field[pL],param->grav_field[pR]);
 
-      udiff[0] = 0.5 * (termR*u[_MODEL_NVARS_*pR+0] - termL*u[_MODEL_NVARS_*pL+0]);
-      udiff[1] = 0.5 * (termR*u[_MODEL_NVARS_*pR+1] - termL*u[_MODEL_NVARS_*pL+1]);
-      udiff[2] = 0.5 * (termR*u[_MODEL_NVARS_*pR+2] - termL*u[_MODEL_NVARS_*pL+2]);
+      udiff[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] - uL[_MODEL_NVARS_*p+0]);
+      udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
+      udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
 
       _Euler1DRoeAverage_         (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param); 
       _Euler1DEigenvalues_        (uavg,D,param,0);

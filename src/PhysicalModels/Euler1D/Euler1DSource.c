@@ -80,8 +80,7 @@ int Euler1DSourceFunction(double *f,double *u,double *x,void *s,void *m,double t
 
   /* set bounds for array index to include ghost points */
   _ArrayCopy1D_(dim,bounds,ndims);
-  int i;
-  for (i=0; i<ndims; i++) bounds[i] += 2*ghosts;
+  int i; for (i=0; i<ndims; i++) bounds[i] += 2*ghosts;
 
   /* set offset such that index is compatible with ghost point arrangement */
   _ArraySetValue_(offset,ndims,-ghosts);

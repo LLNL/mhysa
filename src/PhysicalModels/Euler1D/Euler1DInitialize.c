@@ -23,7 +23,8 @@ int    Euler1DGravityField      (void*,void*);
 int    Euler1DSourceUpwindLLF   (double*,double*,double*,double*,int,void*,double);
 int    Euler1DSourceUpwindRoe   (double*,double*,double*,double*,int,void*,double);
 
-int    Euler1DPreStage  (int,double**,void*,void*,double);
+int    Euler1DPreStage          (int,double**,void*,void*,double);
+int    Euler1DModifiedSolution  (double*,double*,int,void*,void*,double);
 
 int Euler1DInitialize(void *s,void *m)
 {
@@ -109,6 +110,7 @@ int Euler1DInitialize(void *s,void *m)
   solver->ComputeCFL         = Euler1DComputeCFL;
   solver->FFunction          = Euler1DFlux;
   solver->SFunction          = Euler1DSource;
+  solver->UFunction          = Euler1DModifiedSolution;
   if      (!strcmp(physics->upw_choice,_ROE_ )) solver->Upwind = Euler1DUpwindRoe;
   else if (!strcmp(physics->upw_choice,_RF_  )) solver->Upwind = Euler1DUpwindRF;
   else if (!strcmp(physics->upw_choice,_LLF_ )) solver->Upwind = Euler1DUpwindLLF;
