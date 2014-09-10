@@ -42,8 +42,8 @@ int Euler1DSource(double *source,double *u,void *s,void *m,double t)
   /* calculate the split source function exp(-phi/RT) */
   IERR Euler1DSourceFunction(SourceC,u,x,solver,mpi,t); CHECKERR(ierr);
   /* calculate the left and right interface source terms */
-  IERR solver->InterpolateInterfacesHyp(SourceL,SourceC,u,x, 1,_XDIR_,solver,mpi); CHECKERR(ierr);
-  IERR solver->InterpolateInterfacesHyp(SourceR,SourceC,u,x,-1,_XDIR_,solver,mpi); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(SourceL,SourceC,u,x, 1,_XDIR_,solver,mpi,0); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(SourceR,SourceC,u,x,-1,_XDIR_,solver,mpi,0); CHECKERR(ierr);
   /* calculate the final interface source term */
   IERR param->SourceUpwind(SourceI,SourceL,SourceR,u,_XDIR_,solver,t);
   /* calculate the final cell-centered source term */
