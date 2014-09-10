@@ -4,6 +4,17 @@
 #include <mpivars.h>
 #include <hypar.h>
 
+/*
+
+  Refer to 
+  + Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme 
+    for the Gas Dynamics Equations Under Gravitational Fields", 
+    Journal of Scientific Computing, 54, 2013, pp. 645-662,
+    http://dx.doi.org/10.1007/s10915-012-9585-8
+
+    Equation (3.8) on Page 651 on why this modification is needed.
+*/
+
 int Euler1DModifiedSolution(double *uC,double *u,int d,void *s,void *m,double waqt)
 {
   HyPar         *solver = (HyPar*)         s;

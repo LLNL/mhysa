@@ -36,9 +36,6 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
 
       /* Roe's upwinding scheme */
 
-      double termL = (1.0/param->grav_field[pL]);
-      double termR = (1.0/param->grav_field[pR]);
-      double kappa = max(param->grav_field[pL],param->grav_field[pR]);
 
       udiff[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] - uL[_MODEL_NVARS_*p+0]);
       udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
@@ -49,6 +46,7 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       _Euler1DLeftEigenvectors_   (uavg,L,param,0);
       _Euler1DRightEigenvectors_  (uavg,R,param,0);
 
+      double kappa = max(param->grav_field[pL],param->grav_field[pR]);
       k = 0; D[k] = kappa*absolute(D[k]);
       k = 4; D[k] = kappa*absolute(D[k]);
       k = 8; D[k] = kappa*absolute(D[k]);
@@ -107,13 +105,9 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
       _Euler1DLeftEigenvectors_ (uavg,L,param,0);
       _Euler1DRightEigenvectors_(uavg,R,param,0);
 
-      /* gravity-corrected state vector */
-      _ArrayCopy1D_((u+_MODEL_NVARS_*pL),ugL,_MODEL_NVARS_); _ArrayScale1D_(ugL,(1.0/param->grav_field[pL]),_MODEL_NVARS_);
-      _ArrayCopy1D_((u+_MODEL_NVARS_*pR),ugR,_MODEL_NVARS_); _ArrayScale1D_(ugR,(1.0/param->grav_field[pR]),_MODEL_NVARS_);
-
       /* calculate characteristic fluxes and variables */
-      MatVecMult3(_MODEL_NVARS_,ucL,L,ugL);
-      MatVecMult3(_MODEL_NVARS_,ucR,L,ugR);
+      MatVecMult3(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
+      MatVecMult3(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
       MatVecMult3(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
       MatVecMult3(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 
@@ -181,13 +175,9 @@ int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       _Euler1DLeftEigenvectors_ (uavg,L,param,0);
       _Euler1DRightEigenvectors_(uavg,R,param,0);
 
-      /* gravity-corrected state vector */
-      _ArrayCopy1D_((u+_MODEL_NVARS_*pL),ugL,_MODEL_NVARS_); _ArrayScale1D_(ugL,(1.0/param->grav_field[pL]),_MODEL_NVARS_);
-      _ArrayCopy1D_((u+_MODEL_NVARS_*pR),ugR,_MODEL_NVARS_); _ArrayScale1D_(ugR,(1.0/param->grav_field[pR]),_MODEL_NVARS_);
-
       /* calculate characteristic fluxes and variables */
-      MatVecMult3(_MODEL_NVARS_,ucL,L,ugL);
-      MatVecMult3(_MODEL_NVARS_,ucR,L,ugR);
+      MatVecMult3(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
+      MatVecMult3(_MODEL_NVARS_,ucR,L,(uR+_MODEL_NVARS_*p));
       MatVecMult3(_MODEL_NVARS_,fcL,L,(fL+_MODEL_NVARS_*p));
       MatVecMult3(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 

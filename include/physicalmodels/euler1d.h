@@ -17,6 +17,13 @@
   "rf-char"   Roe-fixed
   "llf-char"  Local Lax-Friedrich
 
+
+For the treatment of gravitational source terms, refer to:
++ Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme
+  for the Gas Dynamics Equations Under Gravitational Fields",
+  Journal of Scientific Computing, 54, 2013, pp. 645-662
+  http://dx.doi.org/10.1007/s10915-012-9585-8
+
 */
 
 #include <basic.h>
