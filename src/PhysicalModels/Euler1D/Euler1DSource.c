@@ -56,7 +56,7 @@ int Euler1DSource(double *source,double *u,void *s,void *m,double t)
     _ArrayIndex1D_(ndims,dim_interface,index2,0     ,p2);
     double dx_inverse;   _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,dxinv,dx_inverse);
     double rho, vel, e, P; _Euler1DGetFlowVar_((u+_MODEL_NVARS_*p),rho,vel,e,P,param);
-    double term[_MODEL_NVARS_] = {0.0, P, P*vel};
+    double term[_MODEL_NVARS_] = {0.0, rho, rho*vel};
     for (v=0; v<_MODEL_NVARS_; v++) {
       source[_MODEL_NVARS_*p+v] += (  (term[v]*(1.0/param->grav_field[p])) 
                                     * (SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dx_inverse );
