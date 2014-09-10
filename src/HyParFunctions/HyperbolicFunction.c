@@ -85,13 +85,7 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int di
   int nvars = solver->nvars;
   int *dim  = solver->dim_local;
 
-  /* allocate arrays for left and right biased interface fluxes */
-  int size = 1;
-  for (d=0; d<ndims; d++) {
-    if (d == dir) size  *= (dim[d]+1);
-    else          size  *=  dim[d];
-  }
-  size *= nvars;
+  double *uC     = NULL;
   double *uL     = solver->uL;
   double *uR     = solver->uR;
   double *fluxL  = solver->fL;
@@ -103,11 +97,19 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int di
   */
   if (LimFlag) IERR solver->SetInterpLimiterVar(fluxC,u,x,dir,solver,mpi);
 
+  /* if defined, calculate the modified u-function to be used for upwinding
+     e.g.: used in well-balanced schemes for Euler/Navier-Stokes with gravity
+     otherwise, just copy u to uC */
+  if (solver->UFunction) {
+    uC = solver->uC;
+    IERR solver->UFunction(uC,u,d,solver,mpi,t); CHECKERR(ierr);
+  } else uC = u;
+
   /* Interpolation -> to calculate left and right-biased interface flux and state variable*/
-  IERR solver->InterpolateInterfacesHyp(uL   ,u    ,u,x, 1,dir,solver,mpi); CHECKERR(ierr);
-  IERR solver->InterpolateInterfacesHyp(uR   ,u    ,u,x,-1,dir,solver,mpi); CHECKERR(ierr);
-  IERR solver->InterpolateInterfacesHyp(fluxL,fluxC,u,x, 1,dir,solver,mpi); CHECKERR(ierr);
-  IERR solver->InterpolateInterfacesHyp(fluxR,fluxC,u,x,-1,dir,solver,mpi); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(uL   ,uC   ,u,x, 1,dir,solver,mpi,1); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(uR   ,uC   ,u,x,-1,dir,solver,mpi,1); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(fluxL,fluxC,u,x, 1,dir,solver,mpi,0); CHECKERR(ierr);
+  IERR solver->InterpolateInterfacesHyp(fluxR,fluxC,u,x,-1,dir,solver,mpi,0); CHECKERR(ierr);
 
   /* Upwind -> to calculate the final interface flux */
   IERR UpwindFunction(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 

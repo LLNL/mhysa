@@ -18,7 +18,7 @@
 #undef  _MINIMUM_GHOSTS_
 #define _MINIMUM_GHOSTS_ 2
 
-int Interp1PrimThirdOrderMUSCL(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
+int Interp1PrimThirdOrderMUSCL(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m,int uflag)
 {
   HyPar           *solver = (HyPar*)          s;
   MUSCLParameters *muscl  = (MUSCLParameters*) solver->interp;

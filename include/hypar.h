@@ -88,6 +88,9 @@ typedef struct main_parameters {
   /* Array to hold the cell-centered hyperbolic flux: Same layout as u */
   double *fluxC;
   
+  /* Array to hold the cell-centered modified solution: Same layout as u */
+  double *uC;
+  
   /* Array to hold the interface hyperbolic flux for a conservative finite-difference method
    * Since number of interfaces is one more than the number of cell-centers, the dimensions 
    * of fluxI is accordingly increased during allocation. **Does not have ghost points.** */
@@ -145,7 +148,7 @@ typedef struct main_parameters {
 
   /* Function to interpolate a function at the grid interfaces from the cell-centered values
    * for the hyperbolic flux */
-  int (*InterpolateInterfacesHyp) (double*,double*,double*,double*,int,int,void*,void*);
+  int (*InterpolateInterfacesHyp) (double*,double*,double*,double*,int,int,void*,void*,int);
 
   /* Function to pre-calculate the nonlinear interpolation coefficients for the hyperbolic
    * flux interpolation */
@@ -209,6 +212,9 @@ typedef struct main_parameters {
 
   /* Function to calculate the source function */
   int    (*SFunction)          (double*,double*,void*,void*,double);
+
+  /* Function to calculate the modified solution for upwinding */
+  int    (*UFunction)          (double*,double*,int,void*,void*,double);
 
   /* Function to do some pre-time-integration-stage computations, if required */
   int    (*PreStage)           (int,double**,void*,void*,double);

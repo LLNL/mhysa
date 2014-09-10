@@ -18,7 +18,7 @@
 #undef  _MINIMUM_GHOSTS_
 #define _MINIMUM_GHOSTS_ 3
 
-int Interp1PrimFifthOrderHCWENO(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m)
+int Interp1PrimFifthOrderHCWENO(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m,int uflag)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
@@ -40,9 +40,9 @@ int Interp1PrimFifthOrderHCWENO(double *fI,double *fC,double *u,double *x,int up
   static const double one_fourth         = 1.0/4.0;
 
   double *ww1, *ww2, *ww3;
-  ww1 = weno->w1 + (upw < 0 ? 2*weno->size : 0) + (u==fC ? weno->size : 0) + weno->offset[dir];
-  ww2 = weno->w2 + (upw < 0 ? 2*weno->size : 0) + (u==fC ? weno->size : 0) + weno->offset[dir];
-  ww3 = weno->w3 + (upw < 0 ? 2*weno->size : 0) + (u==fC ? weno->size : 0) + weno->offset[dir];
+  ww1 = weno->w1 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
+  ww2 = weno->w2 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
+  ww3 = weno->w3 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */

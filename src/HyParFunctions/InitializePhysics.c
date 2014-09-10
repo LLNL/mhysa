@@ -35,6 +35,7 @@ int InitializePhysics(void *s,void *m)
   solver->GFunction             = NULL;
   solver->HFunction             = NULL;
   solver->SFunction             = NULL;
+  solver->UFunction             = NULL;
   solver->Upwind                = NULL;
   solver->UpwinddF              = NULL;
   solver->PreStage              = NULL;

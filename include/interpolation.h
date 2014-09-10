@@ -55,6 +55,10 @@
     m         void*     object containing MPI domain decomposition related variables
                         (this information is used only by compact interpolation schemes)
 
+    uflag     int       flag to indicate where the flux function or the solution function
+                        is being interpolated
+                        (1 -> u; 0 -> f(u) )
+
     Notes:
       + arrangement of points along the direction of interpolation is
 
@@ -73,28 +77,28 @@
 /* functions to interpolate the first primitive in a component-wise way
    (for conservative discretization of the 1st derivative) on a uniform grid */
 /* First-order upwind */
-int Interp1PrimFirstOrderUpwind           (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFirstOrderUpwind           (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Third-order MUSCL scheme */
-int Interp1PrimThirdOrderMUSCL            (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimThirdOrderMUSCL            (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order WENO scheme */
-int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order CRWENO scheme */
-int Interp1PrimFifthOrderCRWENO           (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderCRWENO           (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order hybrid-compact WENO scheme */
-int Interp1PrimFifthOrderHCWENO           (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderHCWENO           (double*,double*,double*,double*,int,int,void*,void*,int);
 
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) on a uniform grid */
 /* First-order upwind */
-int Interp1PrimFirstOrderUpwindChar       (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFirstOrderUpwindChar       (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Third-order MUSCL scheme */
-int Interp1PrimThirdOrderMUSCLChar        (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimThirdOrderMUSCLChar        (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order WENO scheme */
-int Interp1PrimFifthOrderWENOChar         (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderWENOChar         (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order CRWENO scheme */
-int Interp1PrimFifthOrderCRWENOChar       (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderCRWENOChar       (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order hybrid-compact WENO scheme */
-int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,int,void*,void*);
+int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,int,void*,void*,int);
 
 /* functions to interpolate the second primitive 
    (for conservative discretization of the 2nd derivative) */
