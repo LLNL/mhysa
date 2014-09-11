@@ -14,6 +14,12 @@
          by Tannehill, Anderson and Pletcher
          Chapter 5, Section 5.1.7 for the non-dimensional
          form of the NS equations.
+
+  For the treatment of gravitational source terms, refer to:
+        Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO 
+        Scheme for the Gas Dynamics Equations Under Gravitational 
+        Fields", Journal of Scientific Computing, 54, 2013, 
+        pp. 645-662, http://dx.doi.org/10.1007/s10915-012-9585-8
 */
 
 
@@ -239,12 +245,16 @@
   }
 
 typedef struct navierstokes2d_parameters {
-  double  gamma;  /* Ratio of heat capacities */
-  char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */
-  double  Re;     /* Reynolds number */
-  double  Pr;     /* Prandtl  number */
-  double  Minf;   /* Freestream Mach number */
-  double  C1,C2;  /* Sutherlands law constants */
+  double  gamma;                          /* Ratio of heat capacities */
+  char    upw_choice[_MAX_STRING_SIZE_];  /* choice of upwinding */
+  double  grav_x, grav_y;                 /* acceleration due to gravity in x and y */
+  double  *grav_field;                    /* gravity potential field */
+  double  rho0, p0;                       /* reference density and pressure at zero altitude
+                                             for flows with gravity */
+  double  Re;                             /* Reynolds number */
+  double  Pr;                             /* Prandtl  number */
+  double  Minf;                           /* Freestream Mach number */
+  double  C1,C2;                          /* Sutherlands law constants */
 } NavierStokes2D;
 
 int    NavierStokes2DInitialize (void*,void*);

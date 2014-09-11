@@ -5,6 +5,10 @@ libNavierStokes2D_a_SOURCES = \
   NavierStokes2DEigen.c \
   NavierStokes2DFlux.c \
   NavierStokes2DFunctions.c \
+	NavierStokes2DGravityField.c \
   NavierStokes2DInitialize.c \
+	NavierStokes2DModifiedSolution.c \
 	NavierStokes2DParabolicFunction.c \
+	NavierStokes2DPreStage.c \
+	NavierStokes2DSource.c \
   NavierStokes2DUpwind.c

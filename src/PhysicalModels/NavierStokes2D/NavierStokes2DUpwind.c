@@ -6,11 +6,21 @@
 #include <mathfunctions.h>
 #include <hypar.h>
 
+/*
+  Note: Only the Roe and LLF upwinding are modified to handle flows
+  with gravity, because they are the only ones that can be expressed
+  in the well-balanced form. Refer to:
+    Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme 
+    for the Gas Dynamics Equations Under Gravitational Fields", 
+    Journal of Scientific Computing, 54, 2013, pp. 645-662,
+    http://dx.doi.org/10.1007/s10915-012-9585-8
+*/
+
 int NavierStokes2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
 {
-  HyPar    *solver = (HyPar*)    s;
-  NavierStokes2D  *param  = (NavierStokes2D*)  solver->physics;
-  int      done;
+  HyPar           *solver = (HyPar*)          s;
+  NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
+  int             done;
 
   int *dim  = solver->dim_local;
 
@@ -26,6 +36,10 @@ int NavierStokes2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *
     index_inter[0] = index_outer[0]; index_inter[1] = index_outer[1];
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D2_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
+      int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
+      int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
+      int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
+      int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
       double udiff[_MODEL_NVARS_], uavg[_MODEL_NVARS_],udiss[_MODEL_NVARS_];
 
       /* Roe's upwinding scheme */
@@ -35,19 +49,19 @@ int NavierStokes2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *
       udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
 
-      _NavierStokes2DRoeAverage_(uavg,(uL+_MODEL_NVARS_*p),(uR+_MODEL_NVARS_*p),param);
-
-      _NavierStokes2DEigenvalues_(uavg,D,param,dir);
-      _NavierStokes2DLeftEigenvectors_(uavg,L,param,dir);
-      _NavierStokes2DRightEigenvectors_(uavg,R,param,dir);
+      _NavierStokes2DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _NavierStokes2DEigenvalues_       (uavg,D,param,dir);
+      _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
 
        /* Harten's Entropy Fix - Page 362 of Leveque */
       int k;
       double delta = 0.000001, delta2 = delta*delta;
-      k=0;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
-      k=5;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
-      k=10; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
-      k=15; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      double kappa = max(param->grav_field[pL],param->grav_field[pR]);
+      k=0;  D[k] = kappa * (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=5;  D[k] = kappa * (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=10; D[k] = kappa * (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=15; D[k] = kappa * (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
 
       MatMult4(_MODEL_NVARS_,DL,D,L);
       MatMult4(_MODEL_NVARS_,modA,R,DL);
@@ -154,16 +168,20 @@ int NavierStokes2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
     index_inter[0] = index_outer[0]; index_inter[1] = index_outer[1];
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D2_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
+      int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
+      int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
+      int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
+      int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
       double uavg[_MODEL_NVARS_], fcL[_MODEL_NVARS_], fcR[_MODEL_NVARS_], 
              ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_];
+      double kappa = max(param->grav_field[pL],param->grav_field[pR]);
 
       /* Local Lax-Friedrich upwinding scheme */
 
-      _NavierStokes2DRoeAverage_(uavg,(uL+_MODEL_NVARS_*p),(uR+_MODEL_NVARS_*p),param);
-
-      _NavierStokes2DEigenvalues_(uavg,D,param,dir);
-      _NavierStokes2DLeftEigenvectors_ (uavg,L,param,dir);
-      _NavierStokes2DRightEigenvectors_(uavg,R,param,dir);
+      _NavierStokes2DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _NavierStokes2DEigenvalues_       (uavg,D,param,dir);
+      _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
 
       /* calculate characteristic fluxes and variables */
       MatVecMult4(_MODEL_NVARS_,ucL,L,(uL+_MODEL_NVARS_*p));
@@ -172,12 +190,12 @@ int NavierStokes2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
       MatVecMult4(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 
       double eigL[4],eigC[4],eigR[4];
-      _NavierStokes2DEigenvalues_((uL+_MODEL_NVARS_*p),D,param,dir);
+      _NavierStokes2DEigenvalues_((u+_MODEL_NVARS_*pL),D,param,dir);
       eigL[0] = D[0];
       eigL[1] = D[5];
       eigL[2] = D[10];
       eigL[3] = D[15];
-      _NavierStokes2DEigenvalues_((uR+_MODEL_NVARS_*p),D,param,dir);
+      _NavierStokes2DEigenvalues_((u+_MODEL_NVARS_*pR),D,param,dir);
       eigR[0] = D[0];
       eigR[1] = D[5];
       eigR[2] = D[10];
@@ -189,7 +207,7 @@ int NavierStokes2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
       eigC[3] = D[15];
 
       double alpha;
-      alpha = max3(absolute(eigL[0]),absolute(eigC[0]),absolute(eigR[0]));
+      alpha = kappa * max3(absolute(eigL[0]),absolute(eigC[0]),absolute(eigR[0]));
       fc[0] = 0.5 * (fcL[0] + fcR[0] + alpha * (ucL[0]-ucR[0]));
       alpha = max3(absolute(eigL[1]),absolute(eigC[1]),absolute(eigR[1]));
       fc[1] = 0.5 * (fcL[1] + fcR[1] + alpha * (ucL[1]-ucR[1]));
