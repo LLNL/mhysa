@@ -76,9 +76,9 @@ int NavierStokes2DInitialize(void *s,void *m)
           } else if (!strcmp(word,"gravity")) {
             ferr = fscanf(in,"%lf",&physics->grav_x); if (ferr != 1) return(1);
             ferr = fscanf(in,"%lf",&physics->grav_y); if (ferr != 1) return(1);
-          } else if (!strcmp(word,"rho0")) {
+          } else if (!strcmp(word,"rho_ref")) {
             ferr = fscanf(in,"%lf",&physics->rho0); if (ferr != 1) return(1);
-          } else if (!strcmp(word,"p0")) {
+          } else if (!strcmp(word,"p_ref")) {
             ferr = fscanf(in,"%lf",&physics->p0); if (ferr != 1) return(1);
           } else if (strcmp(word,"end")) {
             char useless[_MAX_STRING_SIZE_];
