@@ -1,0 +1,7 @@
+begin
+  gamma     1.4
+  upwinding roe
+  gravity   1.0 0.0
+  rho_ref   1.0
+  p_ref     1.0
+end
