@@ -1,0 +1,5 @@
+4
+extrapolate   0     1     0     0 -99999  99999
+extrapolate   0    -1     0     0 -99999  99999
+periodic      1     1     0   1.0      0      0
+periodic      1    -1     0   1.0      0      0
