@@ -30,10 +30,15 @@
 
 
   This test case simulates 2D flow in isothermal equilibrium, 
-  with a specified initial pressure perturbation. The strength
-  of the perturbation is specified by eta in aux/init.c. For 
-  zero perturbation (eta=0.0), the simulation should show
-  machine-zero residuals.
+  with a specified initial pressure perturbation. The equilibrium
+  solution is:
+
+  rho(x,y) = rho0 * exp[-(g_x*x+g_y*y)/RT]
+  p  (x,y) = p0   * exp[-(g_x*x+g_y*y)/RT]
+  
+  The strength of the perturbation is specified by eta in 
+  aux/init.c. For zero perturbation (eta=0.0), the simulation 
+  should show machine-zero residuals.
 
 Domain:
 
