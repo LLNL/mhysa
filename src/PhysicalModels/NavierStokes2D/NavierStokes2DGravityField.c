@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arrayfunctions.h>
+#include <mathfunctions.h>
 #include <physicalmodels/navierstokes2d.h>
 #include <hypar.h>
 #include <mpivars.h>
@@ -11,7 +12,8 @@ int NavierStokes2DGravityField(void *s,void *m,double *u)
   MPIVariables    *mpi    = (MPIVariables*)   m;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
 
-  double  *S      = param->grav_field;
+  double  *f      = param->grav_field_f;
+  double  *g      = param->grav_field_g;
   int     *dim    = solver->dim_local;
   int     ghosts  = solver->ghosts;
   int     index[_MODEL_NDIMS_], bounds[_MODEL_NDIMS_],
@@ -23,15 +25,36 @@ int NavierStokes2DGravityField(void *s,void *m,double *u)
   /* set offset such that index is compatible with ghost point arrangement */
   _ArraySetValue_(offset,_MODEL_NDIMS_,-ghosts);
 
+  double p0   = param->p0;
+  double rho0 = param->rho0;
+  double RT   = p0 / rho0;
+  double gamma= param->gamma;
+  double R    = param->R;
+  double Cp   = gamma*R / (gamma-1.0);
+  double T0   = p0 / (rho0 * R);
+  double gx   = param->grav_x;
+  double gy   = param->grav_y;
+  
   /* set the value of the gravity field */
-  double RT = param->p0 / param->rho0;
   done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
-  while (!done) {
-    int p;                _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
-    double xcoord;        _GetCoordinate_(_XDIR_,index[_XDIR_]-ghosts,dim,ghosts,solver->x,xcoord);
-    double ycoord;        _GetCoordinate_(_YDIR_,index[_YDIR_]-ghosts,dim,ghosts,solver->x,ycoord);
-    S[p] = exp(-(param->grav_x*xcoord+param->grav_y*ycoord)/RT);
-    _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
+  if (param->HB == 1) {
+    while (!done) {
+      int p;         _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
+      double xcoord; _GetCoordinate_(_XDIR_,index[_XDIR_]-ghosts,dim,ghosts,solver->x,xcoord);
+      double ycoord; _GetCoordinate_(_YDIR_,index[_YDIR_]-ghosts,dim,ghosts,solver->x,ycoord);
+      f[p] = exp( (gx*xcoord+gy*ycoord)/RT);
+      g[p] = exp(-(gx*xcoord+gy*ycoord)/RT);
+      _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
+    }
+  } else if (param->HB == 2) {
+    while (!done) {
+      int p;         _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
+      double xcoord; _GetCoordinate_(_XDIR_,index[_XDIR_]-ghosts,dim,ghosts,solver->x,xcoord);
+      double ycoord; _GetCoordinate_(_YDIR_,index[_YDIR_]-ghosts,dim,ghosts,solver->x,ycoord);
+      f[p] = raiseto((1.0-(gx*xcoord+gy*ycoord)/(Cp*T0)), (-1.0 /(gamma-1.0)));
+      g[p] = raiseto((1.0-(gx*xcoord+gy*ycoord)/(Cp*T0)), (gamma/(gamma-1.0)));
+      _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
+    }
   }
 
   /* A sensible simulation will not specify peridic boundary conditions 
@@ -52,7 +75,8 @@ int NavierStokes2DGravityField(void *s,void *m,double *u)
         _ArrayCopy1D_(indexb,indexi,_MODEL_NDIMS_); indexi[d] = 0;
         int p1; _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,indexb,offset,ghosts,p1);
         int p2; _ArrayIndex1D_  (_MODEL_NDIMS_,dim,indexi,ghosts,p2);
-        S[p1] = S[p2];
+        f[p1] = f[p2];
+        g[p1] = g[p2];
         _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,indexb,done);
       }
     }
@@ -65,7 +89,8 @@ int NavierStokes2DGravityField(void *s,void *m,double *u)
         _ArrayCopy1D_(indexb,indexi,_MODEL_NDIMS_); indexi[d] = dim[d]-1;
         int p1; _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,indexb,offset,ghosts,p1);
         int p2; _ArrayIndex1D_  (_MODEL_NDIMS_,dim,indexi,ghosts,p2);
-        S[p1] = S[p2];
+        f[p1] = f[p2];
+        g[p1] = g[p2];
         _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,indexb,done);
       }
     }

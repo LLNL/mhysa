@@ -248,13 +248,22 @@ typedef struct navierstokes2d_parameters {
   double  gamma;                          /* Ratio of heat capacities */
   char    upw_choice[_MAX_STRING_SIZE_];  /* choice of upwinding */
   double  grav_x, grav_y;                 /* acceleration due to gravity in x and y */
-  double  *grav_field;                    /* gravity potential field */
   double  rho0, p0;                       /* reference density and pressure at zero altitude
                                              for flows with gravity */
   double  Re;                             /* Reynolds number */
   double  Pr;                             /* Prandtl  number */
   double  Minf;                           /* Freestream Mach number */
   double  C1,C2;                          /* Sutherlands law constants */
+  double  R;                              /* universal Gas constant */
+  
+  /* arrays to store the gravity fields */
+  double  *grav_field_f, *grav_field_g;
+
+  /* choice of hydrostatic balance        */
+  /* 1 -> isothermal                      */
+  /* 2 -> constant potential temperature  */ 
+  int HB;
+
 } NavierStokes2D;
 
 int    NavierStokes2DInitialize (void*,void*);

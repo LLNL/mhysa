@@ -63,7 +63,7 @@ int NavierStokes2DSource(double *source,double *u,void *s,void *m,double t)
       double rho, uvel, vvel, e, P; _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*p),rho,uvel,vvel,e,P,param);
       double term[_MODEL_NVARS_] = {0.0, rho*RT, 0.0, rho*RT*uvel};
       for (v=0; v<_MODEL_NVARS_; v++) {
-        source[_MODEL_NVARS_*p+v] += (  (term[v]*(1.0/param->grav_field[p])) 
+        source[_MODEL_NVARS_*p+v] += (  (term[v]*param->grav_field_f[p]) 
                                       * (SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dx_inverse );
       }
       _ArrayIncrementIndex_(ndims,dim,index,done);
@@ -94,7 +94,7 @@ int NavierStokes2DSource(double *source,double *u,void *s,void *m,double t)
       double rho, uvel, vvel, e, P; _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*p),rho,uvel,vvel,e,P,param);
       double term[_MODEL_NVARS_] = {0.0, 0.0, rho*RT, rho*RT*vvel};
       for (v=0; v<_MODEL_NVARS_; v++) {
-        source[_MODEL_NVARS_*p+v] += (  (term[v]*(1.0/param->grav_field[p])) 
+        source[_MODEL_NVARS_*p+v] += (  (term[v]*param->grav_field_f[p]) 
                                       * (SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dy_inverse );
       }
       _ArrayIncrementIndex_(ndims,dim,index,done);
@@ -126,9 +126,9 @@ int NavierStokes2DSourceFunction(double *f,double *u,double *x,void *s,void *m,d
   while (!done) {
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
     (f+_MODEL_NVARS_*p)[0] = 0.0;
-    (f+_MODEL_NVARS_*p)[1] = param->grav_field[p] * (dir == _XDIR_);
-    (f+_MODEL_NVARS_*p)[2] = param->grav_field[p] * (dir == _YDIR_);
-    (f+_MODEL_NVARS_*p)[3] = param->grav_field[p];
+    (f+_MODEL_NVARS_*p)[1] = param->grav_field_g[p] * (dir == _XDIR_);
+    (f+_MODEL_NVARS_*p)[2] = param->grav_field_g[p] * (dir == _YDIR_);
+    (f+_MODEL_NVARS_*p)[3] = param->grav_field_g[p];
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }
 

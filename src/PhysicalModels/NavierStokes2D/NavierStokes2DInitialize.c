@@ -49,6 +49,8 @@ int NavierStokes2DInitialize(void *s,void *m)
   physics->grav_y = 0.0;
   physics->rho0   = 1.0;
   physics->p0     = 1.0;
+  physics->HB     = 1;
+  physics->R      = 1.0;
   strcpy(physics->upw_choice,"roe");
 
   /* reading physical model specific inputs - all processes */
@@ -59,27 +61,31 @@ int NavierStokes2DInitialize(void *s,void *m)
     if (!in) printf("Warning: File \"physics.inp\" not found. Using default values.\n");
     else {
       char word[_MAX_STRING_SIZE_];
-      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+      ferr = fscanf(in,"%s",word);                      if (ferr != 1) return(1);
       if (!strcmp(word, "begin")){
 	      while (strcmp(word, "end")){
-		      ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
+		      ferr = fscanf(in,"%s",word);                  if (ferr != 1) return(1);
           if (!strcmp(word, "gamma")) { 
-            ferr = fscanf(in,"%lf",&physics->gamma); if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->gamma);    if (ferr != 1) return(1);
           } else if (!strcmp(word,"upwinding")) {
             ferr = fscanf(in,"%s",physics->upw_choice); if (ferr != 1) return(1);
           } else if (!strcmp(word,"Pr")) {
-            ferr = fscanf(in,"%lf",&physics->Pr); if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->Pr);       if (ferr != 1) return(1);
           } else if (!strcmp(word,"Re")) {
-            ferr = fscanf(in,"%lf",&physics->Re); if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->Re);       if (ferr != 1) return(1);
           } else if (!strcmp(word,"Minf")) {
-            ferr = fscanf(in,"%lf",&physics->Minf); if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->Minf);     if (ferr != 1) return(1);
           } else if (!strcmp(word,"gravity")) {
-            ferr = fscanf(in,"%lf",&physics->grav_x); if (ferr != 1) return(1);
-            ferr = fscanf(in,"%lf",&physics->grav_y); if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->grav_x);   if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->grav_y);   if (ferr != 1) return(1);
           } else if (!strcmp(word,"rho_ref")) {
-            ferr = fscanf(in,"%lf",&physics->rho0); if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->rho0);     if (ferr != 1) return(1);
           } else if (!strcmp(word,"p_ref")) {
-            ferr = fscanf(in,"%lf",&physics->p0); if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->p0);       if (ferr != 1) return(1);
+          } else if (!strcmp(word,"HB")) {
+            ferr = fscanf(in,"%d",&physics->HB);        if (ferr != 1) return(1);
+          } else if (!strcmp(word,"R")) {
+            ferr = fscanf(in,"%lf",&physics->R);        if (ferr != 1) return(1);
           } else if (strcmp(word,"end")) {
             char useless[_MAX_STRING_SIZE_];
             ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
@@ -96,15 +102,17 @@ int NavierStokes2DInitialize(void *s,void *m)
   }
 
 #ifndef serial
-  IERR MPIBroadcast_character(physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double(&physics->gamma ,1,0,&mpi->world);                       CHECKERR(ierr);
-  IERR MPIBroadcast_double(&physics->Pr    ,1,0,&mpi->world);                       CHECKERR(ierr);
-  IERR MPIBroadcast_double(&physics->Re    ,1,0,&mpi->world);                       CHECKERR(ierr);
-  IERR MPIBroadcast_double(&physics->Minf  ,1,0,&mpi->world);                       CHECKERR(ierr);
-  IERR MPIBroadcast_double(&physics->grav_x,1,0,&mpi->world);                       CHECKERR(ierr);
-  IERR MPIBroadcast_double(&physics->grav_y,1,0,&mpi->world);                       CHECKERR(ierr);
-  IERR MPIBroadcast_double(&physics->rho0  ,1,0,&mpi->world);                       CHECKERR(ierr);
-  IERR MPIBroadcast_double(&physics->p0    ,1,0,&mpi->world);                       CHECKERR(ierr);
+  IERR MPIBroadcast_character (physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->gamma    ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Pr       ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Re       ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Minf     ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->grav_x   ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->grav_y   ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->rho0     ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->p0       ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->R        ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer   (&physics->HB       ,1                ,0,&mpi->world); CHECKERR(ierr);
 #endif
 
   /* Scaling the Reynolds number with the M_inf */
@@ -170,7 +178,8 @@ int NavierStokes2DInitialize(void *s,void *m)
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
   int d, size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
-  physics->grav_field = (double*) calloc (size, sizeof(double));
+  physics->grav_field_f = (double*) calloc (size, sizeof(double));
+  physics->grav_field_g = (double*) calloc (size, sizeof(double));
 
   return(0);
 }

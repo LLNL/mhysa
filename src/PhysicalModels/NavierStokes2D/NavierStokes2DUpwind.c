@@ -57,7 +57,7 @@ int NavierStokes2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *
        /* Harten's Entropy Fix - Page 362 of Leveque */
       int k;
       double delta = 0.000001, delta2 = delta*delta;
-      double kappa = max(param->grav_field[pL],param->grav_field[pR]);
+      double kappa = max(param->grav_field_g[pL],param->grav_field_g[pR]);
       k=0;  D[k] = kappa * (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
       k=5;  D[k] = kappa * (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
       k=10; D[k] = kappa * (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
@@ -174,7 +174,7 @@ int NavierStokes2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
       int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
       double uavg[_MODEL_NVARS_], fcL[_MODEL_NVARS_], fcR[_MODEL_NVARS_], 
              ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_];
-      double kappa = max(param->grav_field[pL],param->grav_field[pR]);
+      double kappa = max(param->grav_field_g[pL],param->grav_field_g[pR]);
 
       /* Local Lax-Friedrich upwinding scheme */
 

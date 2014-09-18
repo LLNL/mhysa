@@ -35,8 +35,11 @@ int NavierStokes2DModifiedSolution(double *uC,double *u,int d,void *s,void *m,do
 
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p); p *= _MODEL_NVARS_;
-    _ArrayScaleCopy1D_((u+p),(1.0/param->grav_field[p/_MODEL_NVARS_]),(uC+p),_MODEL_NVARS_);
+    int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
+    uC[_MODEL_NVARS_*p+0] = u[_MODEL_NVARS_*p+0] * param->grav_field_f[p];
+    uC[_MODEL_NVARS_*p+1] = u[_MODEL_NVARS_*p+1] * param->grav_field_f[p];
+    uC[_MODEL_NVARS_*p+2] = u[_MODEL_NVARS_*p+2] * param->grav_field_f[p];
+    uC[_MODEL_NVARS_*p+3] = u[_MODEL_NVARS_*p+3] / param->grav_field_g[p];
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }
   return(0);
