@@ -51,6 +51,7 @@ int NavierStokes2DInitialize(void *s,void *m)
   physics->p0     = 1.0;
   physics->HB     = 1;
   physics->R      = 1.0;
+  physics->N_bv   = 0.0;
   strcpy(physics->upw_choice,"roe");
 
   /* reading physical model specific inputs - all processes */
@@ -84,6 +85,9 @@ int NavierStokes2DInitialize(void *s,void *m)
             ferr = fscanf(in,"%lf",&physics->p0);       if (ferr != 1) return(1);
           } else if (!strcmp(word,"HB")) {
             ferr = fscanf(in,"%d",&physics->HB);        if (ferr != 1) return(1);
+            if (physics->HB==3) {
+              ferr = fscanf(in,"%lf",&physics->N_bv);   if (ferr != 1) return(1);
+            }
           } else if (!strcmp(word,"R")) {
             ferr = fscanf(in,"%lf",&physics->R);        if (ferr != 1) return(1);
           } else if (strcmp(word,"end")) {
@@ -112,6 +116,7 @@ int NavierStokes2DInitialize(void *s,void *m)
   IERR MPIBroadcast_double    (&physics->rho0     ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->p0       ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->R        ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->N_bv     ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer   (&physics->HB       ,1                ,0,&mpi->world); CHECKERR(ierr);
 #endif
 

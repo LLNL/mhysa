@@ -34,6 +34,7 @@ int NavierStokes2DGravityField(void *s,void *m,double *u)
   double T0   = p0 / (rho0 * R);
   double gx   = param->grav_x;
   double gy   = param->grav_y;
+  double Nbv  = param->N_bv;
   
   /* set the value of the gravity field */
   done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
@@ -55,6 +56,26 @@ int NavierStokes2DGravityField(void *s,void *m,double *u)
       g[p] = raiseto((1.0-(gx*xcoord+gy*ycoord)/(Cp*T0)), (gamma/(gamma-1.0)));
       _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
     }
+  } else if (param->HB == 3) {
+    while (!done) {
+      int p;         _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
+      double xcoord; _GetCoordinate_(_XDIR_,index[_XDIR_]-ghosts,dim,ghosts,solver->x,xcoord);
+      double ycoord; _GetCoordinate_(_YDIR_,index[_YDIR_]-ghosts,dim,ghosts,solver->x,ycoord);
+      if (gx != 0) {
+        if (!mpi->rank) {
+          fprintf(stderr,"Error in NavierStokes2DGravityField(): HB = 3 is implemented only for ");
+          fprintf(stderr,"gravity force along the y-coordinate.\n");
+        }
+        return(1);
+      }
+      double Pexner = 1 + ((gy*gy)/(Cp*T0*Nbv*Nbv)) * (exp(-(Nbv*Nbv/gy)*ycoord)-1.0);
+      f[p] = raiseto(Pexner, (-1.0 /(gamma-1.0))) * exp(Nbv*Nbv*ycoord/gy);
+      g[p] = raiseto(Pexner, (gamma/(gamma-1.0)));
+      _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
+    }
+  } else {
+    if (!mpi->rank) fprintf(stderr,"Error in NavierStokes2DGravityField(): Bad value for HB: %d\n",param->HB);
+    return(1);
   }
 
   /* A sensible simulation will not specify peridic boundary conditions 

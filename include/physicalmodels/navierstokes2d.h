@@ -259,10 +259,12 @@ typedef struct navierstokes2d_parameters {
   /* arrays to store the gravity fields */
   double  *grav_field_f, *grav_field_g;
 
-  /* choice of hydrostatic balance        */
-  /* 1 -> isothermal                      */
-  /* 2 -> constant potential temperature  */ 
+  /* choice of hydrostatic balance                              */
+  /* 1 -> isothermal                                            */
+  /* 2 -> constant potential temperature                        */ 
+  /* 3 -> stratified atmosphere with a Brunt-Vaisala frequency  */
   int HB;
+  double N_bv; /* the Brunt-Vaisala frequency for HB=3          */
 
 } NavierStokes2D;
 
