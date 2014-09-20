@@ -34,10 +34,11 @@
 #define _MODEL_NVARS_ 4
 
 /* choices for upwinding schemes */
-#define _ROE_   "roe"
-#define _RF_    "rf-char"
-#define _LLF_   "llf-char"
-#define _SWFS_  "steger-warming"
+#define _ROE_       "roe"
+#define _RF_        "rf-char"
+#define _LLF_       "llf-char"
+#define _SWFS_      "steger-warming"
+#define _RUSANOV_   "rusanov"
 
 /* directions */
 #define _XDIR_ 0

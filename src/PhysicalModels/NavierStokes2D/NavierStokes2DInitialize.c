@@ -10,10 +10,6 @@
 
 double NavierStokes2DComputeCFL        (void*,void*,double,double);
 int    NavierStokes2DFlux              (double*,double*,int,void*,double);
-int    NavierStokes2DUpwindRoe         (double*,double*,double*,double*,double*,double*,int,void*,double);
-int    NavierStokes2DUpwindRF          (double*,double*,double*,double*,double*,double*,int,void*,double);
-int    NavierStokes2DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
-int    NavierStokes2DUpwindSWFS        (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DRoeAverage        (double*,double*,double*,void*);
 int    NavierStokes2DLeftEigenvectors  (double*,double*,void*,int);
 int    NavierStokes2DRightEigenvectors (double*,double*,void*,int);
@@ -21,6 +17,11 @@ int    NavierStokes2DParabolicFunction (double*,double*,void*,void*,double);
 int    NavierStokes2DPreStage          (int,double**,void*,void*,double);
 int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
 int    NavierStokes2DSource            (double*,double*,void*,void*,double);
+int    NavierStokes2DUpwindRoe         (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwindRF          (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwindSWFS        (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwindRusanov     (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 int NavierStokes2DInitialize(void *s,void *m)
 {
@@ -133,10 +134,11 @@ int NavierStokes2DInitialize(void *s,void *m)
   }
   /* check that a well-balanced upwinding scheme is being used for cases with gravity */
   if (   ((physics->grav_x != 0.0) || (physics->grav_y != 0.0))
-      && (strcmp(physics->upw_choice,_LLF_)) 
-      && (strcmp(physics->upw_choice,_ROE_))                     ) {
+      && (strcmp(physics->upw_choice,_LLF_    )) 
+      && (strcmp(physics->upw_choice,_RUSANOV_)) 
+      && (strcmp(physics->upw_choice,_ROE_    ))              ) {
     if (!mpi->rank) {
-      fprintf(stderr,"Error in NavierStokes2DInitialize: %s or %s upwinding is needed for flows ",_LLF_,_ROE_);
+      fprintf(stderr,"Error in NavierStokes2DInitialize: %s, %s or %s upwinding is needed for flows ",_LLF_,_ROE_,_RUSANOV_);
       fprintf(stderr,"with gravitational forces.\n");
     }
     return(1);
@@ -155,10 +157,11 @@ int NavierStokes2DInitialize(void *s,void *m)
   solver->FFunction   = NavierStokes2DFlux;
   solver->SFunction   = NavierStokes2DSource;
   solver->UFunction   = NavierStokes2DModifiedSolution;
-  if      (!strcmp(physics->upw_choice,_ROE_ )) solver->Upwind = NavierStokes2DUpwindRoe;
-  else if (!strcmp(physics->upw_choice,_RF_  )) solver->Upwind = NavierStokes2DUpwindRF;
-  else if (!strcmp(physics->upw_choice,_LLF_ )) solver->Upwind = NavierStokes2DUpwindLLF;
-  else if (!strcmp(physics->upw_choice,_SWFS_)) solver->Upwind = NavierStokes2DUpwindSWFS;
+  if      (!strcmp(physics->upw_choice,_ROE_    )) solver->Upwind = NavierStokes2DUpwindRoe;
+  else if (!strcmp(physics->upw_choice,_RF_     )) solver->Upwind = NavierStokes2DUpwindRF;
+  else if (!strcmp(physics->upw_choice,_LLF_    )) solver->Upwind = NavierStokes2DUpwindLLF;
+  else if (!strcmp(physics->upw_choice,_SWFS_   )) solver->Upwind = NavierStokes2DUpwindSWFS;
+  else if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->Upwind = NavierStokes2DUpwindRusanov;
   else {
     fprintf(stderr,"Error in NavierStokes2DInitialize(): %s is not a valid upwinding scheme.\n",
             physics->upw_choice);

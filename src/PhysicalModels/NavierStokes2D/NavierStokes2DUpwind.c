@@ -7,7 +7,7 @@
 #include <hypar.h>
 
 /*
-  Note: Only the Roe and LLF upwinding are modified to handle flows
+  Note: Only the Roe, Rusanov and LLF upwinding are modified to handle flows
   with gravity, because they are the only ones that can be expressed
   in the well-balanced form. Refer to:
     Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme 
@@ -302,6 +302,57 @@ int NavierStokes2DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double 
 
     }
     _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
+  }
+
+  return(0);
+}
+
+int NavierStokes2DUpwindRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+{
+  HyPar           *solver = (HyPar*)          s;
+  NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
+  int             done;
+
+  int *dim  = solver->dim_local;
+
+  int bounds_outer[2], bounds_inter[2];
+  bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
+  bounds_inter[0] = dim[0]; bounds_inter[1] = dim[1]; bounds_inter[dir]++;
+
+  done = 0; int index_outer[2] = {0,0}; int index_inter[2];
+  while (!done) {
+    index_inter[0] = index_outer[0]; index_inter[1] = index_outer[1];
+    for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
+      int p; _ArrayIndex1D2_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
+      int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
+      int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
+      int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
+      int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
+      double udiff[_MODEL_NVARS_];
+
+      /* Rusanov's upwinding scheme */
+
+      udiff[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] - uL[_MODEL_NVARS_*p+0]);
+      udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
+      udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
+      udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
+
+      double c, vel[_MODEL_NDIMS_], rho,E,P;
+      _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*pL),rho,vel[0],vel[1],E,P,param);
+      c             = sqrt(param->gamma*P/rho);
+      double alphaL = c + absolute(vel[dir]);
+      _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*pR),rho,vel[0],vel[1],E,P,param);
+      c             = sqrt(param->gamma*P/rho);
+      double alphaR = c + absolute(vel[dir]);
+      double kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
+      double alpha  = kappa*max(alphaL,alphaR);
+
+      fI[_MODEL_NVARS_*p+0] = 0.5*(fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0])-alpha*udiff[0];
+      fI[_MODEL_NVARS_*p+1] = 0.5*(fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1])-alpha*udiff[1];
+      fI[_MODEL_NVARS_*p+2] = 0.5*(fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2])-alpha*udiff[2];
+      fI[_MODEL_NVARS_*p+3] = 0.5*(fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3])-alpha*udiff[3];
+    }
+    _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds_outer,index_outer,done);
   }
 
   return(0);
