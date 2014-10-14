@@ -33,7 +33,7 @@ PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec 
   /* If using a non-linear scheme with ARKIMEX methods, 
      compute the non-linear finite-difference operator */
   ierr = TSGetType(ts,&time_scheme); CHKERRQ(ierr);
-  if (!strcmp(time_scheme,TSARKIMEX)) {
+  if ((!strcmp(time_scheme,TSARKIMEX)) && (!strcmp(solver->SplitHyperbolicFlux,"yes"))) {
     ierr = solver->NonlinearInterp(solver->u,solver,mpi,(double)stagetime,
                                    solver->FFunction); CHECKERR(ierr);
   }

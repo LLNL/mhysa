@@ -52,7 +52,7 @@ PetscErrorCode PetscRHSFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt
     }
   } else {
     if (context->flag_hyperbolic == _EXPLICIT_) {
-      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction,solver->Upwind);  
+      ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction,solver->Upwind);  
       CHECKERR(ierr);
       _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
     }
