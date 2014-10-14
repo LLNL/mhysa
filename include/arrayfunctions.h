@@ -186,6 +186,19 @@
       x[arraycounter] = a[arraycounter]*b[arraycounter]+c[arraycounter]*d[arraycounter]+e[arraycounter]*f[arraycounter]; \
   }
 
+/* Element-wise AYPX y = a*y + x
+ * Arguments:
+ *  x,y     : the arrays (y=y+a*x) (int/float/double [])
+ *  a       : the constant value (int/float/double)
+ *  size    : size of the arrays (int)
+*/
+#define _ArrayAYPX_(x,a,y,size)                                                                                     \
+  {                                                                                                                 \
+    int arraycounter;                                                                                               \
+    for (arraycounter=0; arraycounter<size; arraycounter++) \
+      y[arraycounter] = a*y[arraycounter] + x[arraycounter];\
+  }
+
 /* Element-wise AXPY y = y + a*x
  * Arguments:
  *  x,y     : the arrays (y=y+a*x) (int/float/double [])
@@ -220,6 +233,19 @@
   {                                                                                                                 \
     int arraycounter;                                                                                               \
     for (arraycounter=0; arraycounter<size; arraycounter++) w[arraycounter] = a*x[arraycounter]+b*y[arraycounter]+c*z[arraycounter];  \
+  }
+
+/* Element-wise Scaled AXPY y = e*(y + a*x)
+ * Arguments:
+ *  x,y     : the arrays (y=y+a*x) (int/float/double [])
+ *  a,e     : constant values (int/float/double)
+ *  size    : size of the arrays (int)
+*/
+#define _ArrayScaledAXPY_(x,a,e,y,size)                                                                                     \
+  {                                                                                                                 \
+    int arraycounter;                                                                                               \
+    for (arraycounter=0; arraycounter<size; arraycounter++) \
+      y[arraycounter] = e*(y[arraycounter]+a*x[arraycounter]);                   \
   }
 
 /* Element-wise copy y = x
