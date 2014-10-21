@@ -24,11 +24,17 @@ typedef struct _petsccontext_ {
   int flag_hyperbolic_df; /* whether the hyperbolic df     is treated implicitly or explicitly  */
   int flag_parabolic;     /* hether the parabolic term is treated implicitly or explicitly      */
   int flag_source;        /* hether the source term is treated implicitly or explicitly         */
+
+  /* flags for Jacobian and preconditioning */
+  int flag_jfnk_nopre;    /* use unpreconditioned Jacobian-free Newton-Krylov */
+  int flag_jfnk_pre;      /* use preconditioned Jacobian-free Newton-Krylov   */
+
 } PETScContext;
 
 /* Copy Functions */
-int TransferToPETSc    (double*,Vec,void*);
-int TransferFromPETSc  (double*,Vec,void*);
+int TransferVecToPETSc    (double*,Vec,void*);
+int TransferVecFromPETSc  (double*,Vec,void*);
+int TransferMatToPETSc    (void*,Mat,void*);
 
 /* Register custom time-integration RK/ARKIMEX method */
 int PetscRegisterTIMethods (int);
@@ -39,8 +45,12 @@ PetscErrorCode PetscRHSFunctionIMEX (TS,PetscReal,Vec,Vec,void*);
 PetscErrorCode PetscIFunctionIMEX   (TS,PetscReal,Vec,Vec,Vec,void*);
 
 /* Jacobian functions for left-hand side */
-PetscErrorCode PetscIJacobianIMEX         (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);                            
-PetscErrorCode PetscJacobianFunctionIMEX  (Mat,Vec,Vec);             
+PetscErrorCode PetscIJacobianIMEX_JFNK_NoPre        (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
+PetscErrorCode PetscIJacobianIMEX_JFNK_Pre          (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
+PetscErrorCode PetscIJacobianIMEX_Jac_Pre           (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
+PetscErrorCode PetscIJacobianIMEX_JFNK_JacIsPre     (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
+PetscErrorCode PetscIJacobianIMEX_Jac_NoPre         (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
+PetscErrorCode PetscJacobianFunctionIMEX_JFNK       (Mat,Vec,Vec);             
 
 /* Other functions */
 PetscErrorCode PetscPreStage        (TS,PetscReal);

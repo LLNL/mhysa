@@ -32,7 +32,7 @@ PetscErrorCode PetscPreTimeStep(TS ts)
 
   /* get solution */
   ierr = TSGetSolution(ts,&Y);                    CHKERRQ(ierr);
-  ierr = TransferFromPETSc(solver->u,Y,context);  CHECKERR(ierr);
+  ierr = TransferVecFromPETSc(solver->u,Y,context);  CHECKERR(ierr);
   ierr = TSGetTime(ts,&waqt);                     CHKERRQ(ierr);
 
   /* Call any physics-specific pre-step function */

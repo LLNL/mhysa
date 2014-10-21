@@ -1,5 +1,6 @@
 SUBDIRS = \
   ArrayFunctions \
+  BandedMatrix \
   BoundaryConditions\
   FirstDerivative \
   HyParFunctions \
@@ -35,5 +36,6 @@ HyPar_LDADD = \
   SecondDerivative/libSecondDerivative.a \
   TridiagLU/libTridiagLU.a \
   MPIFunctions/libMPIFunctions.a \
+  BandedMatrix/libBandedMatrix.a \
   ArrayFunctions/libArrayFunctions.a \
   MathFunctions/libMathFunctions.a

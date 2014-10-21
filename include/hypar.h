@@ -104,6 +104,9 @@ typedef struct main_parameters {
    * at grid points. Layout is same as u, hyp, par, source. **Includes ghost points** */
   double *Deriv1, *Deriv2;
 
+  /* object to hold a sparse banded matrix - used for storing the Jacobian */
+  void  *Jac;
+
   /* Boundary conditions: Number of boundary zones  */
   int   nBoundaryZones;
   /* Pointer to the boundary zones: boundary zone type is defined in boundaryconditions.h */
@@ -215,6 +218,11 @@ typedef struct main_parameters {
 
   /* Function to calculate the modified solution for upwinding */
   int    (*UFunction)          (double*,double*,int,void*,void*,double);
+
+  /* Function to calculate the Jacobian for implicit time-integration */
+  int    (*JFunction)          ();
+  /* Function to calculate the preconditioning matrix for implicit time-integration */
+  int    (*PFunction)          ();
 
   /* Function to do some pre-time-integration-stage computations, if required */
   int    (*PreStage)           (int,double**,void*,void*,double);

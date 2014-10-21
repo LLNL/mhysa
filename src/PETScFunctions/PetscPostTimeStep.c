@@ -33,7 +33,7 @@ PetscErrorCode PetscPostTimeStep(TS ts)
 
   /* get solution */
   ierr = TSGetSolution(ts,&Y); CHKERRQ(ierr);
-  ierr = TransferFromPETSc(solver->u,Y,context);
+  ierr = TransferVecFromPETSc(solver->u,Y,context);
 
   /* Call any physics-specific post-step function */
   if (solver->PostStep)  { ierr = solver->PostStep(solver->u,solver,mpi,waqt); CHECKERR(ierr); }

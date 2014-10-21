@@ -78,6 +78,7 @@ AC_CONFIG_FILES([
  Makefile
  src/Makefile
  src/ArrayFunctions/Makefile
+ src/BandedMatrix/Makefile
  src/BoundaryConditions/Makefile
  src/FirstDerivative/Makefile
  src/HyParFunctions/Makefile

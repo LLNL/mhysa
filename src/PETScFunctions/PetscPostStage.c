@@ -28,7 +28,7 @@ PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec 
   mpi     = context->mpi;
 
   /* get solution */
-  ierr = TransferFromPETSc(solver->u,Y[stageindex],context); CHECKERR(ierr);
+  ierr = TransferVecFromPETSc(solver->u,Y[stageindex],context); CHECKERR(ierr);
 
   /* If using a non-linear scheme with ARKIMEX methods, 
      compute the non-linear finite-difference operator */

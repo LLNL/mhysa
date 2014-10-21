@@ -26,7 +26,7 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
   double *rhs = solver->rhs;
 
   /* copy solution from PETSc vector */
-  ierr = TransferFromPETSc(u,Y,context);                            CHECKERR(ierr);
+  ierr = TransferVecFromPETSc(u,Y,context);                            CHECKERR(ierr);
   /* apply boundary conditions and exchange data over MPI interfaces */
   ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);    CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
@@ -73,7 +73,7 @@ PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, vo
   _ArrayCopy1D_(rhs,solver->rhsref,(size*solver->nvars));
 
   /* Transfer RHS to PETSc vector */
-  ierr = TransferToPETSc(rhs,F,context); CHECKERR(ierr);
+  ierr = TransferVecToPETSc(rhs,F,context); CHECKERR(ierr);
 
   /* LHS = Ydot - F(u) */
   ierr = VecAYPX(F,-1.0,Ydot); CHKERRQ(ierr);

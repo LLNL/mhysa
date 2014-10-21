@@ -7,11 +7,11 @@
 #include <hypar.h>
 #include <petscinterface.h>
 
+/* Unpreconditioned Jacobian-free Newton Krylov */
 #undef __FUNCT__
-#define __FUNCT__ "PetscIJacobianIMEX"
-
-PetscErrorCode PetscIJacobianIMEX(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
-                                  Mat A,Mat B,void *ctxt)
+#define __FUNCT__ "PetscIJacobianIMEX_JFNK_NoPre"
+PetscErrorCode PetscIJacobianIMEX_JFNK_NoPre(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
+                                             Mat A,Mat B,void *ctxt)
 {
   PETScContext *context = (PETScContext*) ctxt;
   PetscFunctionBegin;
@@ -20,10 +20,154 @@ PetscErrorCode PetscIJacobianIMEX(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
   PetscFunctionReturn(0);
 }
 
+/* Preconditioned Jacobian-free Newton Krylov */
+#undef __FUNCT__
+#define __FUNCT__ "PetscIJacobianIMEX_JFNK_Pre"
+PetscErrorCode PetscIJacobianIMEX_JFNK_Pre(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
+                                           Mat A,Mat B,void *ctxt)
+{
+  PETScContext *context = (PETScContext*) ctxt;
+  HyPar        *solver  = context->solver;
+  MPIVariables *mpi     = context->mpi;
+  PetscErrorCode ierr;
+  PetscFunctionBegin;
+
+  double *u = solver->u;
+  void   *J = solver->Jac;
+
+  /* copy solution from PETSc vector */
+  ierr = TransferVecFromPETSc(u,Y,context);                         CHECKERR(ierr);
+  /* apply boundary conditions and exchange data over MPI interfaces */
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);    CHECKERR(ierr);
+  ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,u);             CHECKERR(ierr);
+
+  /* evaluate the Jacobian function */
+  ierr = solver->PFunction(J,u,solver,mpi,t,a);                     CHECKERR(ierr);
+  /* transfer the Jacobian to PETSc Mat */
+  ierr = TransferMatToPETSc(J,B,context);                           CHECKERR(ierr);
+
+  context->shift = a;
+  context->waqt  = t;
+  PetscFunctionReturn(0);
+}
+
+/* Specified Jacobian and preconditioning matrices */
+#undef __FUNCT__
+#define __FUNCT__ "PetscIJacobianIMEX_Jac_Pre"
+PetscErrorCode PetscIJacobianIMEX_Jac_Pre(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
+                                          Mat A,Mat B,void *ctxt)
+{
+  PETScContext *context = (PETScContext*) ctxt;
+  HyPar        *solver  = context->solver;
+  MPIVariables *mpi     = context->mpi;
+  PetscErrorCode ierr;
+  PetscFunctionBegin;
+
+  double *u = solver->u;
+  void   *J = solver->Jac;
+
+  /* copy solution from PETSc vector */
+  ierr = TransferVecFromPETSc(u,Y,context);                         CHECKERR(ierr);
+  /* apply boundary conditions and exchange data over MPI interfaces */
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);    CHECKERR(ierr);
+  ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,u);             CHECKERR(ierr);
+
+  /* evaluate the Jacobian function */
+  ierr = solver->JFunction(J,u,solver,mpi,t,a);                     CHECKERR(ierr);
+  /* transfer the Jacobian to PETSc Mat */
+  ierr = TransferMatToPETSc(J,A,context);                           CHECKERR(ierr);
+
+  /* evaluate the preconditioning function */
+  ierr = solver->PFunction(J,u,solver,mpi,t,a);                     CHECKERR(ierr);
+  /* transfer the Jacobian to PETSc Mat */
+  ierr = TransferMatToPETSc(J,B,context);                           CHECKERR(ierr);
+  
+  /* Done */
+  PetscFunctionReturn(0);
+}
+
+/* Jacobian-free Newton Krylov with specified Jacobian matrix as preconditioner */
+#undef __FUNCT__
+#define __FUNCT__ "PetscIJacobianIMEX_JFNK_JacIsPre"
+PetscErrorCode PetscIJacobianIMEX_JFNK_JacIsPre(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
+                                                Mat A,Mat B,void *ctxt)
+{
+  PETScContext *context = (PETScContext*) ctxt;
+  HyPar        *solver  = context->solver;
+  MPIVariables *mpi     = context->mpi;
+  PetscErrorCode ierr;
+  PetscFunctionBegin;
+
+  double *u = solver->u;
+  void   *J = solver->Jac;
+
+  /* copy solution from PETSc vector */
+  ierr = TransferVecFromPETSc(u,Y,context);                         CHECKERR(ierr);
+  /* apply boundary conditions and exchange data over MPI interfaces */
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);    CHECKERR(ierr);
+  ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,u);             CHECKERR(ierr);
+
+  /* evaluate the Jacobian function */
+  ierr = solver->JFunction(J,u,solver,mpi,t,a);                     CHECKERR(ierr);
+
+  /* transfer the Jacobian to PETSc Mat */
+  ierr = TransferMatToPETSc(J,B,context);                           CHECKERR(ierr);
+
+  context->shift = a;
+  context->waqt  = t;
+  /* Done */
+  PetscFunctionReturn(0);
+}
+
+/* Specified Jacobian matrix, used as preconditioner as well */
+#undef __FUNCT__
+#define __FUNCT__ "PetscIJacobianIMEX_Jac_NoPre"
+PetscErrorCode PetscIJacobianIMEX_Jac_NoPre(TS ts,PetscReal t,Vec Y,Vec Ydot,PetscReal a,
+                                            Mat A,Mat B,void *ctxt)
+{
+  PETScContext *context = (PETScContext*) ctxt;
+  HyPar        *solver  = context->solver;
+  MPIVariables *mpi     = context->mpi;
+  PetscErrorCode ierr;
+  PetscFunctionBegin;
+
+  /* check that A & B are the same matrices */
+  if (A != B) {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in PetscIJacobianIMEX_Jac_NoPre(): ");
+      fprintf(stderr,"A and B need to be the same Mat object.\n");
+    }
+    PetscFunctionReturn(1);
+  }
+
+  double *u = solver->u;
+  void   *J = solver->Jac;
+
+  /* copy solution from PETSc vector */
+  ierr = TransferVecFromPETSc(u,Y,context);                         CHECKERR(ierr);
+  /* apply boundary conditions and exchange data over MPI interfaces */
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);    CHECKERR(ierr);
+  ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,u);             CHECKERR(ierr);
+
+  /* evaluate the Jacobian function */
+  ierr = solver->JFunction(J,u,solver,mpi,t,a);                     CHECKERR(ierr);
+
+  /* transfer the Jacobian to PETSc Mat */
+  ierr = TransferMatToPETSc(J,A,context);                           CHECKERR(ierr);
+
+  /* Done */
+  PetscFunctionReturn(0);
+}
+
+/* Directional derivative evaluation of Jacobian times a vector for the
+   Jacobian-free Newton-Krylov approach */
 #undef __FUNCT__
 #define __FUNCT__ "PetscJacobianFunctionIMEX"
-
-PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
+PetscErrorCode PetscJacobianFunctionIMEX_JFNK(Mat Jacobian,Vec Y,Vec F)
 {
   PETScContext    *context = NULL;
   HyPar           *solver  = NULL;
@@ -60,7 +204,7 @@ PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
     
     double epsilon = 1e-7 / normY;
     /* copy solution from PETSc vector */
-    ierr = TransferFromPETSc(u,Y,context);                                CHECKERR(ierr);
+    ierr = TransferVecFromPETSc(u,Y,context);                                CHECKERR(ierr);
     _ArrayAYPX_(uref,epsilon,u,size*solver->nvars);
     /* apply boundary conditions and exchange data over MPI interfaces */
     ierr = solver->ApplyBoundaryConditions(solver,mpi,u   ,NULL,0,t);     CHECKERR(ierr);
@@ -101,7 +245,7 @@ PetscErrorCode PetscJacobianFunctionIMEX(Mat Jacobian,Vec Y,Vec F)
 
     _ArrayAXPY_(rhsref,-1.0,rhs,size*solver->nvars);
     /* Transfer RHS to PETSc vector */
-    ierr = TransferToPETSc(rhs,F,context);                  CHECKERR(ierr);
+    ierr = TransferVecToPETSc(rhs,F,context);                  CHECKERR(ierr);
     /* [J]Y = aY - F(Y) */
     ierr = VecAXPBY(F,context->shift,(-1.0/epsilon),Y);     CHKERRQ(ierr);
   }

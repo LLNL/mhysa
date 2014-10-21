@@ -7,9 +7,9 @@
 #include <hypar.h>
 
 #undef __FUNCT__
-#define __FUNCT__ "TransferFromPETSc"
+#define __FUNCT__ "TransferVecFromPETSc"
 
-int TransferFromPETSc(double *u,Vec Y,void *ctxt) 
+int TransferVecFromPETSc(double *u,Vec Y,void *ctxt) 
 {
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;
