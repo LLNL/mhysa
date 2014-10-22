@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <basic.h>
+#include <bandedmatrix.h>
 #include <mpivars.h>
 #include <tridiagLU.h>
 #include <boundaryconditions.h>
@@ -63,6 +64,12 @@ int Cleanup(void *s,void *m)
     IERR Numa3DCleanup(solver->physics); CHECKERR(ierr);
   }
   free(solver->physics);
+
+  /* clean up Jacobian object, if created */
+  if (solver->Jac) {
+    IERR BandedMatrixDestroy(solver->Jac); CHECKERR(ierr);
+    free(solver->Jac);
+  }
 
   /* Clean up any allocations from time-integration */
   if (solver->msti) {

@@ -12,5 +12,6 @@ typedef struct banded_matrix {
   double *data;
 } BandedMatrix;
 
-int BandedMatrixCreate  (void*,int,int,int);
-int BandedMatrixDestroy (void*);
+int BandedMatrixDestroy     (void*);
+int BandedMatrixInitialize  (void*);
+int BandedMatrixPreallocate (void*,int,int,int);

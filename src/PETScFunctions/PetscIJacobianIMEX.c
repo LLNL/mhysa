@@ -166,7 +166,7 @@ PetscErrorCode PetscIJacobianIMEX_Jac_NoPre(TS ts,PetscReal t,Vec Y,Vec Ydot,Pet
 /* Directional derivative evaluation of Jacobian times a vector for the
    Jacobian-free Newton-Krylov approach */
 #undef __FUNCT__
-#define __FUNCT__ "PetscJacobianFunctionIMEX"
+#define __FUNCT__ "PetscJacobianFunctionIMEX_JFNK"
 PetscErrorCode PetscJacobianFunctionIMEX_JFNK(Mat Jacobian,Vec Y,Vec F)
 {
   PETScContext    *context = NULL;

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <bandedmatrix.h>
 
-int BandedMatrixCreate(void *A,int nbands,int nrows_local,int BlockSize)
+int BandedMatrixPreallocate(void *A,int nbands,int nrows_local,int BlockSize)
 {
   BandedMatrix *B = (BandedMatrix*) A;
 

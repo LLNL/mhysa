@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <basic.h>
+#include <bandedmatrix.h>
 #include <interpolation.h>
 #include <mpivars.h>
 #include <hypar.h>
@@ -135,6 +136,12 @@ int InitializePhysics(void *s,void *m)
     }
   }
 
+  /* if the physical model has a JFunction or PFunction defined, 
+     then create a Jacobian matrix object */
+  if (solver->JFunction || solver->PFunction) {
+    solver->Jac = (BandedMatrix*) calloc (1,sizeof(BandedMatrix));
+    IERR BandedMatrixInitialize(solver->Jac); CHECKERR(ierr);
+  } else solver->Jac = NULL;
 
   return(0);
 }

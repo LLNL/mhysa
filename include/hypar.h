@@ -220,9 +220,9 @@ typedef struct main_parameters {
   int    (*UFunction)          (double*,double*,int,void*,void*,double);
 
   /* Function to calculate the Jacobian for implicit time-integration */
-  int    (*JFunction)          ();
+  int    (*JFunction)          (void*,double*,void*,void*,double,double);
   /* Function to calculate the preconditioning matrix for implicit time-integration */
-  int    (*PFunction)          ();
+  int    (*PFunction)          (void*,double*,void*,void*,double,double);
 
   /* Function to do some pre-time-integration-stage computations, if required */
   int    (*PreStage)           (int,double**,void*,void*,double);
