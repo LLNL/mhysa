@@ -251,6 +251,27 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Time integration */
+#ifdef with_petsc
+  if (solver->use_petscTS) {
+    /* dummy -- not used */
+    solver->TimeIntegrate = TimeForwardEuler;
+    solver->msti = NULL;
+  } else {
+    if (!strcmp(solver->time_scheme,_FORWARD_EULER_)) { 
+      solver->TimeIntegrate = TimeForwardEuler;
+      solver->msti = NULL;
+    } else if (!strcmp(solver->time_scheme,_RK_)) {
+      solver->TimeIntegrate = TimeRK;
+      solver->msti = (MSTIParameters*) calloc (1,sizeof(MSTIParameters));
+      IERR TimeMSTIInitialize(solver->time_scheme,solver->time_scheme_type,
+                              solver->msti); CHECKERR(ierr);
+    } else {
+      fprintf(stderr,"Error: %s is a not a supported time-integration scheme.\n",
+              solver->time_scheme);
+      return(1);
+    }
+  }
+#else
   if (!strcmp(solver->time_scheme,_FORWARD_EULER_)) { 
     solver->TimeIntegrate = TimeForwardEuler;
     solver->msti = NULL;
@@ -264,6 +285,7 @@ int InitializeSolvers(void *s, void *m)
             solver->time_scheme);
     return(1);
   }
+#endif
 
   /* Solution output function */
   solver->WriteOutput = NULL; /* default - no output */
