@@ -55,6 +55,21 @@ ip_type = 'ascii';
 ts = 'rk';
 tstype = '44';
 
+petsc_flags = ' ';
+% set PETSc time-integration flags (comment to turn off)
+petsc_flags = [petsc_flags, '-use-petscts '];
+petsc_flags = [petsc_flags, '-ts_type arkimex '];
+petsc_flags = [petsc_flags, '-ts_rk_type 3 '];
+petsc_flags = [petsc_flags, '-ts_adapt_type none '];
+petsc_flags = [petsc_flags, '-hyperbolic_implicit '];
+petsc_flags = [petsc_flags, '-snes_type newtonls '];
+petsc_flags = [petsc_flags, '-snes_rtol 1e-10 '];
+petsc_flags = [petsc_flags, '-snes_atol 1e-10 '];
+petsc_flags = [petsc_flags, '-ksp_type gmres '];
+petsc_flags = [petsc_flags, '-ksp_rtol 1e-10 '];
+petsc_flags = [petsc_flags, '-ksp_atol 1e-10 '];
+petsc_flags = [petsc_flags, '-log_summary'];
+
 % turn off solution output to file
 op_format = 'none';
 
@@ -71,7 +86,7 @@ for i = 1:max(size(iproc))
 end
 init_exec = './INIT > init.log 2>&1';
 hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ',hypar, ...
-               ' > run.log 2>&1'];
+               ' ',petsc_flags,' > run.log 2>&1'];
 clean_exec = 'rm -rf *.inp *.dat *.log';
 
 % preallocate arrays for dx, error and wall times
