@@ -46,7 +46,7 @@ int SolvePETSc(void *s,void *m)
   ierr = VecSetUp(Y);                                                     CHKERRQ(ierr);
 
   /* copy initial solution to PETSc's vector */
-  ierr = TransferVecToPETSc(solver->u,Y,&context);                           CHECKERR(ierr);
+  ierr = TransferVecToPETSc(solver->u,Y,&context);                        CHECKERR(ierr);
 
   /* Define and initialize the time-integration object */
   ierr = TSCreate(MPI_COMM_WORLD,&ts);                                    CHKERRQ(ierr);
