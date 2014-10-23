@@ -14,7 +14,6 @@ int    NavierStokes2DRoeAverage        (double*,double*,double*,void*);
 int    NavierStokes2DLeftEigenvectors  (double*,double*,void*,int);
 int    NavierStokes2DRightEigenvectors (double*,double*,void*,int);
 int    NavierStokes2DParabolicFunction (double*,double*,void*,void*,double);
-int    NavierStokes2DPreStage          (int,double**,void*,void*,double);
 int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
 int    NavierStokes2DSource            (double*,double*,void*,void*,double);
 int    NavierStokes2DUpwindRoe         (double*,double*,double*,double*,double*,double*,int,void*,double);
@@ -22,6 +21,7 @@ int    NavierStokes2DUpwindRF          (double*,double*,double*,double*,double*,
 int    NavierStokes2DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwindSWFS        (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwindRusanov     (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DGravityField      (void*,void*);
 
 int NavierStokes2DInitialize(void *s,void *m)
 {
@@ -170,7 +170,6 @@ int NavierStokes2DInitialize(void *s,void *m)
   solver->AveragingFunction     = NavierStokes2DRoeAverage;
   solver->GetLeftEigenvectors   = NavierStokes2DLeftEigenvectors;
   solver->GetRightEigenvectors  = NavierStokes2DRightEigenvectors;
-  solver->PreStage              = NavierStokes2DPreStage;
 
   /* set the value of gamma in all the boundary objects */
   int n;
@@ -188,6 +187,7 @@ int NavierStokes2DInitialize(void *s,void *m)
   int d, size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
   physics->grav_field_f = (double*) calloc (size, sizeof(double));
   physics->grav_field_g = (double*) calloc (size, sizeof(double));
+  IERR NavierStokes2DGravityField(solver,mpi); CHECKERR(ierr);
 
   return(0);
 }

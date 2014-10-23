@@ -6,7 +6,7 @@
 #include <hypar.h>
 #include <mpivars.h>
 
-int NavierStokes2DGravityField(void *s,void *m,double *u)
+int NavierStokes2DGravityField(void *s,void *m)
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;

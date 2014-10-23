@@ -9,6 +9,5 @@ libNavierStokes2D_a_SOURCES = \
   NavierStokes2DInitialize.c \
 	NavierStokes2DModifiedSolution.c \
 	NavierStokes2DParabolicFunction.c \
-	NavierStokes2DPreStage.c \
 	NavierStokes2DSource.c \
   NavierStokes2DUpwind.c
