@@ -5,7 +5,7 @@
 #include <hypar.h>
 #include <mpivars.h>
 
-int Euler1DGravityField(void *s,void *m,double *u)
+int Euler1DGravityField(void *s,void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

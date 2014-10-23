@@ -8,7 +8,6 @@ libEuler1D_a_SOURCES = \
 	Euler1DGravityField.c \
   Euler1DInitialize.c \
   Euler1DModifiedSolution.c \
-	Euler1DPreStage.c \
 	Euler1DSource.c \
 	Euler1DSourceUpwind.c \
   Euler1DUpwind.c

@@ -23,7 +23,6 @@ int    Euler1DGravityField      (void*,void*);
 int    Euler1DSourceUpwindLLF   (double*,double*,double*,double*,int,void*,double);
 int    Euler1DSourceUpwindRoe   (double*,double*,double*,double*,int,void*,double);
 
-int    Euler1DPreStage          (int,double**,void*,void*,double);
 int    Euler1DModifiedSolution  (double*,double*,int,void*,void*,double);
 
 int Euler1DInitialize(void *s,void *m)
@@ -123,7 +122,6 @@ int Euler1DInitialize(void *s,void *m)
   solver->AveragingFunction     = Euler1DRoeAverage;
   solver->GetLeftEigenvectors   = Euler1DLeftEigenvectors;
   solver->GetRightEigenvectors  = Euler1DRightEigenvectors;
-  solver->PreStage              = Euler1DPreStage;
    
   if      (!strcmp(physics->upw_choice,_LLF_ )) physics->SourceUpwind = Euler1DSourceUpwindLLF;
   else if (!strcmp(physics->upw_choice,_ROE_ )) physics->SourceUpwind = Euler1DSourceUpwindRoe;
@@ -133,6 +131,7 @@ int Euler1DInitialize(void *s,void *m)
   int ghosts  = solver->ghosts;
   int d, size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
   physics->grav_field = (double*) calloc (size, sizeof(double));
+  IERR Euler1DGravityField(solver,mpi); CHECKERR(ierr);
 
   return(0);
 }
