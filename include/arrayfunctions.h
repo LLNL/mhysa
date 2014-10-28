@@ -186,6 +186,18 @@
       x[arraycounter] = a[arraycounter]*b[arraycounter]+c[arraycounter]*d[arraycounter]+e[arraycounter]*f[arraycounter]; \
   }
 
+/* Element-wise convex combination z = a*x + (1-a)*y
+ * Arguments:
+ *  a,x,y,z  : the arrays (int/float/double [])
+ *  size     : size of the arrays (int)
+*/
+#define _ArrayConvexCombination1D_(z,a,x,y,size)                                                                    \
+  {                                                                                                                 \
+    int arraycounter;                                                                                               \
+    for (arraycounter=0; arraycounter<size; arraycounter++) \
+      z[arraycounter] = a[arraycounter]*x[arraycounter]+(1.0-a[arraycounter])*y[arraycounter]; \
+  }
+
 /* Element-wise AYPX y = a*y + x
  * Arguments:
  *  x,y     : the arrays (y=y+a*x) (int/float/double [])

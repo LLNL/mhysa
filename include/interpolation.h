@@ -5,6 +5,7 @@
 #define _FIFTH_ORDER_WENO_      "weno5"
 #define _FIFTH_ORDER_CRWENO_    "crweno5"
 #define _FIFTH_ORDER_HCWENO_    "hcweno5"
+#define _FIFTH_ORDER_WENO_1U_   "weno5-1u"
 
 /* interpolation type definitions */
 #define _CHARACTERISTIC_        "characteristic" /* characteristic-based interpolation */
@@ -86,6 +87,8 @@ int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,i
 int Interp1PrimFifthOrderCRWENO           (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order hybrid-compact WENO scheme */
 int Interp1PrimFifthOrderHCWENO           (double*,double*,double*,double*,int,int,void*,void*,int);
+/* Fifth-order WENO-1U scheme */
+int Interp1PrimFifthOrderWENO1U           (double*,double*,double*,double*,int,int,void*,void*,int);
 
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) on a uniform grid */
@@ -99,6 +102,8 @@ int Interp1PrimFifthOrderWENOChar         (double*,double*,double*,double*,int,i
 int Interp1PrimFifthOrderCRWENOChar       (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order hybrid-compact WENO scheme */
 int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,int,void*,void*,int);
+/* Fifth-order WENO-1U scheme */
+int Interp1PrimFifthOrderWENO1UChar       (double*,double*,double*,double*,int,int,void*,void*,int);
 
 /* functions to interpolate the second primitive 
    (for conservative discretization of the 2nd derivative) */
@@ -123,6 +128,7 @@ typedef struct parameters_weno {
   int     no_limiting;  /* Remove limiting -> 5th order polynomial interpolation  */
   double  eps;		      /* epsilon parameter                                      */
   double	p;			      /* p parameter                                            */
+  double  tol;          /* a general tolerance parameter                          */
 
   /* hybrid compact-WENO scheme related parameters 
    * References: 
