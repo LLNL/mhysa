@@ -44,7 +44,7 @@ PetscErrorCode PetscPreTimeStep(TS ts)
   /* If using a non-linear scheme with ARKIMEX methods, 
      compute the non-linear finite-difference operator */
   ierr = TSGetType(ts,&time_scheme);        CHKERRQ(ierr);
-  if ((!strcmp(time_scheme,TSARKIMEX)) && (!strcmp(solver->SplitHyperbolicFlux,"yes"))) {
+  if (!strcmp(time_scheme,TSARKIMEX)) {
     ierr = solver->NonlinearInterp(solver->u,solver,mpi,waqt,solver->FFunction); 
     CHECKERR(ierr);
   }
