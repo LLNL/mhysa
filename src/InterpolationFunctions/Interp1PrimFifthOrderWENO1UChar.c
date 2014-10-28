@@ -110,8 +110,15 @@ int Interp1PrimFifthOrderWENO1UChar(double *fI,double *fC,double *u,double *x,in
         w3 = *(ww3+p*nvars+v);
 
         /* fifth order WENO approximation of the characteristic flux */
-        fchar[v] = w1*f1 + w2*f2 + w3*f3;
+        double fweno = w1*f1 + w2*f2 + w3*f3;
 
+        /* calculate the hybridization parameter */
+        double phi, psi = min3(w1,w2,w3)/max3(w1,w2,w3);
+        if (psi < weno->tol)  phi = 0.0;
+        else                  phi = 1.0;
+
+        /* calculate the final WENO-1U flux */
+        fchar[v] = phi*fweno + (1.0-phi)*fm1;
       }
 
       /* calculate the interface u from the characteristic u */
