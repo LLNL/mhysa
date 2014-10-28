@@ -1,4 +1,4 @@
-function WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi)
+function WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,tol)
 
 %WRITEWENOINP Writes the weno.inp file for HyPar
 
@@ -12,6 +12,7 @@ fprintf(fid,'\tepsilon              %1.16e\n',eps);
 fprintf(fid,'\tp                    %1.16e\n',p);
 fprintf(fid,'\trc                   %1.16e\n',rc);
 fprintf(fid,'\txi                   %1.16e\n',xi);
+fprintf(fid,'\ttol                  %1.16e\n',tol);
 fprintf(fid,'end\n');
 fclose(fid);
 

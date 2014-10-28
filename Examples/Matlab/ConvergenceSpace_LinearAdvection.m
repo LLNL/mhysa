@@ -25,7 +25,7 @@ hypar = [path,'/bin/HyPar'];
 [~,~,~,~,~,~,~,~,~,hyp_flux_split,hyp_int_type,par_type,par_scheme,~, ...
  cons_check,screen_op_iter,file_op_iter,~, ip_type,input_mode, ...
  output_mode,n_io,op_overwrite,~,nb,bctype,dim,face,limits, ...
- mapped,borges,yc,nl,eps,p,rc,xi,lutype,norm,maxiter,atol,rtol, ...
+ mapped,borges,yc,nl,eps,p,rc,xi,wtol,lutype,norm,maxiter,atol,rtol, ...
  verbose] = SetDefaults();
 
 % set problem specific input parameters
@@ -100,7 +100,7 @@ for r = 1:ref_levels
         input_mode,output_mode,n_io,op_overwrite,model);
     WriteBoundaryInp(nb,bctype,dim,face,limits);
     WritePhysicsInp_LinearADR(adv);
-    WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi);
+    WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
     WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
     % Generate the initial and exact solution
     system(init_exec);
