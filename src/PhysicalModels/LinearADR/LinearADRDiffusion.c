@@ -5,7 +5,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int LinearADRDiffusion(double *f,double *u,int dir,void *s,double t)
+int LinearADRDiffusionG(double *f,double *u,int dir,void *s,double t)
 {
   HyPar     *solver = (HyPar*)     s;
   LinearADR *param  = (LinearADR*) solver->physics;
@@ -30,6 +30,42 @@ int LinearADRDiffusion(double *f,double *u,int dir,void *s,double t)
     for (v = 0; v < nvars; v++) f[nvars*p+v] = param->d[nvars*dir+v] * u[nvars*p+v];
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }
+
+  return(0);
+}
+
+int LinearADRDiffusionH(double *f,double *u,int dir1,int dir2,void *s,double t)
+{
+  HyPar     *solver = (HyPar*)     s;
+  LinearADR *param  = (LinearADR*) solver->physics;
+  int       i, v;
+
+  int *dim    = solver->dim_local;
+  int ghosts  = solver->ghosts;
+  int ndims   = solver->ndims;
+  int nvars   = solver->nvars;
+  int index[ndims], bounds[ndims], offset[ndims];
+
+  if (dir1 == dir2) {
+
+    int dir = dir1;
+
+    /* set bounds for array index to include ghost points */
+    _ArrayCopy1D_(dim,bounds,ndims);
+    for (i=0; i<ndims; i++) bounds[i] += 2*ghosts;
+
+    /* set offset such that index is compatible with ghost point arrangement */
+    _ArraySetValue_(offset,ndims,-ghosts);
+
+    int done = 0; _ArraySetValue_(index,ndims,0);
+    while (!done) {
+      int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
+      for (v = 0; v < nvars; v++) f[nvars*p+v] = param->d[nvars*dir+v] * u[nvars*p+v];
+      _ArrayIncrementIndex_(ndims,bounds,index,done);
+    }
+
+  } else _ArraySetValue_(f,solver->npoints_local_wghosts*nvars,0.0);
+
 
   return(0);
 }

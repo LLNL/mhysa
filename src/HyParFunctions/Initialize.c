@@ -65,9 +65,11 @@ int Initialize(void *s, void *m)
 
 #endif
 
-  solver->npoints_global = solver->npoints_local = 1;
+  solver->npoints_global = solver->npoints_local = solver->npoints_local_wghosts = 1;
   for (i=0; i<solver->ndims; i++) solver->npoints_global *= solver->dim_global[i];
   for (i=0; i<solver->ndims; i++) solver->npoints_local  *= solver->dim_local [i];
+  for (i=0; i<solver->ndims; i++) 
+    solver->npoints_local_wghosts *= (solver->dim_local[i]+2*solver->ghosts);
 
   /* Allocations */
   if (!mpi->rank) printf("Allocating data arrays.\n");

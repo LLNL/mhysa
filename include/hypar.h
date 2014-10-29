@@ -15,13 +15,13 @@ typedef struct main_parameters {
   /* Local dimensions: array of size ndims containing the local grid size in each dimension */
   int     *dim_local;
 
-  /* Global number of grid points (not include ghost points) 
+  /* Global number of grid points 
    * (product of all the elements of dim_global) */
   int     npoints_global;
 
-  /* Local number of grid points (not include ghost points) 
+  /* Local number of grid points 
    * (product of all the elements of dim_local) */
-  int     npoints_local;
+  int     npoints_local, npoints_local_wghosts;
 
   /* Number of ghost points at the boundary - it's the same along all dimensions */
   int     ghosts;
