@@ -1,0 +1,15 @@
+-------------------------------
+    MATLAB SCRIPTS
+------------------------------
+
+This folder has some MATLAB scripts which can be used to 
+quickly test convergence and errors of numerical schemes.
+
++ Scripts named 'ConvergenceSpace_xxx.m' test the convergence
+  properties of the spatial discretization operator for a smooth
+  solution of physical model 'xxx'.
+
++ Scripts named 'ConvergenceTime_xxx.m' test the convergence
+  properties of the time-integration scheme for a smooth 
+  solution of physical model 'xxx'.
+
