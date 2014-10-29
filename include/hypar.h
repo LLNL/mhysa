@@ -290,6 +290,17 @@ typedef struct main_parameters {
   int *stride_with_ghosts;
   int *stride_without_ghosts;
 
+  /* function call counts */
+  int count_hyp,
+      count_par,
+      count_sou;
+#ifdef with_petsc
+  int count_RHSFunction,
+      count_IFunction,
+      count_IJacobian,
+      count_IJacFunction;
+#endif
+
 } HyPar;
 
 /* The following functions are called by main() */

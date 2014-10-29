@@ -151,9 +151,9 @@ int main(int argc,char **argv)
   double solver_runtime = (double) walltime / 1000000.0;
   ierr = MPIMax_double(&solver_runtime,&solver_runtime,1,&mpi.world); if(ierr) return(ierr);
 
-  /* print error and walltime to file and on screen */
   if (!mpi.rank) {
     FILE *out; 
+    /* write out solution errors and wall times to file */
     out = fopen("errors.dat","w");
     for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",solver.dim_global[d]);
     for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",mpi.iproc[d]);
@@ -161,6 +161,7 @@ int main(int argc,char **argv)
     fprintf(out,"%1.16E %1.16E %1.16E   ",solver.error[0],solver.error[1],solver.error[2]);
     fprintf(out,"%1.16E %1.16E\n",solver_runtime,main_runtime);
     fclose(out);
+    /* write out conservation errors to file */
     out = fopen("conservation.dat","w");
     for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",solver.dim_global[d]);
     for (d=0; d<solver.ndims; d++) fprintf(out,"%4d ",mpi.iproc[d]);
@@ -168,6 +169,20 @@ int main(int argc,char **argv)
     for (d=0; d<solver.nvars; d++) fprintf(out,"%1.16E ",solver.ConservationError[d]);
     fprintf(out,"\n");
     fclose(out);
+    /* write out function call counts to file */
+    out = fopen("function_counts.dat","w");
+    fprintf(out,"%d\n",solver.n_iter);
+    fprintf(out,"%d\n",solver.count_hyp);
+    fprintf(out,"%d\n",solver.count_par);
+    fprintf(out,"%d\n",solver.count_sou);
+#ifdef with_petsc
+    fprintf(out,"%d\n",solver.count_RHSFunction);
+    fprintf(out,"%d\n",solver.count_IFunction);
+    fprintf(out,"%d\n",solver.count_IJacobian);
+    fprintf(out,"%d\n",solver.count_IJacFunction);
+#endif
+    fclose(out);
+    /* print solution errors, conservation errors, and wall times to screen */
     printf("L1         Error           : %1.16E\n",solver.error[0]);
     printf("L2         Error           : %1.16E\n",solver.error[1]);
     printf("Linfinity  Error           : %1.16E\n",solver.error[2]);

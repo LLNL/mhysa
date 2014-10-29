@@ -35,6 +35,7 @@ int ParabolicFunctionNC1_5Stage(double *par,double *u,void *s,void *m,double t)
   double  *dxinv  = solver->dxinv;
 
   if (!solver->HFunction) return(0); /* zero parabolic terms */
+  solver->count_par++;
 
   int index[ndims];
   int size = 1;

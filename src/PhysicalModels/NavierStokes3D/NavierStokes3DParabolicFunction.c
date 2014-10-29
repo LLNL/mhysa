@@ -32,6 +32,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
 
   _ArraySetValue_(par,size,0.0);
   if (physics->Re <= 0) return(0); /* inviscid flow */
+  solver->count_par++;
 
   static double two_third    = 2.0/3.0;
   double        inv_gamma_m1 = 1.0 / (physics->gamma-1.0);

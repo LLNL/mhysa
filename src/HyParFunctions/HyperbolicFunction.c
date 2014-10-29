@@ -34,6 +34,7 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t,int LimFla
   _ArraySetValue_(hyp,size*nvars,0.0);
   _ArraySetValue_(solver->StageBoundaryIntegral,2*ndims*nvars,0.0);
   if (!FluxFunction) return(0); /* zero hyperbolic term */
+  solver->count_hyp++;
 
   int offset = 0;
   for (d = 0; d < ndims; d++) {

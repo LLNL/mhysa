@@ -135,5 +135,13 @@ int Initialize(void *s, void *m)
   solver->TotalBoundaryIntegral = (double*) calloc (solver->nvars,sizeof(double));
   solver->ConservationError     = (double*) calloc (solver->nvars,sizeof(double));
 
+  /* initialize function call counts to zero */
+  solver->count_hyp = solver->count_par = solver->count_sou = 0;
+#ifdef with_petsc
+  solver->count_RHSFunction = solver->count_IFunction
+    = solver->count_IJacobian = solver->count_IJacFunction 
+    = 0;
+#endif
+
   return(0);
 }

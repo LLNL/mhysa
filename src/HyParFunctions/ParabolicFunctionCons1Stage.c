@@ -26,6 +26,7 @@ int ParabolicFunctionCons1Stage(double *par,double *u,void *s,void *m,double t)
 
   _ArraySetValue_(par,size*nvars,0.0);
   if (!solver->GFunction) return(0); /* zero parabolic term */
+  solver->count_par++;
 
   int offset = 0;
   for (d = 0; d < ndims; d++) {

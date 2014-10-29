@@ -30,6 +30,7 @@ int SourceFunction(double *source,double *u,void *s,void *m,double t)
   /* call the source function of the physics model, if available */
   if (solver->SFunction) {
     IERR solver->SFunction(source,u,solver,mpi,t); CHECKERR(ierr);
+    solver->count_sou++;
   }
 
   /* Apart from other source terms, implement sponge BC as a source */

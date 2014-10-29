@@ -31,6 +31,7 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
 
   _ArraySetValue_(par,size,0.0);
   if (physics->mu <= 0) return(0); /* inviscid flow */
+  solver->count_par++;
 
   static double two_third = 2.0/3.0;
   double        mu        = physics->mu;        

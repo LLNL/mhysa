@@ -282,8 +282,11 @@ int SolvePETSc(void *s,void *m)
   ierr = TSSolve(ts,Y);                                                   CHKERRQ(ierr);
   if (!mpi->rank) printf("** Completed PETSc time integration **\n");
 
+  /* Get the number of time steps */
+  ierr = TSGetTimeStepNumber(ts,&solver->n_iter);                         CHKERRQ(ierr);
+
   /* copy final solution from PETSc's vector */
-  ierr = TransferVecFromPETSc(solver->u,Y,&context);
+  ierr = TransferVecFromPETSc(solver->u,Y,&context);                      CHECKERR(ierr);
 
   /* clean up */
   if (!strcmp(time_scheme,TSARKIMEX)) {
