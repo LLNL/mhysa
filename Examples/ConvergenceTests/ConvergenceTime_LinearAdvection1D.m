@@ -1,5 +1,6 @@
 % Script to test the time convergence rate
-% for a smooth solution of the 1D Euler equations
+% for a smooth solution of the linear advection 
+% equation
 
 clear all;
 close all;
@@ -8,7 +9,7 @@ close all;
 system('rm -rf *.dat *.inp *.log INIT');
 
 fprintf('Time convergence test on a smooth solution ');
-fprintf('to the 1D Euler equations.\n');
+fprintf('to the linear advection equation.\n');
 
 % Ask for path to HyPar source directory
 hypar_path = input('Enter path to HyPar source: ','s');
@@ -18,7 +19,7 @@ path(path,strcat(hypar_path,'/Examples/Matlab/'));
 
 % Compile the code to generate the initial solution
 cmd = ['g++ ',hypar_path, ...
-       '/Examples/1D/Euler1D/DensitySineWave/aux/init.C ', ...
+       '/Examples/1D/LinearAdvection/SineWave/aux/init.C ', ...
        '-o INIT'];
 system(cmd);
 % find the HyPar binary
@@ -27,22 +28,19 @@ hypar = [hypar_path,'/bin/HyPar'];
 % Get the default
 [~,~,~,~,~,niter,~,~,~, ...
     hyp_flux_split,hyp_int_type,par_type,par_scheme,~,cons_check, ...
-    screen_op_iter,file_op_iter,~, ~,input_mode, ...
+    screen_op_iter,file_op_iter,~, ip_type,input_mode, ...
     output_mode,n_io,op_overwrite,~,nb,bctype,dim,face,limits, ...
     mapped,borges,yc,nl,eps,p,rc,xi,wtol,lutype,norm,maxiter,atol,rtol, ...
     verbose] = SetDefaults();
 
-% Set initial solution file type to ASCII
-ip_type = 'ascii';
-
 % set problem specific input parameters
 ndims = 1;
-nvars = 3;
+nvars = 1;
 iproc = 1;
 ghost = 3;
 
 % specify a nice, high-order spatial discretization scheme
-hyp_scheme = 'weno5';
+hyp_scheme = 'crweno5';
 
 % for spatial convergence, use very small time step
 dt = [0.0001 0.0002 0.0005 0.001 0.002 0.005 ...
@@ -50,13 +48,11 @@ dt = [0.0001 0.0002 0.0005 0.001 0.002 0.005 ...
 t_final = 1.0;
 
 % maximum expected error
-maxerr = 1.0;
+maxerr = 10.0;
 
 % set physical model and related parameters
-model = 'euler1d';
-gamma = 1.4;
-grav  = 0.0;
-upw   = 'roe';
+model = 'linear-advection-diffusion-reaction';
+adv = 1.0;
 
 % time integration methods to test
 ts = [ ...
@@ -166,7 +162,7 @@ for j = schemes
             file_op_iter,op_format,ip_type,input_mode,output_mode, ...
             n_io,op_overwrite,model);
         WriteBoundaryInp(nb,bctype,dim,face,limits);
-        WritePhysicsInp_Euler1D(gamma,grav,upw);
+        WritePhysicsInp_LinearADR(adv);
         WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
         WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
         % Generate the initial and exact solution
