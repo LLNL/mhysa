@@ -185,10 +185,10 @@ for j = schemes
     L2Errors = Errors(:,2);
     
     % To be used in setting axis limits
-    MinErr(j)  = min(L2Errors(L2Errors>0));
-    MaxErr(j)  = max(L2Errors(L2Errors<maxerr));
-    MinCost(j) = min(FCounts((FCounts>0)&(L2Errors<maxerr)));
-    MaxCost(j) = max(FCounts);
+    MinErr(count)  = min(L2Errors(L2Errors>0));
+    MaxErr(count)  = max(L2Errors(L2Errors<maxerr));
+    MinCost(count) = min(FCounts((FCounts>0)&(L2Errors<maxerr)));
+    MaxCost(count) = max(FCounts);
 
     % plot errors
     figure(figErrDt);
