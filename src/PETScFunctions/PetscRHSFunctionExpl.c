@@ -18,6 +18,7 @@ PetscErrorCode PetscRHSFunctionExpl(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt
   int             ierr     = 0, d;
 
   PetscFunctionBegin;
+  solver->count_RHSFunction++;
   
   int size = 1;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);

@@ -14,7 +14,10 @@ PetscErrorCode PetscIJacobianIMEX_JFNK_NoPre(TS ts,PetscReal t,Vec Y,Vec Ydot,Pe
                                              Mat A,Mat B,void *ctxt)
 {
   PETScContext *context = (PETScContext*) ctxt;
+  HyPar        *solver  = context->solver;
+
   PetscFunctionBegin;
+  solver->count_IJacobian++;
   context->shift = a;
   context->waqt  = t;
   PetscFunctionReturn(0);
@@ -31,6 +34,7 @@ PetscErrorCode PetscIJacobianIMEX_JFNK_Pre(TS ts,PetscReal t,Vec Y,Vec Ydot,Pets
   MPIVariables *mpi     = context->mpi;
   PetscErrorCode ierr;
   PetscFunctionBegin;
+  solver->count_IJacobian++;
 
   double *u = solver->u;
   void   *J = solver->Jac;
@@ -63,6 +67,7 @@ PetscErrorCode PetscIJacobianIMEX_Jac_Pre(TS ts,PetscReal t,Vec Y,Vec Ydot,Petsc
   MPIVariables *mpi     = context->mpi;
   PetscErrorCode ierr;
   PetscFunctionBegin;
+  solver->count_IJacobian++;
 
   double *u = solver->u;
   void   *J = solver->Jac;
@@ -99,6 +104,7 @@ PetscErrorCode PetscIJacobianIMEX_JFNK_JacIsPre(TS ts,PetscReal t,Vec Y,Vec Ydot
   MPIVariables *mpi     = context->mpi;
   PetscErrorCode ierr;
   PetscFunctionBegin;
+  solver->count_IJacobian++;
 
   double *u = solver->u;
   void   *J = solver->Jac;
@@ -133,6 +139,7 @@ PetscErrorCode PetscIJacobianIMEX_Jac_NoPre(TS ts,PetscReal t,Vec Y,Vec Ydot,Pet
   MPIVariables *mpi     = context->mpi;
   PetscErrorCode ierr;
   PetscFunctionBegin;
+  solver->count_IJacobian++;
 
   /* check that A & B are the same matrices */
   if (A != B) {
@@ -179,6 +186,7 @@ PetscErrorCode PetscJacobianFunctionIMEX_JFNK(Mat Jacobian,Vec Y,Vec F)
   ierr   = MatShellGetContext(Jacobian,&context); CHKERRQ(ierr);
   solver = context->solver;
   mpi    = context->mpi;
+  solver->count_IJacFunction++;
 
   int size = 1;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
