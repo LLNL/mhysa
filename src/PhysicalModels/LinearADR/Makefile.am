@@ -7,4 +7,5 @@ libLinearADR_a_SOURCES = \
   LinearADRAdvection.c \
   LinearADRDiffusion.c \
   LinearADRReaction.c \
+	LinearADRJacobian.c \
   LinearADRUpwind.c

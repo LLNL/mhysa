@@ -49,6 +49,7 @@ int InitializePhysics(void *s,void *m)
   solver->AveragingFunction     = NULL;
   solver->GetLeftEigenvectors   = NULL;
   solver->GetRightEigenvectors  = NULL;
+  solver->Jac                   = NULL;
 
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
 
@@ -135,13 +136,5 @@ int InitializePhysics(void *s,void *m)
       return(1);
     }
   }
-
-  /* if the physical model has a JFunction or PFunction defined, 
-     then create a Jacobian matrix object */
-  if (solver->JFunction || solver->PFunction) {
-    solver->Jac = (BandedMatrix*) calloc (1,sizeof(BandedMatrix));
-    IERR BandedMatrixInitialize(solver->Jac); CHECKERR(ierr);
-  } else solver->Jac = NULL;
-
   return(0);
 }
