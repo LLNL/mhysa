@@ -1,0 +1,35 @@
+1D LINEAR ADVECTION
+
+  du      du
+  --  + a --  = 0
+  dt      dx
+
+  0 <= x <= 1; Periodic
+  a = advection speed
+
+Initial Solution:
+  u(x,0) = u0(x) = 0.5 + [sin(2*pi*x)]^4
+
+Exact solution:
+  u(x,t) = u0(x-a*t)
+
+Although the solution is smooth, it has critical
+points with vanishing derivatives. Thus, it is a
+good test for the implementation of non-linear
+weights in WENO-type schemes.
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
+
+** See hypar/README for other (optional) input files
+
+Notes:-
+The code aux/init.C is an example to generate the initial
+solution file in the correct format required by the solver. 
+The exact solution file also needs to be in the same format.
+
+In this case, the exact solution is the same as the initial
+solution for an integral number of passes over the the 
+periodic domain.
