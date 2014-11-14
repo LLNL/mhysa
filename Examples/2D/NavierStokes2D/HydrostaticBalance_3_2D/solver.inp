@@ -2,9 +2,9 @@ begin
   ndims               2
   nvars               4
   size                1200 50
-  iproc               6 1
+  iproc               12 1
   ghost               3
-  n_iter              1000
+  n_iter              6000
   restart_iter        0
   time_scheme         rk
   time_scheme_type    ssprk3
@@ -13,10 +13,10 @@ begin
   hyp_interp_type     components
   par_space_type      nonconservative-2stage
   par_space_scheme    4
-  dt                  0.25
+  dt                  0.5
   conservation_check  no
   screen_op_iter      1
-  file_op_iter        250
+  file_op_iter        240
   input_mode          serial
   ip_file_type        binary
   output_mode         serial

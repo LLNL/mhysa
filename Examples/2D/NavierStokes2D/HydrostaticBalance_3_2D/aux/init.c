@@ -112,6 +112,14 @@ int main()
   double Cv =         R * inv_gamma_m1;
   double T_ref = p_ref / (R*rho_ref);
 
+  /* initial perturbation parameters */
+  double pi = 4.0*atan(1.0);
+  double tc = 0.01;
+  double hc = 10000;
+  double ac = 5000;
+  double xc = 100000;
+  double uc = 20.0;
+
 	for (i = 0; i < NI; i++){
     for (k = 0; k < NK; k++){
     	x[i] = xmin + i*dx;
@@ -121,10 +129,10 @@ int main()
       double theta  = T_ref*exp(BV*BV*z[k]/grav_y);
       double Pexner = 1.0 + ((grav_y*grav_y)/(Cp*T_ref*BV*BV))*(exp(-BV*BV*z[k]/grav_y)-1.0);
       double rho    = (p_ref/(R*theta)) * raiseto(Pexner,inv_gamma_m1);
-      double E      = Cv * theta * Pexner;
+      double E      = Cv * theta * Pexner + 0.5 * (uc * uc);
 
       U[4*p+0] = rho;
-      U[4*p+1] = 0.0;
+      U[4*p+1] = rho*uc;
       U[4*p+2] = 0.0;
       U[4*p+3] = rho*E;
     }
