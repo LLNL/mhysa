@@ -45,11 +45,11 @@ The following input files are required:
 ** See hypar/README for other (optional) input files
 
 Visualizing the solution in Tecplot:
-1) Make sure op_file_format is set to binary in solver.inp.
-2) Compile and run aux/PostProcess.c after the simulation is
-   over.
-3) If op_overwrite in solver.inp is set to "yes", then 
-   aux/solution.lay is a Tecplot layout file that can be used
-   to plot the solution. If op_overwrite is set to "no", choose
-   any of the op_xxxxx.dat files, rename it to "op.dat", and use
-   aux/solution.lay to visualize it in Tecplot.
+1)  Make sure op_file_format is set to binary in solver.inp.
+2)  Compile and run aux/PostProcess.c after the simulation is
+    over.
+3a) Choose text output and use PlotSolution.m to plot in MATLAB
+*or*
+3b) Choose Tecplot output and plot in Tecplot. The file solution.lay
+    is a Tecplot layout file to plot a single file 'op.dat'. It can
+    be used to plot the solution.

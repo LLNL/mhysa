@@ -87,7 +87,35 @@ void WriteTecplot2D(int nvars,int imax, int jmax,double *x,double *u,char *f)
   return;
 }
 
-int PostProcess(char *fname, char *oname, void *p)
+void WriteText2D(int nvars,int imax, int jmax,double *x,double *u,char *f)
+{
+  printf("\tWriting text solution file %s.\n",f);
+  FILE *out;
+  out = fopen(f,"w");
+  if (!out) {
+    fprintf(stderr,"Error: could not open %s for writing.\n",f);
+    return;
+  }
+
+  double *X = x;
+  double *Y = x+imax;
+
+  /* writing the data */
+  int i,j;
+  for (j=0; j<jmax; j++) {
+    for (i=0; i<imax; i++) {
+      int v, p = i + imax*j;
+      fprintf(out,"%4d %4d ",i,j);
+      fprintf(out,"%1.16E %1.16E ",X[i],Y[j]);
+      for (v=0; v<nvars; v++) fprintf(out,"%1.16E ",u[nvars*p+v]);
+      fprintf(out,"\n");
+    }
+  }
+  fclose(out);
+  return;
+}
+
+int PostProcess(char *fname, char *oname, void *p, int flag)
 {
   Parameters *params = (Parameters*) p;
   FILE *in; in = fopen(fname,"rb");
@@ -179,8 +207,9 @@ int PostProcess(char *fname, char *oname, void *p)
     }
   }
 
-  /* write Tecplot file */
-  WriteTecplot2D(nvars+evars,imax,jmax,x,Q,oname);
+  /* write Tecplot/Text file */
+  if (flag) WriteTecplot2D(nvars+evars,imax,jmax,x,Q,oname);
+  else      WriteText2D   (nvars+evars,imax,jmax,x,Q,oname);
 
   /* clean up */
   free(U);
@@ -192,6 +221,15 @@ int main()
 {
   FILE *out1, *out2, *in, *inputs;
   char filename[50], op_file_format[50], tecfile[50], overwrite[50];
+
+  int flag;
+  printf("Write tecplot file (1) or plain text file (0): ");
+  scanf("%d",&flag);
+
+  if ((flag != 1) && (flag != 0)) {
+    printf("Error: Invalid input. Should be 1 or 0.\n");
+    return(0);
+  }
 
   printf("Reading solver.inp.\n");
   inputs = fopen("solver.inp","r");
@@ -263,7 +301,7 @@ int main()
       tecfile[9]  = 'd';
       tecfile[10] = 'a';
       tecfile[11] = 't';
-      int err = PostProcess(filename, tecfile, &params);
+      int err = PostProcess(filename, tecfile, &params, flag);
       if (err == -1) {
         printf("No more files found. Exiting.\n");
         break;
@@ -277,7 +315,7 @@ int main()
     tecfile[3] = 'd';
     tecfile[4] = 'a';
     tecfile[5] = 't';
-    int err = PostProcess(filename, tecfile, &params);
+    int err = PostProcess(filename, tecfile, &params, flag);
     if (err == -1) {
       printf("Error: op.bin not found.\n");
       return(0);
