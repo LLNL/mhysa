@@ -8,7 +8,7 @@ clear all;
 close all;
 
 % remove all useless files
-system('rm -rf *.dat *.inp *.log INIT');
+system('rm -rf *.dat *.inp *.log *.bin *.eps INIT PP');
 
 % Ask for path to HyPar source directory
 hypar_path = input('Enter path to HyPar source: ','s');
@@ -52,9 +52,9 @@ hyp_scheme      = 'weno5';
 hyp_int_type    = 'components';
 hyp_flux_split  = 'no';
 % parameters controlling the WENO-type schemes
-mapped  = 1;
+mapped  = 0;
 borges  = 0;
-yc      = 0;
+yc      = 1;
 nl      = 0;
 eps     = 1e-6;
 
@@ -65,14 +65,17 @@ niter   = int32(t_final/dt);
 
 % set physical model and related parameters
 model     = 'navierstokes2d';
-gamma     = 1.4;
-grav      = [0.0 9.8];
-upw       = 'rusanov';
-rho_ref   = 1.1612055171196529;
-p_ref     = 100000.0;
-HB        = 3;
-BV        = 0.01;
-GasConst  = 287.058;
+gamma     = 1.4;                  % specific heat ratio
+upw       = 'rusanov';            % choice of upwinding scheme
+Prandtl   = 0.72;                 % Prandtl number
+Reynolds  = -1.0;                 % Inviscid flow
+Minf      = 1.0;                  % reference Mach number
+grav      = [0.0 9.8];            % gravitational force vector
+rho_ref   = 1.1612055171196529;   % reference altitude density
+p_ref     = 100000.0;             % reference altitude pressure
+HB        = 3;                    % type of hydrostatic balance
+BV        = 0.01;                 % Brunt-Vaisala frequency
+GasConst  = 287.058;              % Universal gas constant
 
 % other options
 cons_check      = 'no';
@@ -123,7 +126,6 @@ end
 init_exec = './INIT > init.log 2>&1';
 hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ',hypar, ...
                ' ',petsc_flags];
-clean_exec = 'rm -rf *.inp *.dat *.log';
 
 % write the input files for HyPar
 WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,ts,tstype, ...
@@ -131,7 +133,8 @@ WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,ts,tstype, ...
     dt,cons_check,screen_op_iter,file_op_iter,op_format,ip_type, ...
     input_mode,output_mode,n_io,op_overwrite,model);
 WriteBoundaryInp(nb,bctype,bcdim,face,limits,WallVel1,WallVel2);
-WritePhysicsInp_NavierStokes2D(gamma,grav,upw,rho_ref,p_ref,HB,BV,GasConst);
+WritePhysicsInp_NavierStokes2D(gamma,upw,Prandtl,Reynolds,Minf,grav, ...
+                               rho_ref,p_ref,HB,BV,GasConst);
 WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
 WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
 % Generate initial solution
@@ -257,8 +260,19 @@ else
     print(figSolution,'-depsc',['Contour.eps']);
     print(figCrossSec,'-depsc',['CrossSc.eps']);
 end
-%clean up
-system(clean_exec);
+
+% create the directory to save the solution and plots in
+timestamp = clock;
+dumpname = strcat(sprintf('%04d',timestamp(1)),'_',...
+                  sprintf('%02d',timestamp(2)),'_',...
+                  sprintf('%02d',timestamp(3)),'_',...
+                  sprintf('%02d',timestamp(4)),'_',...
+                  sprintf('%02d',timestamp(5)));
+if (~exist(dumpname,'file'))
+      system(['rm -rf ',dumpname]);
+end
+mkdir(dumpname);
+system(['mv op* *.eps ',dumpname,'/']);
 
 % clean up
-system('rm -rf INIT');
+system('rm -rf *.dat *.inp *.log *.bin *.eps INIT PP');
