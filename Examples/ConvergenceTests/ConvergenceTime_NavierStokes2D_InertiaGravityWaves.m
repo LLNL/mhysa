@@ -46,7 +46,7 @@ ts = [ ...
         'rk     '  ...
      ];
 tstype = [
-            '2e    '; ...
+            'a2    '; ...
             '3     '; ...
             '4     '; ...
             '22    '; ...
@@ -61,21 +61,21 @@ schemes   = [1,2,3,4,5,6];
 t_final = 10.0;
 
 % time step sizes
-dt_implicit = [0.01 0.02 0.05 0.1 0.2 0.5 1.0 2.0];
+dt_implicit = [0.01 0.02 0.05 0.1 0.2 0.5 1.0 2.0 5.0];
 dt_explicit = [0.01 0.02 0.05 0.1 0.2 0.5];
 
 % plotting styles
 style = [ ...
           '-ko'; ...
           '-ks'; ...
-          '-kd'; ...
+          '-k^'; ...
           '-bo'; ...
           '-bs'; ...
-          '-bp'; ...
+          '-b^'; ...
         ];
     
 % maximum expected error
-maxerr = 1.0;
+maxerr = 10.0;
 
 % set up problem specific parameters
 ndims = 2;                  % number of space dimensions
@@ -92,20 +92,23 @@ par_type        = 'nonconservative-2stage';
 % parameters controlling the WENO-type schemes
 mapped  = 0;
 borges  = 0;
-yc      = 1;
-nl      = 0;
+yc      = 0;
+nl      = 1;
 eps     = 1e-6;
 
 % set physical model and related parameters
 model     = 'navierstokes2d';
-gamma     = 1.4;
-grav      = [0.0 9.8];
-upw       = 'rusanov';
-rho_ref   = 1.1612055171196529;
-p_ref     = 100000.0;
-HB        = 3;
-BV        = 0.01;
-GasConst  = 287.058;
+gamma     = 1.4;                  % specific heat ratio
+upw       = 'rusanov';            % choice of upwinding scheme
+Prandtl   = 0.72;                 % Prandtl number
+Reynolds  = -1.0;                 % Inviscid flow
+Minf      = 1.0;                  % reference Mach number
+grav      = [0.0 9.8];            % gravitational force vector
+rho_ref   = 1.1612055171196529;   % reference altitude density
+p_ref     = 100000.0;             % reference altitude pressure
+HB        = 3;                    % type of hydrostatic balance
+BV        = 0.01;                 % Brunt-Vaisala frequency
+GasConst  = 287.058;              % Universal gas constant
 % other options
 cons_check      = 'no';
 screen_op_iter  = 10;
@@ -136,9 +139,11 @@ init_exec = './INIT > init.log 2>&1';
 RefFlag = input('Generate reference solution? ','s');
 if (strcmp(RefFlag,'yes'))
     fprintf('Generating reference solution...\n');
-    dt_ref = 0.05 * min(dt);    % small time step for reference solution
-    ts_ref = 'rk';              % explicit RK to generate the ref. soln
-    tstype_ref = '44';          % 4-stage, 4th order
+    % small time step for reference solution
+    dt_ref = 0.05 * min(min(dt_implicit),min(dt_explicit));    
+    % use explicit RK 4-stage, 4th order
+    ts_ref = 'rk';              
+    tstype_ref = '44';          
     niter = int32(t_final/dt_ref);
     % Write out the input files for HyPar
     WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,ts_ref, ...
@@ -147,7 +152,8 @@ if (strcmp(RefFlag,'yes'))
         file_op_iter,op_format,ip_type,input_mode,output_mode, ...
         n_io,op_overwrite,model);
     WriteBoundaryInp(nb,bctype,bcdim,face,limits,WallVel1,WallVel2);
-    WritePhysicsInp_NavierStokes2D(gamma,grav,upw,rho_ref,p_ref,HB,BV,GasConst);
+    WritePhysicsInp_NavierStokes2D(gamma,upw,Prandtl,Reynolds,Minf,grav, ...
+                                   rho_ref,p_ref,HB,BV,GasConst);
     WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
     WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
     % Generate the initial solution
@@ -171,7 +177,8 @@ if (strcmp(RefFlag,'yes'))
     system('mv solution.inp reference.bin');
     system('mv run.log reference.log');
     % save the reference solution and log in a separate directory
-    dir_name = strcat('refsoln_',sprintf('%d_',N),hyp_scheme);
+    dir_name = strcat('refsoln_',sprintf('%04d_',N),hyp_scheme, ...
+                      '_',sprintf('%04.1f',t_final));
     mkdir(dir_name);
     system(['mv op.dat reference.bin reference.log ',dir_name]);
     system(['ln -sf ',dir_name,'/reference.bin reference.bin']);
@@ -231,13 +238,16 @@ for j = schemes
             petsc_flags2 = sprintf('%s', ...
                 '-hyperbolic_implicit ', ...
                 '-snes_type newtonls ', ...
-                '-snes_rtol 1e-10 ', ...
-                '-snes_atol 1e-10 ', ...
+                '-snes_rtol 1e-6 ', ...
+                '-snes_atol 1e-6 ', ...
+                '-snes_stol 1e-16 ', ...
                 '-ksp_type gmres ', ...
-                '-ksp_rtol 1e-10 ', ...
-                '-ksp_atol 1e-10 ', ...
+                '-ksp_rtol 1e-6 ', ...
+                '-ksp_atol 1e-6 ', ...
                 '-ksp_max_it 1000 ', ...
                 '-snes_max_it 1000 ', ...
+                '-ksp_monitor ', ...
+                '-snes_monitor ', ...
                 ' ');
         else
             petsc_flags2 = ' ';
@@ -281,7 +291,8 @@ for j = schemes
             file_op_iter,op_format,ip_type,input_mode,output_mode, ...
             n_io,op_overwrite,model);
         WriteBoundaryInp(nb,bctype,bcdim,face,limits,WallVel1,WallVel2);
-        WritePhysicsInp_NavierStokes2D(gamma,grav,upw,rho_ref,p_ref,HB,BV,GasConst);
+        WritePhysicsInp_NavierStokes2D(gamma,upw,Prandtl,Reynolds,Minf,grav, ...
+                                       rho_ref,p_ref,HB,BV,GasConst);
         WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
         WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
         % Generate the initial
@@ -311,25 +322,25 @@ for j = schemes
         % Read in function counts
         [~,FCounts(r),~,~,~,~,~,~] = ReadFunctionCounts();
         % Clean up
-        system('rm -rf *.inp *.log *.dat op.bin');
+        system('rm -rf *.inp *.log *.dat op.*');
     end
     
     % Isolate the L2 Error
     L2Errors = Errors(:,2);
 
     % To be used in setting axis limits
-    MinErr(j)  = min(L2Errors(L2Errors>0));
-    MaxErr(j)  = max(L2Errors(L2Errors<maxerr));
+    MinErr(j)  = max(1e-16,min(L2Errors));
+    MaxErr(j)  = min(maxerr,max(L2Errors));
     MinCost(j) = min(FCounts((FCounts>0)&(L2Errors<maxerr)));
     MaxCost(j) = max(FCounts);
     
     % plot errors
     figure(figErrDt);
-    loglog(dt,Errors(:,2),style(count,:),'linewidth',2,'MarkerSize',10);
+    loglog(dt,Errors(:,2),style(j,:),'linewidth',1,'MarkerSize',10);
     hold on;
     % plot cost
     figure(figErrCost);
-    loglog(FCounts,Errors(:,2),style(count,:),'linewidth',2, ...
+    loglog(FCounts,Errors(:,2),style(j,:),'linewidth',1, ...
            'MarkerSize',10);
     hold on;
 
@@ -339,9 +350,9 @@ end
 figure(figErrDt);
 xlabel('dt','FontName','Times','FontSize',20,'FontWeight','normal');
 ylabel('Error','FontName','Times','FontSize',20,'FontWeight','normal');
-set(gca,'FontSize',14,'FontName','Times');
+set(gca,'FontSize',12,'FontName','Times');
 legend(legend_str,'Location','northwest');
-axis([min(dt)/2 2*max(dt) min(MinErr)/2 2*max(MaxErr)]);
+axis([min(dt_implicit)/2 2*max(dt_implicit) min(MinErr)/2 10*max(MaxErr)]);
 grid on;
 hold off;
 
@@ -350,11 +361,24 @@ ylabel('Error (L_2)','FontName','Times','FontSize',20, ...
        'FontWeight','normal');
 xlabel('Number of RHS function calls','FontName','Times', ...
        'FontSize',20,'FontWeight','normal');
-set(gca,'FontSize',14,'FontName','Times');
+set(gca,'FontSize',12,'FontName','Times');
 legend(legend_str,'Location','northeast');
-axis([min(MinCost)/2 2*max(MaxCost) min(MinErr)/2 2*max(MaxErr)]);
+axis([min(MinCost)/2 2*max(MaxCost) min(MinErr)/2 10*max(MaxErr)]);
 grid on;
 hold off;
+
+% print plots to file
+filename = strcat('Error_Timestep_', ...
+                  sprintf('%04d',N(1)),'_', ...
+                  sprintf('%04d',N(2)),'_', ...
+                  hyp_scheme,'.eps');
+print(figErrDt,'-depsc2',filename);
+filename = strcat('Error_Cost_', ...
+                  sprintf('%04d',N(1)),'_', ...
+                  sprintf('%04d',N(2)),'_', ...
+                  hyp_scheme,'.eps');
+print(figErrCost,'-depsc2',filename);
+system(['mv *.eps ',dumpname,'/']);
 
 % clean up
 system('rm -rf INIT PP reference.bin');
