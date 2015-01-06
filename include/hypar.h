@@ -137,8 +137,11 @@ typedef struct main_parameters {
    * only in the final solution; "no" - to keep the solutions written at intermediate time steps). */
   char op_overwrite  [_MAX_STRING_SIZE_];
 
-  /* solution output filename */
-  char op_filename   [_MAX_STRING_SIZE_];
+  /* filename index for files written every few iterations */
+  char *filename_index;
+  int  index_length;
+  /* solution filename extension */
+  char solnfilename_extn[_MAX_STRING_SIZE_];
 
   /* Function to write the solution to file */
   int (*WriteOutput)              (int,int,int*,double*,double*,char*,int*);  
