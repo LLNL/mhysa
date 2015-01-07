@@ -7,7 +7,7 @@
 #include <hypar.h>
 
 /* Function declarations */
-void IncrementFilename        (char*);
+void IncrementFilenameIndex       (char*,int);
 static int OutputSolutionSerial   (void*,void*);
 static int OutputSolutionParallel (void*,void*);
 
@@ -77,11 +77,16 @@ int OutputSolutionSerial(void *s, void *m)
   if (!mpi->rank) {
     /* write output file to disk */
     char filename[_MAX_STRING_SIZE_] = "";
-    strcat(filename,solver->op_filename);
+    strcat(filename,"op");
+    if (!strcmp(solver->op_overwrite,"no")) {
+      strcat(filename,"_");
+      strcat(filename,solver->filename_index);
+      IncrementFilenameIndex(solver->filename_index,solver->index_length);
+    }
+    strcat(filename,solver->solnfilename_extn);
     printf("Writing solution file %s.\n",filename);
     IERR solver->WriteOutput(solver->ndims,solver->nvars,solver->dim_global,xg,ug,
-                               filename,solver->index); CHECKERR(ierr);
-    if (!strcmp(solver->op_overwrite,"no"))  IncrementFilename(solver->op_filename);
+                             filename,solver->index); CHECKERR(ierr);
 
     /* Clean up output arrays */
     free(xg);
@@ -110,7 +115,9 @@ int OutputSolutionParallel(void *s, void *m)
 
   static int count = 0;
 
-  if (!mpi->rank) printf("Writing solution file %s.xxxx (parallel mode).\n",solver->op_filename);
+  char filename_root[6] = "op";
+  strcat(filename_root,solver->solnfilename_extn);
+  if (!mpi->rank) printf("Writing solution file %s.xxxx (parallel mode).\n",filename_root);
 
   /* calculate size of the local grid on this rank */
   int sizex = 0;     for (d=0; d<ndims; d++) sizex += dim_local[d];
@@ -142,7 +149,7 @@ int OutputSolutionParallel(void *s, void *m)
     FILE *out;
     int  bytes;
     char filename[_MAX_STRING_SIZE_];
-    MPIGetFilename(solver->op_filename,&mpi->IOWorld,filename);
+    MPIGetFilename(filename_root,&mpi->IOWorld,filename);
 
     if (!strcmp(solver->op_overwrite,"no")) {
       if ((!count) && (!solver->restart_iter)) {

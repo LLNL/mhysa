@@ -1,0 +1,56 @@
+2D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+  d   [ rho   ]   d   [   rho*u    ]    d  [   rho*v   ]
+  --  [ rho*u ] + --  [rho*u*u + p ] +  -- [  rho*u*v  ] = viscous and gravity terms
+  dt  [ rho*v ]   dx  [   rho*u*v  ]    dy [rho*v*v + p]
+      [   e   ]       [   (e+p)*u  ]       [  (e+p)v   ]
+
+  rho   - density
+  u     - x-velocity
+  v     - y-velocity
+  p     - pressure
+  e     - internal energy
+
+  Equation of state:
+           p         1
+    e = -------  +   - rho * (u^2+v^2)
+        gamma-1      2
+
+
+Inviscid Advection of a Density Wave: 
+
+  0 <= x,y <= 1.0
+  "periodic" boundary conditions
+
+Initial/Exact Solution:
+
+  Freestream conditions -
+  
+    rho_inf = 1.0,        drho = 0.1
+    p_inf   = 1.0/gamma
+    u_inf   = 1.0
+    v_inf   = 1.0
+
+    rho     = rho_inf + drho * sin(x) * cos(y)
+    p       = p_inf
+    u       = u_inf
+    v       = v_inf
+
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
++ lusolver.inp  -   Parameters for the tridiagonal solver
+                    required for a compact scheme
+
+** See hypar/README for other (optional) input files
+
+The code aux/exact.C is an example to generate the initial
+solution file (initial.inp) and exact solution file (exact.inp)
+in the correct format required by the solver. 
+
+Compile and run this code to generate these files.
+
+Tecplot users can use the file solution.lay to visualize the
+solution.

@@ -129,5 +129,7 @@ int Cleanup(void *s,void *m)
   free(solver->stride_with_ghosts);
   free(solver->stride_without_ghosts);
 
+  if (solver->filename_index) free(solver->filename_index);
+
   return(0);
 }

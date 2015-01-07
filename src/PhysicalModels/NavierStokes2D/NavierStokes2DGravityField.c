@@ -74,8 +74,11 @@ int NavierStokes2DGravityField(void *s,void *m)
       _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
     }
   } else {
-    if (!mpi->rank) fprintf(stderr,"Error in NavierStokes2DGravityField(): Bad value for HB: %d\n",param->HB);
-    return(1);
+    while (!done) {
+      int p; _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
+      f[p] = g[p] = 1.0;
+      _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
+    }
   }
 
   /* A sensible simulation will not specify peridic boundary conditions 

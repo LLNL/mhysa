@@ -15,12 +15,12 @@ begin
   par_space_scheme    4
   dt                  0.5
   conservation_check  no
-  screen_op_iter      1
+  screen_op_iter      10
   file_op_iter        240
   input_mode          serial
   ip_file_type        binary
   output_mode         serial
   op_file_format      binary
-  op_overwrite        yes
+  op_overwrite        no
   model               navierstokes2d
 end

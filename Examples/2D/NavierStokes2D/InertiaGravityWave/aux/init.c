@@ -126,7 +126,10 @@ int main()
 	   	z[k] = zmin + k*dz;
       int p = i + NI*k;
 
-      double theta  = T_ref*exp(BV*BV*z[k]/grav_y);
+      /* temperature peturbation */
+      double dtheta = tc * sin(pi*z[k]/hc) / (1.0 + ((x[i]-xc)/ac)*((x[i]-xc)/ac));
+
+      double theta  = T_ref*exp(BV*BV*z[k]/grav_y) + dtheta;
       double Pexner = 1.0 + ((grav_y*grav_y)/(Cp*T_ref*BV*BV))*(exp(-BV*BV*z[k]/grav_y)-1.0);
       double rho    = (p_ref/(R*theta)) * raiseto(Pexner,inv_gamma_m1);
       double E      = Cv * theta * Pexner + 0.5 * (uc * uc);

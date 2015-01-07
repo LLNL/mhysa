@@ -29,3 +29,17 @@ void IncrementFilename(char *f)
     f[7]++;
   }
 }
+
+void IncrementFilenameIndex(char *f,int len)
+{
+  int i;
+  for (i=len-1; i>=0; i--) {
+    if (f[i] == '9') {
+      f[i] = '0';
+      if (!i) fprintf(stderr,"Warning: file increment hit max limit. Resetting to zero.\n");
+    } else {
+      f[i]++;
+      break;
+    }
+  }
+}
