@@ -72,10 +72,13 @@ int ComputeRHSOperators(void *s,void *m,double t)
       _ArrayCopy1D_(u0,u,size);
       /* find the 1D index p in an array with ghosts points (u),
        * corresponding to index i which assumes no ghost points */
-      _ArrayIndexnD_(ndims,i,dim,index,0); 
-      int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
+      int ii, p, v;
+      ii = i / nvars;
+      v  = i - ii*nvars;
+      _ArrayIndexnD_(ndims,ii,dim,index,0); 
+      _ArrayIndex1D_(ndims,dim,index,ghosts,p);
       /* add a perturbation */
-      u[p] += epsilon;
+      u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
       IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
