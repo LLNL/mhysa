@@ -5,6 +5,7 @@ libHyParFunctions_a_SOURCES = \
   CalculateError.c \
   CalculateConservationError.c \
   Cleanup.c \
+	ComputeRHSOperators.c \
   ExactSolution.c \
   HyperbolicFunction.c \
   IncrementFilename.c \

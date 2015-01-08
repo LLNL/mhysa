@@ -83,13 +83,6 @@ int main(int argc,char **argv)
   }
   /* Initializations complete */
   
-  /* Write an initial solution file */
-  ierr = OutputSolution(&solver,&mpi);
-  if (ierr) {
-    printf("Error: OutputSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
-    return(ierr);
-  }
-
   /* Run the solver */
 #ifndef serial
   MPI_Barrier(mpi.world);
