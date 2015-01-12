@@ -26,6 +26,8 @@ int SolvePETSc(void *s,void *m)
   int             flag_mat_b = 0;
 
   PetscFunctionBegin;
+  /* Write an initial solution file */
+  IERR OutputSolution(solver,mpi); CHECKERR(ierr);
 
   /* Register custom time-integration methods, if specified */
   ierr = PetscRegisterTIMethods(mpi->rank);                               CHECKERR(ierr);
