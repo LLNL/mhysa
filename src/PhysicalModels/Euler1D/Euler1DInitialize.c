@@ -90,14 +90,6 @@ int Euler1DInitialize(void *s,void *m)
   IERR MPIBroadcast_character (physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world);  CHECKERR(ierr);
 #endif
 
-  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
-    if (!mpi->rank) {
-      fprintf(stderr,"Error in Euler1DInitialize: This physical model does not have a splitting ");
-      fprintf(stderr,"of the hyperbolic term defined.\n");
-    }
-    return(1);
-  }
-
   if ((physics->grav != 0.0) && (strcmp(physics->upw_choice,_LLF_)) && (strcmp(physics->upw_choice,_ROE_))) {
     if (!mpi->rank) {
       fprintf(stderr,"Error in Euler1DInitialize: %s or %s upwinding is needed for flows ",_LLF_,_ROE_);
