@@ -9,6 +9,7 @@
 
 double Euler1DComputeCFL (void*,void*,double,double);
 int    Euler1DFlux       (double*,double*,int,void*,double);
+int    Euler1DStiffFlux  (double*,double*,int,void*,double);
 int    Euler1DSource     (double*,double*,void*,void*,double);
 int    Euler1DUpwindRoe  (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
@@ -118,6 +119,13 @@ int Euler1DInitialize(void *s,void *m)
     fprintf(stderr,"Error in Euler1DInitialize(): %s is not a valid upwinding scheme.\n",
             physics->upw_choice);
     return(1);
+  }
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    solver->dFFunction = Euler1DStiffFlux;
+    solver->UpwinddF   = solver->Upwind;
+  } else {
+    solver->dFFunction = NULL;
+    solver->UpwinddF   = NULL;
   }
   solver->AveragingFunction     = Euler1DRoeAverage;
   solver->GetLeftEigenvectors   = Euler1DLeftEigenvectors;
