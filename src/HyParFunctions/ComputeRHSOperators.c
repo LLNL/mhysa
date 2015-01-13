@@ -21,7 +21,7 @@ int ComputeRHSOperators(void *s,void *m,double t)
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           i, j, size, ndof;
-  double        *f, *f0, *u, *u0, *rhs;
+  double        *f, *f0, *u, *u0, *rhs, *drhs;
   FILE          *fout;
   char          filename[_MAX_STRING_SIZE_];
 
@@ -41,6 +41,7 @@ int ComputeRHSOperators(void *s,void *m,double t)
   u    = (double*) calloc (size,sizeof(double));
   u0   = (double*) calloc (size,sizeof(double));
   rhs  = (double*) calloc (size,sizeof(double));
+  drhs = (double*) calloc (size,sizeof(double));
   ndof = solver->npoints_local * nvars;
   f    = (double*) calloc (ndof,sizeof(double));
   f0   = (double*) calloc (ndof,sizeof(double));
@@ -100,11 +101,115 @@ int ComputeRHSOperators(void *s,void *m,double t)
     }
     fclose(fout);
   }
+  /* compute linearized matrix for the split hyperbolic (FFunction-dFFunction) and dFFunction
+     functions, if dFFunction is available */
+  if (solver->dFFunction) {
+    strcpy(filename,"Mat_FdFFunction_");
+    strcat(filename,solver->filename_index);
+    strcat(filename,".dat");
+    printf("ComputeRHSOperators(): Computing linearized matrix operator for (FFunction-dFFunction). ndof=%d.\n",ndof);
+    printf("ComputeRHSOperators(): Writing to sparse matrix file %s.\n",filename);
+    fout = fopen(filename,"w");
+    fprintf(fout,"%d\n",ndof);
+    /* compute the FFunction of u0 */
+    _ArraySetValue_(f0,ndof,0.0);
+    IERR solver->HyperbolicFunction(rhs,u0,solver,mpi,t,1,solver->FFunction,
+                                    solver->Upwind); CHECKERR(ierr);
+    IERR solver->HyperbolicFunction(drhs,u0,solver,mpi,t,0,solver->dFFunction,
+                                    solver->UpwinddF); CHECKERR(ierr);
+    _ArrayScale1D_(rhs,-1.0,size);
+    _ArrayAXPY_(drhs,1.0,rhs,size);
+    /* transfer to an array f0 which as no ghost points */
+    IERR ArrayCopynD(ndims,rhs,f0,dim,ghosts,0,index,nvars); CHECKERR(ierr);
+    for (i=0; i<ndof; i++) {
+      /* copy the solution u0 to u */
+      _ArrayCopy1D_(u0,u,size);
+      /* find the 1D index p in an array with ghosts points (u),
+       * corresponding to index i which assumes no ghost points */
+      int ii, p, v;
+      ii = i / nvars;
+      v  = i - ii*nvars;
+      _ArrayIndexnD_(ndims,ii,dim,index,0); 
+      _ArrayIndex1D_(ndims,dim,index,ghosts,p);
+      /* add a perturbation */
+      u[nvars*p+v] += epsilon;
+      /* apply boundary conditions to the perturbed solution u */
+      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
+      /* compute the FFunction of u */
+      IERR solver->HyperbolicFunction(rhs,u,solver,mpi,t,1,solver->FFunction,
+                                      solver->Upwind); CHECKERR(ierr);
+      IERR solver->HyperbolicFunction(drhs,u,solver,mpi,t,0,solver->dFFunction,
+                                      solver->UpwinddF); CHECKERR(ierr);
+      _ArrayScale1D_(rhs,-1.0,size);
+      _ArrayAXPY_(drhs,1.0,rhs,size);
+      /* transfer to an array f which as no ghost points */
+      _ArraySetValue_(f,ndof,0.0);
+      IERR ArrayCopynD(ndims,rhs,f,dim,ghosts,0,index,nvars); CHECKERR(ierr);
+      /* subtract f0 from f */
+      _ArrayAXPY_(f0,-1.0,f,ndof);
+      /* f is now espilon*column of the matrix */
+      for (j=0; j<ndof; j++) {
+        double mat_elem = f[j] / epsilon;
+        /* write to file if element is non-zero */
+        if (absolute(mat_elem) > tolerance) fprintf(fout,"%5d %5d %+1.16e\n",j+1,i+1,mat_elem);
+      }
+    }
+    fclose(fout);
+
+    strcpy(filename,"Mat_dFFunction_");
+    strcat(filename,solver->filename_index);
+    strcat(filename,".dat");
+    printf("ComputeRHSOperators(): Computing linearized matrix operator for dFFunction. ndof=%d.\n",ndof);
+    printf("ComputeRHSOperators(): Writing to sparse matrix file %s.\n",filename);
+    fout = fopen(filename,"w");
+    fprintf(fout,"%d\n",ndof);
+    /* compute the FFunction of u0 */
+    _ArraySetValue_(f0,ndof,0.0);
+    IERR solver->HyperbolicFunction(rhs,u0,solver,mpi,t,0,solver->dFFunction,
+                                    solver->UpwinddF); CHECKERR(ierr);
+    _ArrayScale1D_(rhs,-1.0,size);
+    /* transfer to an array f0 which as no ghost points */
+    IERR ArrayCopynD(ndims,rhs,f0,dim,ghosts,0,index,nvars); CHECKERR(ierr);
+    for (i=0; i<ndof; i++) {
+      /* copy the solution u0 to u */
+      _ArrayCopy1D_(u0,u,size);
+      /* find the 1D index p in an array with ghosts points (u),
+       * corresponding to index i which assumes no ghost points */
+      int ii, p, v;
+      ii = i / nvars;
+      v  = i - ii*nvars;
+      _ArrayIndexnD_(ndims,ii,dim,index,0); 
+      _ArrayIndex1D_(ndims,dim,index,ghosts,p);
+      /* add a perturbation */
+      u[nvars*p+v] += epsilon;
+      /* apply boundary conditions to the perturbed solution u */
+      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
+      /* compute the FFunction of u */
+      IERR solver->HyperbolicFunction(rhs,u,solver,mpi,t,0,solver->dFFunction,
+                                      solver->UpwinddF); CHECKERR(ierr);
+      _ArrayScale1D_(rhs,-1.0,size);
+      /* transfer to an array f which as no ghost points */
+      _ArraySetValue_(f,ndof,0.0);
+      IERR ArrayCopynD(ndims,rhs,f,dim,ghosts,0,index,nvars); CHECKERR(ierr);
+      /* subtract f0 from f */
+      _ArrayAXPY_(f0,-1.0,f,ndof);
+      /* f is now espilon*column of the matrix */
+      for (j=0; j<ndof; j++) {
+        double mat_elem = f[j] / epsilon;
+        /* write to file if element is non-zero */
+        if (absolute(mat_elem) > tolerance) fprintf(fout,"%5d %5d %+1.16e\n",j+1,i+1,mat_elem);
+      }
+    }
+    fclose(fout);
+  }
 
   /* clean up */
   free(u);
   free(u0);
   free(rhs);
+  free(drhs);
   free(f);
   free(f0);
   return(0);
