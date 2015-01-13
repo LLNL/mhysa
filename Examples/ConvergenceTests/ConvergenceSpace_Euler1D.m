@@ -25,7 +25,7 @@ system(cmd);
 hypar = [hypar_path,'/bin/HyPar'];
 
 % Get the default
-[~,~,~,~,~,~,~,~,~,hyp_flux_split,hyp_int_type,par_type,par_scheme,~, ...
+[~,~,~,~,~,~,~,~,~,~,hyp_int_type,par_type,par_scheme,~, ...
  cons_check,screen_op_iter,file_op_iter,~, ~,input_mode, ...
  output_mode,n_io,op_overwrite,~,nb,bctype,dim,face,limits, ...
  mapped,borges,yc,nl,eps,p,rc,xi,wtol,lutype,norm,maxiter,atol,rtol, ...
@@ -61,8 +61,33 @@ upw = 'roe';
 ts = 'rk';
 tstype = '44';
 
+if (strcmp(ts,'arkimex'))
+%-------------------------------------------------------------------------%
+%   if 'arkimex' time-integrator is used, the following options
+%   can be chosen from:-
+
+%   use split hyperbolic flux form (acoustic and entropy modes)?
+    hyp_flux_split = 'yes';
+%   treat acoustic waves implicitly, and entropy waves explicitly
+    hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_implicit';
+%   treat acoustic and entropy waves implicitly
+%     hyp_flux_flag  = '-hyperbolic_f_implicit -hyperbolic_df_implicit';
+%   treat acoustic and entropy waves explicitly
+%     hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_explicit';
+
+%   or no splitting?
+%     hyp_flux_split = 'no';
+%     hyp_flux_flag = '-hyperbolic_implicit'; % implicit treatment
+%     hyp_flux_flag = '-hyperbolic_explicit'; % explicit treatment
+%------------------------------------------------------------------------%
+else
+    hyp_flux_split = 'no';
+    hyp_flux_flag = ' ';
+end
+
 petsc_flags = ' ';
-% set PETSc time-integration flags (comment to turn off)
+% set PETSc time-integration flags (comment to not use PETSc and instead,
+% use built-in time-integrators)
 % petsc_flags = [petsc_flags, '-use-petscts '];
 % petsc_flags = [petsc_flags, '-ts_type ',ts,' '];
 % petsc_flags = [petsc_flags, '-ts_',ts,'_type ',tstype,' '];
@@ -70,13 +95,16 @@ petsc_flags = ' ';
 % petsc_flags = [petsc_flags,' -ts_final_time ',num2str(t_final,'%f'),' '];
 % petsc_flags = [petsc_flags,' -ts_max_steps ',num2str(100*niter,'%d'),' '];
 % petsc_flags = [petsc_flags, '-ts_adapt_type none '];
-% petsc_flags = [petsc_flags, '-hyperbolic_implicit '];
-% petsc_flags = [petsc_flags, '-snes_type newtonls '];
-% petsc_flags = [petsc_flags, '-snes_rtol 1e-10 '];
-% petsc_flags = [petsc_flags, '-snes_atol 1e-10 '];
-% petsc_flags = [petsc_flags, '-ksp_type gmres '];
-% petsc_flags = [petsc_flags, '-ksp_rtol 1e-10 '];
-% petsc_flags = [petsc_flags, '-ksp_atol 1e-10 '];
+% if (strcmp(ts,'arkimex'))
+%     % if using ARKIMEX time-integrator, some additional options
+%     petsc_flags = [petsc_flags, hyp_flux_flag, ' '];
+%     petsc_flags = [petsc_flags, '-snes_type newtonls '];
+%     petsc_flags = [petsc_flags, '-snes_rtol 1e-10 '];
+%     petsc_flags = [petsc_flags, '-snes_atol 1e-10 '];
+%     petsc_flags = [petsc_flags, '-ksp_type gmres '];
+%     petsc_flags = [petsc_flags, '-ksp_rtol 1e-10 '];
+%     petsc_flags = [petsc_flags, '-ksp_atol 1e-10 '];
+% end
 % petsc_flags = [petsc_flags, '-log_summary'];
 
 % turn off solution output to file
