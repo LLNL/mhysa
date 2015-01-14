@@ -56,7 +56,7 @@ int Euler1DStiffFlux(double *f,double *u,int dir,void *s,double t)
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
     double rho, v, e, P;
     _Euler1DGetFlowVar_((u+_MODEL_NVARS_*p),rho,v,e,P,param);
-    _Euler1DSetStiffFlux_((f+_MODEL_NVARS_*p),rho,v,e,P);
+    _Euler1DSetStiffFlux_((f+_MODEL_NVARS_*p),rho,v,e,P,param->gamma);
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }
 

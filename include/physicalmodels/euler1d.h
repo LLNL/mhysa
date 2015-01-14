@@ -63,11 +63,12 @@ For the treatment of gravitational source terms, refer to:
     f[2] = ((e) + (P)) * (v); \
   }
 
-#define _Euler1DSetStiffFlux_(f,rho,v,e,P) \
+#define _Euler1DSetStiffFlux_(f,rho,v,e,P,gamma) \
   { \
-    f[0] = 0.0; \
-    f[1] = (P); \
-    f[2] = (P) * (v); \
+    double gamma_inv = 1.0 / (gamma); \
+    f[0] = gamma_inv * (rho)*(v); \
+    f[1] = gamma_inv * (rho)*(v)*(v) + (P); \
+    f[2] = ((e)+(P)) * (v) - 0.5*gamma_inv*((gamma)-1)*(rho)*(v)*(v)*(v); \
   }
 
 #define _Euler1DRoeAverage_(uavg,uL,uR,p) \
