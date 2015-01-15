@@ -12,8 +12,11 @@ int    Euler1DFlux       (double*,double*,int,void*,double);
 int    Euler1DStiffFlux  (double*,double*,int,void*,double);
 int    Euler1DSource     (double*,double*,void*,void*,double);
 int    Euler1DUpwindRoe  (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    Euler1DUpwinddFRoe(double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindRF   (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    Euler1DUpwinddFRF (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindLLF  (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    Euler1DUpwinddFLLF(double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindSWFS (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 int    Euler1DRoeAverage        (double*,double*,double*,void*);
@@ -108,13 +111,24 @@ int Euler1DInitialize(void *s,void *m)
   else if (!strcmp(physics->upw_choice,_LLF_ )) solver->Upwind = Euler1DUpwindLLF;
   else if (!strcmp(physics->upw_choice,_SWFS_)) solver->Upwind = Euler1DUpwindSWFS;
   else {
-    fprintf(stderr,"Error in Euler1DInitialize(): %s is not a valid upwinding scheme.\n",
-            physics->upw_choice);
+    if (!mpi->rank) fprintf(stderr,"Error in Euler1DInitialize(): %s is not a valid upwinding scheme.\n",
+                            physics->upw_choice);
     return(1);
   }
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     solver->dFFunction = Euler1DStiffFlux;
-    solver->UpwinddF   = solver->Upwind;
+    if      (!strcmp(physics->upw_choice,_ROE_ )) solver->UpwinddF = Euler1DUpwinddFRoe;
+    else if (!strcmp(physics->upw_choice,_RF_  )) solver->UpwinddF = Euler1DUpwinddFRF;
+    else if (!strcmp(physics->upw_choice,_LLF_ )) solver->UpwinddF = Euler1DUpwinddFLLF;
+    else {
+      if (!mpi->rank) {
+        fprintf(stderr,"Error in Euler1DInitialize(): %s is not a valid upwinding scheme ",
+                physics->upw_choice);
+        fprintf(stderr,"when split form of the hyperbolic flux is used. Use %s, %s or %s.\n",
+                _ROE_,_RF_,_LLF_);
+      }
+      return(1);
+    }
   } else {
     solver->dFFunction = NULL;
     solver->UpwinddF   = NULL;
