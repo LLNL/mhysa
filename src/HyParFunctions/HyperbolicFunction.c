@@ -6,6 +6,7 @@
 
 static int ReconstructHyperbolic (double*,double*,double*,double*,int,void*,void*,double,int,
                                   int(*)(double*,double*,double*,double*,double*,double*,int,void*,double));
+static int DefaultUpwinding      (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t,int LimFlag,
                        int(*FluxFunction)(double*,double*,int,void*,double),
@@ -113,7 +114,35 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int di
   IERR solver->InterpolateInterfacesHyp(fluxR,fluxC,u,x,-1,dir,solver,mpi,0); CHECKERR(ierr);
 
   /* Upwind -> to calculate the final interface flux */
-  IERR UpwindFunction(fluxI,fluxL,fluxR,uL,uR,u,dir,solver,t); CHECKERR(ierr); 
+  if (UpwindFunction) { IERR UpwindFunction   (fluxI,fluxL,fluxR,uL  ,uR  ,u   ,dir,solver,t); CHECKERR(ierr); }
+  else                { IERR DefaultUpwinding (fluxI,fluxL,fluxR,NULL,NULL,NULL,dir,solver,t); CHECKERR(ierr); }
+
+  return(0);
+}
+
+int DefaultUpwinding(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+{
+  HyPar *solver = (HyPar*)    s;
+  int   done;
+
+  int *dim  = solver->dim_local;
+  int ndims = solver->ndims;
+  int nvars = solver->nvars;
+
+  int bounds_outer[ndims], bounds_inter[ndims];
+  _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
+  _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
+
+  done = 0; int index_outer[ndims], index_inter[ndims];
+  _ArraySetValue_(index_outer,ndims,0);
+  while (!done) {
+    _ArrayCopy1D_(index_outer,index_inter,ndims);
+    for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
+      int p; _ArrayIndex1D_(ndims,bounds_inter,index_inter,0,p);
+      int v; for (v=0; v<nvars; v++) fI[nvars*p+v] = 0.5 * (fL[nvars*p+v]+fR[nvars*p+v]);
+    }
+    _ArrayIncrementIndex_(ndims,bounds_outer,index_outer,done);
+  }
 
   return(0);
 }
