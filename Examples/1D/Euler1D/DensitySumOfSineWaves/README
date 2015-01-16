@@ -18,7 +18,7 @@ Advection of Density Wave: Sum of Sine Waves
 
 Domain:
 
-  0 <= x < 1.0
+  -0.5 <= x < 0.5
   "periodic" boundary conditions
 
 Exact Solution:
