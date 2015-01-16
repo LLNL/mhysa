@@ -42,7 +42,7 @@ int main()
   for (i = 0; i < NI; i++) {
     double temp; int ii;
     solution >> ii >> temp >> u[i] >> temp >> temp;
-    if (ii != i) printf ("Error in reading file (%d,%d)!\n",ii,i);
+    if (ii != i) printf ("Exact solution: Error in reading file (%d,%d)!\n",ii,i);
   }
   solution.close();
   fourier_analysis(NI,0,u,0);
@@ -53,7 +53,7 @@ int main()
   for (i = 0; i < NI; i++) {
     double temp; int ii;
     solution >> ii >> temp >> u[i] >> temp >> temp;
-    if (ii != i) printf ("Error in reading file (%d,%d)!\n",ii,i);
+    if (ii != i) printf ("Computed Solution: Error in reading file (%d,%d)!\n",ii,i);
   }
   solution.close();
   fourier_analysis(NI,0,u,1);

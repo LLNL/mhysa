@@ -43,6 +43,7 @@ int main(){
 	std::cout << "Grid:\t\t\t" << NI << "\n";
   std::cout << "Input maximum wavenumber (typically NI/2): ";
   int limit; std::cin >> limit;
+  printf("Max wavenumber: %d\n",limit);
 
 	int i,k;
 	double dx = 1.0 / ((double)NI);
@@ -52,8 +53,8 @@ int main(){
   double factor = 0.01;
 
   srand(time(NULL));
-  double *phi = (double*) calloc (limit,sizeof(double));
-  for (k=1; k<limit; k++) {
+  double *phi = (double*) calloc (limit+1,sizeof(double));
+  for (k=1; k<=limit; k++) {
 //    phi[k] = -pi + 2*pi*(((double) rand()) / ((double) RAND_MAX));
     phi[k] = pi/2.0;;
   }
@@ -68,7 +69,7 @@ int main(){
 	for (i = 0; i < NI; i++){
 		x[i] = -0.5 + i*dx;
     double RHO,U,P,drho=0;
-    for (k=1; k<limit; k++) {
+    for (k=1; k<=limit; k++) {
       double Ak = factor * raiseto(((double)k),-5.0/6.0);
       drho += (Ak * cos(2*pi*((double)k)*(x[i]-tf)+phi[k]));
     }
@@ -78,6 +79,7 @@ int main(){
     rho[i]  = RHO;
     rhou[i] = RHO*U;
     e[i]    = P/0.4 + 0.5*RHO*U*U;
+    printf("%d: %f\n",i,rho[i]);
 	}
 	out = fopen("exact.inp","w");
   for (i = 0; i < NI; i++)  fprintf(out,"%1.16E ",x[i]);
@@ -101,12 +103,12 @@ int main(){
 	for (i = 0; i < NI; i++){
 		x[i] = -0.5 + i*dx;
     double RHO,U,P,drho=0;
-    for (k=1; k<limit; k++) {
+    for (k=1; k<=limit; k++) {
       double Ak = factor * raiseto(((double)k),-5.0/6.0);
       drho += (Ak * cos(2*pi*((double)k)*(x[i])+phi[k]));
     }
     RHO = 1.0 + drho;
-    U   = 1.0;
+    U   = 0.1;
     P   = 1.0/1.4;
     rho[i]  = RHO;
     rhou[i] = RHO*U;
