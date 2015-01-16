@@ -44,7 +44,7 @@ N = 40;
 hyp_scheme = 'crweno5';
 hyp_int_type = 'components';
 
-% for spatial convergence, use very small time step
+% specify dt, final time
 dt = 0.025;
 t_final = 1.0;
 niter = int32(t_final/dt);
