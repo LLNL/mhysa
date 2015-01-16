@@ -24,7 +24,7 @@ Domain:
 Exact Solution:
 
     rho = 1.0 + 0.01 * \Sum_k^{N/2} A(k)*sin(2*pi*k*(x-t))
-    u   = 1.0
+    u   = 0.1
     p   = 1/gamma
 
 where N is the number of grid points.

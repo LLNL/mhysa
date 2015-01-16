@@ -53,7 +53,7 @@ int main(){
 		x[i] = i*dx;
     double RHO,U,P;
     RHO = 1.0 + 0.1*sin(2*pi*(x[i]-tf));
-    U   = 1.0;
+    U   = 0.1;
     P   = 1.0/1.4;
     rho[i]  = RHO;
     rhou[i] = RHO*U;

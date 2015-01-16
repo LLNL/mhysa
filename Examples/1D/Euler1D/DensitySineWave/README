@@ -24,8 +24,8 @@ Domain:
 Exact Solution:
 
     rho = 1.0 + 0.1*sin(2*pi*(x-t))
-    u   = 1.0
-    p   = 1/gamma
+    u   = 0.1
+    p   = 1.0/gamma
 
 The following input files are required:
 + solver.inp    -   General solver parameters
