@@ -27,6 +27,11 @@ for i=1:MaxFiles
     Feval_fname   = strcat('EVals_',str_nevals,filename_FFunction);
     dFeval_fname  = strcat('EVals_',str_nevals,filename_dFFunction);
     FdFeval_fname = strcat('EVals_',str_nevals,filename_FdFFunction);
+    
+    xmin = -1.0;
+    xmax = 0.0;
+    ymin = -1.0;
+    ymax = 1.0;
 
     if (exist(Feval_fname,'file'))
         fprintf('Plotting FFunction eigenvalues from  %s\n',Feval_fname);
@@ -36,6 +41,10 @@ for i=1:MaxFiles
         hold on;
         flagFFunction = 1;
         legend_str = '     F(u) ';
+        xmin = min(xmin,min(dataF(:,2)));
+        xmax = max(xmax,max(dataF(:,2)));
+        ymin = min(ymin,min(dataF(:,3)));
+        ymax = max(ymax,max(dataF(:,3)));
     else
         flagFFunction = 0;
     end
@@ -47,6 +56,10 @@ for i=1:MaxFiles
         hold on;
         flagdFFunction = 1;
         legend_str = [legend_str;'     dF(u)'];
+        xmin = min(xmin,min(datadF(:,2)));
+        xmax = max(xmax,max(datadF(:,2)));
+        ymin = min(ymin,min(datadF(:,3)));
+        ymax = max(ymax,max(datadF(:,3)));
     else
         flagdFFunction = 0;
     end
@@ -58,6 +71,10 @@ for i=1:MaxFiles
         hold on;
         flagFdFFunction = 1;
         legend_str = [legend_str;'F(u)-dF(u)'];
+        xmin = min(xmin,min(dataFdF(:,2)));
+        xmax = max(xmax,max(dataFdF(:,2)));
+        ymin = min(ymin,min(dataFdF(:,3)));
+        ymax = max(ymax,max(dataFdF(:,3)));
     else
         flagFdFFunction = 0;
     end
@@ -71,10 +88,7 @@ for i=1:MaxFiles
         legend(legend_str,'Location','northwest');
         legend('boxoff');
         title(index);
-        axis([1.1*min([min(dataF(:,2)),min(datadF(:,2)),min(dataFdF(:,2)),-1.0]), ...
-              1.1*max([max(dataF(:,2)),max(datadF(:,2)),max(dataFdF(:,2)), 0.1]), ...
-              1.1*min([min(dataF(:,3)),min(datadF(:,3)),min(dataFdF(:,3)),-1.0]), ...
-              1.1*max([max(dataF(:,3)),max(datadF(:,3)),max(dataFdF(:,3)), 0.1])]);
+        axis([xmin, xmax, ymin, ymax]);
         grid on;
         hold off;
         figname = 'Eigenvalues.ps';
