@@ -46,7 +46,7 @@ ghost = 3;
 
 % set grid size;
 N = 256;
-max_wavenumber = 128;
+max_wavenumber = 32;
 
 % specify spatial discretization scheme
 hyp_scheme = 'crweno5';
@@ -54,7 +54,7 @@ hyp_int_type = 'components';
 
 % specify dt
 dt_ex = [0.001 0.002 0.004 0.005];
-dt_im = [0.001 0.004 0.01  0.05 ];
+dt_im = [0.001 0.002 0.005 0.010 0.02 0.04 0.05];
 t_final = 1.0;
 
 % set physical model and related parameters
@@ -77,7 +77,9 @@ is_implicit = [1,0];
 schemes = 1:size(ts,1);
 
 % specify plotting styles
-style = [ '-bo'; '-bs'; '-b^'; '-bd'; '-ro'; '-rs'; '-r^'; '-rd'];
+style = [ '-ro'; '-rs'; '-r^'; '-rd'; '-rp'; '-rh'; '-rx'; ...
+          '-bo'; '-bs'; '-b^'; '-bd'; ...
+        ];
 
 %-------------------------------------------------------------------------%
 % if 'arkimex' time-integrator is used, the following options
@@ -125,10 +127,13 @@ scrsz = get(0,'ScreenSize');
 figSpectrum = figure('Position',[1 scrsz(4)/2 scrsz(3)/2 scrsz(4)/2]);
 
 count = 0;
+succ_count = 0;
 max_methods = size(ts,1) * max(size(dt_im,2),size(dt_ex,2));
-legend_str = char(zeros(max_methods,23));
+legend_str = char(zeros(max_methods+1,23));
 legend_str(1,:) = 'Exact                  ';
 
+ymin = 1.0;
+ymax = 1e-16;
 for j = schemes
     % set PETSc time-integration flags, if the method is a PETSc one
     if (use_petsc(j))
@@ -171,7 +176,7 @@ for j = schemes
 
     % Spectral analysis
     for r = 1:ref_levels
-        fprintf('\t%s %2d:  dt=%1.16e\n',[ts(j,:),' ',tstype(j,:)], ...
+        fprintf('\t%s %2d, dt=%1.16e: ',[ts(j,:),' ',tstype(j,:)], ...
                 r,dt(r));
         niter = int32(t_final/dt(r));
         file_op_iter = niter;
@@ -203,7 +208,7 @@ for j = schemes
         % Run HyPar
         hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ', ...
                       hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
-                      ' > run.log 2>&1 '];
+                      ' >run.log 2>&1 '];
         system(hypar_exec);
         % create sym links for fourier analysis code
         system('ln -sf op_00000.dat op_exact.dat');
@@ -221,22 +226,36 @@ for j = schemes
         % normalize
         ampl_exact = ampl_exact / sum(ampl_exact);
         ampl_comp  = ampl_comp / sum(ampl_comp);
-        
+               
         % Clean up
         system(clean_exec);
         
-        % plot the spectrum
-        figure(figSpectrum);
+        % plot exact spectrum if this is first loop
         if (~count)
-            loglog(wavenumber,ampl_exact,'-k','linewidth',2);
+            figure(figSpectrum);
+            loglog(wavenumber(1:max_wavenumber),ampl_exact(1:max_wavenumber), ...
+                   '-k','linewidth',2);
             hold on;
         end
-        loglog(wavenumber,ampl_comp,style(count+1,:),'linewidth',1, ...
-               'MarkerSize',5);
-        hold on;
-        name = [sprintf('%7s',ts(j,:)),'-',sprintf('%6s',tstype(j,:)), ...
-                ' dt ',sprintf('%5.3f',dt(r))];
-        legend_str(count+2,:) = name;
+
+        if (min(isfinite(ampl_comp)))
+            fprintf('done.\n');
+              
+            % plot the spectrum
+            figure(figSpectrum);
+            loglog(wavenumber(1:max_wavenumber),ampl_comp(1:max_wavenumber), ...
+                style(count+1,:),'linewidth',1,'MarkerSize',5);
+            hold on;
+            name = [sprintf('%7s',ts(j,:)),'-',sprintf('%6s',tstype(j,:)), ...
+                    ' dt ',sprintf('%5.3f',dt(r))];
+            legend_str(succ_count+2,:) = name;
+            succ_count = succ_count + 1;
+            
+            ymin = min(ymin,min(ampl_comp(1:max_wavenumber)));
+            ymax = max(ymax,max(ampl_comp(1:max_wavenumber)));
+        else
+            fprintf('solution failed.\n');
+        end
         count = count+1;
     end
 end
@@ -246,9 +265,8 @@ figure(figSpectrum);
 xlabel('Wavenumber','FontName','Times','FontSize',20,'FontWeight','normal');
 ylabel('Normalized Energy','FontName','Times','FontSize',20,'FontWeight','normal');
 set(gca,'FontSize',14,'FontName','Times');
-legend(legend_str,'Location','SouthWest');
-axis([1.0 max_wavenumber-1 ...
-      max(min(ampl_comp(1:max_wavenumber-1)),1e-8) 1.0]); 
+legend(legend_str(1:succ_count+1,:),'Location','SouthWest');
+axis([1.0 max_wavenumber ymin ymax]); 
 grid on;
 hold off;
 
