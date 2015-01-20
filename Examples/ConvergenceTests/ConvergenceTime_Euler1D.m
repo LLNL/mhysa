@@ -5,7 +5,7 @@ clear all;
 close all;
 
 % remove all useless files
-system('rm -rf *.dat *.inp *.log INIT');
+system('rm -rf *.dat *.inp *.log EXACT');
 
 fprintf('Time convergence test on a smooth solution ');
 fprintf('to the 1D Euler equations.\n');
@@ -17,9 +17,9 @@ hypar_path = input('Enter path to HyPar source: ','s');
 path(path,strcat(hypar_path,'/Examples/Matlab/'));
 
 % Compile the code to generate the initial solution
-cmd = ['g++ ',hypar_path, ...
-       '/Examples/1D/Euler1D/DensitySineWave/aux/init.C ', ...
-       '-o INIT'];
+cmd = ['gcc ',hypar_path, ...
+       '/Examples/1D/Euler1D/DensitySineWave/aux/exact.c -lm ', ...
+       '-o EXACT'];
 system(cmd);
 % find the HyPar binary
 hypar = [hypar_path,'/bin/HyPar'];
@@ -45,9 +45,9 @@ ghost = 3;
 hyp_scheme = 'weno5';
 
 % for spatial convergence, use very small time step
-dt = [0.0001 0.0002 0.0005 0.001 0.002 0.005 ...
-      0.01 0.02 0.05 0.1 0.2 0.5 1.0];
-t_final = 1.0;
+dt_ex = [0.0001 0.0002 0.0005 0.001 0.002];
+dt_im = [0.0001 0.0002 0.0005 0.001 0.002 0.005 0.01];
+t_final = 0.5;
 
 % maximum expected error
 maxerr = 1.0;
@@ -109,7 +109,7 @@ nproc = 1;
 for i = 1:max(size(iproc))
     nproc = nproc * iproc(i);
 end
-init_exec = './INIT > init.log 2>&1';
+exact_exec = './EXACT > exact.log 2>&1';
 clean_exec = 'rm -rf *.inp *.dat *.log';
 
 % open figure window
@@ -146,11 +146,11 @@ for j = schemes
                 '-ts_adapt_type none ', ...
                 hyp_flux_flag,' ', ...
                 '-snes_type newtonls ', ...
-                '-snes_rtol 1e-6 ', ...
-                '-snes_atol 1e-6 ', ...
+                '-snes_rtol 1e-8 ', ...
+                '-snes_atol 1e-8 ', ...
                 '-ksp_type gmres ', ...
-                '-ksp_rtol 1e-6 ', ...
-                '-ksp_atol 1e-6 ', ...
+                '-ksp_rtol 1e-8 ', ...
+                '-ksp_atol 1e-8 ', ...
                 '-ksp_max_it 1000 ', ...
                 '-snes_max_it 1000 ', ...
                 ' ');
@@ -166,6 +166,11 @@ for j = schemes
         petsc_flags = ' ';
     end
     
+    if (is_implicit(j))
+        dt = dt_im;
+    else
+        dt = dt_ex;
+    end
     % set number of grid refinement levels
     ref_levels = max(size(dt));
 
@@ -199,12 +204,12 @@ for j = schemes
         WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
         WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
         % Generate the initial and exact solution
-        system(init_exec);
-        system('ln -sf initial.inp exact.inp');
+        system(exact_exec);
         % Run HyPar
         hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ', ...
                       hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
-                      ' > run.log 2>&1'];
+                      ' > run.log 2>&1' ...
+                      ];
         system(hypar_exec);
         % Read in the errors
         [Errors(r,:),Walltimes(r,:)] = ReadErrorDat(ndims);
@@ -240,12 +245,15 @@ for j = schemes
     count = count+1;
 end
 
+xmin = 0.5*min([dt_im dt_ex]);
+xmax = 2.0*max([dt_im dt_ex]);
+
 figure(figErrDt);
 xlabel('dt','FontName','Times','FontSize',20,'FontWeight','normal');
 ylabel('Error','FontName','Times','FontSize',20,'FontWeight','normal');
 set(gca,'FontSize',14,'FontName','Times');
 legend(legend_str,'Location','northwest');
-axis([min(dt)/2 2*max(dt) min(MinErr)/2 2*max(MaxErr)]);
+axis([xmin xmax min(MinErr)/2 2*max(MaxErr)]);
 grid on;
 hold off;
 
@@ -261,5 +269,5 @@ grid on;
 hold off;
 
 % clean up
-system('rm -rf INIT');
+system('rm -rf EXACT');
 

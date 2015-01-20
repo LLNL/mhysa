@@ -13,10 +13,10 @@ system('rm -rf *.dat *.inp *.log INIT');
 % Ask for path to HyPar source directory
 hypar_path = input('Enter path to HyPar source: ','s');
 
-% Compile the code to generate the initial solution
-cmd = ['g++ ',hypar_path, ...
-    '/Examples/1D/Euler1D/DensitySineWave/aux/init.C ', ...
-    '-o INIT'];
+% Compile the code to generate the initial and exact solution
+cmd = ['gcc ',hypar_path, ...
+    '/Examples/1D/Euler1D/DensitySineWave/aux/exact.c -lm ', ...
+    '-o EXACT'];
 system(cmd);
 % find the HyPar binary
 hypar = [hypar_path,'/bin/HyPar'];
@@ -45,7 +45,7 @@ hyp_scheme = 'crweno5';
 hyp_int_type = 'components';
 
 % specify dt, final time
-dt = 0.025;
+dt = 0.01;
 t_final = 1.0;
 niter = int32(t_final/dt);
 
@@ -58,6 +58,8 @@ upw   = 'roe';
 % set time-integration scheme
 ts = 'arkimex';
 tstype = '3';
+use_petsc = 1; % 1 - specified time-integration method is from PETSc
+               % 0 - specified time-integration method is native
 
 if (strcmp(ts,'arkimex'))
 %-------------------------------------------------------------------------%
@@ -84,25 +86,26 @@ else
 end
 
 petsc_flags = ' ';
-% set PETSc time-integration flags (comment them to not use PETSc
-% and instead, use built-in time-integrators)
-petsc_flags = [petsc_flags, '-use-petscts '];
-petsc_flags = [petsc_flags, '-ts_type ',ts,' '];
-petsc_flags = [petsc_flags, '-ts_',ts,'_type ',tstype,' '];
-petsc_flags = [petsc_flags,' -ts_dt ',num2str(dt,'%1.16e'),' '];
-petsc_flags = [petsc_flags,' -ts_final_time ',num2str(t_final,'%f'),' '];
-petsc_flags = [petsc_flags, '-ts_adapt_type none '];
-if (strcmp(ts,'arkimex'))
-    % if using ARKIMEX time-integrator, some additional options
-    petsc_flags = [petsc_flags, hyp_flux_flag, ' '];
-    petsc_flags = [petsc_flags, '-snes_type newtonls '];
-    petsc_flags = [petsc_flags, '-snes_rtol 1e-10 '];
-    petsc_flags = [petsc_flags, '-snes_atol 1e-10 '];
-    petsc_flags = [petsc_flags, '-ksp_type gmres '];
-    petsc_flags = [petsc_flags, '-ksp_rtol 1e-10 '];
-    petsc_flags = [petsc_flags, '-ksp_atol 1e-10 '];
+if (use_petsc)
+    % set PETSc time-integration flags 
+    petsc_flags = [petsc_flags, '-use-petscts '];
+    petsc_flags = [petsc_flags, '-ts_type ',ts,' '];
+    petsc_flags = [petsc_flags, '-ts_',ts,'_type ',tstype,' '];
+    petsc_flags = [petsc_flags,' -ts_dt ',num2str(dt,'%1.16e'),' '];
+    petsc_flags = [petsc_flags,' -ts_final_time ',num2str(t_final,'%f'),' '];
+    petsc_flags = [petsc_flags, '-ts_adapt_type none '];
+    if (strcmp(ts,'arkimex'))
+        % if using ARKIMEX time-integrator, some additional options
+        petsc_flags = [petsc_flags, hyp_flux_flag, ' '];
+        petsc_flags = [petsc_flags, '-snes_type newtonls '];
+        petsc_flags = [petsc_flags, '-snes_rtol 1e-10 '];
+        petsc_flags = [petsc_flags, '-snes_atol 1e-10 '];
+        petsc_flags = [petsc_flags, '-ksp_type gmres '];
+        petsc_flags = [petsc_flags, '-ksp_rtol 1e-10 '];
+        petsc_flags = [petsc_flags, '-ksp_atol 1e-10 '];
+    end
+    % petsc_flags = [petsc_flags, '-log_summary'];
 end
-% petsc_flags = [petsc_flags, '-log_summary'];
 
 % set solution output to text file
 op_format = 'text';
@@ -123,7 +126,7 @@ nproc = 1;
 for i = 1:max(size(iproc))
     nproc = nproc * iproc(i);
 end
-init_exec = './INIT > init.log 2>&1';
+exact_exec = './EXACT > exact.log 2>&1';
 hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ',hypar, ...
                ' ',petsc_flags];
 clean_exec = 'rm -rf *.inp *.dat *.log';
@@ -138,7 +141,7 @@ WritePhysicsInp_Euler1D(gamma,grav,upw);
 WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
 WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
 % Generate initial solution
-system(init_exec);
+system(exact_exec);
 % Run the simulation
 system(hypar_exec);
 
@@ -174,4 +177,4 @@ legend('Initial','Final','Location','Best');
 grid on;
 
 % clean up
-system('rm -rf INIT');
+system('rm -rf EXACT');

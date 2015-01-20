@@ -5,7 +5,7 @@ clear all;
 close all;
 
 % remove all useless files
-system('rm -rf *.dat *.inp *.log INIT');
+system('rm -rf *.dat *.inp *.log EXACT');
 
 fprintf('Spatial convergence test on a smooth solution ');
 fprintf('to the 1D Euler equations.\n');
@@ -17,9 +17,9 @@ hypar_path = input('Enter path to HyPar source: ','s');
 path(path,strcat(hypar_path,'/Examples/Matlab/'));
 
 % Compile the code to generate the initial solution
-cmd = ['g++ ',hypar_path, ...
-       '/Examples/1D/Euler1D/DensitySineWave/aux/init.C ', ...
-       '-o INIT'];
+cmd = ['gcc ',hypar_path, ...
+       '/Examples/1D/Euler1D/DensitySineWave/aux/exact.c -lm ', ...
+       '-o EXACT'];
 system(cmd);
 % find the HyPar binary
 hypar = [hypar_path,'/bin/HyPar'];
@@ -42,13 +42,14 @@ ghost = 3;
 hyp_scheme = [ ...
                 'muscl3 ';
                 'weno5  ';
-                'crweno5'
+                'crweno5';
+                'hcweno5'
              ];
 schemes = 1:size(hyp_scheme,1);
 
 % for spatial convergence, use very small time step
 dt = 0.0001;
-t_final = 1.0;
+t_final = 0.5;
 niter = int32(t_final/dt);
 
 % set physical model and related parameters
@@ -118,7 +119,7 @@ nproc = 1;
 for i = 1:max(size(iproc))
     nproc = nproc * iproc(i);
 end
-init_exec = './INIT > init.log 2>&1';
+exact_exec = './EXACT > exact.log 2>&1';
 hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ',hypar, ...
                ' ',petsc_flags,' > run.log 2>&1'];
 clean_exec = 'rm -rf *.inp *.dat *.log';
@@ -139,8 +140,8 @@ style = [ ...
             '-kd';
             '-kv';
         ];
-if (size(style,2) < size(schemes,2))
-    printf('Error: not enough plotting styles specified.\n');
+if (size(style,1) < size(schemes,2))
+    fprintf('Error: not enough plotting styles specified.\n');
     return;
 end
 
@@ -178,8 +179,7 @@ for j=schemes
         WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
         WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
         % Generate the initial and exact solution
-        system(init_exec);
-        system('ln -sf initial.inp exact.inp');
+        system(exact_exec);
         % Run HyPar
         system(hypar_exec);
         % Read in the errors
@@ -228,5 +228,5 @@ grid on;
 hold off;
 
 % clean up
-system('rm -rf INIT');
+system('rm -rf EXACT');
 
