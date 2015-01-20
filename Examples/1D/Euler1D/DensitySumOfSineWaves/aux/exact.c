@@ -1,48 +1,55 @@
-#include <fstream>
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
-const double pi = 4.0*atan(1.0);
 
-double raiseto(double x,double a) {
+double raiseto(double x,double a) 
+{
   return(exp(a*log(x)));
 }
 
-int main(){
-  
+int main() 
+{
 	int NI,ndims,niter;
-  double dt;
-  std::ifstream in;
-  std::cout << "Reading file \"solver.inp\"...\n";
-  in.open("solver.inp");
-  if (!in) {
-    std::cout << "Error: Input file \"solver.inp\" not found. Default values will be used.\n";
-  } else {
+  double dt, pi = 4.0*atan(1.0), gamma = 1.4;
+  FILE *in, *out;
+
+  double rho_inf = 1.0,
+         u_inf   = 1.0,
+         p_inf   = 1.0/gamma;
+
+  /* default values */
+  ndims = 1;
+  NI    = 64;
+  niter = 1000;
+  dt    = 0.001;
+
+  printf("Reading file \"solver.inp\"...\n");
+  in = fopen("solver.inp","r");
+  if (!in) printf("Error: Input file \"solver.inp\" not found. Default values will be used.\n");
+  else {
     char word[500];
-    in >> word;
-    if (!strcmp(word, "begin")){
-      while (strcmp(word, "end")){
-        in >> word;
-        if (!strcmp(word, "ndims"))     in >> ndims;
-        else if (!strcmp(word, "size")) in >> NI;
-        else if (!strcmp(word, "n_iter")) in >> niter;
-        else if (!strcmp(word, "dt")) in >> dt;
+    fscanf(in,"%s",word);
+    if (!strcmp(word, "begin")) {
+      while (strcmp(word, "end")) {
+        fscanf(in,"%s",word);
+        if      (!strcmp(word, "ndims"))  fscanf(in,"%d",&ndims);
+        else if (!strcmp(word, "size"))   fscanf(in,"%d",&NI);
+        else if (!strcmp(word, "n_iter")) fscanf(in,"%d",&niter);
+        else if (!strcmp(word, "dt"))     fscanf(in,"%lf",&dt);
       }
-    }else{ 
-      std::cout << "Error: Illegal format in solver.inp. Crash and burn!\n";
-    }
+    } else printf("Error: Illegal format in solver.inp. Crash and burn!\n");
   }
-  in.close();
+  fclose(in);
+
   if (ndims != 1) {
-    std::cout << "ndims is not 1 in solver.inp. this code is to generate 1D exact conditions\n";
+    printf("ndims is not 1 in solver.inp. Make sure the correct solver.inp file is present.\n");
     return(0);
   }
-	std::cout << "Grid:\t\t\t" << NI << "\n";
-  std::cout << "Input maximum wavenumber (typically NI/2): ";
-  int limit; std::cin >> limit;
+	printf("Grid: %d\n",NI);
+  printf("Input maximum wavenumber (typically NI/2): ");
+  int limit; scanf("%d",&limit);
   printf("Max wavenumber: %d\n",limit);
 
 	int i,k;
@@ -60,12 +67,11 @@ int main(){
   }
 
 	double *x, *rho,*rhou,*e;
-  FILE *out;
-
 	x    = (double*) calloc (NI, sizeof(double));
 	rho  = (double*) calloc (NI, sizeof(double));
 	rhou = (double*) calloc (NI, sizeof(double));
 	e    = (double*) calloc (NI, sizeof(double));
+
 	for (i = 0; i < NI; i++){
 		x[i] = -0.5 + i*dx;
     double RHO,U,P,drho=0;
@@ -73,9 +79,9 @@ int main(){
       double Ak = factor * raiseto(((double)k),-5.0/6.0);
       drho += (Ak * cos(2*pi*((double)k)*(x[i]-tf)+phi[k]));
     }
-    RHO = 1.0 + drho;
-    U   = 1.0;
-    P   = 1.0/1.4;
+    RHO = rho_inf + drho;
+    U   = u_inf;
+    P   = p_inf;
     rho[i]  = RHO;
     rhou[i] = RHO*U;
     e[i]    = P/0.4 + 0.5*RHO*U*U;
@@ -107,9 +113,9 @@ int main(){
       double Ak = factor * raiseto(((double)k),-5.0/6.0);
       drho += (Ak * cos(2*pi*((double)k)*(x[i])+phi[k]));
     }
-    RHO = 1.0 + drho;
-    U   = 0.1;
-    P   = 1.0/1.4;
+    RHO = rho_inf + drho;
+    U   = u_inf;
+    P   = p_inf;
     rho[i]  = RHO;
     rhou[i] = RHO*U;
     e[i]    = P/0.4 + 0.5*RHO*U*U;

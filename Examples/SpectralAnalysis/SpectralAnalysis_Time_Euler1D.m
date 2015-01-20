@@ -7,21 +7,21 @@ clear all;
 close all;
 
 % remove all useless files
-system('rm -rf *.dat *.inp *.log INIT');
+system('rm -rf *.dat *.inp *.log EXACT FOURIER');
 
 % Ask for path to HyPar source directory
 hypar_path = input('Enter path to HyPar source: ','s');
 
 % Compile the code to generate the exact solution
-cmd = ['g++ ',hypar_path, ...
-    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/exact.C ', ...
+cmd = ['gcc ',hypar_path, ...
+    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/exact.c -lm ', ...
     '-o EXACT'];
 system(cmd);
 % Compile the code to do a Fourier transform of the solution
 fft_include =' '; % specify path to FFTW3 include, if not in default path
 fft_lib = ' -lfftw3'; % specify path to FFTW3 lib, if not in default path
-cmd = ['g++ ',hypar_path, ...
-    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/fourier.C ', ...
+cmd = ['gcc ',hypar_path, ...
+    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/fourier.c -lm ', ...
     fft_include,' ',fft_lib,' -o FOURIER'];
 system(cmd);
 
@@ -41,21 +41,21 @@ path(path,strcat(hypar_path,'/Examples/Matlab/'));
 % set problem specific input parameters
 ndims = 1;
 nvars = 3;
-iproc = 1;
+iproc = 4;
 ghost = 3;
 
 % set grid size;
 N = 256;
-max_wavenumber = 32;
+max_wavenumber = 128;
 
 % specify spatial discretization scheme
 hyp_scheme = 'crweno5';
 hyp_int_type = 'components';
 
 % specify dt
-dt_ex = [0.001 0.002 0.004 0.005];
-dt_im = [0.001 0.002 0.005 0.010 0.02 0.04 0.05];
-t_final = 1.0;
+dt_ex = [0.0002 0.0005 0.001 0.002];
+dt_im = [0.0002 0.0005 0.001 0.002];
+t_final = 0.5;
 
 % set physical model and related parameters
 model = 'euler1d';
@@ -65,21 +65,20 @@ upw   = 'roe';
 
 % time integration methods to test
 ts = [ ...
-        'arkimex'; ...
-        'rk     '  ...
+        'rk     '; ...
+        'arkimex'  ...
      ];
 tstype = [
-            '3     '; ...
-            'ssprk3'  ...
+            'ssprk3'; ...
+            '3     '  ...
          ];
-use_petsc = [1,0];
-is_implicit = [1,0];
+use_petsc = [0,1];
+is_implicit = [0,1];
 schemes = 1:size(ts,1);
 
 % specify plotting styles
-style = [ '-ro'; '-rs'; '-r^'; '-rd'; '-rp'; '-rh'; '-rx'; ...
-          '-bo'; '-bs'; '-b^'; '-bd'; ...
-        ];
+style_im = ['-ro'; '-rs'; '-r^'; '-rd'; '-rp'; '-rh'; '-rx'];
+style_ex = ['-bo'; '-bs'; '-b^'; '-bd'; '-bp'; '-bh'; '-bx'];
 
 %-------------------------------------------------------------------------%
 % if 'arkimex' time-integrator is used, the following options
@@ -88,9 +87,9 @@ style = [ '-ro'; '-rs'; '-r^'; '-rd'; '-rp'; '-rh'; '-rx'; ...
 % use split hyperbolic flux form (acoustic and entropy modes)?
 hyp_flux_split = 'yes';
 % treat acoustic waves implicitly, and entropy waves explicitly
-hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_implicit';
+% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_implicit';
 % treat acoustic and entropy waves implicitly
-% hyp_flux_flag  = '-hyperbolic_f_implicit -hyperbolic_df_implicit';
+hyp_flux_flag  = '-hyperbolic_f_implicit -hyperbolic_df_implicit';
 % treat acoustic and entropy waves explicitly
 % hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_explicit';
 
@@ -129,8 +128,8 @@ figSpectrum = figure('Position',[1 scrsz(4)/2 scrsz(3)/2 scrsz(4)/2]);
 count = 0;
 succ_count = 0;
 max_methods = size(ts,1) * max(size(dt_im,2),size(dt_ex,2));
-legend_str = char(zeros(max_methods+1,23));
-legend_str(1,:) = 'Exact                  ';
+legend_str = char(zeros(max_methods+1,24));
+legend_str(1,:) = 'Exact                   ';
 
 ymin = 1.0;
 ymax = 1e-16;
@@ -145,11 +144,11 @@ for j = schemes
                 '-ts_adapt_type none ', ...
                 hyp_flux_flag,' ', ...
                 '-snes_type newtonls ', ...
-                '-snes_rtol 1e-3 ', ...
-                '-snes_atol 1e-3 ', ...
+                '-snes_rtol 1e-8 ', ...
+                '-snes_atol 1e-8 ', ...
                 '-ksp_type gmres ', ...
-                '-ksp_rtol 1e-3 ', ...
-                '-ksp_atol 1e-3 ', ...
+                '-ksp_rtol 1e-8 ', ...
+                '-ksp_atol 1e-8 ', ...
                 '-ksp_max_it 1000 ', ...
                 '-snes_max_it 1000 ', ...
                 ' ');
@@ -167,8 +166,10 @@ for j = schemes
     
     if (is_implicit(j))
         dt = dt_im;
+        style = style_im;
     else
         dt = dt_ex;
+        style = style_ex;
     end
     
     % find out number of dt levels
@@ -216,16 +217,30 @@ for j = schemes
         % run the Fourier analysis code
         system(fourier_exec);
         
+        flag_success = 1;
         % read in the exact and final spectra
-        data = load('spectrum_exact.dat');
-        ampl_exact = data(:,2);
-        data = load('spectrum_final.dat');
-        ampl_comp  = data(:,2);
-        wavenumber = data(:,1);
+        if (exist('spectrum_exact.dat','file'))
+            data = load('spectrum_exact.dat');
+            ampl_exact = data(:,2);
+            wavenumber = data(:,1);
+        else
+            flag_success = 0;
+        end
+        if (exist('spectrum_final.dat','file'))
+            data = load('spectrum_final.dat');
+            ampl_comp  = data(:,2);            
+        else
+            flag_success = 0;
+        end
         
         % normalize
         ampl_exact = ampl_exact / sum(ampl_exact);
         ampl_comp  = ampl_comp / sum(ampl_comp);
+        if (flag_success)
+            if (~min(isfinite(ampl_comp)))
+                flag_success = 0;
+            end
+        end
                
         % Clean up
         system(clean_exec);
@@ -238,16 +253,16 @@ for j = schemes
             hold on;
         end
 
-        if (min(isfinite(ampl_comp)))
+        if (flag_success)
             fprintf('done.\n');
               
             % plot the spectrum
             figure(figSpectrum);
             loglog(wavenumber(1:max_wavenumber),ampl_comp(1:max_wavenumber), ...
-                style(count+1,:),'linewidth',1,'MarkerSize',5);
+                style(r,:),'linewidth',1,'MarkerSize',5);
             hold on;
             name = [sprintf('%7s',ts(j,:)),'-',sprintf('%6s',tstype(j,:)), ...
-                    ' dt ',sprintf('%5.3f',dt(r))];
+                    ' dt ',sprintf('%6.4f',dt(r))];
             legend_str(succ_count+2,:) = name;
             succ_count = succ_count + 1;
             

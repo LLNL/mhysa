@@ -8,21 +8,21 @@ clear all;
 close all;
 
 % remove all useless files
-system('rm -rf *.dat *.inp *.log INIT');
+system('rm -rf *.dat *.inp *.log EXACT');
 
 % Ask for path to HyPar source directory
 hypar_path = input('Enter path to HyPar source: ','s');
 
 % Compile the code to generate the exact solution
-cmd = ['g++ ',hypar_path, ...
-    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/exact.C ', ...
+cmd = ['gcc ',hypar_path, ...
+    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/exact.c -lm ', ...
     '-o EXACT'];
 system(cmd);
 % Compile the code to do a Fourier transform of the solution
 fft_include =' '; % specify path to FFTW3 include, if not in default path
 fft_lib = ' -lfftw3'; % specify path to FFTW3 lib, if not in default path
-cmd = ['g++ ',hypar_path, ...
-    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/fourier.C ', ...
+cmd = ['gcc ',hypar_path, ...
+    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/fourier.c -lm ', ...
     fft_include,' ',fft_lib,' -o FOURIER'];
 system(cmd);
 
