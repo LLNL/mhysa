@@ -1,0 +1,14 @@
+-------------------------------
+    MATLAB SCRIPTS
+------------------------------
+
+This folder has some MATLAB scripts which can be used to 
+quickly test the spectral properties of numerical schemes.
+
++ Scripts named 'SpectralAnalysis_Space_xxx.m' test the spectral
+  properties of the spatial discretization operators for a suitable
+  example of physical model 'xxx'.
+
++ Scripts named 'SpectralAnalysis_Time_xxx.m' test the spectral
+  properties of the algorithm for various time-integration methods
+  and time step sizes for a suitable example of physical model 'xxx'.
