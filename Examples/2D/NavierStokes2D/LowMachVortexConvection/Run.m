@@ -281,4 +281,4 @@ mkdir(dumpname);
 system(['mv op* *.eps ',dumpname,'/']);
 
 % clean up
-system('rm -rf *.log *.bin *.eps INIT EXACT');
+system('rm -rf *.dat *.inp *.log *.bin *.eps INIT EXACT');
