@@ -1,0 +1,10 @@
+-------------------------------
+    MATLAB SCRIPTS
+------------------------------
+
+This folder has some MATLAB scripts for some miscellaneous
+performance analysis and testing of numerical properties of
+various schemes.
+
+See comments in each script to see what they do.
+
