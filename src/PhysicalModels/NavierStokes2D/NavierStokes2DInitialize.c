@@ -10,18 +10,27 @@
 
 double NavierStokes2DComputeCFL        (void*,void*,double,double);
 int    NavierStokes2DFlux              (double*,double*,int,void*,double);
+int    NavierStokes2DStiffFlux         (double*,double*,int,void*,double);
 int    NavierStokes2DRoeAverage        (double*,double*,double*,void*);
+int    NavierStokes2DParabolicFunction (double*,double*,void*,void*,double);
+int    NavierStokes2DSource            (double*,double*,void*,void*,double);
+
 int    NavierStokes2DLeftEigenvectors  (double*,double*,void*,int);
 int    NavierStokes2DRightEigenvectors (double*,double*,void*,int);
-int    NavierStokes2DParabolicFunction (double*,double*,void*,void*,double);
-int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
-int    NavierStokes2DSource            (double*,double*,void*,void*,double);
+
 int    NavierStokes2DUpwindRoe         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwindRF          (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwindSWFS        (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwindRusanov     (double*,double*,double*,double*,double*,double*,int,void*,double);
+
+int    NavierStokes2DUpwinddFRoe       (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwinddFRF        (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwinddFLLF       (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwinddFRusanov   (double*,double*,double*,double*,double*,double*,int,void*,double);
+
 int    NavierStokes2DGravityField      (void*,void*);
+int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
 
 int NavierStokes2DInitialize(void *s,void *m)
 {
@@ -124,14 +133,6 @@ int NavierStokes2DInitialize(void *s,void *m)
   /* Scaling the Reynolds number with the M_inf */
   physics->Re /= physics->Minf;
 
-  /* some checks on the inputs */
-  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
-    if (!mpi->rank) {
-      fprintf(stderr,"Error in NavierStokes2DInitialize: This physical model does not have a splitting ");
-      fprintf(stderr,"of the hyperbolic term defined.\n");
-    }
-    return(1);
-  }
   /* check that a well-balanced upwinding scheme is being used for cases with gravity */
   if (   ((physics->grav_x != 0.0) || (physics->grav_y != 0.0))
       && (strcmp(physics->upw_choice,_LLF_    )) 
@@ -145,12 +146,10 @@ int NavierStokes2DInitialize(void *s,void *m)
   }
   /* check that solver has the correct choice of diffusion formulation */
   if (strcmp(solver->spatial_type_par,_NC_2STAGE_)) {
-    if (!mpi->rank) {
+    if (!mpi->rank) 
       fprintf(stderr,"Error in NavierStokes2DInitialize(): Parabolic term spatial discretization must be \"%s\"\n",_NC_2STAGE_);
-    }
     return(1);
   }
-
 
   /* initializing physical model-specific functions */
   solver->ComputeCFL  = NavierStokes2DComputeCFL;
@@ -163,9 +162,28 @@ int NavierStokes2DInitialize(void *s,void *m)
   else if (!strcmp(physics->upw_choice,_SWFS_   )) solver->Upwind = NavierStokes2DUpwindSWFS;
   else if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->Upwind = NavierStokes2DUpwindRusanov;
   else {
-    fprintf(stderr,"Error in NavierStokes2DInitialize(): %s is not a valid upwinding scheme.\n",
-            physics->upw_choice);
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in NavierStokes2DInitialize(): %s is not a valid upwinding scheme. ",
+              physics->upw_choice);
+      fprintf(stderr,"Choices are %s, %s, %s, %s, and %s.\n",_ROE_,_RF_,_LLF_,_SWFS_,_RUSANOV_);
+    }
     return(1);
+  }
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    solver->dFFunction = NavierStokes2DStiffFlux;
+    if      (!strcmp(physics->upw_choice,_ROE_    )) solver->UpwinddF = NavierStokes2DUpwinddFRoe;
+    else if (!strcmp(physics->upw_choice,_RF_     )) solver->UpwinddF = NavierStokes2DUpwinddFRF;
+    else if (!strcmp(physics->upw_choice,_LLF_    )) solver->UpwinddF = NavierStokes2DUpwinddFLLF;
+    else if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->UpwinddF = NavierStokes2DUpwinddFRusanov;
+    else {
+      if (!mpi->rank) {
+        fprintf(stderr,"Error in NavierStokes2DInitialize(): %s is not a valid upwinding scheme ",
+                physics->upw_choice);
+        fprintf(stderr,"for use with split hyperbolic flux form. Use %s, %s, %s, or %s.\n",
+                _ROE_,_RF_,_LLF_,_RUSANOV_);
+      }
+      return(1);
+    }
   }
   solver->AveragingFunction     = NavierStokes2DRoeAverage;
   solver->GetLeftEigenvectors   = NavierStokes2DLeftEigenvectors;

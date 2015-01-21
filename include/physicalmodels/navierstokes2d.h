@@ -56,7 +56,7 @@
     P   = (e - 0.5*rho*vsq) * (gamma-1.0); \
   }
 
-#define _NavierStokes2DSetFlux_(f,rho,vx,vy,e,P,p,dir) \
+#define _NavierStokes2DSetFlux_(f,rho,vx,vy,e,P,dir) \
   { \
     if (dir == _XDIR_) { \
       f[0] = rho * vx; \
@@ -71,6 +71,22 @@
     } \
   }
 
+
+#define _NavierStokes2DSetStiffFlux_(f,rho,vx,vy,e,P,dir,gamma) \
+  { \
+    double gamma_inv = 1.0/gamma; \
+    if (dir == _XDIR_) { \
+      f[0] = gamma_inv * rho * vx; \
+      f[1] = gamma_inv * rho * vx * vx + P; \
+      f[2] = gamma_inv * rho * vx * vy; \
+      f[3] = (e + P) * vx - 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy) * vx; \
+    } else if (dir == _YDIR_) { \
+      f[0] = gamma_inv * rho * vy; \
+      f[1] = gamma_inv * rho * vy * vx; \
+      f[2] = gamma_inv * rho * vy * vy + P; \
+      f[3] = (e + P) * vy - 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy) * vy; \
+    } \
+  }
 #define _NavierStokes2DRoeAverage_(uavg,uL,uR,p) \
   { \
     double  rho ,vx, vy, e ,P ,H ,csq, vsq; \
