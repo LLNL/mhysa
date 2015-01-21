@@ -1,13 +1,13 @@
 % Script to test the maximum stable time step size
 % for various time-integration methods.
-% Case: Density Sine Wave
-% Model: 1D Euler
+% Case: Sine Wave
+% Model: 1D Linear Advection
 
 clear all;
 close all;
 
 fprintf('Maximum stable time step test on a smooth solution ');
-fprintf('to the 1D Euler equations.\n');
+fprintf('to the 1D linear advection equations.\n');
 
 % Ask for path to HyPar source directory
 hypar_path = input('Enter path to HyPar source: ','s');
@@ -20,27 +20,24 @@ tolerance = input('Enter step size tolerance: ');
 path(path,strcat(hypar_path,'/Examples/Matlab/'));
 
 % Compile the code to generate the initial solution
-cmd = ['gcc ',hypar_path, ...
-       '/Examples/1D/Euler1D/DensitySineWave/aux/exact.c -lm ', ...
-       '-o EXACT'];
+cmd = ['g++ ',hypar_path, ...
+       '/Examples/1D/LinearAdvection/SineWave/aux/init.C ', ...
+       '-o INIT'];
 system(cmd);
 % find the HyPar binary
 hypar = [hypar_path,'/bin/HyPar'];
 
 % Get the default
 [~,~,~,~,~,~,~,~,~, ...
-    ~,hyp_int_type,par_type,par_scheme,~,cons_check, ...
-    screen_op_iter,file_op_iter,~, ~,input_mode, ...
+    hyp_flux_split,hyp_int_type,par_type,par_scheme,~,cons_check, ...
+    screen_op_iter,file_op_iter,~, ip_type,input_mode, ...
     output_mode,n_io,op_overwrite,~,nb,bctype,dim,face,limits, ...
     mapped,borges,yc,nl,eps,p,rc,xi,wtol,lutype,norm,maxiter,atol,rtol, ...
     verbose] = SetDefaults();
 
-% Set initial solution file type to ASCII
-ip_type = 'ascii';
-
 % set problem specific input parameters
 ndims = 1;
-nvars = 3;
+nvars = 1;
 iproc = 1;
 ghost = 3;
 
@@ -54,10 +51,10 @@ t_final = 1.0;
 maxerr = 1.0;
 
 % set physical model and related parameters
-model = 'euler1d';
-gamma = 1.4;
-grav  = 0.0;
-upw   = 'roe';
+model = 'linear-advection-diffusion-reaction';
+adv = 1.0/t_final; % set advection speed such that t_final is one time
+                   % period over the periodic domain so that the initial
+                   % solution is the exact solution
 
 % time integration methods to test
 ts = [ ...
@@ -66,19 +63,21 @@ ts = [ ...
         'arkimex'; ...
         'rk     '; ...
         'rk     '; ...
+        'rk     '; ...
         'rk     '  ...
      ];
 tstype = [
-            '2e    '; ...
-            '3     '; ...
-            '4     '; ...
-            '22    '; ...
-            'ssprk3'; ...
-            '44    '  ...
+            '2e '; ...
+            '3  '; ...
+            '4  '; ...
+            '2a '; ...
+            '3  '; ...
+            '3bs'; ...
+            '4  '  ...
          ];
-order = [2,3,4,2,3,4];
-use_petsc = [1,1,1,0,0,0];
-is_implicit = [1,1,1,0,0,0];
+order = [2,3,4,2,3,3,4];
+use_petsc = [1,1,1,1,1,1,1];
+is_implicit = [1,1,1,0,0,0,0];
 schemes = 1:size(ts,1);
 
 % plotting styles
@@ -89,7 +88,14 @@ style = [ ...
           '-kp'; ...
           '-kv'; ...
           '-k^'; ...
+          '-k>'; ...
+          '-k<'; ...
         ];
+
+if (size(schemes,2) > size(style,1))
+    fprintf('Error: number of plotting styles defined less than number of method to test.\n');
+    return;
+end
 
 % turn off solution output to file
 op_format = 'none';
@@ -97,31 +103,12 @@ op_format = 'none';
 % set grid size;
 N = 320;
 
-%-------------------------------------------------------------------------%
-% for the 'arkimex' time-integrators, the following options
-% can be chosen from ('rk' time-integrators will ignore this):-
-
-% use split hyperbolic flux form (acoustic and entropy modes)?
-hyp_flux_split = 'yes';
-% treat acoustic waves implicitly, and entropy waves explicitly
-% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_implicit';
-% treat acoustic and entropy waves implicitly
-hyp_flux_flag  = '-hyperbolic_f_implicit -hyperbolic_df_implicit';
-% treat acoustic and entropy waves explicitly
-% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_explicit';
-
-% or no splitting?
-% hyp_flux_split = 'no';
-% hyp_flux_flag = '-hyperbolic_implicit'; % implicit treatment
-% hyp_flux_flag = '-hyperbolic_explicit'; % explicit treatment
-%------------------------------------------------------------------------%
-
 % set the commands to run the executables
 nproc = 1;
 for i = 1:max(size(iproc))
     nproc = nproc * iproc(i);
 end
-exact_exec = './EXACT > exact.log 2>&1';
+init_exec = './INIT > init.log 2>&1';
 clean_exec = 'rm -rf *.inp *.dat *.log';
 
 % open figure window
@@ -151,7 +138,7 @@ for j = schemes
                 '-ts_type ',strtrim(ts(j,:)),' ', ...
                 '-ts_',strtrim(ts(j,:)),'_type ',strtrim(tstype(j,:)),' ', ...
                 '-ts_adapt_type none ', ...
-                hyp_flux_flag,' ', ...
+                '-hyperbolic_implicit ', ...
                 '-snes_type newtonls ', ...
                 '-snes_rtol 1e-8 ', ...
                 '-snes_atol 1e-8 ', ...
@@ -205,10 +192,11 @@ for j = schemes
         file_op_iter,op_format,ip_type,input_mode,output_mode, ...
         n_io,op_overwrite,model);
     WriteBoundaryInp(nb,bctype,dim,face,limits);
-    WritePhysicsInp_Euler1D(gamma,grav,upw);
+    WritePhysicsInp_LinearADR(adv);
     WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
     WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
-    system(exact_exec);
+    system(init_exec);
+    system('ln -sf initial.inp exact.inp');
     hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ', ...
                   hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
                   ' > run.log 2>&1' ...
@@ -259,10 +247,11 @@ for j = schemes
             file_op_iter,op_format,ip_type,input_mode,output_mode, ...
             n_io,op_overwrite,model);
         WriteBoundaryInp(nb,bctype,dim,face,limits);
-        WritePhysicsInp_Euler1D(gamma,grav,upw);
+        WritePhysicsInp_LinearADR(adv);
         WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
         WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
-        system(exact_exec);
+        system(init_exec);
+        system('ln -sf initial.inp exact.inp');
         hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ', ...
                       hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
                       ' > run.log 2>&1' ...
@@ -271,7 +260,7 @@ for j = schemes
         [err,wt] = ReadErrorDat(ndims);
         [~,fcounts,~,~,~,~,~,~] = ReadFunctionCounts();
         system(clean_exec);
-        if ((~min(isfinite(err))) || (err(2)/err_theoretical > 2))
+        if ((~min(isfinite(err))) || (err(2)/err_theoretical > 10))
             fprintf('failed.\n');
             dt_max = dt_new;
             dt_factor = 0.5 * dt_factor;
