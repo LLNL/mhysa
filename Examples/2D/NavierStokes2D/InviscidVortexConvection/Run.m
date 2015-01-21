@@ -50,7 +50,6 @@ N = [64 64];
 % specify spatial discretization scheme
 hyp_scheme      = 'crweno5';
 hyp_int_type    = 'components';
-hyp_flux_split  = 'no';
 % parameters controlling the WENO-type schemes
 mapped  = 0;
 borges  = 0;
@@ -86,25 +85,55 @@ file_op_iter    = 40;
 ip_type         = 'binary';
 
 % set time-integration scheme
-ts      = 'rk';
-tstype  = 'ssprk3';
+ts      = 'arkimex';
+tstype  = '2e';
+use_petsc = 1;
+
+if (strcmp(ts,'arkimex'))
+%-------------------------------------------------------------------------%
+%   if 'arkimex' time-integrator is used, the following options for semi-
+%   implicit time-integration can be chosen from:-
+
+%   use split hyperbolic flux form (acoustic and entropy modes)?
+    hyp_flux_split = 'yes';
+%   treat acoustic waves implicitly, and entropy waves explicitly
+    hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_implicit';
+%   treat acoustic and entropy waves implicitly
+%     hyp_flux_flag  = '-hyperbolic_f_implicit -hyperbolic_df_implicit';
+%   treat acoustic and entropy waves explicitly
+%     hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_explicit';
+
+%   or no splitting?
+%     hyp_flux_split = 'no';
+%     hyp_flux_flag = '-hyperbolic_implicit'; % implicit treatment
+%     hyp_flux_flag = '-hyperbolic_explicit'; % explicit treatment
+%------------------------------------------------------------------------%
+else
+    hyp_flux_split = 'no';
+    hyp_flux_flag = ' ';
+end
 
 petsc_flags = ' ';
-% set PETSc time-integration flags (comment to turn off)
-% petsc_flags = [petsc_flags, '-use-petscts '];
-% petsc_flags = [petsc_flags, '-ts_type ',ts,' '];
-% petsc_flags = [petsc_flags, '-ts_',ts,'_type ',tstype,' '];
-% petsc_flags = [petsc_flags,' -ts_dt ',num2str(dt,'%1.16e'),' '];
-% petsc_flags = [petsc_flags,' -ts_final_time ',num2str(t_final,'%f'),' '];
-% petsc_flags = [petsc_flags, '-ts_adapt_type none '];
-% petsc_flags = [petsc_flags, '-hyperbolic_implicit '];
-% petsc_flags = [petsc_flags, '-snes_type newtonls '];
-% petsc_flags = [petsc_flags, '-snes_rtol 1e-10 '];
-% petsc_flags = [petsc_flags, '-snes_atol 1e-10 '];
-% petsc_flags = [petsc_flags, '-ksp_type gmres '];
-% petsc_flags = [petsc_flags, '-ksp_rtol 1e-10 '];
-% petsc_flags = [petsc_flags, '-ksp_atol 1e-10 '];
-% petsc_flags = [petsc_flags, '-log_summary'];
+if (use_petsc)
+    % set PETSc time-integration
+    petsc_flags = [petsc_flags, '-use-petscts '];
+    petsc_flags = [petsc_flags, '-ts_type ',ts,' '];
+    petsc_flags = [petsc_flags, '-ts_',ts,'_type ',tstype,' '];
+    petsc_flags = [petsc_flags,' -ts_dt ',num2str(dt,'%1.16e'),' '];
+    petsc_flags = [petsc_flags,' -ts_final_time ',num2str(t_final,'%f'),' '];
+    petsc_flags = [petsc_flags, '-ts_adapt_type none '];
+    if (strcmp(ts,'arkimex'))
+        % set flags for implicit time integration
+        petsc_flags = [petsc_flags, hyp_flux_flag,' '];
+        petsc_flags = [petsc_flags, '-snes_type newtonls '];
+        petsc_flags = [petsc_flags, '-snes_rtol 1e-10 '];
+        petsc_flags = [petsc_flags, '-snes_atol 1e-10 '];
+        petsc_flags = [petsc_flags, '-ksp_type gmres '];
+        petsc_flags = [petsc_flags, '-ksp_rtol 1e-10 '];
+        petsc_flags = [petsc_flags, '-ksp_atol 1e-10 '];
+    end
+    petsc_flags = [petsc_flags, '-log_summary'];
+end
 
 % set boundaries
 nb = 4;
@@ -234,8 +263,8 @@ else
     grid on;
 
     % write plot to files
-    print(figSolution,'-depsc',['Contour.eps']);
-    print(figCrossSec,'-depsc',['CrossSc.eps']);
+    print(figSolution,'-depsc','Contour.eps');
+    print(figCrossSec,'-depsc','CrossSc.eps');
 end
 
 % create the directory to save the solution and plots in
