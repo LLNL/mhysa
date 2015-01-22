@@ -67,6 +67,25 @@ style = [ ...
           '-bs'; ...
           '-bd'; ...
         ];
+
+%-------------------------------------------------------------------------%
+% for the 'arkimex' time-integrators, the following options
+% can be chosen from ('rk' time-integrators will ignore this):-
+
+% use split hyperbolic flux form (acoustic and entropy modes)?
+% hyp_flux_split = 'yes';
+% treat acoustic waves implicitly, and entropy waves explicitly
+% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_implicit';
+% treat acoustic and entropy waves implicitly
+% hyp_flux_flag  = '-hyperbolic_f_implicit -hyperbolic_df_implicit';
+% treat acoustic and entropy waves explicitly
+% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_explicit';
+
+% or no splitting?
+hyp_flux_split = 'no';
+hyp_flux_flag = '-hyperbolic_implicit'; % implicit treatment
+% hyp_flux_flag = '-hyperbolic_explicit'; % explicit treatment
+%------------------------------------------------------------------------%
     
 % maximum expected error
 maxerr = 10.0;
@@ -81,7 +100,6 @@ N = [128 128];             % grid dimensions
 % specify spatial discretization scheme details
 hyp_scheme      = 'crweno5';
 hyp_int_type    = 'components';
-hyp_flux_split  = 'no';
 par_type        = 'nonconservative-2stage';
 % parameters controlling the WENO-type schemes
 mapped  = 0;
@@ -167,12 +185,17 @@ if (strcmp(RefFlag,'yes'))
     % save the reference solution and log in a separate directory
     dir_name = strcat('refsoln_',sprintf('%03d_',N),hyp_scheme, ...
                       '_',sprintf('%04.1f',t_final));
+    if (exist(dir_name,'file'))
+        fprintf('Removing existing directory %s.\n',dir_name);
+        system(['rm -rf ',dir_name]);
+    end
     mkdir(dir_name);
-    system(['mv op.dat reference.bin reference.log ',dir_name]);
+    system(['mv op.bin *.inp reference.bin reference.log ',dir_name]);
+    system(['rm -rf ',dir_name,'/initial.inp']);
     % create a shortcut in the current folder for the reference solution
     system(['ln -sf ',dir_name,'/reference.bin reference.bin']);
     % clean up
-    system('rm -rf *.inp *.log *.dat BINOP2INP op.bin');
+    system('rm -rf *.inp *.log *.dat *.bin BINOP2INP');
 else
     refpath = input('Enter path to reference solution: ','s');
     if (~strcmp(refpath,'./')) && (~strcmp(refpath,'.'))
@@ -225,7 +248,7 @@ for j = schemes
             ' ');
         if (implicit(j))
             petsc_flags2 = sprintf('%s', ...
-                '-hyperbolic_implicit ', ...
+                hyp_flux_flag, ' ', ...
                 '-snes_type newtonls ', ...
                 '-snes_rtol 1e-10 ', ...
                 '-snes_atol 1e-10 ', ...
@@ -246,7 +269,7 @@ for j = schemes
         petsc_flags = ' ';
     end
     
-    % set number of grid refinement levels
+    % set time step sizes
     if (implicit(j))
         dt = dt_implicit;
     else
