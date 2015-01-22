@@ -4,7 +4,6 @@
 
 clear all;
 close all;
-system('rm -rf *.dat *.inp *.log *.bin *.eps EXACT');
 
 fprintf('Time convergence test for inviscid advection of density wave.\n');
 fprintf('Governing equations: 2D Navier-Stokes equations.\n');
@@ -78,10 +77,28 @@ iproc = [2 2];             % number of processors in each dimension
 ghost = 3;                 % number of ghost points
 N = [160 160];             % grid dimensions
 
+%-------------------------------------------------------------------------%
+% for the 'arkimex' time-integrators, the following options
+% can be chosen from ('rk' time-integrators will ignore this):-
+
+% use split hyperbolic flux form (acoustic and entropy modes)?
+% hyp_flux_split = 'yes';
+% treat acoustic waves implicitly, and entropy waves explicitly
+% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_implicit';
+% treat acoustic and entropy waves implicitly
+% hyp_flux_flag  = '-hyperbolic_f_implicit -hyperbolic_df_implicit';
+% treat acoustic and entropy waves explicitly
+% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_explicit';
+
+% or no splitting?
+hyp_flux_split = 'no';
+hyp_flux_flag = '-hyperbolic_implicit'; % implicit treatment
+% hyp_flux_flag = '-hyperbolic_explicit'; % explicit treatment
+%------------------------------------------------------------------------%
+
 % specify spatial discretization scheme details
-hyp_scheme      = 'crweno5';
+hyp_scheme      = 'weno5';
 hyp_int_type    = 'components';
-hyp_flux_split  = 'no';
 par_type        = 'nonconservative-2stage';
 % parameters controlling the WENO-type schemes
 mapped  = 0;
@@ -167,18 +184,16 @@ for j = schemes
             ' ');
         if (implicit(j))
             petsc_flags2 = sprintf('%s', ...
-                '-hyperbolic_implicit ', ...
+                hyp_flux_flag, ' ', ...
                 '-snes_type newtonls ', ...
-                '-snes_rtol 1e-10 ', ...
-                '-snes_atol 1e-10 ', ...
+                '-snes_rtol 1e-8 ', ...
+                '-snes_atol 1e-8 ', ...
                 '-snes_stol 1e-16 ', ...
                 '-ksp_type gmres ', ...
-                '-ksp_rtol 1e-10 ', ...
-                '-ksp_atol 1e-10 ', ...
+                '-ksp_rtol 1e-8 ', ...
+                '-ksp_atol 1e-8 ', ...
                 '-ksp_max_it 1000 ', ...
                 '-snes_max_it 1000 ', ...
-                '-ksp_monitor ', ...
-                '-snes_monitor ', ...
                 ' ');
         else
             petsc_flags2 = ' ';
@@ -301,4 +316,4 @@ print(figErrCost,'-depsc2',filename);
 system(['mv *.eps ',dumpname,'/']);
 
 % clean up
-system('rm -rf INIT *.dat *.log *.inp *.bin');
+system('rm -rf EXACT *.dat *.log *.inp *.bin');
