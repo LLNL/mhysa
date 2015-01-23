@@ -179,7 +179,7 @@ if (strcmp(RefFlag,'yes'))
     fid = fopen('bin.inp','w');
     fprintf(fid,'op.bin');
     fclose(fid);
-    system('./BINOP2INP < bin.inp 2>&1 > conv.log');
+    system('./BINOP2INP < bin.inp 2>&1 > conv.log && rm bin.inp');
     system('mv solution.inp reference.bin');
     system('mv run.log reference.log');
     % save the reference solution and log in a separate directory
@@ -192,10 +192,10 @@ if (strcmp(RefFlag,'yes'))
     mkdir(dir_name);
     system(['mv op.bin *.inp reference.bin reference.log ',dir_name]);
     system(['rm -rf ',dir_name,'/initial.inp']);
-    % create a shortcut in the current folder for the reference solution
-    system(['ln -sf ',dir_name,'/reference.bin reference.bin']);
     % clean up
     system('rm -rf *.inp *.log *.dat *.bin BINOP2INP');
+    % create a shortcut in the current folder for the reference solution
+    system(['ln -sf ',dir_name,'/reference.bin reference.bin']);
 else
     refpath = input('Enter path to reference solution: ','s');
     if (~strcmp(refpath,'./')) && (~strcmp(refpath,'.'))
