@@ -36,6 +36,11 @@ hypar = [hypar_path,'/bin/HyPar'];
     verbose] = SetDefaults();
 
 % time integration methods to test
+% do not use native time-integrators, use only PETSc ones
+% if the final time is not an integer multiple of the  time step 
+% size being tried, native time-integrators will not yield a 
+% solution at that exact final time --> the error will not be
+% the true error.
 ts = [ ...
         'arkimex'; ...
         'arkimex'; ...
@@ -288,16 +293,14 @@ for j = schemes
 
     % run simulation with initial dt
     fprintf('\t%s, dt=%1.6e, factor=%8.6f: ',[ts(j,:),' ',tstype(j,:)],dt,dt_factor);
-    niter = int32(t_final/dt);
-    t_final_adjusted = niter * dt;
-    dt_max = t_final_adjusted;
+    dt_max = t_final;
     if (strcmp(petsc_flags,' ')) 
         petscdt = ' ';
         petscft = ' ';
         petscms = ' ';
     else
         petscdt = [' -ts_dt ',num2str(dt,'%1.16e'),' '];
-        petscft = [' -ts_final_time ',num2str(t_final_adjusted,'%f'),' '];
+        petscft = [' -ts_final_time ',num2str(t_final,'%f'),' '];
         petscms = [' -ts_max_steps ',num2str(100*niter,'%d'),' '];
     end
     WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,strtrim(ts(j,:)), ...
@@ -343,14 +346,13 @@ for j = schemes
 
         fprintf('\t%s, dt=%1.6e, factor=%8.6f: ',[ts(j,:),' ',tstype(j,:)],dt_new,dt_factor);
         niter = int32(t_final/dt_new);
-        t_final_adjusted = niter * dt_new;
         if (strcmp(petsc_flags,' ')) 
             petscdt = ' ';
             petscft = ' ';
             petscms = ' ';
         else
             petscdt = [' -ts_dt ',num2str(dt_new,'%1.16e'),' '];
-            petscft = [' -ts_final_time ',num2str(t_final_adjusted,'%f'),' '];
+            petscft = [' -ts_final_time ',num2str(t_final,'%f'),' '];
             petscms = [' -ts_max_steps ',num2str(100*niter,'%d'),' '];
         end
         WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,strtrim(ts(j,:)), ...

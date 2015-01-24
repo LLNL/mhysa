@@ -57,6 +57,11 @@ adv = 1.0/t_final; % set advection speed such that t_final is one time
                    % solution is the exact solution
 
 % time integration methods to test
+% do not use native time-integrators, use only PETSc ones
+% if the final time is not an integer multiple of the  time step 
+% size being tried, native time-integrators will not yield a 
+% solution at that exact final time --> the error will not be
+% the true error.
 ts = [ ...
         'arkimex'; ...
         'arkimex'; ...

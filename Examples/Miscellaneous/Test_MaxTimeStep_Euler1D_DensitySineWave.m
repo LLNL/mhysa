@@ -95,7 +95,7 @@ style = [ ...
 op_format = 'none';
 
 % set grid size;
-N = 320;
+N = 80;
 
 %-------------------------------------------------------------------------%
 % for the 'arkimex' time-integrators, the following options
@@ -239,18 +239,14 @@ for j = schemes
         err_theoretical = Errors(r-1,2) * (dt_new/dt)^order(j);
 
         fprintf('\t%s, dt=%1.6e, factor=%8.6f: ',[ts(j,:),' ',tstype(j,:)],dt_new,dt_factor);
-        if (mod(t_final,dt_new) == 0)
-            niter = int32(t_final/dt_new);
-        else
-            niter = int32(t_final/dt_new)+1;
-        end
+        niter = floor(t_final/dt_new);
         if (strcmp(petsc_flags,' ')) 
             petscdt = ' ';
             petscft = ' ';
             petscms = ' ';
         else
             petscdt = [' -ts_dt ',num2str(dt_new,'%1.16e'),' '];
-            petscft = [' -ts_final_time ',num2str(t_final,'%f'),' '];
+            petscft = [' -ts_final_time ',num2str((niter*dt_new),'%f'),' '];
             petscms = [' -ts_max_steps ',num2str(100*niter,'%d'),' '];
         end
         WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,strtrim(ts(j,:)), ...
