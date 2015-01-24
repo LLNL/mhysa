@@ -77,7 +77,7 @@ int main()
     double RHO,U,P,drho=0;
     for (k=1; k<=limit; k++) {
       double Ak = factor * raiseto(((double)k),-5.0/6.0);
-      drho += (Ak * cos(2*pi*((double)k)*(x[i]-tf)+phi[k]));
+      drho += (Ak * cos(2*pi*((double)k)*(x[i]-u_inf*tf)+phi[k]));
     }
     RHO = rho_inf + drho;
     U   = u_inf;

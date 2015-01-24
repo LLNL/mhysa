@@ -67,7 +67,7 @@ int main() {
 
 	for (i = 0; i < NI; i++){
 		x[i] = i*dx;
-    double DRHO = 0.1*sin(2*pi*(x[i]-tf));
+    double DRHO = 0.1*sin(2*pi*(x[i]-U*tf));
     rho[i]  = RHO + DRHO;
     rhou[i] = rho[i]*U;
     e[i]    = P/(gamma-1.0) + 0.5*rho[i]*U*U;
