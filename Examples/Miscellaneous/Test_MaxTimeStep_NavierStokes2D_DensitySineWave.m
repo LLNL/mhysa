@@ -224,16 +224,15 @@ for j = schemes
 
     % run simulation with initial dt
     fprintf('\t%s, dt=%1.6e, factor=%8.6f: ',[ts(j,:),' ',tstype(j,:)],dt,dt_factor);
-    niter = int32(t_final/dt);
-    t_final_adjusted = niter * dt;
-    dt_max = t_final_adjusted;
+    niter = floor(t_final/dt);
+    dt_max = niter * dt;
     if (strcmp(petsc_flags,' ')) 
         petscdt = ' ';
         petscft = ' ';
         petscms = ' ';
     else
         petscdt = [' -ts_dt ',num2str(dt,'%1.16e'),' '];
-        petscft = [' -ts_final_time ',num2str(t_final_adjusted,'%f'),' '];
+        petscft = [' -ts_final_time ',num2str(niter*dt,'%f'),' '];
         petscms = [' -ts_max_steps ',num2str(100*niter,'%d'),' '];
     end
     WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,strtrim(ts(j,:)), ...
