@@ -172,7 +172,7 @@ RefFlag = input('Generate reference solution? ','s');
 if (strcmp(RefFlag,'yes'))
     fprintf('Generating reference solution...\n');
     % small time step for reference solution
-    dt_ref = 0.05 * min(min(dt_implicit),min(dt_explicit));    
+    dt_ref = 0.05 * dt_init;    
     % use explicit RK 4-stage, 4th order
     ts_ref = 'rk';              
     tstype_ref = '44';          
