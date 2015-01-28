@@ -167,8 +167,6 @@ int PetscRegisterTIMethods(int rank)
                 }
               }
             }
-          } else if (strcmp(word,"end")) {
-            if (!rank) printf("Warning: keyword %s in file \"time_method.inp\" is not valid. Ignoring.\n",word);
           }
         }
       } else {
