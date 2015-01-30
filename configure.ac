@@ -8,8 +8,12 @@ AC_MSG_NOTICE([hypar AC_PACKAGE_VERSION])
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT('$(top_srcdir)')
 
-AC_ARG_WITH([mpidir],AC_HELP_STRING([--with-mpidir],[Specify path where mpicc is installed.]))
+AC_ARG_WITH([mpi_dir],AC_HELP_STRING([--with-mpi-dir],[Specify path where mpicc is installed.]))
 AC_ARG_ENABLE([omp],AS_HELP_STRING([--enable-omp],[Enable OpenMP threads]))
+AC_ARG_ENABLE([scalapack],AS_HELP_STRING([--enable-scalapack],[Enable ScaLAPACK]))
+AC_ARG_WITH([blas_dir],AC_HELP_STRING([--with-blas-dir],[Specify path where BLAS libraries are installed.]))
+AC_ARG_WITH([lapack_dir],AC_HELP_STRING([--with-scalapack-dir],[Specify path where LAPACK libraries are installed.]))
+AC_ARG_WITH([scalapack_dir],AC_HELP_STRING([--with-scalapack-dir],[Specify path where ScaLAPACK libraries are installed.]))
 
 AC_PROG_CC
 
@@ -23,11 +27,22 @@ else
   fi
 fi
 
-if test "x$with_mpidir" != "x" ; then
-  AC_MSG_CHECKING([for mpicc in $with_mpidir/bin/])
-  if test -e $with_mpidir/bin/mpicc ; then
+if test "x$with_mpi_dir" != "x" ; then
+  AC_MSG_CHECKING([for mpicc in $with_mpi_dir/bin/])
+  if test -e $with_mpi_dir/bin/mpicc ; then
     AC_MSG_RESULT([yes])
-    MPICC=$with_mpidir/bin/mpicc
+    MPICC=$with_mpi_dir/bin/mpicc
+  else
+    AC_MSG_RESULT([no])
+  fi
+fi
+
+if test "x$MPI_DIR" != "x" ; then
+  AC_MSG_NOTICE([Found environment variable MPI_DIR=${MPI_DIR}.])
+  AC_MSG_CHECKING([for mpicc in ${MPI_DIR}/bin/])
+  if test -e ${MPI_DIR}/bin/mpicc ; then
+    AC_MSG_RESULT([yes])
+    MPICC=${MPI_DIR}/bin/mpicc
   else
     AC_MSG_RESULT([no])
   fi
@@ -38,7 +53,7 @@ if test "x$MPICC" = "x" ; then
 fi
 
 if test "x$MPICC" = "x" ; then
-  AC_MSG_WARN([Cannot find mpicc. Will compile with gcc. Use --with-mpidir to specify the location of mpicc.])
+  AC_MSG_WARN([Cannot find mpicc. Will compile with gcc. Use --with-mpi-dir to specify the location of mpicc.])
   CFLAGS="$CFLAGS -Dserial"
 else
   CC=$MPICC
@@ -48,6 +63,21 @@ if test "x$enable_omp" = "xyes" ; then
   AC_MSG_NOTICE([Compiling with OpenMP support.])
   CFLAGS="$CFLAGS -Dwith_omp -fopenmp"
   LIBS="$LIBS -lgomp"
+fi
+
+if test "x$enable_scalapack" = "xyes" ; then
+  AC_MSG_NOTICE([Compiling with ScaLAPACK support.])
+  CFLAGS="$CFLAGS -Dwith_scalapack"
+  if test "x$with_scalapack_dir" != "x" ; then
+    LDFLAGS="$LDFLAGS -Wl,-rpath,$with_scalapack_dir/lib -L$with_scalapack_dir/lib"
+  fi
+  if test "x$with_blas_dir" != "x" ; then
+    LDFLAGS="$LDFLAGS -Wl,-rpath,$with_blas_dir/lib -L$with_blas_dir/lib"
+  fi
+  if test "x$with_lapack_dir" != "x" ; then
+    LDFLAGS="$LDFLAGS -Wl,-rpath,$with_lapack_dir/lib -L$with_lapack_dir/lib"
+  fi
+  LIBS="$LIBS -lscalapack -lblas -llapack"
 fi
 
 if test "x$PETSC_DIR" = "x"; then

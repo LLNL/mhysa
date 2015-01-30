@@ -4,4 +4,5 @@ libTridiagLU_a_SOURCES = blocktridiagLU.c \
 												 tridiagLU.c \
                          tridiagLUGS.c \
                          tridiagIterJacobi.c \
+												 tridiagScaLPK.c \
                          tridiagLUInit.c
