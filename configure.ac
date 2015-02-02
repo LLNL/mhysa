@@ -8,7 +8,7 @@ AC_MSG_NOTICE([hypar AC_PACKAGE_VERSION])
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT('$(top_srcdir)')
 
-AC_ARG_WITH([mpi_dir],AC_HELP_STRING([--with-mpi-dir],[Specify path where mpicc is installed.]))
+AC_ARG_WITH([mpi_dir],AC_HELP_STRING([--with-mpi-dir],[Specify path where MPI is installed.]))
 AC_ARG_ENABLE([omp],AS_HELP_STRING([--enable-omp],[Enable OpenMP threads]))
 AC_ARG_ENABLE([scalapack],AS_HELP_STRING([--enable-scalapack],[Enable ScaLAPACK]))
 AC_ARG_WITH([blas_dir],AC_HELP_STRING([--with-blas-dir],[Specify path where BLAS libraries are installed.]))
@@ -21,17 +21,19 @@ CFLAGS="$CFLAGS -I$includedir"
 if test "$CC" = "gcc" ; then
   CFLAGS="$CFLAGS -std=c99"
   LIBS="$LIBS -lm"
+  MPI_CC=mpicc
 else 
   if test "$CC" = "xlc" ; then
     CFLAGS="$CFLAGS -qlanglvl=stdc99"
+    MPI_CC=mpixlc
   fi
 fi
 
 if test "x$with_mpi_dir" != "x" ; then
-  AC_MSG_CHECKING([for mpicc in $with_mpi_dir/bin/])
-  if test -e $with_mpi_dir/bin/mpicc ; then
+  AC_MSG_CHECKING([for ${MPI_CC} in $with_mpi_dir/bin/])
+  if test -e $with_mpi_dir/bin/${MPI_CC} ; then
     AC_MSG_RESULT([yes])
-    MPICC=$with_mpi_dir/bin/mpicc
+    MPICC=$with_mpi_dir/bin/${MPI_CC}
   else
     AC_MSG_RESULT([no])
   fi
@@ -39,21 +41,21 @@ fi
 
 if test "x$MPI_DIR" != "x" ; then
   AC_MSG_NOTICE([Found environment variable MPI_DIR=${MPI_DIR}.])
-  AC_MSG_CHECKING([for mpicc in ${MPI_DIR}/bin/])
-  if test -e ${MPI_DIR}/bin/mpicc ; then
+  AC_MSG_CHECKING([for ${MPI_CC} in ${MPI_DIR}/bin/])
+  if test -e ${MPI_DIR}/bin/${MPI_CC} ; then
     AC_MSG_RESULT([yes])
-    MPICC=${MPI_DIR}/bin/mpicc
+    MPICC=${MPI_DIR}/bin/${MPI_CC}
   else
     AC_MSG_RESULT([no])
   fi
 fi
 
 if test "x$MPICC" = "x" ; then
-  AC_CHECK_PROG(MPICC,mpicc,mpicc)
+  AC_CHECK_PROG(MPICC,${MPI_CC},${MPI_CC})
 fi
 
 if test "x$MPICC" = "x" ; then
-  AC_MSG_WARN([Cannot find mpicc. Will compile with gcc. Use --with-mpi-dir to specify the location of mpicc.])
+  AC_MSG_WARN([Cannot find ${MPI_CC}. Will compile with gcc. Use --with-mpi-dir to specify the location of ${MPI_CC}.])
   CFLAGS="$CFLAGS -Dserial"
 else
   CC=$MPICC
