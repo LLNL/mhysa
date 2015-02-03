@@ -15,7 +15,7 @@ int tridiagScaLPK(double *a,double *b,double *c,double *x,
               int n,int ns,void *r,void *m)
 {
   TridiagLU       *params = (TridiagLU*) r;
-  int             rank,nproc,nglobal,nrhs,i,s,ia,ib,desca[9],descb[9],err,
+  int             rank,nproc,nglobal,nrhs,i,s,ia,ib,desca[9],descb[9],ierr,
                   lwork;
   double          *dl,*d,*du,*rhs,*work;
   struct timeval  start,end;
@@ -26,8 +26,6 @@ int tridiagScaLPK(double *a,double *b,double *c,double *x,
   nglobal=n;
 #else
   MPI_Comm        *comm = (MPI_Comm*) m;
-  int             ierr = 0;
-  const int       nvar = 4;
 
   if (comm) {
     MPI_Comm_size(*comm,&nproc);
@@ -102,9 +100,9 @@ int tridiagScaLPK(double *a,double *b,double *c,double *x,
 
     /* call the ScaLAPACK function */
     gettimeofday(&start,NULL);
-    pddtsv_(&nglobal,&nrhs,dl,d,du,&ia,desca,rhs,&ib,descb,work,&lwork,&err);
+    pddtsv_(&nglobal,&nrhs,dl,d,du,&ia,desca,rhs,&ib,descb,work,&lwork,&ierr);
     gettimeofday(&end,NULL);
-    if (err) return(err);
+    if (ierr) return(ierr);
     
     for (i=0; i<n; i++) x[i*ns+s] = rhs[i];
 
