@@ -53,8 +53,6 @@ int tridiagScaLPK(double *a,double *b,double *c,double *x,
     return(1);
   }
 
-  /* start */
-  gettimeofday(&start,NULL);
 
   nrhs = 1;
   ia = 1;
@@ -88,6 +86,11 @@ int tridiagScaLPK(double *a,double *b,double *c,double *x,
   rhs   = (double*) calloc (n,sizeof(double));
   work  = (double*) calloc(lwork,sizeof(double));
 
+  params->total_time = 0.0;
+  params->stage1_time = 0.0;
+  params->stage2_time = 0.0;
+  params->stage3_time = 0.0;
+  params->stage4_time = 0.0;
   for (s=0; s<ns; s++) {
 
     for (i=0; i<n; i++) {
@@ -98,14 +101,18 @@ int tridiagScaLPK(double *a,double *b,double *c,double *x,
     }
 
     /* call the ScaLAPACK function */
+    gettimeofday(&start,NULL);
     pddtsv_(&nglobal,&nrhs,dl,d,du,&ia,desca,rhs,&ib,descb,work,&lwork,&err);
+    gettimeofday(&end,NULL);
     if (err) return(err);
     
     for (i=0; i<n; i++) x[i*ns+s] = rhs[i];
+
+    long long walltime;
+    walltime = ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
+    params->total_time += (double) walltime / 1000000.0;
   }
 
-  /* end of stage 4 */
-  gettimeofday(&end,NULL);
 
   free(dl);
   free(d);
@@ -113,14 +120,6 @@ int tridiagScaLPK(double *a,double *b,double *c,double *x,
   free(rhs);
   free(work);
 
-  /* save runtimes if needed */
-  params->stage1_time = 0.0;
-  params->stage2_time = 0.0;
-  params->stage3_time = 0.0;
-  params->stage4_time = 0.0;
-  long long walltime;
-  walltime = ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
-  params->total_time = (double) walltime / 1000000.0;
   return(0);
 }
 
