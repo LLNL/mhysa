@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
@@ -13,7 +14,6 @@ int TimeInitialize(void *s,void *m,void *ts)
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           s;
   MPIVariables    *mpi    = (MPIVariables*)    m;
-  MSTIParameters  *params = (MSTIParameters*)  solver->msti;
   int             d;
   if (!solver) return(1);
 
@@ -34,8 +34,13 @@ int TimeInitialize(void *s,void *m,void *ts)
   _ArraySetValue_(TS->u  ,size*solver->nvars,0.0);
   _ArraySetValue_(TS->rhs,size*solver->nvars,0.0);
 
-  /* allocate arrays for multi-stage schemes, if required */
-  if (params) {
+  /* initialize arrays to NULL, then allocate as necessary */
+  TS->U             = NULL;
+  TS->Udot          = NULL;
+  TS->BoundaryFlux  = NULL;
+  if (!strcmp(solver->time_scheme,_RK_)) {
+    /* explicit Runge-Kutta methods */
+    ExplicitRKParameters  *params = (ExplicitRKParameters*)  solver->msti;
     int nstages = params->nstages;
     TS->U     = (double**) calloc (nstages,sizeof(double*));
     TS->Udot  = (double**) calloc (nstages,sizeof(double*));
@@ -47,7 +52,7 @@ int TimeInitialize(void *s,void *m,void *ts)
     TS->BoundaryFlux = (double**) calloc (nstages,sizeof(double*));
     for (i=0; i<nstages; i++) 
       TS->BoundaryFlux[i] = (double*) calloc (2*solver->ndims*solver->nvars,sizeof(double));
-  } else TS->U = TS->Udot = TS->BoundaryFlux = NULL;
+  } 
 
   /* set right-hand side function pointer */
   TS->RHSFunction = TimeRHSFunctionExplicit;

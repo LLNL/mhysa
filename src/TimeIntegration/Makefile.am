@@ -2,8 +2,8 @@ noinst_LIBRARIES = libTimeIntegration.a
 libTimeIntegration_a_SOURCES = \
   TimeCleanup.c \
   TimeInitialize.c \
-  TimeMSTICleanup.c \
-  TimeMSTIInitialize.c \
+  TimeExplicitRKCleanup.c \
+  TimeExplicitRKInitialize.c \
   TimePreStep.c \
   TimePostStep.c \
   TimePrintStep.c \

@@ -72,8 +72,8 @@ int Cleanup(void *s,void *m)
   }
 
   /* Clean up any allocations from time-integration */
-  if (solver->msti) {
-    IERR TimeMSTICleanup(solver->msti); CHECKERR(ierr);
+  if (!strcmp(solver->time_scheme,_RK_)) {
+    IERR TimeExplicitRKCleanup(solver->msti); CHECKERR(ierr);
     free(solver->msti);
   }
 

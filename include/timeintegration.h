@@ -36,14 +36,15 @@ typedef struct time_integration_variables {
   int (*RHSFunction)   (double*,double*,void*,void*,double);
 } TimeIntegration;
 
-typedef struct _multistage_time_integration_ {
+typedef struct _explicit_rungekutta_time_integration_ {
   int nstages;    /* number of stages */
   double *A,*b,*c;/* Butcher tableaux */
-} MSTIParameters;
+} ExplicitRKParameters;
 
 /* functions */
-int TimeMSTIInitialize(char*,char*,void*);
-int TimeMSTICleanup   (void*);
+int TimeExplicitRKInitialize(char*,char*,void*);
+int TimeExplicitRKCleanup   (void*);
+
 int TimeInitialize    (void*,void*,void*);
 int TimeCleanup       (void*);
 int TimePreStep       (void*);

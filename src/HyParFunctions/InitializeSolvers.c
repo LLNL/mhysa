@@ -288,9 +288,9 @@ int InitializeSolvers(void *s, void *m)
       solver->msti = NULL;
     } else if (!strcmp(solver->time_scheme,_RK_)) {
       solver->TimeIntegrate = TimeRK;
-      solver->msti = (MSTIParameters*) calloc (1,sizeof(MSTIParameters));
-      IERR TimeMSTIInitialize(solver->time_scheme,solver->time_scheme_type,
-                              solver->msti); CHECKERR(ierr);
+      solver->msti = (ExplicitRKParameters*) calloc (1,sizeof(ExplicitRKParameters));
+      IERR TimeExplicitRKInitialize(solver->time_scheme,solver->time_scheme_type,
+                                    solver->msti); CHECKERR(ierr);
     } else {
       fprintf(stderr,"Error: %s is a not a supported time-integration scheme.\n",
               solver->time_scheme);
@@ -303,9 +303,9 @@ int InitializeSolvers(void *s, void *m)
     solver->msti = NULL;
   } else if (!strcmp(solver->time_scheme,_RK_)) {
     solver->TimeIntegrate = TimeRK;
-    solver->msti = (MSTIParameters*) calloc (1,sizeof(MSTIParameters));
-    IERR TimeMSTIInitialize(solver->time_scheme,solver->time_scheme_type,
-                              solver->msti); CHECKERR(ierr);
+    solver->msti = (ExplicitRKParameters*) calloc (1,sizeof(ExplicitRKParameters));
+    IERR TimeExplicitRKInitialize(solver->time_scheme,solver->time_scheme_type,
+                                  solver->msti); CHECKERR(ierr);
   } else {
     fprintf(stderr,"Error: %s is a not a supported time-integration scheme.\n",
             solver->time_scheme);

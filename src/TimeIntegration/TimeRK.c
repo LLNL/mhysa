@@ -6,11 +6,11 @@
 
 int TimeRK(void *ts)
 {
-  TimeIntegration *TS     = (TimeIntegration*) ts;
-  HyPar           *solver = (HyPar*)           TS->solver;
-  MPIVariables    *mpi    = (MPIVariables*)    TS->mpi;
-  MSTIParameters  *params = (MSTIParameters*)  solver->msti;
-  int             d, stage, i;
+  TimeIntegration       *TS     = (TimeIntegration*) ts;
+  HyPar                 *solver = (HyPar*)           TS->solver;
+  MPIVariables          *mpi    = (MPIVariables*)    TS->mpi;
+  ExplicitRKParameters  *params = (ExplicitRKParameters*)  solver->msti;
+  int                   d, stage, i;
   _DECLARE_IERR_;
 
   int size = 1;

@@ -5,9 +5,9 @@
 #include <arrayfunctions.h>
 #include <timeintegration.h>
 
-int TimeMSTIInitialize(char *class,char *type,void *s)
+int TimeExplicitRKInitialize(char *class,char *type,void *s)
 {
-  MSTIParameters *params = (MSTIParameters*) s;
+  ExplicitRKParameters *params = (ExplicitRKParameters*) s;
 
   if (!strcmp(class,_RK_)) {
     if (!strcmp(type,_RK_1FE_)) {
@@ -64,13 +64,14 @@ int TimeMSTIInitialize(char *class,char *type,void *s)
       params->c[1] = 1.0; params->c[2] = 0.5;
       params->b[0] = params->b[1] = 1.0/6.0; params->b[2] = 2.0/3.0;
     } else {
-      fprintf(stderr,"Error in TimeMSTIInitialize(): %s is not a supported ",type);
+      fprintf(stderr,"Error in TimeExplicitRKInitialize(): %s is not a supported ",type);
       fprintf(stderr,"multi-stage time integration scheme of class %s.\n",class);
       return(1);
     }
   } else {
-    fprintf(stderr,"Error in TimeMSTIInitialize(): %s is not a supported ",class);
-    fprintf(stderr,"multi-stage time integrator class.\n");
+    fprintf(stderr,"Error in TimeExplicitRKInitialize(): Code should not have ");
+    fprintf(stderr,"reached here for %s class of time-integrators. This is a ",class);
+    fprintf(stderr,"coding mistake.\n");
     return(1);
   }
   return(0);

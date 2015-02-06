@@ -2,9 +2,9 @@
 #include <string.h>
 #include <timeintegration.h>
 
-int TimeMSTICleanup(void *s)
+int TimeExplicitRKCleanup(void *s)
 {
-  MSTIParameters *params = (MSTIParameters*) s;
+  ExplicitRKParameters *params = (ExplicitRKParameters*) s;
   if (params->A) free(params->A);
   if (params->b) free(params->b);
   if (params->c) free(params->c);
