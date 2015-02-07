@@ -5,7 +5,7 @@
 #include <arrayfunctions.h>
 #include <timeintegration.h>
 
-int TimeExplicitRKInitialize(char *class,char *type,void *s)
+int TimeExplicitRKInitialize(char *class,char *type,void *s,void *m)
 {
   ExplicitRKParameters *params = (ExplicitRKParameters*) s;
 

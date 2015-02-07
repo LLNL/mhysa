@@ -75,6 +75,9 @@ int Cleanup(void *s,void *m)
   if (!strcmp(solver->time_scheme,_RK_)) {
     IERR TimeExplicitRKCleanup(solver->msti); CHECKERR(ierr);
     free(solver->msti);
+  } else if (!strcmp(solver->time_scheme,_GLM_GEE_)) {
+    IERR TimeGLMGEECleanup(solver->msti); CHECKERR(ierr);
+    free(solver->msti);
   }
 
   /* Clean up any spatial reconstruction related allocations */

@@ -1,13 +1,9 @@
+#include <basic.h>
+
 /* definitions */
 #define _FORWARD_EULER_ "euler"
 #define _RK_            "rk"
-
-#define _RK_1FE_        "1fe"     /* Forward Euler                        */
-#define _RK_22_         "22"      /* 2 stage, 2nd order                   */
-#define _RK_33_         "33"      /* 3 stage, 3rd order                   */
-#define _RK_44_         "44"      /* 4 stage, 4th order                   */
-#define _RK_SSP3_       "ssprk3"  /* 3 stage, 3rd order SSP               */
-#define _RK_TVD3_       "tvdrk3"  /* Same as ssprk3                       */
+#define _GLM_GEE_       "glm-gee"
 
 typedef struct time_integration_variables {
   int     iter;         /* iteration number                     */
@@ -36,15 +32,37 @@ typedef struct time_integration_variables {
   int (*RHSFunction)   (double*,double*,void*,void*,double);
 } TimeIntegration;
 
+/* Explicit Runge-Kutta Methods */
+#define _RK_1FE_        "1fe"     /* Forward Euler                        */
+#define _RK_22_         "22"      /* 2 stage, 2nd order                   */
+#define _RK_33_         "33"      /* 3 stage, 3rd order                   */
+#define _RK_44_         "44"      /* 4 stage, 4th order                   */
+#define _RK_SSP3_       "ssprk3"  /* 3 stage, 3rd order SSP               */
+#define _RK_TVD3_       "tvdrk3"  /* Same as ssprk3                       */
 typedef struct _explicit_rungekutta_time_integration_ {
   int nstages;    /* number of stages */
   double *A,*b,*c;/* Butcher tableaux */
 } ExplicitRKParameters;
-
-/* functions */
-int TimeExplicitRKInitialize(char*,char*,void*);
+int TimeExplicitRKInitialize(char*,char*,void*,void*);
 int TimeExplicitRKCleanup   (void*);
 
+/* General Linear Methods with Global Error Estimate */
+#define _GLM_GEE_YYT_   "yyt"
+#define _GLM_GEE_YEPS_  "yeps"
+#define _GLM_GEE_23_    "23"
+typedef struct _glm_gee_time_integration_ {
+  int nstages,    /* number of stages */
+      r;
+  char ee_mode[_MAX_STRING_SIZE_];
+  double *A_yyt ,*B_yyt ,*C_yyt ,*D_yyt , *c_yyt;
+  double *A_yeps,*B_yeps,*C_yeps,*D_yeps, *c_yeps;
+  double *A, *B, *C, *D, *c;
+  double gamma;
+} GLMGEEParameters;
+int TimeGLMGEEInitialize(char*,char*,void*,void*);
+int TimeGLMGEECleanup   (void*);
+
+/* functions */
 int TimeInitialize    (void*,void*,void*);
 int TimeCleanup       (void*);
 int TimePreStep       (void*);
@@ -55,3 +73,4 @@ int TimePrintStep     (void*);
 /* Time Integration Functions */
 int TimeForwardEuler  (void*);
 int TimeRK            (void*);
+int TimeGLMGEE        (void*);

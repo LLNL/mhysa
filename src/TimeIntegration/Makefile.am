@@ -4,10 +4,13 @@ libTimeIntegration_a_SOURCES = \
   TimeInitialize.c \
   TimeExplicitRKCleanup.c \
   TimeExplicitRKInitialize.c \
+  TimeGLMGEECleanup.c \
+  TimeGLMGEEInitialize.c \
   TimePreStep.c \
   TimePostStep.c \
   TimePrintStep.c \
   TimeRHSFunctionExplicit.c \
   TimeStep.c \
   TimeForwardEuler.c \
+  TimeGLMGEE.c \
   TimeRK.c

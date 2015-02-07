@@ -20,6 +20,12 @@ int TimeCleanup(void *ts)
     for (i=0; i<params->nstages; i++) free(TS->U[i]);            free(TS->U);
     for (i=0; i<params->nstages; i++) free(TS->Udot[i]);         free(TS->Udot);
     for (i=0; i<params->nstages; i++) free(TS->BoundaryFlux[i]); free(TS->BoundaryFlux);
+  } else if (!strcmp(solver->time_scheme,_GLM_GEE_)) {
+    int i;
+    GLMGEEParameters  *params = (GLMGEEParameters*)  solver->msti;
+    for (i=0; i<2*params->r-1  ; i++) free(TS->U[i]);            free(TS->U);
+    for (i=0; i<params->nstages; i++) free(TS->Udot[i]);         free(TS->Udot);
+    for (i=0; i<params->nstages; i++) free(TS->BoundaryFlux[i]); free(TS->BoundaryFlux);
   }
 
   /* deallocate arrays */
