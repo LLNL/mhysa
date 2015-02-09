@@ -64,12 +64,13 @@ int TimeGLMGEEInitialize(char*,char*,void*,void*);
 int TimeGLMGEECleanup   (void*);
 
 /* functions */
-int TimeInitialize    (void*,void*,void*);
-int TimeCleanup       (void*);
-int TimePreStep       (void*);
-int TimeStep          (void*);
-int TimePostStep      (void*);
-int TimePrintStep     (void*);
+int TimeInitialize      (void*,void*,void*);
+int TimeCleanup         (void*);
+int TimePreStep         (void*);
+int TimeStep            (void*);
+int TimePostStep        (void*);
+int TimePrintStep       (void*);
+int TimeGetAuxSolutions (int*,double*,void*,int);
 
 /* Time Integration Functions */
 int TimeForwardEuler  (void*);

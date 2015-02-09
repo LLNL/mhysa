@@ -112,6 +112,9 @@ typedef struct main_parameters {
   /* Pointer to the boundary zones: boundary zone type is defined in boundaryconditions.h */
   void  *boundary;
 
+  /* pointer to the time-integration object */
+  void *time_integrator;
+
   /* frequency (iterations) of writing iteration information (dt,CFL,norm,etc) to screen */
   int screen_op_iter;
   

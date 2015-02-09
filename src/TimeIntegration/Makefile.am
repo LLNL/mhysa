@@ -6,6 +6,7 @@ libTimeIntegration_a_SOURCES = \
   TimeExplicitRKInitialize.c \
   TimeGLMGEECleanup.c \
   TimeGLMGEEInitialize.c \
+  TimeGetAuxSolutions.c \
   TimePreStep.c \
   TimePostStep.c \
   TimePrintStep.c \

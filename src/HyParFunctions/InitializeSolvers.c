@@ -277,6 +277,7 @@ int InitializeSolvers(void *s, void *m)
   }
 
   /* Time integration */
+  solver->time_integrator = NULL;
 #ifdef with_petsc
   if (solver->use_petscTS) {
     /* dummy -- not used */

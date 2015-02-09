@@ -4,25 +4,57 @@
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
+#include <timeintegration.h>
 #include <hypar.h>
 
 /* Function declarations */
 void IncrementFilenameIndex       (char*,int);
-static int OutputSolutionSerial   (void*,void*);
-static int OutputSolutionParallel (void*,void*);
+static int OutputSolutionSerial   (void*,void*,double*,char*);
+static int OutputSolutionParallel (void*,void*,double*,char*);
 
 int OutputSolution(void *s, void *m)
 {
   HyPar         *solver = (HyPar*)       s;
   MPIVariables  *mpi    = (MPIVariables*)m;
   _DECLARE_IERR_;
+  
+  if (!solver->WriteOutput) return(0);
+
+  /* time integration module may have auxiliary arrays to write out, so get them */
+  int     NSolutions = 0;
+  double  *uaux = NULL;
+  IERR TimeGetAuxSolutions(&NSolutions,uaux,solver,-1); CHECKERR(ierr);
+  if (NSolutions > 10) NSolutions = 10;
 
   /* if WriteOutput() is NULL, then return */
-  if (!solver->WriteOutput) return(0);
-  if (!strcmp(solver->output_mode,"serial")) 
-    return(OutputSolutionSerial(solver,mpi));
-  else
-    return(OutputSolutionParallel(solver,mpi));
+  int  n;
+  char fname_root[3]     = "op";
+  char aux_fname_root[4] = "ts0";
+
+  if (!strcmp(solver->output_mode,"serial")) {
+
+    for (n=0; n<NSolutions; n++) {
+      IERR TimeGetAuxSolutions(&NSolutions,uaux,solver,n); CHECKERR(ierr);
+      IERR OutputSolutionSerial(solver,mpi,uaux,aux_fname_root); CHECKERR(ierr);
+      aux_fname_root[2]++;
+    }
+    IERR OutputSolutionSerial(solver,mpi,solver->u,fname_root); CHECKERR(ierr);
+
+  } else {
+
+    for (n=0; n<NSolutions; n++) {
+      IERR TimeGetAuxSolutions(&NSolutions,uaux,solver,n); CHECKERR(ierr);
+      IERR OutputSolutionParallel(solver,mpi,uaux,aux_fname_root); CHECKERR(ierr);
+      aux_fname_root[2]++;
+    }
+    IERR OutputSolutionParallel(solver,mpi,solver->u,fname_root); CHECKERR(ierr);
+
+  }
+  
+  if (!strcmp(solver->op_overwrite,"no")) 
+    IncrementFilenameIndex(solver->filename_index,solver->index_length);
+
+  return(0);
 }
 
 /*
@@ -32,7 +64,7 @@ int OutputSolution(void *s, void *m)
   will not fit on one node. This approach is also not very
   scalable.
 */
-int OutputSolutionSerial(void *s, void *m)
+int OutputSolutionSerial(void *s, void *m, double *u, char* fname_root)
 {
   HyPar         *solver = (HyPar*)       s;
   MPIVariables  *mpi    = (MPIVariables*)m;
@@ -62,7 +94,7 @@ int OutputSolutionSerial(void *s, void *m)
   }
 
   /* Assemble the local output arrays into the global output arrays */
-  IERR MPIGatherArraynD(solver->ndims,mpi,ug,solver->u,solver->dim_global,
+  IERR MPIGatherArraynD(solver->ndims,mpi,ug,u,solver->dim_global,
                           solver->dim_local,solver->ghosts,solver->nvars);  CHECKERR(ierr);
   int offset_global, offset_local;
   offset_global = offset_local = 0;
@@ -77,11 +109,10 @@ int OutputSolutionSerial(void *s, void *m)
   if (!mpi->rank) {
     /* write output file to disk */
     char filename[_MAX_STRING_SIZE_] = "";
-    strcat(filename,"op");
+    strcat(filename,fname_root);
     if (!strcmp(solver->op_overwrite,"no")) {
       strcat(filename,"_");
       strcat(filename,solver->filename_index);
-      IncrementFilenameIndex(solver->filename_index,solver->index_length);
     }
     strcat(filename,solver->solnfilename_extn);
     printf("Writing solution file %s.\n",filename);
@@ -101,7 +132,7 @@ int OutputSolutionSerial(void *s, void *m)
   the specified number of I/O ranks in groups, just like in 
   parallel input of initial solution.  
 */
-int OutputSolutionParallel(void *s, void *m)
+int OutputSolutionParallel(void *s, void *m, double *u, char *fname_root)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -115,7 +146,8 @@ int OutputSolutionParallel(void *s, void *m)
 
   static int count = 0;
 
-  char filename_root[6] = "op";
+  char filename_root[_MAX_STRING_SIZE_];
+  strcat(filename_root,fname_root);
   strcat(filename_root,solver->solnfilename_extn);
   if (!mpi->rank) printf("Writing solution file %s.xxxx (parallel mode).\n",filename_root);
 
@@ -136,7 +168,7 @@ int OutputSolutionParallel(void *s, void *m)
 
   /* copy the solution */
   int index[ndims];
-  IERR ArrayCopynD(ndims,solver->u,(buffer+sizex),solver->dim_local,ghosts,0,index,solver->nvars); CHECKERR(ierr);
+  IERR ArrayCopynD(ndims,u,(buffer+sizex),solver->dim_local,ghosts,0,index,solver->nvars); CHECKERR(ierr);
 
   if (mpi->IOParticipant) {
 

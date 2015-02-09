@@ -84,6 +84,7 @@ int TimeInitialize(void *s,void *m,void *ts)
     else                        TS->ResidualFile = NULL;
   } else                        TS->ResidualFile = NULL;
 
+  solver->time_integrator = TS;
   return(0);
 }
 

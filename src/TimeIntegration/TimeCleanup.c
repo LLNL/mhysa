@@ -31,5 +31,6 @@ int TimeCleanup(void *ts)
   /* deallocate arrays */
   free(TS->u  );
   free(TS->rhs);
+  solver->time_integrator = NULL;
   return(0);
 }
