@@ -23,6 +23,19 @@
       } \
   }
 
+/* 
+  C = AB where A,B,C are not square but consistent 
+  (NColA=NRowB, NRowC=NRowA, NColC=NColB)
+*/
+#define _MatrixMultiplyNonSquare_(A,B,C,NRowA,NColA,NColB) \
+  { \
+    int matopsi,matopsj,matopsk; \
+    for (matopsi=0; matopsi<(NRowA); matopsi++) \
+      for (matopsj=0; matopsj<(NColB); matopsj++) { \
+        *((C)+matopsi*(NColB)+matopsj) = 0; \
+        for (matopsk=0; matopsk<(NColA); matopsk++) *((C)+matopsi*(NColB)+matopsj) += ((*((A)+matopsi*(NColA)+matopsk)) * (*((B)+matopsk*(NColB)+matopsj))); \
+      } \
+  }
 
 /* C = C - AB */
 #define _MatrixMultiplySubtract_(C,A,B,N) \
