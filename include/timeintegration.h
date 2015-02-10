@@ -50,6 +50,7 @@ int TimeExplicitRKCleanup   (void*);
 #define _GLM_GEE_YYT_    "yyt"
 #define _GLM_GEE_YEPS_   "yeps"
 #define _GLM_GEE_23_     "23"
+#define _GLM_GEE_24_     "24"
 #define _GLM_GEE_35_     "35"
 #define _GLM_GEE_EXRK2A_ "exrk2a"
 typedef struct _glm_gee_time_integration_ {

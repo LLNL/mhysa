@@ -19,6 +19,10 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
       params->nstages = 3;
       params->r       = 2;
       params->gamma   = 0.0;
+    } else if (!strcmp(type,_GLM_GEE_24_)) {
+      params->nstages = 4;
+      params->r       = 2;
+      params->gamma   = 0.0;
     } else if (!strcmp(type,_GLM_GEE_35_)) {
       params->nstages = 5;
       params->r       = 2;
@@ -67,7 +71,7 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
       params->B_yeps[1*s+0] = params->B_yeps[1*s+1] = 1.0/12.0; params->B_yeps[1*s+2] = -1.0/6.0;
 
       params->C_yeps[0*r+0] = 1.0;
-      params->C_yeps[1*r+0] = 1.0;
+      params->C_yeps[1*r+0] = 1.0;  params->C_yeps[1*r+1] = 10.0;
       params->C_yeps[2*r+0] = 1.0;  params->C_yeps[2*r+1] = -1.0;
 
       params->D_yeps[0*r+0] = 1.0;
@@ -79,12 +83,49 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
       params->B_yyt[0*s+0] = params->B_yyt[0*s+1] = 1.0/12.0; params->B_yyt[0*s+2] =  5.0/6.0;
       params->B_yyt[1*s+0] = params->B_yyt[1*s+1] = 1.0/6.0;  params->B_yyt[1*s+2] =  2.0/3.0;
 
-      params->C_yyt[0*r+0] = 1.0;
-      params->C_yyt[1*r+0] = 1.0;
-      params->C_yyt[2*r+0] = 2.0;  params->C_yyt[2*r+1] = -1.0;
+      params->C_yyt[0*r+0] =  1.0;
+      params->C_yyt[1*r+0] = -9.0;  params->C_yyt[1*r+1] = 10.0;
+      params->C_yyt[2*r+0] =  2.0;  params->C_yyt[2*r+1] = -1.0;
 
       params->D_yyt[0*r+0] = 1.0;
       params->D_yyt[1*r+1] = 1.0;
+
+    } else if (!strcmp(type,_GLM_GEE_24_)) {
+
+      params->A_yyt[1*s+0] = 0.75;
+      params->A_yyt[2*s+0] = 0.25;
+      params->A_yyt[2*s+1] = 29.0/60.0;
+      params->A_yyt[3*s+0] = -21.0/44.0;
+      params->A_yyt[3*s+1] = 145.0/44.0;
+      params->A_yyt[3*s+2] = -20.0/11.0;
+
+      params->B_yyt[0*s+0] = 109.0/275.0;
+      params->B_yyt[0*s+1] = 58.0/75.0;
+      params->B_yyt[0*s+2] = -37.0/110.0;
+      params->B_yyt[0*s+3] = 1.0/6.0;
+      params->B_yyt[1*s+0] = 3.0/11.0;
+      params->B_yyt[1*s+2] = 75.0/88.0;
+      params->B_yyt[1*s+3] = -1.0/8.0;
+
+      params->C_yyt[0*r+1] = 1.0;
+      params->C_yyt[1*r+0] = 75.0/58.0;
+      params->C_yyt[1*r+1] = -17.0/58.0;
+      params->C_yyt[2*r+1] = params->C_yyt[3*r+1] = 1.0;
+
+      params->D_yyt[0*r+0] = 1.0;
+      params->D_yyt[1*r+1] = 1.0;
+
+      double T[r*r],Tinv[r*r];
+      T[0*r+0] = 1.0;
+      T[0*r+1] = 0.0;
+      T[1*r+0] = 1.0;
+      T[1*r+1] = 1.0-params->gamma;
+      _MatrixInvert_(T,Tinv,r);
+
+      _ArrayCopy1D_(params->A_yyt,params->A_yeps,(s*s));
+      _MatrixMultiplyNonSquare_(Tinv,params->B_yyt,params->B_yeps,r,r,s);
+      _MatrixMultiplyNonSquare_(params->C_yyt,T,params->C_yeps,s,r,r);
+      _ArrayCopy1D_(params->D_yyt,params->D_yeps,(r*r));
 
     } else if (!strcmp(type,_GLM_GEE_35_)) {
 
