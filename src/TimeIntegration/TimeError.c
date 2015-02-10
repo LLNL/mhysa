@@ -10,6 +10,7 @@ int TimeError(void *ts)
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           TS->solver;
   MPIVariables    *mpi    = (MPIVariables*)    TS->mpi;
+  int             size    = solver->npoints_local_wghosts * solver->nvars;
 
   if (!strcmp(solver->time_scheme,_GLM_GEE_)) {
     /* For GLM-GEE methods, calculate the norm of the estimated global error */
@@ -18,8 +19,8 @@ int TimeError(void *ts)
     if (!strcmp(params->ee_mode,_GLM_GEE_YEPS_)) Uerr = TS->U[params->r];
     else {
       Uerr = TS->U[0];
-      _ArraySubtract1D_(Uerr,solver->u,TS->U[params->r],solver->npoints_local_wghosts);
-      _ArrayScale1D_(Uerr,(1.0/(1.0-params->gamma)),solver->npoints_local_wghosts);
+      _ArraySubtract1D_(Uerr,solver->u,TS->U[params->r],size);
+      _ArrayScale1D_(Uerr,(1.0/(1.0-params->gamma)),size);
     }
 
     double sum, global_sum;
