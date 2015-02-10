@@ -37,16 +37,16 @@ if test "x$with_mpi_dir" != "x" ; then
   else
     AC_MSG_RESULT([no])
   fi
-fi
-
-if test "x$MPI_DIR" != "x" ; then
-  AC_MSG_NOTICE([Found environment variable MPI_DIR=${MPI_DIR}.])
-  AC_MSG_CHECKING([for ${MPI_CC} in ${MPI_DIR}/bin/])
-  if test -e ${MPI_DIR}/bin/${MPI_CC} ; then
-    AC_MSG_RESULT([yes])
-    MPICC=${MPI_DIR}/bin/${MPI_CC}
-  else
-    AC_MSG_RESULT([no])
+else
+  if test "x$MPI_DIR" != "x" ; then
+    AC_MSG_NOTICE([Found environment variable MPI_DIR=${MPI_DIR}.])
+    AC_MSG_CHECKING([for ${MPI_CC} in ${MPI_DIR}/bin/])
+    if test -e ${MPI_DIR}/bin/${MPI_CC} ; then
+      AC_MSG_RESULT([yes])
+      MPICC=${MPI_DIR}/bin/${MPI_CC}
+    else
+      AC_MSG_RESULT([no])
+    fi
   fi
 fi
 
