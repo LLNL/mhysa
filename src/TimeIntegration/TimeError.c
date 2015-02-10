@@ -19,6 +19,7 @@ int TimeError(void *ts)
     else {
       Uerr = TS->U[0];
       _ArraySubtract1D_(Uerr,solver->u,TS->U[params->r],solver->npoints_local_wghosts);
+      _ArrayScale1D_(Uerr,(1.0/(1.0-params->gamma)),solver->npoints_local_wghosts);
     }
 
     double sum, global_sum;
