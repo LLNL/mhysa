@@ -70,7 +70,7 @@ int TimePreStep         (void*);
 int TimeStep            (void*);
 int TimePostStep        (void*);
 int TimePrintStep       (void*);
-int TimeGetAuxSolutions (int*,double*,void*,int);
+int TimeGetAuxSolutions (int*,double**,void*,int);
 
 /* Time Integration Functions */
 int TimeForwardEuler  (void*);

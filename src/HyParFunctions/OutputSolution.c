@@ -23,7 +23,7 @@ int OutputSolution(void *s, void *m)
   /* time integration module may have auxiliary arrays to write out, so get them */
   int     NSolutions = 0;
   double  *uaux = NULL;
-  IERR TimeGetAuxSolutions(&NSolutions,uaux,solver,-1); CHECKERR(ierr);
+  IERR TimeGetAuxSolutions(&NSolutions,NULL,solver,-1); CHECKERR(ierr);
   if (NSolutions > 10) NSolutions = 10;
 
   /* if WriteOutput() is NULL, then return */
@@ -34,16 +34,19 @@ int OutputSolution(void *s, void *m)
   if (!strcmp(solver->output_mode,"serial")) {
 
     for (n=0; n<NSolutions; n++) {
-      IERR TimeGetAuxSolutions(&NSolutions,uaux,solver,n); CHECKERR(ierr);
+      IERR TimeGetAuxSolutions(&NSolutions,&uaux,solver,n); CHECKERR(ierr);
       IERR OutputSolutionSerial(solver,mpi,uaux,aux_fname_root); CHECKERR(ierr);
       aux_fname_root[2]++;
     }
     IERR OutputSolutionSerial(solver,mpi,solver->u,fname_root); CHECKERR(ierr);
 
+    if (!strcmp(solver->op_overwrite,"no")) 
+      IncrementFilenameIndex(solver->filename_index,solver->index_length);
+
   } else {
 
     for (n=0; n<NSolutions; n++) {
-      IERR TimeGetAuxSolutions(&NSolutions,uaux,solver,n); CHECKERR(ierr);
+      IERR TimeGetAuxSolutions(&NSolutions,&uaux,solver,n); CHECKERR(ierr);
       IERR OutputSolutionParallel(solver,mpi,uaux,aux_fname_root); CHECKERR(ierr);
       aux_fname_root[2]++;
     }
@@ -51,9 +54,6 @@ int OutputSolution(void *s, void *m)
 
   }
   
-  if (!strcmp(solver->op_overwrite,"no")) 
-    IncrementFilenameIndex(solver->filename_index,solver->index_length);
-
   return(0);
 }
 
@@ -146,7 +146,7 @@ int OutputSolutionParallel(void *s, void *m, double *u, char *fname_root)
 
   static int count = 0;
 
-  char filename_root[_MAX_STRING_SIZE_];
+  char filename_root[_MAX_STRING_SIZE_]="";
   strcat(filename_root,fname_root);
   strcat(filename_root,solver->solnfilename_extn);
   if (!mpi->rank) printf("Writing solution file %s.xxxx (parallel mode).\n",filename_root);
