@@ -101,6 +101,9 @@ int BCSlipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
         } else if (dim == _YDIR_) {
           uvel_gpt = uvel;
           vvel_gpt = 2.0*boundary->FlowVelocity[_YDIR_] - vvel;
+        } else {
+          uvel_gpt = 0.0;
+          vvel_gpt = 0.0;
         }
         energy_gpt = inv_gamma_m1*pressure_gpt 
                     + 0.5 * rho_gpt * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt);
@@ -156,6 +159,10 @@ int BCSlipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
           uvel_gpt = uvel;
           vvel_gpt = vvel;
           wvel_gpt = 2.0*boundary->FlowVelocity[_ZDIR_] - wvel;
+        } else {
+          uvel_gpt = 0.0;
+          vvel_gpt = 0.0;
+          wvel_gpt = 0.0;
         }
         energy_gpt = inv_gamma_m1*pressure_gpt 
                     + 0.5 * rho_gpt 
@@ -283,6 +290,9 @@ int BCSlipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
         } else if (dim == _YDIR_) {
           uvel_gpt = uvel;
           vvel_gpt = 2.0*boundary->FlowVelocity[_YDIR_] - vvel;
+        } else {
+          uvel_gpt = 0.0;
+          vvel_gpt = 0.0;
         }
         energy_gpt = inv_gamma_m1*pressure_gpt 
                     + 0.5 * rho_gpt * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt);
@@ -295,6 +305,9 @@ int BCSlipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
         } else if (dim == _YDIR_) {
           uvel0_gpt = uvel0;
           vvel0_gpt = 2.0*boundary->FlowVelocity[_YDIR_] - vvel0;
+        } else {
+          uvel0_gpt = 0.0;
+          vvel0_gpt = 0.0;
         }
         energy0_gpt = inv_gamma_m1*pressure0_gpt 
                     + 0.5 * rho0_gpt * (uvel0_gpt*uvel0_gpt + vvel0_gpt*vvel0_gpt);
@@ -358,6 +371,10 @@ int BCSlipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
           uvel_gpt = uvel;
           vvel_gpt = vvel;
           wvel_gpt = 2.0*boundary->FlowVelocity[_ZDIR_] - wvel;
+        } else {
+          uvel_gpt = 0.0;
+          vvel_gpt = 0.0;
+          wvel_gpt = 0.0;
         }
         energy_gpt = inv_gamma_m1*pressure_gpt 
                     + 0.5 * rho_gpt 
@@ -377,6 +394,10 @@ int BCSlipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
           uvel0_gpt = uvel0;
           vvel0_gpt = vvel0;
           wvel0_gpt = 2.0*boundary->FlowVelocity[_ZDIR_] - wvel0;
+        } else {
+          uvel0_gpt = 0.0;
+          vvel0_gpt = 0.0;
+          wvel0_gpt = 0.0;
         }
         energy0_gpt = inv_gamma_m1*pressure0_gpt 
                     + 0.5 * rho0_gpt 

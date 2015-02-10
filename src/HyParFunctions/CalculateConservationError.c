@@ -6,7 +6,6 @@
 int CalculateConservationError(void *s,void *m)
 {
   HyPar         *solver = (HyPar*) s;
-  MPIVariables  *mpi    = (MPIVariables*) m;
   int           v,nvars = solver->nvars;
   double        error;
 

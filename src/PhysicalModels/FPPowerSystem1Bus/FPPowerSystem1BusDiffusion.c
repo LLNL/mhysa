@@ -10,7 +10,6 @@ int FPPowerSystem1BusDiffusionLaplacian(double *f,double *u,int dir,void *s,doub
 {
   HyPar             *solver = (HyPar*)             s;
   FPPowerSystem1Bus *params = (FPPowerSystem1Bus*) solver->physics;
-  int               i, v;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
@@ -34,7 +33,6 @@ int FPPowerSystem1BusDiffusionGeneral(double *f,double *u,int dir1,int dir2,void
 {
   HyPar             *solver = (HyPar*)             s;
   FPPowerSystem1Bus *params = (FPPowerSystem1Bus*) solver->physics;
-  int               i, v;
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;

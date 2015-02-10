@@ -23,14 +23,13 @@ int Euler1DSource(double *source,double *u,void *s,void *m,double t)
 
   if (param->grav == 0.0)  return(0); /* no gravitational forces */
 
-  int     i, d, v, done, p, p1, p2;
+  int     v, done, p, p1, p2;
   double  *SourceI = solver->fluxI; /* interace source term       */
   double  *SourceC = solver->fluxC; /* cell-centered source term  */
   double  *SourceL = solver->fL;
   double  *SourceR = solver->fR;
 
   int     ndims   = solver->ndims;
-  int     nvars   = solver->nvars;
   int     ghosts  = solver->ghosts;
   int     *dim    = solver->dim_local;
   double  *x      = solver->x;
@@ -61,6 +60,7 @@ int Euler1DSource(double *source,double *u,void *s,void *m,double t)
       source[_MODEL_NVARS_*p+v] += (  (term[v]*(1.0/param->grav_field[p])) 
                                     * (SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dx_inverse );
     }
+    vel = P; /* useless statement to avoid compiler warning */
     _ArrayIncrementIndex_(ndims,dim,index,done);
   }
 
@@ -70,7 +70,6 @@ int Euler1DSource(double *source,double *u,void *s,void *m,double t)
 int Euler1DSourceFunction(double *f,double *u,double *x,void *s,void *m,double t)
 {
   HyPar         *solver = (HyPar* )       s;
-  MPIVariables  *mpi    = (MPIVariables*) m;
   Euler1D       *param  = (Euler1D*)      solver->physics;
 
   int     ghosts  = solver->ghosts;

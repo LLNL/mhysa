@@ -19,7 +19,7 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
   HyPar           *solver   = (HyPar*) s;
   MPIVariables    *mpi      = (MPIVariables*) m;
   Numa2D          *physics  = (Numa2D*) solver->physics;
-  int             i,j,v,d,done;
+  int             i,v,done;
   double          dxinv, dyinv;
   _DECLARE_IERR_;
 
@@ -33,7 +33,6 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
   if (physics->mu <= 0) return(0); /* inviscid flow */
   solver->count_par++;
 
-  static double two_third = 2.0/3.0;
   double        mu        = physics->mu;        
 
   /* allocate some arrays */
@@ -52,7 +51,7 @@ int Numa2DParabolicFunction(double *par,double *u,void *s,void *m,double t)
   done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
   while (!done) {
     int p; _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
-    double drho,uvel,vvel,dT,dP,rho0,T0,P0,EP,ycoord,temperature;
+    double drho,uvel,vvel,dT,rho0,T0,P0,EP,ycoord;
 
     _GetCoordinate_             (_YDIR_,index[_YDIR_]-ghosts,dim,ghosts,solver->x,ycoord);
     physics->StandardAtmosphere (physics,ycoord,&EP,&P0,&rho0,&T0);

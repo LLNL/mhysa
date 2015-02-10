@@ -139,7 +139,7 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           i,proc,d;
+  int           proc,d;
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;
@@ -153,7 +153,8 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
   if (mpi->IOParticipant) {
     FILE *in;
     char filename[_MAX_STRING_SIZE_];
-    MPIGetFilename("exact_par.inp",&mpi->IOWorld,filename);
+    char filename_root[_MAX_STRING_SIZE_] = "exact_par.inp";
+    MPIGetFilename(filename_root,&mpi->IOWorld,filename);
     in = fopen(filename,"rb");
     if (!in)  *exact_flag = 0;
     else {
@@ -179,13 +180,14 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
       /* if this rank is responsible for file I/O */
       double *read_buffer = NULL;
       int     read_size_x, read_size_u, read_total_size;
-      int     is[ndims], ie[ndims], size;
+      int     is[ndims], ie[ndims];
 
       /* open the file */
       FILE *in;
       int  bytes;
       char filename[_MAX_STRING_SIZE_];
-      MPIGetFilename("exact_par.inp",&mpi->IOWorld,filename);
+      char filename_root[_MAX_STRING_SIZE_] = "exact_par.inp";
+      MPIGetFilename(filename_root,&mpi->IOWorld,filename);
 
       in = fopen(filename,"rb");
       if (!in) {
@@ -252,7 +254,7 @@ int ExactSolutionMPI_IO(void *s, void *m, double *uex, int *exact_flag)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           i,proc,d;
+  int           proc,d;
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;

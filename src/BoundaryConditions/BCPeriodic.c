@@ -19,7 +19,6 @@ int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
 
   int dim   = boundary->dim;
   int face  = boundary->face;
-  int v;
 
   if ((boundary->on_this_proc) && (mpi->iproc[dim] == 1)) {
     int bounds[ndims], index1[ndims], index2[ndims];
@@ -52,7 +51,6 @@ int BCPeriodicDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double
 
   int dim   = boundary->dim;
   int face  = boundary->face;
-  int v;
 
   if ((boundary->on_this_proc) && (mpi->iproc[dim] == 1)) {
     int bounds[ndims], index1[ndims], index2[ndims];

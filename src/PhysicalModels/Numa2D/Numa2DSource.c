@@ -32,6 +32,11 @@ int Numa2DSource(double *S,double *u,void *s,void *m,double t)
     _Numa2DGetFlowVars_       ((u+_MODEL_NVARS_*p),drho,uvel,vvel,dT,rho0);
     _Numa2DSetSource_         ((S+_MODEL_NVARS_*p),param,drho);
 
+    /* some useless statements to avoid compiler warnings */
+    uvel = dT;
+    vvel = uvel;
+    dT = vvel;
+
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }
   

@@ -9,18 +9,15 @@
 int Euler1DSourceUpwindLLF(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
 {
   HyPar     *solver = (HyPar*)    s;
-  Euler1D   *param  = (Euler1D*)  solver->physics;
   int       done,k;
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;
-  int ghosts= solver->ghosts;
   int *dim  = solver->dim_local;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
-  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {
@@ -40,18 +37,15 @@ int Euler1DSourceUpwindLLF(double *fI,double *fL,double *fR,double *u,int dir,vo
 int Euler1DSourceUpwindRoe(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
 {
   HyPar     *solver = (HyPar*)    s;
-  Euler1D   *param  = (Euler1D*)  solver->physics;
   int       done,k;
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;
-  int ghosts= solver->ghosts;
   int *dim  = solver->dim_local;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
-  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {

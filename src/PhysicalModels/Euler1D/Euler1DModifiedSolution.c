@@ -18,7 +18,6 @@
 int Euler1DModifiedSolution(double *uC,double *u,int d,void *s,void *m,double waqt)
 {
   HyPar         *solver = (HyPar*)         s;
-  MPIVariables  *mpi    = (MPIVariables*)  m; 
   Euler1D       *param  = (Euler1D*)       solver->physics;
 
   int     ghosts  = solver->ghosts;

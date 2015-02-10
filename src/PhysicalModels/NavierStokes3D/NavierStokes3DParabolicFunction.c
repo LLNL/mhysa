@@ -18,7 +18,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
   HyPar           *solver   = (HyPar*) s;
   MPIVariables    *mpi      = (MPIVariables*) m;
   NavierStokes3D  *physics  = (NavierStokes3D*) solver->physics;
-  int             i,j,k,v,d;
+  int             i,j,k,v;
   _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;
@@ -102,7 +102,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
 
         double uvel, vvel, wvel, T, Tx, 
-               ux, uy, uz, vx, vy, vz, wx, wy, wz;
+               ux, uy, uz, vx, vy, wx, wz;
         uvel = (Q+p)[1];
         vvel = (Q+p)[2];
         wvel = (Q+p)[3];
@@ -113,9 +113,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         wx   = (QDerivX+p)[3];
         uy   = (QDerivY+p)[1];
         vy   = (QDerivY+p)[2];
-        wy   = (QDerivY+p)[3];
         uz   = (QDerivZ+p)[1];
-        vz   = (QDerivZ+p)[2];
         wz   = (QDerivZ+p)[3];
 
         /* calculate viscosity coeff based on Sutherland's law */
@@ -156,7 +154,7 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
 
         double uvel, vvel, wvel, T, Ty, 
-               ux, uy, uz, vx, vy, vz, wx, wy, wz;
+               ux, uy, vx, vy, vz, wy, wz;
         uvel = (Q+p)[1];
         vvel = (Q+p)[2];
         wvel = (Q+p)[3];
@@ -164,11 +162,9 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         Ty   = (QDerivY+p)[4];
         ux   = (QDerivX+p)[1];
         vx   = (QDerivX+p)[2];
-        wx   = (QDerivX+p)[3];
         uy   = (QDerivY+p)[1];
         vy   = (QDerivY+p)[2];
         wy   = (QDerivY+p)[3];
-        uz   = (QDerivZ+p)[1];
         vz   = (QDerivZ+p)[2];
         wz   = (QDerivZ+p)[3];
 
@@ -210,16 +206,14 @@ int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double
         _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
 
         double uvel, vvel, wvel, T, Tz, 
-               ux, uy, uz, vx, vy, vz, wx, wy, wz;
+               ux, uz, vy, vz, wx, wy, wz;
         uvel = (Q+p)[1];
         vvel = (Q+p)[2];
         wvel = (Q+p)[3];
         T    = (Q+p)[4];
         Tz   = (QDerivZ+p)[4];
         ux   = (QDerivX+p)[1];
-        vx   = (QDerivX+p)[2];
         wx   = (QDerivX+p)[3];
-        uy   = (QDerivY+p)[1];
         vy   = (QDerivY+p)[2];
         wy   = (QDerivY+p)[3];
         uz   = (QDerivZ+p)[1];

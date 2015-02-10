@@ -243,13 +243,14 @@ int InitialSolutionParallel(void *s, void *m)
       /* if this rank is responsible for file I/O */
       double *read_buffer = NULL;
       int     read_size_x, read_size_u, read_total_size;
-      int     is[ndims], ie[ndims], size;
+      int     is[ndims], ie[ndims];
 
       /* open the file */
       FILE *in;
       int  bytes;
       char filename[_MAX_STRING_SIZE_];
-      MPIGetFilename("initial_par.inp",&mpi->IOWorld,filename);
+      char filename_root[_MAX_STRING_SIZE_] = "initial_par.inp";
+      MPIGetFilename(filename_root,&mpi->IOWorld,filename);
 
       in = fopen(filename,"rb");
       if (!in) {

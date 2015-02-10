@@ -33,6 +33,10 @@ int Numa3DSource(double *S,double *u,void *s,void *m,double t)
     _Numa3DSetSource_  ((S+_MODEL_NVARS_*p),param,uvel,vvel,drho,rho0);
 
     _ArrayIncrementIndex_(ndims,bounds,index,done);
+
+    /* some useless statements to avoid compiler warnings */
+    dT = wvel;
+    wvel = dT;
   }
   
   return(0);

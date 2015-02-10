@@ -124,7 +124,6 @@ int BCSupersonicOutflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghos
 
   int dim   = boundary->dim;
   int face  = boundary->face;
-  int v;
 
   if (boundary->on_this_proc) {
     int bounds[ndims], indexb[ndims], indexi[ndims];

@@ -19,11 +19,10 @@ int WENOFifthOrderInitializeWeights(int dir,void *s,void *m)
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, done;
+  int             done;
   double          *ww1, *ww2, *ww3;
 
 
-  int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
@@ -38,8 +37,6 @@ int WENOFifthOrderInitializeWeights(int dir,void *s,void *m)
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
 
   /* calculate weights for a left-biased interpolation */
-  upw = 1;
-
   ww1 = weno->w1 + offset;
   ww2 = weno->w2 + offset;
   ww3 = weno->w3 + offset;
@@ -124,8 +121,6 @@ int WENOFifthOrderInitializeWeights(int dir,void *s,void *m)
   }
 
   /* calculate weights for a right-biased interpolation */
-  upw = -1;
-
   ww1 = weno->w1 + 2*weno->size + offset;
   ww2 = weno->w2 + 2*weno->size + offset;
   ww3 = weno->w3 + 2*weno->size + offset;

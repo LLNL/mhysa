@@ -20,9 +20,6 @@ int BCSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
-  int dim   = boundary->dim;
-  int face  = boundary->face;
-
   if (ndims == 2) {
 
     double gamma;

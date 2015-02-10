@@ -59,7 +59,6 @@ int NavierStokes2DGravityField(void *s,void *m)
   } else if (param->HB == 3) {
     while (!done) {
       int p;         _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
-      double xcoord; _GetCoordinate_(_XDIR_,index[_XDIR_]-ghosts,dim,ghosts,solver->x,xcoord);
       double ycoord; _GetCoordinate_(_YDIR_,index[_YDIR_]-ghosts,dim,ghosts,solver->x,ycoord);
       if (gx != 0) {
         if (!mpi->rank) {

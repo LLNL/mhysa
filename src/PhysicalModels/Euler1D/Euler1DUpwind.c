@@ -93,8 +93,7 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
       int pL; _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
       int pR; _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
       double uavg[_MODEL_NVARS_], fcL[_MODEL_NVARS_], fcR[_MODEL_NVARS_], 
-             ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_],
-             ugL[_MODEL_NVARS_], ugR[_MODEL_NVARS_];
+             ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_];
       double kappa = max(param->grav_field[pL],param->grav_field[pR]);
 
       /* Roe-Fixed upwinding scheme */
@@ -163,8 +162,7 @@ int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
       int pL; _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
       int pR; _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
       double uavg[_MODEL_NVARS_], fcL[_MODEL_NVARS_], fcR[_MODEL_NVARS_], 
-             ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_],
-             ugL[_MODEL_NVARS_], ugR[_MODEL_NVARS_];
+             ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_];
       double kappa = max(param->grav_field[pL],param->grav_field[pR]);
 
       /* Local Lax-Friedrich upwinding scheme */
@@ -206,7 +204,7 @@ int Euler1DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double *uR,dou
 {
   HyPar     *solver = (HyPar*)    s;
   Euler1D   *param  = (Euler1D*)  solver->physics;
-  int       done,k;
+  int       done;
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;
@@ -353,8 +351,7 @@ int Euler1DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double *uR,dou
       int pL; _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
       int pR; _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
       double uavg[_MODEL_NVARS_], fcL[_MODEL_NVARS_], fcR[_MODEL_NVARS_], 
-             ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_],
-             ugL[_MODEL_NVARS_], ugR[_MODEL_NVARS_];
+             ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_];
       double kappa = max(param->grav_field[pL],param->grav_field[pR]);
 
       /* Roe-Fixed upwinding scheme */
@@ -423,8 +420,7 @@ int Euler1DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double *uR,do
       int pL; _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
       int pR; _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
       double uavg[_MODEL_NVARS_], fcL[_MODEL_NVARS_], fcR[_MODEL_NVARS_], 
-             ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_],
-             ugL[_MODEL_NVARS_], ugR[_MODEL_NVARS_];
+             ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_];
       double kappa = max(param->grav_field[pL],param->grav_field[pR]);
 
       /* Local Lax-Friedrich upwinding scheme */

@@ -53,6 +53,7 @@ int BCSubsonicOutflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,
         _Euler2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
         /* set the ghost point values */
         rho_gpt = rho;
+        pressure_gpt = pressure; /* useless statement to avoid compiler warning */
         pressure_gpt = boundary->FlowPressure;
         uvel_gpt = uvel;
         vvel_gpt = vvel;
@@ -97,6 +98,7 @@ int BCSubsonicOutflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,
         _NavierStokes3DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,wvel,energy,pressure,(&physics));
         /* set the ghost point values */
         rho_gpt = rho;
+        pressure_gpt = pressure; /* useless statement to avoid compiler warning */
         pressure_gpt = boundary->FlowPressure;
         uvel_gpt = uvel;
         vvel_gpt = vvel;
@@ -164,6 +166,7 @@ int BCSubsonicOutflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts
         double rho0_gpt, uvel0_gpt, vvel0_gpt, energy0_gpt, pressure0_gpt;
         /* setting the ghost point values of the total flow variables */
         rho_gpt      = rho;
+        pressure_gpt = pressure; /* useless statement to avoid compiler warning */
         pressure_gpt = boundary->FlowPressure;
         uvel_gpt     = uvel;
         vvel_gpt     = vvel;
@@ -171,6 +174,7 @@ int BCSubsonicOutflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts
                        + 0.5 * rho_gpt * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt);
         /* setting the ghost point values of the reference flow variables */
         rho0_gpt      = rho0;
+        pressure0_gpt = pressure0; /* useless statement to avoid compiler warning */
         pressure0_gpt = boundary->FlowPressure;
         uvel0_gpt     = uvel0;
         vvel0_gpt     = vvel0;
@@ -223,6 +227,7 @@ int BCSubsonicOutflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts
         double rho0_gpt, uvel0_gpt, vvel0_gpt, wvel0_gpt, energy0_gpt, pressure0_gpt;
         /* setting the ghost point values of the total flow variables */
         rho_gpt      = rho;
+        pressure_gpt = pressure; /* useless statement to avoid compiler warning */
         pressure_gpt = boundary->FlowPressure;
         uvel_gpt     = uvel;
         vvel_gpt     = vvel;
@@ -232,6 +237,7 @@ int BCSubsonicOutflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts
                        * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt + wvel_gpt*wvel_gpt);
         /* setting the ghost point values of the reference flow variables */
         rho0_gpt      = rho0;
+        pressure0_gpt = pressure0; /* useless statement to avoid compiler warning */
         pressure0_gpt = boundary->FlowPressure;
         uvel0_gpt     = uvel0;
         vvel0_gpt     = vvel0;

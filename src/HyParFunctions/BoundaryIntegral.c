@@ -11,8 +11,6 @@ int BoundaryIntegral(void *s,void *m)
 
   int ndims   = solver->ndims;
   int nvars   = solver->nvars;
-  int *dim    = solver->dim_local;
-  int ghosts  = solver->ghosts;
   int d,v;
 
   double *local_integral  = (double*) calloc (nvars,sizeof(double));

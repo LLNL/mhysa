@@ -15,7 +15,8 @@ PetscErrorCode PetscRHSFunctionExpl(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;
   MPIVariables    *mpi     = (MPIVariables*) context->mpi;
-  int             ierr     = 0, d;
+  int             d;
+  _DECLARE_IERR_;
 
   PetscFunctionBegin;
   solver->count_RHSFunction++;
@@ -27,17 +28,17 @@ PetscErrorCode PetscRHSFunctionExpl(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt
   double *rhs = solver->rhs;
 
   /* copy solution from PETSc vector */
-  ierr = TransferVecFromPETSc(u,Y,context);                                         CHECKERR(ierr);
+  IERR TransferVecFromPETSc(u,Y,context);                                         CHECKERR(ierr);
   /* apply boundary conditions and exchange data over MPI interfaces */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);                    CHECKERR(ierr);
-  ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
-                                 solver->ghosts,mpi,u);                             CHECKERR(ierr);
+  IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);                    CHECKERR(ierr);
+  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                               solver->ghosts,mpi,u);                             CHECKERR(ierr);
 
   /* Evaluate hyperbolic, parabolic and source terms  and the RHS */
-  ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction,solver->Upwind);
-                                                                                    CHECKERR(ierr);
-  ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);                    CHECKERR(ierr);
-  ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t);                 CHECKERR(ierr);
+  IERR solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,1,solver->FFunction,solver->Upwind);
+                                                                                  CHECKERR(ierr);
+  IERR solver->ParabolicFunction (solver->par,u,solver,mpi,t);                    CHECKERR(ierr);
+  IERR solver->SourceFunction    (solver->source,u,solver,mpi,t);                 CHECKERR(ierr);
 
   _ArraySetValue_(rhs,size*solver->nvars,0.0);
   _ArrayAXPY_(solver->hyp   ,-1.0,rhs,size*solver->nvars);
@@ -45,7 +46,7 @@ PetscErrorCode PetscRHSFunctionExpl(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt
   _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
 
   /* Transfer RHS to PETSc vector */
-  ierr = TransferVecToPETSc(rhs,F,context);                                         CHECKERR(ierr);
+  IERR TransferVecToPETSc(rhs,F,context);                                         CHECKERR(ierr);
 
   PetscFunctionReturn(0);
 }

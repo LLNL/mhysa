@@ -106,8 +106,6 @@ int Numa3DInitialize(void *s,void *m)
 #endif
 
   /* calculate the mean hydrostatic atmosphere as a function of altitude */
-  double *zcoord = solver->x + (solver->dim_local[0]+2*solver->ghosts)
-                             + (solver->dim_local[1]+2*solver->ghosts);
   if (physics->init_atmos == 1) {
     physics->StandardAtmosphere = Numa3DCalculateStandardAtmosphere_1;
   } else if (physics->init_atmos == 2) {

@@ -52,6 +52,8 @@ int TransferMatToPETSc(void *J,Mat A,void *ctxt)
 
   ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY);                                  CHKERRQ(ierr);
   ierr = MatAssemblyEnd  (A,MAT_FINAL_ASSEMBLY);                                  CHKERRQ(ierr);
+
+  return(0);
 }
 
 #endif

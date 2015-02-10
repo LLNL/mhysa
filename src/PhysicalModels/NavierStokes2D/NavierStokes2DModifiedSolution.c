@@ -18,7 +18,6 @@
 int NavierStokes2DModifiedSolution(double *uC,double *u,int d,void *s,void *m,double waqt)
 {
   HyPar           *solver = (HyPar*)          s;
-  MPIVariables    *mpi    = (MPIVariables*)   m; 
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
 
   int     ghosts  = solver->ghosts;

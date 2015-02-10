@@ -46,7 +46,7 @@ int FirstDerivativeFirstOrder(double *Df,double *f,int dir,int bias,void *s,void
     _ArrayCopy1D_(index_outer,indexC,ndims);
     /* left boundary */
     for (i = -ghosts; i < -ghosts+1; i++) {
-      int qC, qR, qRR;
+      int qC, qR;
       indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qC );
       indexC[dir] = i+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qR );
       for (v=0; v<nvars; v++)  Df[qC*nvars+v] = f[qR*nvars+v]-f[qC*nvars+v];
@@ -61,7 +61,7 @@ int FirstDerivativeFirstOrder(double *Df,double *f,int dir,int bias,void *s,void
     }
     /* right boundary */
     for (i = dim[dir]+ghosts-1; i < dim[dir]+ghosts; i++) {
-      int qLL, qL, qC;
+      int qL, qC;
       indexC[dir] = i-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qL );
       indexC[dir] = i  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qC );
       for (v=0; v<nvars; v++)  Df[qC*nvars+v] = f[qC*nvars+v]-f[qL*nvars+v];

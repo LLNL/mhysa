@@ -42,7 +42,7 @@ int BCTurbulentSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,i
       double  L  = 2.0 * (4.0*atan(1.0));
       int     it = ((int) ((xt/L) * ((double)N))) % N;
 
-      int bounds[ndims], indexb[ndims], indexi[ndims];
+      int bounds[ndims], indexb[ndims];
       _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
       _ArraySetValue_(indexb,ndims,0);
       int done = 0;

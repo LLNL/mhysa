@@ -123,6 +123,8 @@ int Numa3DRusanovLinearFlux(double *fI,double *fL,double *fR,double *uL,double *
       fI[_MODEL_NVARS_*p+2] = 0.5*(fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2])-alpha*udiff[2];
       fI[_MODEL_NVARS_*p+3] = 0.5*(fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3])-alpha*udiff[3];
       fI[_MODEL_NVARS_*p+4] = 0.5*(fL[_MODEL_NVARS_*p+4]+fR[_MODEL_NVARS_*p+4])-alpha*udiff[4];
+
+      vel[0] = dT; /* useless statement to avoid compiler warning */
     }
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds_outer,index_outer,done);
   }

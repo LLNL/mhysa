@@ -36,8 +36,6 @@ int Interp1PrimFifthOrderHCWENO(double *fI,double *fC,double *u,double *x,int up
   static const double one_half           = 1.0/2.0;
   static const double one_third          = 1.0/3.0;
   static const double one_sixth          = 1.0/6.0;
-  static const double thirteen_by_twelve = 13.0/12.0;
-  static const double one_fourth         = 1.0/4.0;
 
   double *ww1, *ww2, *ww3;
   ww1 = weno->w1 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];

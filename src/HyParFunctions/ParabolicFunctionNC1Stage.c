@@ -49,7 +49,7 @@ int ParabolicFunctionNC1Stage(double *par,double *u,void *s,void *m,double t)
 
     /* calculate the final term - second derivative of the diffusion function */
     done = 0; _ArraySetValue_(index,ndims,0);
-    int p, q;
+    int p;
     while (!done) {
       _ArrayIndex1D_(ndims,dim,index,ghosts,p);
       for (v=0; v<nvars; v++)

@@ -8,7 +8,7 @@ int MPIGatherArray1D(void *m,double *xg,double *x,int istart,int iend,
                      int N_local,int ghosts)
 {
   MPIVariables *mpi = (MPIVariables*) m;
-  int          ierr = 0,i;
+  int          ierr = 0;
 
   /* xg should be non-null only on root */
   if (mpi->rank && xg) {

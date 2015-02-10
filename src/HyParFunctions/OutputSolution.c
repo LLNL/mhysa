@@ -136,7 +136,7 @@ int OutputSolutionParallel(void *s, void *m, double *u, char *fname_root)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           i,proc,d;
+  int           proc,d;
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;
@@ -175,7 +175,7 @@ int OutputSolutionParallel(void *s, void *m, double *u, char *fname_root)
     /* if this rank is responsible for file I/O */
     double *write_buffer = NULL;
     int     write_size_x, write_size_u, write_total_size;
-    int     is[ndims], ie[ndims], size;
+    int     is[ndims], ie[ndims];
 
     /* open the file */
     FILE *out;

@@ -35,8 +35,6 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
   /* define some constants */
   static const double one_third          = 1.0/3.0;
   static const double one_sixth          = 1.0/6.0;
-  static const double thirteen_by_twelve = 13.0/12.0;
-  static const double one_fourth         = 1.0/4.0;
 
   double *ww1, *ww2, *ww3;
   ww1 = weno->w1 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
@@ -53,7 +51,7 @@ int Interp1PrimFifthOrderCRWENOChar(double *fI,double *fC,double *u,double *x,in
   _ArrayProduct1D_(bounds_outer,ndims,Nsys);
 
   /* allocate arrays for the averaged state, eigenvectors and characteristic interpolated f */
-  double R[nvars*nvars], L[nvars*nvars], uavg[nvars], fchar[nvars];
+  double R[nvars*nvars], L[nvars*nvars], uavg[nvars];
 
   /* Allocate arrays for tridiagonal system */
   double *A = weno->A;

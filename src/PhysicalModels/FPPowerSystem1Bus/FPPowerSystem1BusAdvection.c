@@ -7,12 +7,10 @@
 int FPPowerSystem1BusAdvection(double *f,double *u,int dir,void *s,double t)
 {
   HyPar *solver = (HyPar*) s;
-  int   i, v;
-
-  int *dim    = solver->dim_local;
-  int ghosts  = solver->ghosts;
-  int ndims   = solver->ndims;
-  int nvars   = solver->nvars;
+  int   *dim    = solver->dim_local;
+  int   ghosts  = solver->ghosts;
+  int   ndims   = solver->ndims;
+  int   nvars   = solver->nvars;
 
   /* calculate total size of arrays */
   int bounds[ndims]; _ArrayAddCopy1D_(dim,(2*ghosts),bounds,ndims);

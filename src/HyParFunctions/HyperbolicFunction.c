@@ -80,12 +80,7 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int di
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
-  int           d;
   _DECLARE_IERR_;
-
-  int ndims = solver->ndims;
-  int nvars = solver->nvars;
-  int *dim  = solver->dim_local;
 
   double *uC     = NULL;
   double *uL     = solver->uL;
@@ -104,7 +99,7 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int di
      otherwise, just copy u to uC */
   if (solver->UFunction) {
     uC = solver->uC;
-    IERR solver->UFunction(uC,u,d,solver,mpi,t); CHECKERR(ierr);
+    IERR solver->UFunction(uC,u,dir,solver,mpi,t); CHECKERR(ierr);
   } else uC = u;
 
   /* Interpolation -> to calculate left and right-biased interface flux and state variable*/

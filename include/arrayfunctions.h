@@ -348,7 +348,7 @@ INLINE int ArrayCopynD(int ndims,double *x,double *y,int *dim,int g1,int g2,int 
   int done = 0;
   _ArraySetValue_(index,ndims,0);
   while (!done) {
-    int p1, p2, n;
+    int p1, p2;
     _ArrayIndex1D_(ndims,dim,index,g1,p1); 
     _ArrayIndex1D_(ndims,dim,index,g2,p2);
     _ArrayCopy1D_((x+p1*nvars),(y+p2*nvars),nvars);

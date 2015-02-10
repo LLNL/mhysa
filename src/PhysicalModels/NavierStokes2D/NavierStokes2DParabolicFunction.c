@@ -18,7 +18,7 @@ int NavierStokes2DParabolicFunction(double *par,double *u,void *s,void *m,double
   HyPar           *solver   = (HyPar*) s;
   MPIVariables    *mpi      = (MPIVariables*) m;
   NavierStokes2D  *physics  = (NavierStokes2D*) solver->physics;
-  int             i,j,v,d;
+  int             i,j,v;
   _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;

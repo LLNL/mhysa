@@ -24,14 +24,13 @@ int NavierStokes2DSource(double *source,double *u,void *s,void *m,double t)
   if ((param->grav_x == 0.0) && (param->grav_y == 0.0))  
     return(0); /* no gravitational forces */
 
-  int     i, d, v, done, p, p1, p2;
+  int     v, done, p, p1, p2;
   double  *SourceI = solver->fluxI; /* interace source term       */
   double  *SourceC = solver->fluxC; /* cell-centered source term  */
   double  *SourceL = solver->fL;
   double  *SourceR = solver->fR;
 
   int     ndims   = solver->ndims;
-  int     nvars   = solver->nvars;
   int     ghosts  = solver->ghosts;
   int     *dim    = solver->dim_local;
   double  *x      = solver->x;
@@ -66,6 +65,7 @@ int NavierStokes2DSource(double *source,double *u,void *s,void *m,double t)
         source[_MODEL_NVARS_*p+v] += (  (term[v]*param->grav_field_f[p]) 
                                       * (SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dx_inverse );
       }
+      uvel = P; /* useless statement to avoid compiler warnings */
       _ArrayIncrementIndex_(ndims,dim,index,done);
     }
   }
@@ -97,6 +97,7 @@ int NavierStokes2DSource(double *source,double *u,void *s,void *m,double t)
         source[_MODEL_NVARS_*p+v] += (  (term[v]*param->grav_field_f[p]) 
                                       * (SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dy_inverse );
       }
+      uvel = P; /* useless statement to avoid compiler warnings */
       _ArrayIncrementIndex_(ndims,dim,index,done);
     }
   }
@@ -107,7 +108,6 @@ int NavierStokes2DSource(double *source,double *u,void *s,void *m,double t)
 int NavierStokes2DSourceFunction(double *f,double *u,double *x,void *s,void *m,double t,int dir)
 {
   HyPar           *solver = (HyPar* )         s;
-  MPIVariables    *mpi    = (MPIVariables*)   m;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
 
   int     ghosts  = solver->ghosts;
@@ -138,18 +138,15 @@ int NavierStokes2DSourceFunction(double *f,double *u,double *x,void *s,void *m,d
 int NavierStokes2DSourceUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
 {
   HyPar           *solver = (HyPar*)          s;
-  NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
   int             done,k;
   _DECLARE_IERR_;
 
   int ndims = solver->ndims;
-  int ghosts= solver->ghosts;
   int *dim  = solver->dim_local;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
-  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], L[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; _ArraySetValue_(index_outer,ndims,0);
   while (!done) {

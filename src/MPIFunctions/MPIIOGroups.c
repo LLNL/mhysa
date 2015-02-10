@@ -23,6 +23,7 @@ int MPICreateIOGroups(void *m)
     if (!rank) {
       printf("Number of IO Ranks: %d\n",N_IORanks);
     }
+    GroupSize = nproc;
   }
 
   mpi->CommGroup  = rank/GroupSize;

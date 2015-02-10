@@ -53,7 +53,7 @@ int WENOFifthOrderCalculateWeightsJS(double *fC,double *uC,double *x,int dir,voi
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, i;
+  int             i;
   double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
   double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
@@ -64,7 +64,6 @@ int WENOFifthOrderCalculateWeightsJS(double *fC,double *uC,double *x,int dir,voi
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_sixth          = 1.0/6.0;
   static const double thirteen_by_twelve = 13.0/12.0;
   static const double one_fourth         = 1.0/4.0;
 
@@ -159,10 +158,10 @@ int WENOFifthOrderCalculateWeightsJS(double *fC,double *uC,double *x,int dir,voi
       }
 
       /* calculate WENO weights */
-      upw =  1; _WENOWeights_v_JS_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
-      upw = -1; _WENOWeights_v_JS_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
-      upw =  1; _WENOWeights_v_JS_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
-      upw = -1; _WENOWeights_v_JS_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
+      _WENOWeights_v_JS_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      _WENOWeights_v_JS_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      _WENOWeights_v_JS_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      _WENOWeights_v_JS_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 
@@ -174,7 +173,7 @@ int WENOFifthOrderCalculateWeightsM(double *fC,double *uC,double *x,int dir,void
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, i;
+  int             i;
   double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
   double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
@@ -185,7 +184,6 @@ int WENOFifthOrderCalculateWeightsM(double *fC,double *uC,double *x,int dir,void
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_sixth          = 1.0/6.0;
   static const double thirteen_by_twelve = 13.0/12.0;
   static const double one_fourth         = 1.0/4.0;
 
@@ -280,10 +278,10 @@ int WENOFifthOrderCalculateWeightsM(double *fC,double *uC,double *x,int dir,void
       }
 
       /* calculate WENO weights */
-      upw =  1; _WENOWeights_v_M_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
-      upw = -1; _WENOWeights_v_M_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
-      upw =  1; _WENOWeights_v_M_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
-      upw = -1; _WENOWeights_v_M_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
+      _WENOWeights_v_M_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      _WENOWeights_v_M_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      _WENOWeights_v_M_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      _WENOWeights_v_M_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 
@@ -295,7 +293,7 @@ int WENOFifthOrderCalculateWeightsZ(double *fC,double *uC,double *x,int dir,void
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, i;
+  int             i;
   double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
   double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
@@ -306,7 +304,6 @@ int WENOFifthOrderCalculateWeightsZ(double *fC,double *uC,double *x,int dir,void
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_sixth          = 1.0/6.0;
   static const double thirteen_by_twelve = 13.0/12.0;
   static const double one_fourth         = 1.0/4.0;
 
@@ -401,10 +398,10 @@ int WENOFifthOrderCalculateWeightsZ(double *fC,double *uC,double *x,int dir,void
       }
 
       /* calculate WENO weights */
-      upw =  1; _WENOWeights_v_Z_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
-      upw = -1; _WENOWeights_v_Z_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
-      upw =  1; _WENOWeights_v_Z_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
-      upw = -1; _WENOWeights_v_Z_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
+      _WENOWeights_v_Z_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      _WENOWeights_v_Z_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      _WENOWeights_v_Z_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      _WENOWeights_v_Z_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 
@@ -416,7 +413,7 @@ int WENOFifthOrderCalculateWeightsYC(double *fC,double *uC,double *x,int dir,voi
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, i;
+  int             i;
   double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
   double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
@@ -427,7 +424,6 @@ int WENOFifthOrderCalculateWeightsYC(double *fC,double *uC,double *x,int dir,voi
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_sixth          = 1.0/6.0;
   static const double thirteen_by_twelve = 13.0/12.0;
   static const double one_fourth         = 1.0/4.0;
 
@@ -522,10 +518,10 @@ int WENOFifthOrderCalculateWeightsYC(double *fC,double *uC,double *x,int dir,voi
       }
 
       /* calculate WENO weights */
-      upw =  1; _WENOWeights_v_YC_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
-      upw = -1; _WENOWeights_v_YC_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
-      upw =  1; _WENOWeights_v_YC_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
-      upw = -1; _WENOWeights_v_YC_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
+      _WENOWeights_v_YC_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      _WENOWeights_v_YC_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      _WENOWeights_v_YC_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      _WENOWeights_v_YC_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 
@@ -537,7 +533,7 @@ int WENOFifthOrderCalculateWeightsCharJS(double *fC,double *uC,double *x,int dir
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, i;
+  int             i;
   double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
   double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
@@ -548,7 +544,6 @@ int WENOFifthOrderCalculateWeightsCharJS(double *fC,double *uC,double *x,int dir
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_sixth          = 1.0/6.0;
   static const double thirteen_by_twelve = 13.0/12.0;
   static const double one_fourth         = 1.0/4.0;
 
@@ -654,10 +649,10 @@ int WENOFifthOrderCalculateWeightsCharJS(double *fC,double *uC,double *x,int dir
       }
 
       /* calculate WENO weights */
-      upw =  1; _WENOWeights_v_JS_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
-      upw = -1; _WENOWeights_v_JS_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
-      upw =  1; _WENOWeights_v_JS_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
-      upw = -1; _WENOWeights_v_JS_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
+      _WENOWeights_v_JS_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      _WENOWeights_v_JS_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      _WENOWeights_v_JS_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      _WENOWeights_v_JS_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 
@@ -669,7 +664,7 @@ int WENOFifthOrderCalculateWeightsCharM(double *fC,double *uC,double *x,int dir,
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, i;
+  int             i;
   double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
   double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
@@ -680,7 +675,6 @@ int WENOFifthOrderCalculateWeightsCharM(double *fC,double *uC,double *x,int dir,
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_sixth          = 1.0/6.0;
   static const double thirteen_by_twelve = 13.0/12.0;
   static const double one_fourth         = 1.0/4.0;
 
@@ -786,10 +780,10 @@ int WENOFifthOrderCalculateWeightsCharM(double *fC,double *uC,double *x,int dir,
       }
 
       /* calculate WENO weights */
-      upw =  1; _WENOWeights_v_M_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
-      upw = -1; _WENOWeights_v_M_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
-      upw =  1; _WENOWeights_v_M_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
-      upw = -1; _WENOWeights_v_M_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
+      _WENOWeights_v_M_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      _WENOWeights_v_M_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      _WENOWeights_v_M_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      _WENOWeights_v_M_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 
@@ -801,7 +795,7 @@ int WENOFifthOrderCalculateWeightsCharZ(double *fC,double *uC,double *x,int dir,
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, i;
+  int             i;
   double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
   double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
@@ -812,7 +806,6 @@ int WENOFifthOrderCalculateWeightsCharZ(double *fC,double *uC,double *x,int dir,
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_sixth          = 1.0/6.0;
   static const double thirteen_by_twelve = 13.0/12.0;
   static const double one_fourth         = 1.0/4.0;
 
@@ -918,10 +911,10 @@ int WENOFifthOrderCalculateWeightsCharZ(double *fC,double *uC,double *x,int dir,
       }
 
       /* calculate WENO weights */
-      upw =  1; _WENOWeights_v_Z_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
-      upw = -1; _WENOWeights_v_Z_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
-      upw =  1; _WENOWeights_v_Z_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
-      upw = -1; _WENOWeights_v_Z_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
+      _WENOWeights_v_Z_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      _WENOWeights_v_Z_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      _WENOWeights_v_Z_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      _WENOWeights_v_Z_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 
@@ -933,7 +926,7 @@ int WENOFifthOrderCalculateWeightsCharYC(double *fC,double *uC,double *x,int dir
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   MPIVariables    *mpi    = (MPIVariables*)   m;
-  int             upw, i;
+  int             i;
   double          *ww1LF, *ww2LF, *ww3LF, *ww1RF, *ww2RF, *ww3RF;
   double          *ww1LU, *ww2LU, *ww3LU, *ww1RU, *ww2RU, *ww3RU;
 
@@ -944,7 +937,6 @@ int WENOFifthOrderCalculateWeightsCharYC(double *fC,double *uC,double *x,int dir
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_sixth          = 1.0/6.0;
   static const double thirteen_by_twelve = 13.0/12.0;
   static const double one_fourth         = 1.0/4.0;
 
@@ -1050,10 +1042,10 @@ int WENOFifthOrderCalculateWeightsCharYC(double *fC,double *uC,double *x,int dir
       }
 
       /* calculate WENO weights */
-      upw =  1; _WENOWeights_v_YC_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
-      upw = -1; _WENOWeights_v_YC_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
-      upw =  1; _WENOWeights_v_YC_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
-      upw = -1; _WENOWeights_v_YC_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
+      _WENOWeights_v_YC_((ww1LF+p*nvars),(ww2LF+p*nvars),(ww3LF+p*nvars),c1,c2,c3,m3LF,m2LF,m1LF,p1LF,p2LF,weno,nvars);
+      _WENOWeights_v_YC_((ww1RF+p*nvars),(ww2RF+p*nvars),(ww3RF+p*nvars),c1,c2,c3,m3RF,m2RF,m1RF,p1RF,p2RF,weno,nvars);
+      _WENOWeights_v_YC_((ww1LU+p*nvars),(ww2LU+p*nvars),(ww3LU+p*nvars),c1,c2,c3,m3LU,m2LU,m1LU,p1LU,p2LU,weno,nvars);
+      _WENOWeights_v_YC_((ww1RU+p*nvars),(ww2RU+p*nvars),(ww3RU+p*nvars),c1,c2,c3,m3RU,m2RU,m1RU,p1RU,p2RU,weno,nvars);
     }
   }
 
