@@ -173,8 +173,8 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
           fprintf(stderr,"ee_mode. Acceptable inputs are %s or %s.\n",_GLM_GEE_YEPS_,_GLM_GEE_YYT_);
           strcat(params->ee_mode,_GLM_GEE_YEPS_);
         }
-        printf("GLM-GEE time integration error estimation mode: %s\n",params->ee_mode);
       }
+      printf("GLM-GEE time integration error estimation mode: %s\n",params->ee_mode);
     }
     IERR MPIBroadcast_character(params->ee_mode,_MAX_STRING_SIZE_,0,&mpi->world);
 

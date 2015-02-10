@@ -2,6 +2,7 @@ noinst_LIBRARIES = libTimeIntegration.a
 libTimeIntegration_a_SOURCES = \
   TimeCleanup.c \
   TimeInitialize.c \
+  TimeError.c \
   TimeExplicitRKCleanup.c \
   TimeExplicitRKInitialize.c \
   TimeGLMGEECleanup.c \

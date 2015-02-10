@@ -43,6 +43,7 @@ int Solve(void *s,void *m)
   }
 
   if (!mpi->rank) printf("Completed time integration (Final time: %f).\n",TS.waqt);
+  IERR TimeError(&TS);   CHECKERR(ierr);
   IERR TimeCleanup(&TS); CHECKERR(ierr);
   return(0);
 }
