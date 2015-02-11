@@ -62,7 +62,7 @@ if (flag)
         % plot the solution
         figure(figSolution);
         handle = contourf(xcoord,ycoord,theta-theta0,'LineColor','none', ...
-                          'LevelList',-0.005:0.005:0.5);
+                          'LevelList',-0.05:0.005:0.5);
         colorbar;
         xlabel('x','FontName','Times','FontSize',20,'FontWeight','normal');
         ylabel('y','FontName','Times','FontSize',20,'FontWeight','normal');
@@ -91,7 +91,7 @@ else
     % plot the solution
     figure(figSolution);
     handle = contourf(xcoord,ycoord,theta-theta0,'LineColor','none', ...
-                      'LevelList',-0.005:0.005:0.5);
+                      'LevelList',-0.05:0.005:0.5);
     colorbar;
     xlabel('x','FontName','Times','FontSize',20,'FontWeight','normal');
     ylabel('y','FontName','Times','FontSize',20,'FontWeight','normal');
