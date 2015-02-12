@@ -15,7 +15,6 @@ int TimeForwardEuler(void *ts)
   int size = 1;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
 
-  if (solver->PreStep)  { IERR solver->PreStep (solver->u,solver,mpi,TS->waqt);   CHECKERR(ierr); }
   if (solver->PreStage) 
     { IERR solver->PreStage(0,&solver->u,solver,mpi,TS->waqt);                    CHECKERR(ierr); }
 
@@ -25,7 +24,6 @@ int TimeForwardEuler(void *ts)
 
   if (solver->PostStage) 
     { IERR solver->PostStage(1,&solver->u,solver,mpi,TS->waqt);                    CHECKERR(ierr); }
-  if (solver->PostStep)  { IERR solver->PostStep (solver->u,solver,mpi,TS->waqt);  CHECKERR(ierr); }
 
   return(0);
 }

@@ -23,8 +23,6 @@ int TimeGLMGEE(void *ts)
   double *A=params->A, *B=params->B, *C=params->C, *D=params->D, *c=params->c,
          **U = TS->U, **Udot = TS->Udot, **Uaux = &TS->U[r];
 
-  if (solver->PreStep)  { IERR solver->PreStep(solver->u,solver,mpi,TS->waqt); CHECKERR(ierr); }
-
   /* Calculate stage values */
   for (j=0; j<s; j++) {
 
@@ -55,7 +53,6 @@ int TimeGLMGEE(void *ts)
   _ArrayCopy1D_(U[0],solver->u,size);
   for (i=1; i<r; i++) _ArrayCopy1D_(U[i],Uaux[i-1],size);
 
-  if (solver->PostStep)  { IERR solver->PostStep(solver->u,solver,mpi,TS->waqt); CHECKERR(ierr); }
   return(0);
 }
 

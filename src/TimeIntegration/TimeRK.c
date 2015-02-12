@@ -16,8 +16,6 @@ int TimeRK(void *ts)
   int size = 1;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
 
-  if (solver->PreStep)  { IERR solver->PreStep(solver->u,solver,mpi,TS->waqt); CHECKERR(ierr); }
-
   /* Calculate stage values */
   for (stage = 0; stage < params->nstages; stage++) {
     double stagetime = TS->waqt + params->c[stage]*TS->dt;
@@ -43,8 +41,6 @@ int TimeRK(void *ts)
     _ArrayAXPY_(TS->BoundaryFlux[stage],solver->dt*params->b[stage],solver->StepBoundaryIntegral,
                 2*solver->ndims*solver->nvars);
   }
-
-  if (solver->PostStep)  { IERR solver->PostStep(solver->u,solver,mpi,TS->waqt); CHECKERR(ierr); }
 
   return(0);
 }

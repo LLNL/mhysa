@@ -11,6 +11,11 @@ int TimePreStep(void *ts)
   MPIVariables    *mpi     = (MPIVariables*)    TS->mpi;
   _DECLARE_IERR_;
 
+  /* apply boundary conditions and exchange data over MPI interfaces */
+  IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,0,TS->waqt); CHECKERR(ierr);
+  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,solver->u);               CHECKERR(ierr);
+
   /* copy current solution for norm computation later */
   if ((TS->iter+1)%solver->screen_op_iter == 0) {
     int size = 1,d;
@@ -28,6 +33,8 @@ int TimePreStep(void *ts)
 
   /* set the step boundary flux integral value to zero */
   _ArraySetValue_(solver->StepBoundaryIntegral,2*solver->ndims*solver->nvars,0.0);
+
+  if (solver->PreStep)  { IERR solver->PreStep(solver->u,solver,mpi,TS->waqt); CHECKERR(ierr); }
 
   return(0);
 }

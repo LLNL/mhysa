@@ -31,15 +31,17 @@ PetscErrorCode PetscPreTimeStep(TS ts)
   mpi     = context->mpi;
 
   /* get solution */
-  ierr = TSGetSolution(ts,&Y);                    CHKERRQ(ierr);
+  ierr = TSGetSolution(ts,&Y);                       CHKERRQ(ierr);
   ierr = TransferVecFromPETSc(solver->u,Y,context);  CHECKERR(ierr);
-  ierr = TSGetTime(ts,&waqt);                     CHKERRQ(ierr);
+  ierr = TSGetTime(ts,&waqt);                        CHKERRQ(ierr);
+
+  /* apply boundary conditions and exchange data over MPI interfaces */
+  IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,0,waqt); CHECKERR(ierr);
+  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                               solver->ghosts,mpi,solver->u);             CHECKERR(ierr);
 
   /* Call any physics-specific pre-step function */
-  if (solver->PreStep)  { 
-    ierr = solver->PreStep(solver->u,solver,mpi,waqt); 
-    CHECKERR(ierr); 
-  }
+  if (solver->PreStep) { ierr = solver->PreStep(solver->u,solver,mpi,waqt); CHECKERR(ierr); }
 
   /* If using a non-linear scheme with ARKIMEX methods, 
      compute the non-linear finite-difference operator */
