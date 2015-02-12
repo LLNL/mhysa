@@ -28,13 +28,14 @@ int    Euler1DSourceUpwindLLF   (double*,double*,double*,double*,int,void*,doubl
 int    Euler1DSourceUpwindRoe   (double*,double*,double*,double*,int,void*,double);
 
 int    Euler1DModifiedSolution  (double*,double*,int,void*,void*,double);
+int    Euler1DPreStep           (double*,void*,void*,double);
 
 int Euler1DInitialize(void *s,void *m)
 {
   HyPar         *solver  = (HyPar*)         s;
   MPIVariables  *mpi     = (MPIVariables*)  m; 
   Euler1D       *physics = (Euler1D*)       solver->physics;
-  int           ferr;
+  int           ferr, d;
 
   if (solver->nvars != _MODEL_NVARS_) {
     fprintf(stderr,"Error in Euler1DInitialize(): nvars has to be %d.\n",_MODEL_NVARS_);
@@ -49,7 +50,6 @@ int Euler1DInitialize(void *s,void *m)
   physics->gamma = 1.4; 
   physics->grav  = 0.0;
   strcpy(physics->upw_choice,"roe");
-
 
   /* reading physical model specific inputs - all processes */
   if (!mpi->rank) {
@@ -102,6 +102,7 @@ int Euler1DInitialize(void *s,void *m)
   }
 
   /* initializing physical model-specific functions */
+  solver->PreStep            = Euler1DPreStep;
   solver->ComputeCFL         = Euler1DComputeCFL;
   solver->FFunction          = Euler1DFlux;
   solver->SFunction          = Euler1DSource;
@@ -143,8 +144,10 @@ int Euler1DInitialize(void *s,void *m)
   /* allocate array to hold the gravity field */
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
-  int d, size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
+  int size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
   physics->grav_field = (double*) calloc (size, sizeof(double));
+  physics->fast_jac   = (double*) calloc (size*_MODEL_NVARS_*_MODEL_NVARS_, sizeof(double));
+  physics->solution   = (double*) calloc (size*_MODEL_NVARS_, sizeof(double));
   IERR Euler1DGravityField(solver,mpi); CHECKERR(ierr);
 
   return(0);

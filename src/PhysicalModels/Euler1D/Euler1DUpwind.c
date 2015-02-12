@@ -271,9 +271,10 @@ int Euler1DUpwinddFRoe(double *fI,double *fL,double *fR,double *uL,double *uR,do
   int       done,k;
   _DECLARE_IERR_;
 
-  int ndims = solver->ndims;
-  int ghosts= solver->ghosts;
-  int *dim  = solver->dim_local;
+  int     ndims = solver->ndims;
+  int     ghosts= solver->ghosts;
+  int     *dim  = solver->dim_local;
+  double  *uref = param->solution;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
@@ -298,7 +299,7 @@ int Euler1DUpwinddFRoe(double *fI,double *fL,double *fR,double *uL,double *uR,do
       udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
       udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
 
-      _Euler1DRoeAverage_         (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param); 
+      _Euler1DRoeAverage_         (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param); 
       _Euler1DEigenvalues_        (uavg,D,param,0);
       _Euler1DLeftEigenvectors_   (uavg,L,param,0);
       _Euler1DRightEigenvectors_  (uavg,R,param,0);
@@ -332,9 +333,10 @@ int Euler1DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double *uR,dou
   int       done,k;
   _DECLARE_IERR_;
 
-  int ndims   = solver->ndims;
-  int *dim    = solver->dim_local;
-  int ghosts  = solver->ghosts;
+  int     ndims   = solver->ndims;
+  int     *dim    = solver->dim_local;
+  int     ghosts  = solver->ghosts;
+  double  *uref   = param->solution;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
@@ -356,7 +358,7 @@ int Euler1DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double *uR,dou
 
       /* Roe-Fixed upwinding scheme */
 
-      _Euler1DRoeAverage_       (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _Euler1DRoeAverage_       (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
       _Euler1DEigenvalues_      (uavg,D,param,0);
       _Euler1DLeftEigenvectors_ (uavg,L,param,0);
       _Euler1DRightEigenvectors_(uavg,R,param,0);
@@ -401,9 +403,10 @@ int Euler1DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double *uR,do
   int       done,k;
   _DECLARE_IERR_;
 
-  int ndims   = solver->ndims;
-  int *dim    = solver->dim_local;
-  int ghosts  = solver->ghosts;
+  int     ndims   = solver->ndims;
+  int     *dim    = solver->dim_local;
+  int     ghosts  = solver->ghosts;
+  double  *uref   = param->solution;
 
   int index_outer[ndims], index_inter[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
@@ -425,7 +428,7 @@ int Euler1DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double *uR,do
 
       /* Local Lax-Friedrich upwinding scheme */
 
-      _Euler1DRoeAverage_       (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _Euler1DRoeAverage_       (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
       _Euler1DEigenvalues_      (uavg,D,param,0);
       _Euler1DLeftEigenvectors_ (uavg,L,param,0);
       _Euler1DRightEigenvectors_(uavg,R,param,0);

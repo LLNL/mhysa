@@ -28,6 +28,7 @@ For the treatment of gravitational source terms, refer to:
 
 #include <basic.h>
 #include <math.h>
+#include <matops.h>
 
 #define _EULER_1D_  "euler1d"
 
@@ -69,6 +70,28 @@ For the treatment of gravitational source terms, refer to:
     f[0] = gamma_inv * (rho)*(v); \
     f[1] = gamma_inv * (rho)*(v)*(v) + (P); \
     f[2] = ((e)+(P)) * (v) - 0.5*gamma_inv*((gamma)-1)*(rho)*(v)*(v)*(v); \
+  }
+
+#define _Euler1DSetLinearizedStiffFlux_(f,u,J) \
+  { \
+    _MatVecMultiply_((J),(u),(f),(_MODEL_NVARS_)); \
+  }
+
+/* row-major format */
+#define _Euler1DSetStiffJac_(J,rho,v,e,P,gamma) \
+  { \
+    double gm1 = (gamma)-1; \
+    double inv_gm = 1.0/(gamma); \
+    double gm1_inv_gm = gm1 * inv_gm; \
+    J[0] = 0.5*gm1_inv_gm*(rho)*(v)*(v)*(v)/(P) - (v); \
+    J[1] = 1.0 - gm1_inv_gm*(rho)*(v)*(v)/(P); \
+    J[2] = gm1_inv_gm*(rho)*(v)/(P); \
+    J[3] = 0.5*gm1_inv_gm*(rho)*(v)*(v)*(v)*(v)/(P) + 0.5*((gamma)-5.0)*(v)*(v); \
+    J[4] = (3.0-(gamma))*(v) - gm1_inv_gm*(rho)*(v)*(v)*(v)/(P); \
+    J[5] = gm1_inv_gm*(rho)*(v)*(v)/(P) + gm1; \
+    J[6] = 0.25*gm1_inv_gm*(rho)*(v)*(v)*(v)*(v)*(v)/(P) - (gamma)*(v)*(e)/(rho) + 0.5*(2.0*(gamma)-3.0)*(v)*(v)*(v); \
+    J[7] = (gamma)*(e)/(rho) - 1.5*gm1*(v)*(v) - 0.5*gm1_inv_gm*(rho)*(v)*(v)*(v)*(v)/(P); \
+    J[8] = 0.5*gm1_inv_gm*(rho)*(v)*(v)*(v)/(P) + (gamma)*(v); \
   }
 
 #define _Euler1DRoeAverage_(uavg,uL,uR,p) \
@@ -155,6 +178,8 @@ typedef struct euler1d_parameters {
   double  gamma;  /* Ratio of heat capacities */
   double  grav;   /* acceleration due to gravity */
   double  *grav_field; /* gravity potential field */
+  double  *fast_jac; /* linearized fast-waves Jacobian */
+  double  *solution; /* reference solution for linearization */
   char    upw_choice[_MAX_STRING_SIZE_]; /* choice of upwinding */
   int     (*SourceUpwind)(double*,double*,double*,double*,int,void*,double);
 } Euler1D;
