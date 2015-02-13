@@ -71,7 +71,7 @@ void IncrementFilename(char *f)
 void WriteTecplot2D(int ndims,int nvars,int *dim,double *x,double *u,char *f,int *index)
 {
   if (ndims !=2) {
-    fprintf(stderr,"Error in WriteTecplot3D(): This functions is hardcoded for 2-dimensional ");
+    fprintf(stderr,"Error in WriteTecplot2D(): This functions is hardcoded for 2-dimensional ");
     fprintf(stderr,"problems only. Instead, ndims=%d.\n",ndims);
     return;
   }
