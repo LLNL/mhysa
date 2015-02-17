@@ -72,7 +72,7 @@ int TimePreStep         (void*);
 int TimeStep            (void*);
 int TimePostStep        (void*);
 int TimePrintStep       (void*);
-int TimeError           (void*);
+int TimeError           (void*,void*,double*);
 int TimeGetAuxSolutions (int*,double**,void*,int);
 
 /* Time Integration Functions */

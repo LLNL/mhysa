@@ -26,6 +26,7 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   }
   solver  = context->solver;
   mpi     = context->mpi;
+  context->tic++;
 
   int     iter; ierr = TSGetTimeStepNumber(ts,&iter); CHKERRQ(ierr);
   double  dt;   ierr = TSGetTimeStep      (ts,&dt  ); CHKERRQ(ierr);
@@ -77,7 +78,7 @@ PetscErrorCode PetscPostTimeStep(TS ts)
 
   /* Write intermediate solution to file */
   if (iter%solver->file_op_iter == 0) 
-    ierr = OutputSolution(solver,mpi); CHECKERR(ierr);
+    { ierr = OutputSolution(solver,mpi); CHECKERR(ierr); context->tic=0; }
 
   PetscFunctionReturn(0);
 }

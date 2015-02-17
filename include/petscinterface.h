@@ -17,6 +17,7 @@ typedef struct _petsccontext_ {
 
   PetscReal shift;
   double    waqt;
+  int       tic;
 
   /* flags for implicit treatment */
   int flag_hyperbolic;    /* whether the hyperbolic term is treated implicitly or explicitly    */

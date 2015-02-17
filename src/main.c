@@ -116,21 +116,6 @@ int main(int argc,char **argv)
 #ifndef serial
   MPI_Barrier(mpi.world);
 #endif
-
-  /* Write final solution file */
-  ierr = OutputSolution(&solver,&mpi);
-  if (ierr) {
-    printf("Error: OutputSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
-    return(ierr);
-  }
-
-  /* Calculate error if exact solution is available */
-  ierr = CalculateError(&solver,&mpi);
-  if (ierr) {
-    printf("Error: CalculateError() returned with status %d on process %d.\n",ierr,mpi.rank);
-    return(ierr);
-  }
-
   gettimeofday(&main_end,NULL);
 
   /* calculate solver and total runtimes */
@@ -176,9 +161,10 @@ int main(int argc,char **argv)
 #endif
     fclose(out);
     /* print solution errors, conservation errors, and wall times to screen */
-    printf("L1         Error           : %1.16E\n",solver.error[0]);
-    printf("L2         Error           : %1.16E\n",solver.error[1]);
-    printf("Linfinity  Error           : %1.16E\n",solver.error[2]);
+    printf("Computed errors:\n");
+    printf("  L1         Error           : %1.16E\n",solver.error[0]);
+    printf("  L2         Error           : %1.16E\n",solver.error[1]);
+    printf("  Linfinity  Error           : %1.16E\n",solver.error[2]);
     printf("Conservation Errors:\n");
     for (d=0; d<solver.nvars; d++) printf("\t%1.16E\n",solver.ConservationError[d]);
     printf("Solver runtime (in seconds): %1.16E\n",solver_runtime);

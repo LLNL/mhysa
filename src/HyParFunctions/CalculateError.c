@@ -4,6 +4,7 @@
 #include <math.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <timeintegration.h>
 #include <mpivars.h>
 #include <hypar.h>
 
@@ -29,9 +30,12 @@ int CalculateError(void *s,void *m)
   if (!exact_flag) {
 
     /* No exact solution */
+    IERR TimeError(solver,mpi,NULL); CHECKERR(ierr);
     solver->error[0] = solver->error[1] = solver->error[2] = 0.0;
 
   } else {
+
+    IERR TimeError(solver,mpi,uex); CHECKERR(ierr);
 
     /* calculate solution norms (for relative error) */
     double solution_norm[3] = {0.0,0.0,0.0};

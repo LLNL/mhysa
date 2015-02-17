@@ -3,6 +3,7 @@
 #include <hypar.h>
 #include <timeintegration.h>
 
+int CalculateErrors(void*,void*);
 #ifdef compute_rhs_operators
 int ComputeRHSOperators(void*,void*,double);
 #endif
@@ -11,6 +12,7 @@ int Solve(void *s,void *m)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
+  int           tic     = 0;
   _DECLARE_IERR_;
 
   /* Define and initialize the time-integration object */
@@ -25,7 +27,7 @@ int Solve(void *s,void *m)
 #ifdef compute_rhs_operators
     /* compute and write (to file) matrix operators representing the right-hand side */
     if (((TS.iter+1)%solver->file_op_iter == 0) || (!TS.iter)) 
-      IERR ComputeRHSOperators(solver,mpi,TS.waqt); CHECKERR(ierr);
+      { IERR ComputeRHSOperators(solver,mpi,TS.waqt); CHECKERR(ierr); }
 #endif
     /* Write initial solution to file if this is the first iteration */
     if (!TS.iter) { IERR OutputSolution(solver,mpi); CHECKERR(ierr); }
@@ -35,14 +37,20 @@ int Solve(void *s,void *m)
     IERR TimePostStep (&TS); CHECKERR(ierr);
     /* Print information to screen */
     IERR TimePrintStep(&TS); CHECKERR(ierr);
+    tic++;
 
     /* Write intermediate solution to file */
     if ((TS.iter+1)%solver->file_op_iter == 0) 
-      IERR OutputSolution(solver,mpi); CHECKERR(ierr);
+      { IERR OutputSolution(solver,mpi); CHECKERR(ierr); tic = 0; }
   }
 
+  /* write a final solution file, if last iteration did not write one */
+  if (tic) { IERR OutputSolution(solver,mpi); CHECKERR(ierr); }
+
   if (!mpi->rank) printf("Completed time integration (Final time: %f).\n",TS.waqt);
-  IERR TimeError(&TS);   CHECKERR(ierr);
+
+  /* calculate error if exact solution has been provided */
+  IERR CalculateError(solver,mpi); CHECKERR(ierr);
   IERR TimeCleanup(&TS); CHECKERR(ierr);
   return(0);
 }

@@ -37,6 +37,7 @@ int SolvePETSc(void *s,void *m)
   PETScContext context;
   context.solver = solver;
   context.mpi    = mpi;
+  context.tic    = 0;
 
   /* create and initialize PETSc solution vector and other parameters */
   /* PETSc solution vector does not have ghost points */
@@ -297,6 +298,12 @@ int SolvePETSc(void *s,void *m)
   }
   ierr = TSDestroy(&ts);                                                  CHKERRQ(ierr);
   ierr = VecDestroy(&Y);                                                  CHKERRQ(ierr);
+
+  /* write a final solution file, if last iteration did not write one */
+  if (context.tic) { IERR OutputSolution(solver,mpi); CHECKERR(ierr); }
+  /* calculate error if exact solution has been provided */
+  IERR CalculateError(solver,mpi); CHECKERR(ierr);
+
   PetscFunctionReturn(0);
 }
 
