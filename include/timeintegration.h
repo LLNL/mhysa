@@ -53,6 +53,7 @@ int TimeExplicitRKCleanup   (void*);
 #define _GLM_GEE_24_     "24"
 #define _GLM_GEE_35_     "35"
 #define _GLM_GEE_EXRK2A_ "exrk2a"
+#define _GLM_GEE_RK32G1_ "rk32g1"
 typedef struct _glm_gee_time_integration_ {
   int nstages,    /* number of stages */
       r;

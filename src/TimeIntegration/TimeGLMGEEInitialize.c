@@ -31,6 +31,10 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
       params->nstages = 6;
       params->r       = 2;
       params->gamma   = 0.25;
+    } else if (!strcmp(type,_GLM_GEE_RK32G1_)) {
+      params->nstages = 8;
+      params->r       = 2;
+      params->gamma   = 0.0;
     } else {
       fprintf(stderr,"Error in TimeGLMGEEInitialize(): %s is not a supported ",type);
       fprintf(stderr,"multi-stage time integration scheme of class %s.\n",class);
@@ -223,6 +227,74 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
 
       params->D_yyt[0*r+0] = 1.0;
       params->D_yyt[1*r+1] = 1.0;
+
+    } else if (!strcmp(type,_GLM_GEE_RK32G1_)) {
+
+      params->A_yeps[1*s+0] =  0.5;
+
+      params->A_yeps[2*s+0] = -1.0;
+      params->A_yeps[2*s+1] =  2.0;
+        
+      params->A_yeps[3*s+0] =  1.0/6.0;
+      params->A_yeps[3*s+1] =  2.0/3.0;
+      params->A_yeps[3*s+2] =  1.0/6.0;
+        
+      params->A_yeps[5*s+0] = -7.0/24.0;
+      params->A_yeps[5*s+1] =  1.0/3.0;
+      params->A_yeps[5*s+2] =  1.0/12.0;
+      params->A_yeps[5*s+3] = -1.0/8.0;
+      params->A_yeps[5*s+4] =  0.5;
+        
+      params->A_yeps[6*s+0] =  7.0/6.0;
+      params->A_yeps[6*s+1] = -4.0/3.0;
+      params->A_yeps[6*s+2] = -1.0/3.0;
+      params->A_yeps[6*s+3] =  0.5;
+      params->A_yeps[6*s+4] = -1.0;
+      params->A_yeps[6*s+5] =  2.0;
+      
+      params->A_yeps[7*s+4] =  1.0/6.0;
+      params->A_yeps[7*s+5] =  2.0/3.0;
+      params->A_yeps[7*s+6] =  1.0/6.0;
+
+      params->B_yeps[0*s+0] = 1.0/6.0;
+      params->B_yeps[0*s+1] = 2.0/3.0;
+      params->B_yeps[0*s+2] = 1.0/6.0;
+
+      params->B_yeps[1*s+0] = -1.0/6.0;
+      params->B_yeps[1*s+1] = -2.0/3.0;
+      params->B_yeps[1*s+2] = -1.0/6.0;
+      params->B_yeps[1*s+4] =  1.0/6.0;
+      params->B_yeps[1*s+5] =  2.0/3.0;
+      params->B_yeps[1*s+6] =  1.0/6.0;
+
+      params->C_yeps[0*r+0] = 1.0;
+      params->C_yeps[1*r+0] = 1.0;
+      params->C_yeps[2*r+0] = 1.0;
+      params->C_yeps[3*r+0] = 1.0;
+      params->C_yeps[4*r+0] = 1.0;
+      params->C_yeps[5*r+0] = 1.0;
+      params->C_yeps[6*r+0] = 1.0;
+      params->C_yeps[7*r+0] = 1.0;
+
+      params->C_yeps[4*r+1] = 1.0;
+      params->C_yeps[5*r+1] = 1.0;
+      params->C_yeps[6*r+1] = 1.0;
+      params->C_yeps[7*r+1] = 1.0;
+
+      params->D_yeps[0*r+0] = 1.0;
+      params->D_yeps[1*r+1] = 1.0;
+
+      double T[r*r],Tinv[r*r];
+      T[0*r+0] = 1.0;
+      T[0*r+1] = 0.0;
+      T[1*r+0] = 1.0;
+      T[1*r+1] = 1.0-params->gamma;
+      _MatrixInvert_(T,Tinv,r);
+
+      _ArrayCopy1D_(params->A_yeps,params->A_yyt,(s*s));
+      _MatrixMultiplyNonSquare_(T,params->B_yeps,params->B_yyt,r,r,s);
+      _MatrixMultiplyNonSquare_(params->C_yeps,Tinv,params->C_yyt,s,r,r);
+      _ArrayCopy1D_(params->D_yeps,params->D_yyt,(r*r));
 
     }
 
