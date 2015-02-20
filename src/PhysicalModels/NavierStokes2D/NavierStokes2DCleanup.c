@@ -7,5 +7,7 @@ int NavierStokes2DCleanup(void *s)
 
   free(param->grav_field_f);
   free(param->grav_field_g);
+  free(param->fast_jac);
+  free(param->solution);
   return(0);
 }

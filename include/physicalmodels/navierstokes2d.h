@@ -71,7 +71,6 @@
     } \
   }
 
-
 #define _NavierStokes2DSetStiffFlux_(f,rho,vx,vy,e,P,dir,gamma) \
   { \
     double gamma_inv = 1.0/gamma; \
@@ -87,6 +86,7 @@
       f[3] = (e + P) * vy - 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy) * vy; \
     } \
   }
+
 #define _NavierStokes2DRoeAverage_(uavg,uL,uR,p) \
   { \
     double  rho ,vx, vy, e ,P ,H ,csq, vsq; \
@@ -275,6 +275,9 @@ typedef struct navierstokes2d_parameters {
   
   /* arrays to store the gravity fields */
   double  *grav_field_f, *grav_field_g;
+
+  /* arrays to hold the solution and its acoustic Jacobian for a time step */
+  double *fast_jac, *solution;
 
   /* choice of hydrostatic balance                              */
   /* 1 -> isothermal                                            */

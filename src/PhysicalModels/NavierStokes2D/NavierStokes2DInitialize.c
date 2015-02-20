@@ -31,6 +31,7 @@ int    NavierStokes2DUpwinddFRusanov   (double*,double*,double*,double*,double*,
 
 int    NavierStokes2DGravityField      (void*,void*);
 int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
+int    NavierStokes2DPreStep           (double*,void*,void*,double);
 
 int NavierStokes2DInitialize(void *s,void *m)
 {
@@ -152,6 +153,7 @@ int NavierStokes2DInitialize(void *s,void *m)
   }
 
   /* initializing physical model-specific functions */
+  solver->PreStep     = NavierStokes2DPreStep;
   solver->ComputeCFL  = NavierStokes2DComputeCFL;
   solver->FFunction   = NavierStokes2DFlux;
   solver->SFunction   = NavierStokes2DSource;
@@ -205,6 +207,8 @@ int NavierStokes2DInitialize(void *s,void *m)
   int d, size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
   physics->grav_field_f = (double*) calloc (size, sizeof(double));
   physics->grav_field_g = (double*) calloc (size, sizeof(double));
+  physics->fast_jac     = (double*) calloc (2*size*_MODEL_NVARS_*_MODEL_NVARS_,sizeof(double));
+  physics->solution     = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
   IERR NavierStokes2DGravityField(solver,mpi); CHECKERR(ierr);
 
   return(0);
