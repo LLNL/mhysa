@@ -35,6 +35,10 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
       params->nstages = 8;
       params->r       = 2;
       params->gamma   = 0.0;
+    } else if (!strcmp(type,_GLM_GEE_RK285EX_)) {
+      params->nstages = 9;
+      params->r       = 2;
+      params->gamma   = 0.25;
     } else {
       fprintf(stderr,"Error in TimeGLMGEEInitialize(): %s is not a supported ",type);
       fprintf(stderr,"multi-stage time integration scheme of class %s.\n",class);
@@ -280,6 +284,66 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
       params->C_yeps[5*r+1] = 1.0;
       params->C_yeps[6*r+1] = 1.0;
       params->C_yeps[7*r+1] = 1.0;
+
+      params->D_yeps[0*r+0] = 1.0;
+      params->D_yeps[1*r+1] = 1.0;
+
+      double T[r*r],Tinv[r*r];
+      T[0*r+0] = 1.0;
+      T[0*r+1] = 0.0;
+      T[1*r+0] = 1.0;
+      T[1*r+1] = 1.0-params->gamma;
+      _MatrixInvert_(T,Tinv,r);
+
+      _ArrayCopy1D_(params->A_yeps,params->A_yyt,(s*s));
+      _MatrixMultiplyNonSquare_(T,params->B_yeps,params->B_yyt,r,r,s);
+      _MatrixMultiplyNonSquare_(params->C_yeps,Tinv,params->C_yyt,s,r,r);
+      _ArrayCopy1D_(params->D_yeps,params->D_yyt,(r*r));
+
+    } else if (!strcmp(type,_GLM_GEE_RK285EX_)) {
+
+      params->A_yeps[1*s+0] = 0.585786437626904966;
+      params->A_yeps[2*s+0] = 0.149999999999999994;
+      params->A_yeps[2*s+1] = 0.849999999999999978;
+      params->A_yeps[4*s+3] = 0.292893218813452483;
+      params->A_yeps[5*s+3] = 0.0749999999999999972;
+      params->A_yeps[5*s+4] = 0.424999999999999989;
+      params->A_yeps[6*s+3] = 0.176776695296636893;
+      params->A_yeps[6*s+4] = 0.176776695296636893;
+      params->A_yeps[6*s+5] = 0.146446609406726241;
+      params->A_yeps[7*s+3] = 0.176776695296636893;
+      params->A_yeps[7*s+4] = 0.176776695296636893;
+      params->A_yeps[7*s+5] = 0.146446609406726241;
+      params->A_yeps[7*s+6] = 0.292893218813452483;
+      params->A_yeps[8*s+3] = 0.176776695296636893;
+      params->A_yeps[8*s+4] = 0.176776695296636893;
+      params->A_yeps[8*s+5] = 0.146446609406726241;
+      params->A_yeps[8*s+6] = 0.0749999999999999972;
+      params->A_yeps[8*s+7] = 0.424999999999999989;
+
+      params->B_yeps[0*s+0] = 0.353553390593273786;
+      params->B_yeps[0*s+1] = 0.353553390593273786;
+      params->B_yeps[0*s+2] = 0.292893218813452483;
+
+      params->B_yeps[1*s+0] =-0.471404520791031678;
+      params->B_yeps[1*s+1] =-0.471404520791031678;
+      params->B_yeps[1*s+2] =-0.390524291751269959;
+      params->B_yeps[1*s+3] = 0.235702260395515839;
+      params->B_yeps[1*s+4] = 0.235702260395515839;
+      params->B_yeps[1*s+5] = 0.195262145875634979;
+      params->B_yeps[1*s+6] = 0.235702260395515839;
+      params->B_yeps[1*s+7] = 0.235702260395515839;
+      params->B_yeps[1*s+8] = 0.195262145875634979;
+
+      params->C_yeps[0*r+0] = 1.0;
+      params->C_yeps[1*r+0] = 1.0;
+      params->C_yeps[2*r+0] = 1.0;
+      params->C_yeps[3*r+0] = 1.0; params->C_yeps[3*r+1] = 0.75;
+      params->C_yeps[4*r+0] = 1.0; params->C_yeps[4*r+1] = 0.75;
+      params->C_yeps[5*r+0] = 1.0; params->C_yeps[5*r+1] = 0.75;
+      params->C_yeps[6*r+0] = 1.0; params->C_yeps[6*r+1] = 0.75;
+      params->C_yeps[7*r+0] = 1.0; params->C_yeps[7*r+1] = 0.75;
+      params->C_yeps[8*r+0] = 1.0; params->C_yeps[8*r+1] = 0.75;
 
       params->D_yeps[0*r+0] = 1.0;
       params->D_yeps[1*r+1] = 1.0;

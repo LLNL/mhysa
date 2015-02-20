@@ -47,13 +47,14 @@ int TimeExplicitRKInitialize(char*,char*,void*,void*);
 int TimeExplicitRKCleanup   (void*);
 
 /* General Linear Methods with Global Error Estimate */
-#define _GLM_GEE_YYT_    "yyt"
-#define _GLM_GEE_YEPS_   "yeps"
-#define _GLM_GEE_23_     "23"
-#define _GLM_GEE_24_     "24"
-#define _GLM_GEE_35_     "35"
-#define _GLM_GEE_EXRK2A_ "exrk2a"
-#define _GLM_GEE_RK32G1_ "rk32g1"
+#define _GLM_GEE_YYT_     "yyt"
+#define _GLM_GEE_YEPS_    "yeps"
+#define _GLM_GEE_23_      "23"
+#define _GLM_GEE_24_      "24"
+#define _GLM_GEE_35_      "35"
+#define _GLM_GEE_EXRK2A_  "exrk2a"
+#define _GLM_GEE_RK32G1_  "rk32g1"
+#define _GLM_GEE_RK285EX_ "rk285ex"
 typedef struct _glm_gee_time_integration_ {
   int nstages,    /* number of stages */
       r;
