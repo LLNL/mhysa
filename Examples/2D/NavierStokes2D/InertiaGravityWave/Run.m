@@ -257,8 +257,8 @@ else
     grid on;
 
     % write plot to files
-    print(figSolution,'-depsc',['Contour.eps']);
-    print(figCrossSec,'-depsc',['CrossSc.eps']);
+    print(figSolution,'-depsc','Contour.eps');
+    print(figCrossSec,'-depsc','CrossSc.eps');
 end
 
 % create the directory to save the solution and plots in
@@ -272,7 +272,7 @@ if (~exist(dumpname,'file'))
       system(['rm -rf ',dumpname]);
 end
 mkdir(dumpname);
-system(['mv op* *.eps ',dumpname,'/']);
+system(['mv *.inp op* *.eps ',dumpname,'/']);
 
 % clean up
 system('rm -rf *.dat *.inp *.log *.bin *.eps INIT PP');
