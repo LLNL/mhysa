@@ -1,3 +1,26 @@
+/*! @file main.c
+ *  @brief Main driver.
+ * The main driver function that calls the initialization, solving, and cleaning up functions.
+ *  @author Debojyoti Ghosh
+*/
+
+/*! @mainpage
+
+* HyPar - Hyperbolic-Parabolic Partial Differential Equations Solver: 
+* A finite-difference algorithm to solve hyperbolic-parabolic equations 
+* (with source term). The hyperbolic terms are discretized using a conservative 
+* finite-difference scheme (eg: 1st order UPWIND, 3rd order MUSCL, 5th order WENO, 
+* 5th order CRWENO). The parabolic terms are discretized either using a conservative 
+* or a non-conservative scheme. Time integration is carried out using the PETSc TS 
+* library. If compiled without PETSc, the first order Euler and some higher order 
+* multi-stage Runge-Kutta schemes are available. Examples of physical models include 
+* the linear advection-diffusion-reaction, Euler and Navier-Stokes equations, 
+* Fokker-Planck equations for power systems, etc. The code can be compiled in serial 
+* as well as in parallel (MPI). For more details, see README.
+
+*  @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -9,11 +32,16 @@
 
 static const char help[] = "HyPar - A finite-difference algorithm for solving hyperbolic-parabolic PDEs";
 
+/*!
+ * \brief Main driver
+ *
+ * The main driver function that calls the initialization, solving, and cleaning up functions.
+*/
 int main(int argc,char **argv)
 {
   MPIVariables    mpi;
   HyPar           solver;
-  int             ierr = 0,d;
+  int             ierr = 0, d;
   struct timeval  main_start, solve_start;
   struct timeval  main_end  , solve_end  ;
 #ifdef with_petsc

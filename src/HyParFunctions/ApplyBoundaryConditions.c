@@ -1,17 +1,35 @@
+/*! @file ApplyBoundaryConditions.c
+ *  @brief Apply physical boundary conditions to domain.
+ * Contains the function that applies the physical boundary conditions 
+ * to each boundary zone.
+ *  @author Debojyoti Ghosh
+*/
+
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <boundaryconditions.h>
 #include <hypar.h>
 
-/*
- * The argument flag:
- * 1 -> argument x is (\Delta U), hence apply the BCs for
- *      (\Delta U)
- * 0 -> argument x is U, hence apply the BCs for U
+/*! 
+ * \brief Applies the boundary conditions specified for each boundary zone.
+ *
+ * The solver object (of type #HyPar) contains an oject of type #DomainBoundary 
+ * that contains all the boundary information (dimension, extent, face, type, etc).
+ * This function iterates through each of the boundary zones 
+ * (#HyPar::boundary[#HyPar::nBoundaryZones]) and calls the corresponding boundary
+ * condition function.
+ * \n\n
+ * The variable \a flag indicates if the array \a x is the solution, or a delta-solution 
+ * (from implicit time-integration methods).
 */
-
-int ApplyBoundaryConditions(void *s,void *m,double *x,double *xref,int flag,double waqt) 
+int ApplyBoundaryConditions(void    *s,     /*!< Object of type #HyPar containing solver-related variables */
+                            void    *m,     /*!< Object of type #MPIVariables containing MPI-related variables */
+                            double  *x,     /*!< The solution vector on which the boundary conditions are to be applied */
+                            double  *xref,  /*!< Reference solution vector, if needed */
+                            int     flag,   /*!< Flag to indicate if x is the solution or delta-solution */
+                            double  waqt    /*!< Current simulation time */
+                           ) 
 {
   HyPar           *solver   = (HyPar*)          s;
   DomainBoundary  *boundary = (DomainBoundary*) solver->boundary;
@@ -19,7 +37,7 @@ int ApplyBoundaryConditions(void *s,void *m,double *x,double *xref,int flag,doub
   int             nb        = solver->nBoundaryZones;
   _DECLARE_IERR_;
 
-  /* Apply domain boundary conditions to p */
+  /* Apply domain boundary conditions to x */
   int n;
   if (flag) {
     for (n = 0; n < nb; n++) {

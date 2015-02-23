@@ -1,3 +1,13 @@
+/*! @file Interp1PrimFifthOrderCRWENO.c
+ *  @brief CRWENO5 Scheme.
+ *
+ * Contains the function that computes the first primitive of a
+ * function at the grid interfaces from the cell-centered function 
+ * values using the 5th order CRWENO scheme.
+ *
+ *  @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -11,14 +21,48 @@
 #include <omp.h>
 #endif
 
-/* 
-  Fifth order CRWENO interpolation (uniform grid)
-*/
-
 #undef  _MINIMUM_GHOSTS_
-#define _MINIMUM_GHOSTS_ 3
+/*! \def _MINIMUM_GHOSTS_
+ * Minimum number of ghost points required for this interpolation 
+ * method.
+*/
+#define _MINIMUM_GHOSTS_ 3 
 
-int Interp1PrimFifthOrderCRWENO(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m,int uflag)
+/*!
+ * \brief Fifth-order CRWENO scheme.
+ *
+ * **Reference:** <a href="http://dx.doi.org/10.1137/110857659">Ghosh, D., 
+ * Baeder, J. D., Compact Reconstruction Schemes with Weighted ENO Limiting 
+ * for Hyperbolic Conservation Laws, SIAM Journal on Scientific Computing, 
+ * 34 (3), 2012, A1678–A1706</a>
+ * \n
+ * \n
+ * The first primitive of the function at the grid interfaces are computed 
+ * from the cell-centered function values using the fifth-order 
+ * Compact-Reconstruction WENO (CRWENO) scheme. The interpolation method is 
+ * applied in a component-wise manner to vectors.
+ * \n\n
+ * **Note:** The non-linear weights are not computed here. They are just
+ * used to compute the interpolated value. They are computed in 
+ * #WENOFifthOrderCalculateWeights().
+ * \n\n
+ * See interpolation.h for a detailed description of the function arguments.
+ * \n\n
+ * This method uses #tridiagLU() to solve the tridiagonal system of equations 
+ * (see also #TridiagLU, tridiagLU.h).
+ */
+
+int Interp1PrimFifthOrderCRWENO(
+                                double *fI,  /*!< Array of interpolated function values at the interfaces */
+                                double *fC,  /*!< Array of cell-centered values of function f(u) */
+                                double *u,   /*!< Array of cell-centered values of the solution u */
+                                double *x,   /*!< Grid coordinates */
+                                int    upw,  /*!< Upwind direction (left or right biased) */
+                                int    dir,  /*!< Dimension along which the interpolation is taking place */
+                                void   *s,   /*!< Object of type #HyPar containing solver-related variables */
+                                void   *m,   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                int    uflag /*!< Flag to indicate if f(u) = u, i.e, the solution is being reconstructed */
+                               )
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;

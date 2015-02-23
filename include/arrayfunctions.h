@@ -1,15 +1,18 @@
+/*! @file arrayfunctions.h
+    @brief Contains macros and function definitions for common array operations.
+    @author Debojyoti Ghosh
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
 
-/* Returns the n-D index in the n-D array, given a 1D index in a 1D array
- * Arguments:-
- *  N     : number of dimensions (int)
- *  index : the 1-D index (int)
- *  imax  : array of size N, with the size of the n-D array in each dimension (int[])
- *          (not including ghost points)
- *  i     : the n-D index (integer array of size N) (int[])
- *  ghosts: number of ghost points (int)
+/*! \def _ArrayIndexnD_ 
+ * Returns the \a N -dimensional index \a i[\a N] in an \a N -dimensional array of size 
+ * \a imax[\a N] with \a ghost number of ghost points, given the 
+ * 1-dimensional \a index in the corresponding 1-dimensional array stored in
+ * memory.
+ * \sa #_ArrayIndex1D_
 */
 #define _ArrayIndexnD_(N,index,imax,i,ghost)  \
   { \
@@ -23,15 +26,12 @@
     for (arraycounter=0; arraycounter<N; arraycounter++) i[arraycounter] -= (ghost);\
   }
 
-/* Returns the 1D index in the 1D array, given an n-D index in an n-D array
- * Input arguments:-
- *  N     : number of dimensions (int)
- *  imax  : array of size N, with the size of the n-D array in each dimension (int[])
- *          (not including ghost points)
- *  i     : the n-D index (integer array of size N) (int[])
- *  ghosts: number of ghost points (int)
- * Output:-
- *  index : the 1-D index (int)
+/*! \def _ArrayIndex1D_ 
+ * Returns 1-dimensional \a index in the corresponding 1-dimensional array 
+ * stored in memory, given the \a N -dimensional index \a i[\a N] in an 
+ * \a N -dimensional array of size \a imax[\a N] with \a ghost number of 
+ * ghost points.
+ * \sa #_ArrayIndexnD_, #_ArrayIndex1D2_, #_ArrayIndex1D3_
 */
 #define _ArrayIndex1D_(N,imax,i,ghost,index)  \
   { \
@@ -42,14 +42,26 @@
     } \
   }
 
-/* same as _ArrayIndex1D_, loop-unrolled for 2D */
+/*! \def _ArrayIndex1D2_ 
+ * Returns 1-dimensional \a index in the corresponding 1-dimensional array 
+ * stored in memory, given the 2-dimensional index \a i[2] in an 
+ * 2-dimensional array of size \a imax[2] with \a ghost number of 
+ * ghost points. \a N is not used, but retained for uniformity.
+ * \sa #_ArrayIndex1D_, #_ArrayIndex1D3_
+*/
 #define _ArrayIndex1D2_(N,imax,i,ghost,index) \
   { \
     index = i[1]+(ghost); \
     index = ((index*(imax[0]+2*(ghost))) + (i[0]+(ghost))); \
   }
 
-/* same as _ArrayIndex1D_, loop-unrolled for 3D */
+/*! \def _ArrayIndex1D3_ 
+ * Returns 1-dimensional \a index in the corresponding 1-dimensional array 
+ * stored in memory, given the 3-dimensional index \a i[3] in an 
+ * 3-dimensional array of size \a imax[3] with \a ghost number of 
+ * ghost points. \a N is not used, but retained for uniformity.
+ * \sa #_ArrayIndex1D_, #_ArrayIndex1D2_
+*/
 #define _ArrayIndex1D3_(N,imax,i,ghost,index)  \
   { \
     index = i[2]+(ghost); \
@@ -57,16 +69,12 @@
     index = ((index*(imax[0]+2*(ghost))) + (i[0]+(ghost))); \
   }
 
-/* Returns the 1D index in the 1D array, given an n-D index with an offset in an n-D array
- * Input arguments:-
- *  N     : number of dimensions (int)
- *  imax  : array of size N, with the size of the n-D array in each dimension (int[])
- *          (not including ghost points)
- *  i     : the n-D index (integer array of size N) (int[])
- *  offset: array of size N containing the offsets in each dimension (int[])
- *  ghosts: number of ghost points (int)
- * Output:-
- *  index : the 1-D index (int)
+/*! \def _ArrayIndex1DWO_ 
+ * Returns 1-dimensional \a index in the corresponding 1-dimensional array 
+ * stored in memory, given the \a N -dimensional index \a i[\a N] + an 
+ * \a offset[\a N] in an \a N -dimensional array of size \a imax[\a N] 
+ * with \a ghost number of ghost points.
+ * \sa #_ArrayIndexnD_, #_ArrayIndex1D_, #_ArrayIndex1DWO2_, #_ArrayIndex1DWO3_
 */
 #define _ArrayIndex1DWO_(N,imax,i,offset,ghost,index) \
   { \
@@ -77,14 +85,28 @@
     } \
   }
 
-/* same as _ArrayIndex1DWO_, loop-unrolled for 2D */
+/*! \def _ArrayIndex1DWO2_ 
+ * Returns 1-dimensional \a index in the corresponding 1-dimensional array 
+ * stored in memory, given the 2-dimensional index \a i[2] + an 
+ * \a offset[2] in an 2-dimensional array of size \a imax[2] 
+ * with \a ghost number of ghost points. \a N is not used, but retained
+ * for uniformity.
+ * \sa #_ArrayIndex1DWO_, #_ArrayIndex1DWO3_
+*/
 #define _ArrayIndex1DWO2_(N,imax,i,offset,ghost,index) \
   { \
     index = i[1]+(ghost)+ offset[1];\
     index = ((index*(imax[0]+2*(ghost))) + (i[0]+(ghost)+offset[0]));\
   }
 
-/* same as _ArrayIndex1DWO_, loop-unrolled for 3D */
+/*! \def _ArrayIndex1DWO3_ 
+ * Returns 1-dimensional \a index in the corresponding 1-dimensional array 
+ * stored in memory, given the 3-dimensional index \a i[3] + an 
+ * \a offset[3] in an 3-dimensional array of size \a imax[3] 
+ * with \a ghost number of ghost points. \a N is not used, but retained
+ * for uniformity.
+ * \sa #_ArrayIndex1DWO_, #_ArrayIndex1DWO2_
+*/
 #define _ArrayIndex1DWO3_(N,imax,i,offset,ghost,index) \
   { \
     index = i[2]+(ghost)+ offset[2];\
@@ -92,14 +114,10 @@
     index = ((index*(imax[0]+2*(ghost))) + (i[0]+(ghost)+offset[0]));\
   }
 
-/* Increment the n-D index by one 
- * Input:-
- *  N     : number of dimensions (int)
- *  imax  : array of size N, with the size of the n-D array in each dimension (int[])
- *          (not including ghost points)
- *  i     : the n-D index (gets incremented) (int[])
- * Output:-
- *  done  : set to 1 if i has reached its maximum value, else 0 (int)
+/*! \def _ArrayIncrementIndex_
+ * Increments an \a N -dimensional index \a i[\a N] by one. If it reaches
+ * the provided bounds \a imax[\a N], i.e., if \a i[c] = \a imax[c]-1 for all 
+ * c = 0,...,\a N-1), then \a done = 1; else \a done = 0.
 */
 #define _ArrayIncrementIndex_(N,imax,i,done) \
   { \
@@ -117,11 +135,9 @@
     else          done = 0; \
   }
 
-/* Set all elements of an array (any datatype) to a constant value
- * Arguments:-
- *  x     : the array (float/double/int [])
- *  size  : the size of the array (int)
- *  value : the constant value (float/double/int)
+/*! \def _ArraySetValue_
+ * Set all elements of a 1-dimensional array \a x (any datatype)
+ * of length \a size to a scalar \a value
 */
 #define _ArraySetValue_(x,size,value)                                                                               \
   {                                                                                                                 \
@@ -129,11 +145,9 @@
     for (arraycounter = 0; arraycounter < (size); arraycounter++)  x[arraycounter] = (value);                       \
   }
 
-/* Multiple all elements of an array by a constant value
- * Arguments:-
- *  x     : the array (float/double/int [])
- *  a     : the constant factor to multiply with (float/double/int)
- *  size  : size of the array (int)
+/*! \def _ArrayScale1D_ 
+ * Multiply all elements of a 1-dimensional array \a x of length 
+ * \a size by a scalar \a value
 */
 #define _ArrayScale1D_(x,a,size)                                                                                    \
   {                                                                                                                 \
@@ -141,10 +155,10 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) x[arraycounter] *= a;                                   \
   }
 
-/* Element-wise subtraction x = a - b
- * Arguments:
- *  a,b,x   : the arrays (x=a-b) (int/float/double [])
- *  size    : size of the arrays (int)
+/*! \def _ArraySubtract1D_
+ * Element-wise subtraction \a x = \a a - \a b, where \a x, \a a, 
+ * and \a b are 1-dimensional arrays of length \a size
+ * \sa #_ArrayAdd1D_, #_ArrayMultiply1D_
 */
 #define _ArraySubtract1D_(x,a,b,size)                                                                               \
   {                                                                                                                 \
@@ -152,10 +166,10 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) x[arraycounter] = a[arraycounter] - b[arraycounter];    \
   }
 
-/* Element-wise addition x = a + b
- * Arguments:
- *  a,b,x   : the arrays (x=a+b) (int/float/double [])
- *  size    : size of the arrays (int)
+/*! \def _ArrayAdd1D_
+ * Element-wise addition \a x = \a a + \a b, where \a x, \a a, 
+ * and \a b are 1-dimensional arrays of length \a size
+ * \sa #_ArraySubtract1D_, #_ArrayMultiply1D_
 */
 #define _ArrayAdd1D_(x,a,b,size)                                                                                    \
   {                                                                                                                 \
@@ -163,10 +177,10 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) x[arraycounter] = a[arraycounter] + b[arraycounter];    \
   }
 
-/* Element-wise multiplication x = a * b (Dot product)
- * Arguments:
- *  a,b,x   : the arrays (x=a*b) (int/float/double [])
- *  size    : size of the arrays (int)
+/*! \def _ArrayMultiply1D_
+ * Element-wise multiplication \a x = \a a . \a b, where \a x, \a a, 
+ * and \a b are 1-dimensional arrays of length \a size (a.k.a. dot product).
+ * \sa #_ArraySubtract1D_, #_ArrayAdd1D_
 */
 #define _ArrayMultiply1D_(x,a,b,size)                                                                                    \
   {                                                                                                                 \
@@ -174,10 +188,10 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) x[arraycounter] = a[arraycounter] * b[arraycounter];    \
   }
 
-/* Element-wise x = a*b + c*d + e*f (Sum of dot products)
- * Arguments:
- *  a,b,c,d,e,f,x  : the arrays (int/float/double [])
- *  size           : size of the arrays (int)
+/*! \def _ArrayMultiply3Add1D_
+ * Element-wise \a x =\a a . \a b + \a c . \a d + \a e . \a f, where \a x, \a a, 
+ * \a b, \a c, \a d, \a e, and \a f, are 1-dimensional arrays of length \a size.
+ * \sa #_ArrayMultiply1D_
 */
 #define _ArrayMultiply3Add1D_(x,a,b,c,d,e,f,size)                                                                                    \
   {                                                                                                                 \
@@ -186,10 +200,9 @@
       x[arraycounter] = a[arraycounter]*b[arraycounter]+c[arraycounter]*d[arraycounter]+e[arraycounter]*f[arraycounter]; \
   }
 
-/* Element-wise convex combination z = a*x + (1-a)*y
- * Arguments:
- *  a,x,y,z  : the arrays (int/float/double [])
- *  size     : size of the arrays (int)
+/*! \def _ArrayConvexCombination1D_
+ * Element-wise convex combination \a z = \a a . \a x + (1-\a a) . \a y, 
+ * where \a a, \a x, \a y, \a z are 1-dimensional arrays of length \a size.
 */
 #define _ArrayConvexCombination1D_(z,a,x,y,size)                                                                    \
   {                                                                                                                 \
@@ -198,11 +211,11 @@
       z[arraycounter] = a[arraycounter]*x[arraycounter]+(1.0-a[arraycounter])*y[arraycounter]; \
   }
 
-/* Element-wise AYPX y = a*y + x
- * Arguments:
- *  x,y     : the arrays (y=y+a*x) (int/float/double [])
- *  a       : the constant value (int/float/double)
- *  size    : size of the arrays (int)
+/*! \def _ArrayAYPX_
+ * Element-wise AYPX \a y = \a a \a y + \a x, 
+ * where \a a is a scalar, and \a x, \a y, \a z are 
+ * 1-dimensional arrays of length \a size.
+ * \sa #_ArrayAXPY_, #_ArrayAXBY_, #_ArrayAXBYCZ_, #_ArrayScaledAXPY_
 */
 #define _ArrayAYPX_(x,a,y,size)                                                                                     \
   {                                                                                                                 \
@@ -211,11 +224,11 @@
       y[arraycounter] = a*y[arraycounter] + x[arraycounter];\
   }
 
-/* Element-wise AXPY y = y + a*x
- * Arguments:
- *  x,y     : the arrays (y=y+a*x) (int/float/double [])
- *  a       : the constant value (int/float/double)
- *  size    : size of the arrays (int)
+/*! \def _ArrayAXPY_
+ * Element-wise AXPY \a y = \a a \a x + \a y, 
+ * where \a a is a scalar, and \a x, \a y, \a z are 
+ * 1-dimensional arrays of length \a size.
+ * \sa #_ArrayAYPX_, #_ArrayAXBY_, #_ArrayAXBYCZ_, #_ArrayScaledAXPY_
 */
 #define _ArrayAXPY_(x,a,y,size)                                                                                     \
   {                                                                                                                 \
@@ -223,11 +236,11 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) y[arraycounter] += a*x[arraycounter];                   \
   }
 
-/* Element-wise AXBY z = a*x + b*y
- * Arguments:
- *  x,y     : the arrays (int/float/double [])
- *  a,b     : the constant values (int/float/double)
- *  size    : size of the arrays (int)
+/*! \def _ArrayAXBY_
+ * Element-wise AXPY \a z = \a a \a x + \a b \a y, 
+ * where \a a , \a b are scalars, and \a x, \a y, \a z are 
+ * 1-dimensional arrays of length \a size.
+ * \sa #_ArrayAYPX_, #_ArrayAXPY_, #_ArrayAXBYCZ_, #_ArrayScaledAXPY_
 */
 #define _ArrayAXBY_(z,a,x,b,y,size)                                                                                 \
   {                                                                                                                 \
@@ -235,11 +248,11 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) z[arraycounter] = a*x[arraycounter]+b*y[arraycounter];  \
   }
 
-/* Element-wise AXBYCZ w = a*x + b*y + c*z
- * Arguments:
- *  x,y,z   : the arrays (int/float/double [])
- *  a,b,c   : the constant values (int/float/double)
- *  size    : size of the arrays (int)
+/*! \def _ArrayAXBYCZ_
+ * Element-wise AXPY \a w = \a a \a x + \a b \a y + \a c \a z, 
+ * where \a a, \a b, \a c are scalars, and \a x, \a y, \a z, \a w
+ * are 1-dimensional arrays of length \a size.
+ * \sa #_ArrayAYPX_, #_ArrayAXPY_, #_ArrayScaledAXPY_
 */
 #define _ArrayAXBYCZ_(w,a,x,b,y,c,z,size)                                                                                 \
   {                                                                                                                 \
@@ -247,11 +260,11 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) w[arraycounter] = a*x[arraycounter]+b*y[arraycounter]+c*z[arraycounter];  \
   }
 
-/* Element-wise Scaled AXPY y = e*(y + a*x)
- * Arguments:
- *  x,y     : the arrays (y=y+a*x) (int/float/double [])
- *  a,e     : constant values (int/float/double)
- *  size    : size of the arrays (int)
+/*! \def _ArrayScaledAXPY_
+ *Element-wise Scaled AXPY \a y = \a e * (\a y + \a a * \a x), 
+ * where \a a, \a e are scalars, and \a x, \a y
+ * are 1-dimensional arrays of length \a size.
+ * \sa #_ArrayAYPX_, #_ArrayAXPY_, #_ArrayAXBYCZ_
 */
 #define _ArrayScaledAXPY_(x,a,e,y,size)                                                                                     \
   {                                                                                                                 \
@@ -260,9 +273,10 @@
       y[arraycounter] = e*(y[arraycounter]+a*x[arraycounter]);                   \
   }
 
-/* Element-wise copy y = x
- * x,y    : the arrays (int/float/double/char [])
- * size   : size of the arrays (int)
+/*! \def _ArrayCopy1D_
+ * Element-wise copy \a y = \a x, 
+ * where \a x, \a y are 1-dimensional arrays of length \a size.
+ * \sa #_ArrayCopy1D2_, #_ArrayCopy1D3_, #_ArrayScaleCopy1D_, #_ArrayAddCopy1D_
 */
 #define _ArrayCopy1D_(x,y,size) \
   { \
@@ -270,14 +284,24 @@
     for (arraycounter = 0; arraycounter < size; arraycounter++) y[arraycounter] = x[arraycounter]; \
   }
 
-/* Same as _ArrayCopy1D_, loop-unrolled for size = 2 */
+/*! \def _ArrayCopy1D2_
+ * Element-wise copy \a y = \a x, 
+ * where \a x, \a y are 1-dimensional arrays of length 2. 
+ * \a size is not used but retained for uniformity.
+ * \sa #_ArrayCopy1D_, #_ArrayCopy1D3_
+*/
 #define _ArrayCopy1D2_(x,y,size) \
   { \
     y[0] = x[0]; \
     y[1] = x[1]; \
   }
 
-/* Same as _ArrayCopy1D_, loop-unrolled for size = 3 */
+/*! \def _ArrayCopy1D3_
+ * Element-wise copy \a y = \a x, 
+ * where \a x, \a y are 1-dimensional arrays of length 3. 
+ * \a size is not used but retained for uniformity.
+ * \sa #_ArrayCopy1D_, #_ArrayCopy1D2_
+*/
 #define _ArrayCopy1D3_(x,y,size) \
   { \
     y[0] = x[0]; \
@@ -285,10 +309,11 @@
     y[2] = x[2]; \
   }
 
-/* Element-wise scale and copy y = a*x
- * x,y    : the arrays (int/float/double/char [])
- * a      : a constant
- * size   : size of the arrays (int)
+/*! \def _ArrayScaleCopy1D_
+ * Element-wise scale and copy \a y = \a a * \a x, where
+ * \a is a scalar, and \a x, \a y are one-dimensional arrays
+ * of length \a size.
+ * \sa #_ArrayCopy1D_, #_ArrayAddCopy1D_
 */
 #define _ArrayScaleCopy1D_(x,a,y,size) \
   { \
@@ -296,10 +321,11 @@
     for (arraycounter = 0; arraycounter < size; arraycounter++) y[arraycounter] = a*x[arraycounter]; \
   }
 
-/* Element-wise add and copy y = a + x
- * x,y    : the arrays (int/float/double/char [])
- * a      : a constant
- * size   : size of the arrays (int)
+/*! \def _ArrayAddCopy1D_ 
+ * Element-wise add and copy \a y = \a a + \a x, 
+ * where \a x,\a y are one-dimensional arrays of length \a size,
+ * and \a a is a scalar.
+ * \sa #_ArrayCopy1D_, #_ArrayScaleCopy1D_
 */
 #define _ArrayAddCopy1D_(x,a,y,size) \
   { \
@@ -307,7 +333,9 @@
     for (arraycounter = 0; arraycounter < size; arraycounter++) y[arraycounter] = a+x[arraycounter]; \
   }
 
-/* Product of all the elements of an array x */
+/*! \def _ArrayProduct1D_
+ * \a p is the product of all the elements of the one-dimensional 
+ * array \a x of length \a size. */
 #define _ArrayProduct1D_(x,size,p) \
   { \
     int arraycounter = 0; p = 1; \
@@ -323,19 +351,17 @@ INLINE double ArrayMaxnD             (int,int,int*,int,int*,double*);
 INLINE double ArraySumSquarenD       (int,int,int*,int,int*,double*);
 INLINE double ArraySumAbsnD          (int,int,int*,int,int*,double*);
 
-/* Copy one n-D array to another n-D array
- * Arguments:-
- *  ndims       : number of dimensions (int)
- *  x           : copy-from array (double[])
- *  y           : copy-to   array (double[])
- *  dim         : integer array of size in each dimension (int[])
- *  g1          : number of ghost points in copy-from array x (int)
- *  g2          : number of ghost points in copy-to   array y (int)
- *  index       : pre-allocated integer array of size ndims (int[])
- *  nvars       : number of elements at one array location (int)
- *                (can be > 1 for systems of equations)
-*/
-INLINE int ArrayCopynD(int ndims,double *x,double *y,int *dim,int g1,int g2,int *index,int nvars)
+/*! Copy one n-D array to another n-D array (both of which are stored in memory as 1D arrays) */
+INLINE int ArrayCopynD(int    ndims,  /*!< number of dimensions */
+                       double *x,     /*!< copy-from array */
+                       double *y,     /*!< copy-to   array */
+                       int    *dim,   /*!< integer array of size in each dimension */
+                       int    g1,     /*!< number of ghost points in copy-from array x */
+                       int    g2,     /*!< number of ghost points in copy-to   array y */
+                       int    *index, /*!< pre-allocated (by the calling function) integer array of size ndims */
+                       int    nvars   /*!< number of elements at one array location,
+                                           can be > 1 for systems of equations)*/
+                      )
 {
   if (!y) {
     fprintf(stderr,"Error in ArrayCopynD(): array \"y\" not allocated.\n");
@@ -357,17 +383,15 @@ INLINE int ArrayCopynD(int ndims,double *x,double *y,int *dim,int g1,int g2,int 
   return(0);
 }
 
-/* Returns the maximum magnitude element in an n-D array (useful for L_inf norm)
- * Arguments:-
- *  nvars       : number of elements at one array location (int)
- *                (can be > 1 for systems of equations)
- *  ndims       : number of dimensions (int)
- *  dim         : integer array of size in each dimension (int[])
- *  ghosts      : number of ghost points in the array x (int)
- *  index       : pre-allocated integer array of size ndims (int[])
- *  x           : the array (double[])
-*/
-INLINE double ArrayMaxnD(int nvars,int ndims,int *dim,int ghosts,int *index,double* x)
+/*! Returns the maximum magnitude element in an n-D array (useful for L_inf norm) */
+INLINE double ArrayMaxnD(int    nvars,  /*!< number of elements at one array location,
+                                             can be > 1 for systems of equations */
+                         int    ndims,  /*!< number of dimensions */
+                         int    *dim,   /*!< integer array containing the size of x in each dimension*/
+                         int    ghosts, /*!< number of ghost points in the array x*/
+                         int    *index, /*!< pre-allocated (by the calling function) integer array of size ndims */
+                         double *x      /*!< the array*/
+                        )
 {
   double sum = 0;
   int done = 0; _ArraySetValue_(index,ndims,0);
@@ -383,17 +407,14 @@ INLINE double ArrayMaxnD(int nvars,int ndims,int *dim,int ghosts,int *index,doub
   return(sum);
 }
 
-/* Returns the sum-of-magnitudes of the elements in an n-D array (useful for L_1 norm)
- * Arguments:-
- *  nvars       : number of elements at one array location (int)
- *                (can be > 1 for systems of equations)
- *  ndims       : number of dimensions (int)
- *  dim         : integer array of size in each dimension (int[])
- *  ghosts      : number of ghost points in the array x (int)
- *  index       : pre-allocated integer array of size ndims (int[])
- *  x           : the array (double[])
-*/
-INLINE double ArraySumAbsnD(int nvars,int ndims,int *dim,int ghosts,int *index,double* x)
+/*! Returns the sum-of-magnitudes of the elements in an n-D array (useful for L_1 norm) */
+INLINE double ArraySumAbsnD(int     nvars,  /*!< number of elements at one array location, can be > 1 for systems of equations */
+                            int     ndims,  /*!< number of dimensions */
+                            int     *dim,   /*!< integer array of size in each dimension */
+                            int     ghosts, /*!< number of ghost points in the array x */
+                            int     *index, /*!< pre-allocated (by the calling function) integer array of size ndims */
+                            double  *x      /*!< the array */
+                           )
 {
   double sum = 0;
   int done = 0; _ArraySetValue_(index,ndims,0);
@@ -405,17 +426,14 @@ INLINE double ArraySumAbsnD(int nvars,int ndims,int *dim,int ghosts,int *index,d
   return(sum);
 }
 
-/* Returns the sum-of-squares of the elements in an n-D array (useful for L_2 norm)
- * Arguments:-
- *  nvars       : number of elements at one array location (int)
- *                (can be > 1 for systems of equations)
- *  ndims       : number of dimensions (int)
- *  dim         : integer array of size in each dimension (int[])
- *  ghosts      : number of ghost points in the array x (int)
- *  index       : pre-allocated integer array of size ndims (int[])
- *  x           : the array (double[])
-*/
-INLINE double ArraySumSquarenD(int nvars,int ndims,int *dim,int ghosts,int *index,double* x)
+/*! Returns the sum-of-squares of the elements in an n-D array (useful for L_2 norm) */
+INLINE double ArraySumSquarenD(int    nvars,  /*!< number of elements at one array location, can be > 1 for systems of equations */
+                               int    ndims,  /*!< number of dimensions */
+                               int    *dim,   /*!< integer array of size in each dimension */
+                               int    ghosts, /*!< number of ghost points in the array x */
+                               int    *index, /*!< pre-allocated (by the calling function) integer array of size ndims */
+                               double *x      /*!< the array */
+                              )
 {
   double sum = 0;
   int done = 0; _ArraySetValue_(index,ndims,0);
