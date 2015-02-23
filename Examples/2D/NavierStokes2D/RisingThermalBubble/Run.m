@@ -38,11 +38,11 @@ par_type = 'nonconservative-2stage';
 % set problem specific input parameters
 ndims = 2;
 nvars = 4;
-iproc = [4 4];
+iproc = [2 2];
 ghost = 3;
 
 % set grid size;
-N = [201 201];
+N = [101 101];
 
 % specify spatial discretization scheme
 hyp_scheme      = 'weno5';
@@ -56,7 +56,7 @@ nl      = 0;
 eps     = 1e-6;
 
 % time integration
-dt      = 0.01;
+dt      = 0.02;
 t_final = 700.0;
 niter   = int32(t_final/dt);
 
@@ -250,7 +250,7 @@ if (~exist(dumpname,'file'))
       system(['rm -rf ',dumpname]);
 end
 mkdir(dumpname);
-system(['mv op* *.eps ',dumpname,'/']);
+system(['mv *.inp op* *.eps ',dumpname,'/']);
 
 % clean up
 system('rm -rf *.dat *.inp *.log *.bin *.eps INIT PP');
