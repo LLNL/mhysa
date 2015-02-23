@@ -6,9 +6,10 @@ clear all;
 close all;
 
 MaxFiles = 10000;
-fname_FFunction_root = 'Mat_FFunction_';
-fname_dFFunction_root = 'Mat_dFFunction_';
+fname_FFunction_root   = 'Mat_FFunction_';
+fname_dFFunction_root  = 'Mat_dFFunction_';
 fname_FdFFunction_root = 'Mat_FdFFunction_';
+fname_SFunction_root   = 'Mat_SFunction_';
 fname_extn = '.dat';
 nevals = input('Enter number of eigenvalues computed: ');
 
@@ -23,10 +24,12 @@ for i=1:MaxFiles
     filename_FFunction   = strcat(fname_FFunction_root  ,index,fname_extn);
     filename_dFFunction  = strcat(fname_dFFunction_root ,index,fname_extn);
     filename_FdFFunction = strcat(fname_FdFFunction_root,index,fname_extn);
+    filename_SFunction   = strcat(fname_SFunction_root  ,index,fname_extn);
     str_nevals    = strcat(sprintf('%05d',nevals),'_');
     Feval_fname   = strcat('EVals_',str_nevals,filename_FFunction);
     dFeval_fname  = strcat('EVals_',str_nevals,filename_dFFunction);
     FdFeval_fname = strcat('EVals_',str_nevals,filename_FdFFunction);
+    Seval_fname   = strcat('EVals_',str_nevals,filename_SFunction);
     
     xmin = -1.0;
     xmax = 0.0;
@@ -78,7 +81,22 @@ for i=1:MaxFiles
     else
         flagFdFFunction = 0;
     end
-    if (flagFFunction || flagdFFunction || flagFdFFunction)
+    if (exist(Seval_fname,'file'))
+        fprintf('Plotting FFunction eigenvalues from  %s\n',Seval_fname);
+        dataS  = load(Seval_fname);
+        figure(EigPlot);
+        plot(dataS(:,2),dataS(:,3),'gx');
+        hold on;
+        flagSFunction = 1;
+        legend_str = [legend_str;'      S(u)'];
+        xmin = min(xmin,min(dataS(:,2)));
+        xmax = max(xmax,max(dataS(:,2)));
+        ymin = min(ymin,min(dataS(:,3)));
+        ymax = max(ymax,max(dataS(:,3)));
+    else
+        flagSFunction = 0;
+    end
+    if (flagFFunction || flagdFFunction || flagFdFFunction || flagSFunction)
         figure(EigPlot);
         set(gca,'FontSize',10,'FontName','Times');
         xlabel('Real(\lambda)','FontName','Times','FontSize',14, ...
@@ -99,7 +117,11 @@ for i=1:MaxFiles
         end
         nplot = nplot + 1;
     end
-    if ((~flagFFunction) && (~flagdFFunction) && (~flagFdFFunction))
+    if (    (~flagFFunction) ...
+         && (~flagdFFunction) ...
+         && (~flagFdFFunction) ...
+         && (~flagSFunction) ...
+       )
         break;
     end
 end

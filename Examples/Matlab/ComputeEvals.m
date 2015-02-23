@@ -11,9 +11,10 @@
 clear all;
 
 MaxFiles = 10000;
-fname_FFunction_root = 'Mat_FFunction_';
-fname_dFFunction_root = 'Mat_dFFunction_';
+fname_FFunction_root   = 'Mat_FFunction_';
+fname_dFFunction_root  = 'Mat_dFFunction_';
 fname_FdFFunction_root = 'Mat_FdFFunction_';
+fname_SFunction_root   = 'Mat_SFunction_';
 fname_extn = '.dat';
 nevals = input('Enter number of eigenvalues to compute: ');
 opts.tol = 1e-10;
@@ -167,7 +168,60 @@ for i=1:MaxFiles
     else
         FlagFdFFunction = 0;
     end
-    if ((~FlagFFunction) && (~FlagdFFunction) && (~FlagFdFFunction))
+    % compute eigenvalues for SFunction matrix, if available
+    filename_SFunction = strcat(fname_SFunction_root,index,fname_extn);
+    if (exist(filename_SFunction,'file'))
+        fprintf('Reading SFunction matrix from %s: ',filename_SFunction);
+        fid = fopen(filename_SFunction,'r');
+        ndof = fscanf(fid,'%d',1);
+        fprintf('ndof = %d, ',ndof);
+        A = zeros(ndof,ndof);
+        nnz = 0;
+        while (~feof(fid))
+            coord = fscanf(fid,'%d',2);
+            if (max(size(coord)) > 0)
+                nnz = nnz + 1;
+                A(coord(1),coord(2)) = fscanf(fid,'%f',1);
+            end
+        end
+        fprintf('nnz = %d.\n',nnz);
+        fclose(fid);
+        SFunction_Mat = sparse(A);
+        
+        str_nevals   = strcat(sprintf('%05d',nevals),'_');
+        SFunction_eval_fname  = strcat('EVals_',str_nevals,filename_SFunction);
+
+        if (~exist(SFunction_eval_fname,'file'))
+            fprintf('  Computing %5d eigenvalues of SFunction matrix... ',nevals);
+            tic;
+            if (nevals < ndof-1)
+                lambdaSFunction = eigs(SFunction_Mat,nevals,'lm',opts);
+            else
+                lambdaSFunction = eig(full(SFunction_Mat));
+            end
+            waqt = toc;
+            fprintf('%f seconds.\n',waqt);
+            fprintf('  Saving eigenvalues to file %s.\n',SFunction_eval_fname);
+            fid = fopen(SFunction_eval_fname,'w');
+            for n = 1:nevals
+                fprintf(fid,'%5d %+1.16e %+1.16e\n', ...
+                        n,real(lambdaSFunction(n:n)), ...
+                        imag(lambdaSFunction(n:n)));
+            end
+            fclose(fid);
+        else
+            fprintf('  Skipping eigenvalues of S matrix, file %s already exists.\n', ...
+                    SFunction_eval_fname);
+        end
+        FlagSFunction = 1;
+    else
+        FlagSFunction = 0;
+    end
+    if (    (~FlagFFunction) ...
+         && (~FlagdFFunction) ...
+         && (~FlagFdFFunction) ...
+         && (~FlagSFunction) ...
+       )
         break;
     end
 end
