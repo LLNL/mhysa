@@ -115,6 +115,9 @@ int ReadInputs(void *s,void *m)
       }
       fclose(in);
 
+      if (solver->screen_op_iter <= 0)  solver->screen_op_iter = 1;
+      if (solver->file_op_iter <= 0)    solver->file_op_iter   = solver->n_iter;
+
       /* Print to screen the inputs read */
       int i;
 	    printf("\tNo. of dimensions                          : %d\n",solver->ndims);
