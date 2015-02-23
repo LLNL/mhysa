@@ -72,6 +72,17 @@ int Cleanup(void *s,void *m)
   }
 
   /* Clean up any allocations from time-integration */
+#ifdef with_petsc
+  if (!solver->use_petscTS) {
+    if (!strcmp(solver->time_scheme,_RK_)) {
+      IERR TimeExplicitRKCleanup(solver->msti); CHECKERR(ierr);
+      free(solver->msti);
+    } else if (!strcmp(solver->time_scheme,_GLM_GEE_)) {
+      IERR TimeGLMGEECleanup(solver->msti); CHECKERR(ierr);
+      free(solver->msti);
+    }
+  }
+#else
   if (!strcmp(solver->time_scheme,_RK_)) {
     IERR TimeExplicitRKCleanup(solver->msti); CHECKERR(ierr);
     free(solver->msti);
@@ -79,6 +90,7 @@ int Cleanup(void *s,void *m)
     IERR TimeGLMGEECleanup(solver->msti); CHECKERR(ierr);
     free(solver->msti);
   }
+#endif
 
   /* Clean up any spatial reconstruction related allocations */
   if (   (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_  )) 
