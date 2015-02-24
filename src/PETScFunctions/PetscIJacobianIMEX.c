@@ -210,9 +210,9 @@ PetscErrorCode PetscJacobianFunctionIMEX_JFNK(Mat Jacobian,Vec Y,Vec F)
 
   } else {
     
-    double epsilon = 1e-7 / normY;
+    double epsilon = (context->flag_is_linear ? 1.0 : 1e-7 / normY );
     /* copy solution from PETSc vector */
-    ierr = TransferVecFromPETSc(u,Y,context);                                CHECKERR(ierr);
+    ierr = TransferVecFromPETSc(u,Y,context);                             CHECKERR(ierr);
     _ArrayAYPX_(uref,epsilon,u,size*solver->nvars);
     /* apply boundary conditions and exchange data over MPI interfaces */
     ierr = solver->ApplyBoundaryConditions(solver,mpi,u   ,NULL,0,t);     CHECKERR(ierr);
@@ -223,21 +223,25 @@ PetscErrorCode PetscJacobianFunctionIMEX_JFNK(Mat Jacobian,Vec Y,Vec F)
     _ArraySetValue_(rhs,size*solver->nvars,0.0);
     if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
       if (context->flag_hyperbolic_f == _IMPLICIT_) {
-        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction,solver->Upwind);  
+        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                          solver->FFunction,solver->Upwind);
         CHECKERR(ierr);
         _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
-        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction,solver->UpwinddF); 
+        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                          solver->dFFunction,solver->UpwinddF); 
         CHECKERR(ierr);
         _ArrayAXPY_(solver->hyp, 1.0,rhs,size*solver->nvars);
       } 
       if (context->flag_hyperbolic_df == _IMPLICIT_) {
-        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->dFFunction,solver->UpwinddF); 
+        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                          solver->dFFunction,solver->UpwinddF); 
         CHECKERR(ierr);
         _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
       }
     } else {
       if (context->flag_hyperbolic == _IMPLICIT_) {
-        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,solver->FFunction,solver->Upwind);  
+        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                          solver->FFunction,solver->Upwind);  
         CHECKERR(ierr);
         _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
       }

@@ -103,10 +103,15 @@ int SolvePETSc(void *s,void *m)
       SNES snes;
       KSP  ksp;
       PC   pc;
-      TSGetSNES(ts,&snes);
-      SNESGetKSP(snes,&ksp);
-      KSPGetPC(ksp,&pc);
-      PCSetType(pc,PCNONE);
+      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
+      ierr = SNESGetKSP(snes,&ksp);                                                 CHKERRQ(ierr);
+      ierr = KSPGetPC(ksp,&pc);                                                     CHKERRQ(ierr);
+      ierr = PCSetType(pc,PCNONE);                                                  CHKERRQ(ierr);
+
+      SNESType snestype;
+      ierr = SNESGetType(snes,&snestype);                                            CHKERRQ(ierr);
+      if (!strcmp(snestype,SNESKSPONLY)) context.flag_is_linear = 1;
+      else                               context.flag_is_linear = 0;
 
     } else if ( (solver->PFunction) && ((!solver->JFunction) || (context.flag_jfnk_pre)) ) {
 
@@ -131,6 +136,13 @@ int SolvePETSc(void *s,void *m)
       ierr = MatSetUp   (B);                                                        CHKERRQ(ierr);
       /* Set the IJacobian function for TS */
       ierr = TSSetIJacobian(ts,A,B,PetscIJacobianIMEX_JFNK_Pre,&context);           CHKERRQ(ierr);
+
+      SNES snes;
+      SNESType snestype;
+      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
+      ierr = SNESGetType(snes,&snestype);                                            CHKERRQ(ierr);
+      if (!strcmp(snestype,SNESKSPONLY)) context.flag_is_linear = 1;
+      else                               context.flag_is_linear = 0;
 
     } else if ( (solver->PFunction) && (solver->JFunction) ) {
 
@@ -179,6 +191,13 @@ int SolvePETSc(void *s,void *m)
       ierr = MatSetUp   (B);                                                        CHKERRQ(ierr);
       /* Set the IJacobian function for TS */
       ierr = TSSetIJacobian(ts,A,B,PetscIJacobianIMEX_JFNK_JacIsPre,&context);      CHKERRQ(ierr);
+
+      SNES snes;
+      SNESType snestype;
+      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
+      ierr = SNESGetType(snes,&snestype);                                            CHKERRQ(ierr);
+      if (!strcmp(snestype,SNESKSPONLY)) context.flag_is_linear = 1;
+      else                               context.flag_is_linear = 0;
 
     } else {
 
@@ -283,6 +302,13 @@ int SolvePETSc(void *s,void *m)
   ierr = TSSetUp(ts);                                                     CHKERRQ(ierr);
   /* Set application context */
   ierr = TSSetApplicationContext(ts,&context);                            CHKERRQ(ierr);
+
+  if (!mpi->rank) {
+    if (context.flag_is_linear) {
+      printf("SolvePETSc(): Note that SNES type is set to %s. ",SNESKSPONLY);
+      printf("A linear system will be assumed when (if) computing Jacobian.\n");
+    }
+  }
 
   if (!mpi->rank) printf("** Starting PETSc time integration **\n");
   ierr = TSSolve(ts,Y);                                                   CHKERRQ(ierr);

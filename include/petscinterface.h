@@ -30,6 +30,12 @@ typedef struct _petsccontext_ {
   int flag_jfnk_nopre;    /* use unpreconditioned Jacobian-free Newton-Krylov */
   int flag_jfnk_pre;      /* use preconditioned Jacobian-free Newton-Krylov   */
 
+  /* 
+    Flag to indicate if the system being solved for implicit time-integration is linear/nonlinear.
+    It's decided on the basis of whether user specifies SNES type as ksponly.
+  */
+  int flag_is_linear;
+
 } PETScContext;
 
 /* Copy Functions */
