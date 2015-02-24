@@ -63,7 +63,7 @@ for i=1:MaxFiles
             end
             fclose(fid);
         else
-            fprintf('  Skipping eigenvalues of S matrix, file %s already exists.\n', ...
+            fprintf('  Skipping eigenvalues of FFunction matrix, file %s already exists.\n', ...
                     FFunction_eval_fname);
         end
         FlagFFunction = 1;
@@ -210,7 +210,7 @@ for i=1:MaxFiles
             end
             fclose(fid);
         else
-            fprintf('  Skipping eigenvalues of S matrix, file %s already exists.\n', ...
+            fprintf('  Skipping eigenvalues of SFunction matrix, file %s already exists.\n', ...
                     SFunction_eval_fname);
         end
         FlagSFunction = 1;
