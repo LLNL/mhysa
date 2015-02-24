@@ -26,8 +26,6 @@ int SolvePETSc(void *s,void *m)
   int             flag_mat_b = 0;
 
   PetscFunctionBegin;
-  /* Write an initial solution file */
-  IERR OutputSolution(solver,mpi); CHECKERR(ierr);
 
   /* Register custom time-integration methods, if specified */
   ierr = PetscRegisterTIMethods(mpi->rank);                               CHECKERR(ierr);
@@ -38,6 +36,11 @@ int SolvePETSc(void *s,void *m)
   context.solver = solver;
   context.mpi    = mpi;
   context.tic    = 0;
+  context.flag_hyperbolic     = _EXPLICIT_; 
+  context.flag_hyperbolic_f   = _EXPLICIT_; 
+  context.flag_hyperbolic_df  = _EXPLICIT_; 
+  context.flag_parabolic      = _EXPLICIT_; 
+  context.flag_source         = _EXPLICIT_; 
 
   /* create and initialize PETSc solution vector and other parameters */
   /* PETSc solution vector does not have ghost points */

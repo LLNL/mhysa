@@ -10,6 +10,10 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscPreTimeStep"
 
+#ifdef compute_rhs_operators
+int PetscComputeRHSOperators(TS,double,void*);
+#endif
+
 PetscErrorCode PetscPreTimeStep(TS ts)
 {
   PETScContext    *context  = NULL;
@@ -19,6 +23,7 @@ PetscErrorCode PetscPreTimeStep(TS ts)
   Vec             Y;
   TSType          time_scheme;
   double          waqt;
+  int             iter;
 
   PetscFunctionBegin;
 
@@ -34,6 +39,7 @@ PetscErrorCode PetscPreTimeStep(TS ts)
   ierr = TSGetSolution(ts,&Y);                       CHKERRQ(ierr);
   ierr = TransferVecFromPETSc(solver->u,Y,context);  CHECKERR(ierr);
   ierr = TSGetTime(ts,&waqt);                        CHKERRQ(ierr);
+  ierr = TSGetTimeStepNumber(ts,&iter);              CHKERRQ(ierr);
 
   /* apply boundary conditions and exchange data over MPI interfaces */
   IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,0,waqt); CHECKERR(ierr);
@@ -53,6 +59,14 @@ PetscErrorCode PetscPreTimeStep(TS ts)
   
   /* set the step boundary flux integral value to zero */
   _ArraySetValue_(solver->StepBoundaryIntegral,2*solver->ndims*solver->nvars,0.0);
+
+#ifdef compute_rhs_operators
+  if ((!iter) || ((iter+1)%solver->file_op_iter == 0)) 
+    { ierr = PetscComputeRHSOperators(ts,waqt,context); CHECKERR(ierr); }
+#endif
+  /* Write initial solution file if this is the first iteration */
+  if (!iter) 
+    { ierr = OutputSolution(solver,mpi); CHECKERR(ierr); }
 
   PetscFunctionReturn(0);
 }
