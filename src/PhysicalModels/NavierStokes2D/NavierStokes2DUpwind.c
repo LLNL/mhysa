@@ -366,7 +366,8 @@ int NavierStokes2DUpwinddFRoe(double *fI,double *fL,double *fR,double *uL,double
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
   int             done;
 
-  int *dim  = solver->dim_local;
+  int     *dim  = solver->dim_local;
+  double  *uref = param->solution;
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -393,7 +394,7 @@ int NavierStokes2DUpwinddFRoe(double *fI,double *fL,double *fR,double *uL,double
       udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
 
-      _NavierStokes2DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _NavierStokes2DRoeAverage_        (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
       _NavierStokes2DEigenvalues_       (uavg,D,param,dir);
       _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
       _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
@@ -428,7 +429,8 @@ int NavierStokes2DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double 
   NavierStokes2D  *param  = (NavierStokes2D*)  solver->physics;
   int      done,k;
 
-  int *dim  = solver->dim_local;
+  int     *dim  = solver->dim_local;
+  double  *uref = param->solution;
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -441,14 +443,18 @@ int NavierStokes2DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double 
     index_inter[0] = index_outer[0]; index_inter[1] = index_outer[1];
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D2_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
+      int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
+      int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
+      int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
+      int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
       double uavg[_MODEL_NVARS_], fcL[_MODEL_NVARS_], fcR[_MODEL_NVARS_], 
              ucL[_MODEL_NVARS_], ucR[_MODEL_NVARS_], fc[_MODEL_NVARS_];
 
       /* Roe-Fixed upwinding scheme */
 
-      _NavierStokes2DRoeAverage_(uavg,(uL+_MODEL_NVARS_*p),(uR+_MODEL_NVARS_*p),param);
+      _NavierStokes2DRoeAverage_(uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
 
-      _NavierStokes2DEigenvalues_(uavg,D,param,dir);
+      _NavierStokes2DEigenvalues_      (uavg,D,param,dir);
       _NavierStokes2DLeftEigenvectors_ (uavg,L,param,dir);
       _NavierStokes2DRightEigenvectors_(uavg,R,param,dir);
 
@@ -459,12 +465,12 @@ int NavierStokes2DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double 
       MatVecMult4(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 
       double eigL[4],eigC[4],eigR[4];
-      _NavierStokes2DEigenvalues_((uL+_MODEL_NVARS_*p),D,param,dir);
+      _NavierStokes2DEigenvalues_((uref+_MODEL_NVARS_*pL),D,param,dir);
       eigL[0] = D[0];
       eigL[1] = (dir == _YDIR_ ? 0.0 : D[5]);
       eigL[2] = (dir == _XDIR_ ? 0.0 : D[10]);
       eigL[3] = 0.0;
-      _NavierStokes2DEigenvalues_((uR+_MODEL_NVARS_*p),D,param,dir);
+      _NavierStokes2DEigenvalues_((uref+_MODEL_NVARS_*pR),D,param,dir);
       eigR[0] = D[0];
       eigR[1] = (dir == _YDIR_ ? 0.0 : D[5]);
       eigR[2] = (dir == _XDIR_ ? 0.0 : D[10]);
@@ -499,7 +505,8 @@ int NavierStokes2DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double
   NavierStokes2D  *param  = (NavierStokes2D*)  solver->physics;
   int      done;
 
-  int *dim  = solver->dim_local;
+  int     *dim  = solver->dim_local;
+  double  *uref = param->solution;
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -522,7 +529,7 @@ int NavierStokes2DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double
 
       /* Local Lax-Friedrich upwinding scheme */
 
-      _NavierStokes2DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _NavierStokes2DRoeAverage_        (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
       _NavierStokes2DEigenvalues_       (uavg,D,param,dir);
       _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
       _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
@@ -534,12 +541,12 @@ int NavierStokes2DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double
       MatVecMult4(_MODEL_NVARS_,fcR,L,(fR+_MODEL_NVARS_*p));
 
       double eigL[4],eigC[4],eigR[4];
-      _NavierStokes2DEigenvalues_((uL+_MODEL_NVARS_*p),D,param,dir);
+      _NavierStokes2DEigenvalues_((uref+_MODEL_NVARS_*pL),D,param,dir);
       eigL[0] = D[0];
       eigL[1] = (dir == _YDIR_ ? 0.0 : D[5]);
       eigL[2] = (dir == _XDIR_ ? 0.0 : D[10]);
       eigL[3] = 0.0;
-      _NavierStokes2DEigenvalues_((uR+_MODEL_NVARS_*p),D,param,dir);
+      _NavierStokes2DEigenvalues_((uref+_MODEL_NVARS_*pR),D,param,dir);
       eigR[0] = D[0];
       eigR[1] = (dir == _YDIR_ ? 0.0 : D[5]);
       eigR[2] = (dir == _XDIR_ ? 0.0 : D[10]);
@@ -575,7 +582,8 @@ int NavierStokes2DUpwinddFRusanov(double *fI,double *fL,double *fR,double *uL,do
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
   int             done;
 
-  int *dim  = solver->dim_local;
+  int     *dim  = solver->dim_local;
+  double  *uref = param->solution;
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -600,10 +608,10 @@ int NavierStokes2DUpwinddFRusanov(double *fI,double *fL,double *fR,double *uL,do
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
 
       double c, vel[_MODEL_NDIMS_], rho,E,P;
-      _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*pL),rho,vel[0],vel[1],E,P,param);
+      _NavierStokes2DGetFlowVar_((uref+_MODEL_NVARS_*pL),rho,vel[0],vel[1],E,P,param);
       c             = sqrt(param->gamma*P/rho);
       double alphaL = c + absolute(vel[dir]);
-      _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*pR),rho,vel[0],vel[1],E,P,param);
+      _NavierStokes2DGetFlowVar_((uref+_MODEL_NVARS_*pR),rho,vel[0],vel[1],E,P,param);
       c             = sqrt(param->gamma*P/rho);
       double alphaR = c + absolute(vel[dir]);
       double kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
