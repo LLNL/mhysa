@@ -91,27 +91,32 @@ int SolvePETSc(void *s,void *m)
         printf("No Jacobian or preconditioner provided. ");
         printf("Using the unpreconditioned Jacobian-free Newton-Krylov approach.\n");
       }
-      /* Jacobian matrix */
+      /* set pre-conditioner to none for MatShell */
+      SNES     snes;
+      KSP      ksp;
+      PC       pc;
+      SNESType snestype;
+      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
+
+      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
       ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
                             PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
+      if (!strcmp(snestype,SNESKSPONLY)) {
+        context.flag_is_linear = 1;
+        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear);
                                                                                     CHKERRQ(ierr);
+      } else {
+        context.flag_is_linear = 0;
+        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
+                                                                                    CHKERRQ(ierr);
+      }
       ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
       /* Set the IJacobian function for TS */
       ierr = TSSetIJacobian(ts,A,A,PetscIJacobianIMEX_JFNK_NoPre,&context);         CHKERRQ(ierr);
-      /* set pre-conditioner to none for MatShell */
-      SNES snes;
-      KSP  ksp;
-      PC   pc;
-      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
+      /* Set PC (preconditioner) to none */
       ierr = SNESGetKSP(snes,&ksp);                                                 CHKERRQ(ierr);
       ierr = KSPGetPC(ksp,&pc);                                                     CHKERRQ(ierr);
       ierr = PCSetType(pc,PCNONE);                                                  CHKERRQ(ierr);
-
-      SNESType snestype;
-      ierr = SNESGetType(snes,&snestype);                                            CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) context.flag_is_linear = 1;
-      else                               context.flag_is_linear = 0;
 
     } else if ( (solver->PFunction) && ((!solver->JFunction) || (context.flag_jfnk_pre)) ) {
 
@@ -121,12 +126,6 @@ int SolvePETSc(void *s,void *m)
       */
 
       if (!mpi->rank) printf("Using the preconditioned Jacobian-free Newtown-Krylov approach.\n");
-      /* Jacobian matrix */
-      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
-                                                                                    CHKERRQ(ierr);
-      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
       /* Preconditioning matrix */
       flag_mat_b = 1;
       ierr = MatCreate  (MPI_COMM_WORLD,&B);                                        CHKERRQ(ierr);
@@ -140,9 +139,19 @@ int SolvePETSc(void *s,void *m)
       SNES snes;
       SNESType snestype;
       ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
-      ierr = SNESGetType(snes,&snestype);                                            CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) context.flag_is_linear = 1;
-      else                               context.flag_is_linear = 0;
+      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
+      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
+                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
+      if (!strcmp(snestype,SNESKSPONLY)) {
+        context.flag_is_linear = 1;
+        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear);
+                                                                                    CHKERRQ(ierr);
+      } else {
+        context.flag_is_linear = 0;
+        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
+                                                                                    CHKERRQ(ierr);
+      }
+      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
 
     } else if ( (solver->PFunction) && (solver->JFunction) ) {
 
@@ -176,12 +185,6 @@ int SolvePETSc(void *s,void *m)
       */
 
       if (!mpi->rank) printf("Using specified Jacobian as preconditioner to Jacobian-free Newton-Krylov approach.\n");
-      /* Jacobian matrix */
-      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
-                                                                                    CHKERRQ(ierr);
-      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
       /* Preconditioning matrix */
       flag_mat_b = 1; 
       ierr = MatCreate  (MPI_COMM_WORLD,&B);                                        CHKERRQ(ierr);
@@ -195,9 +198,19 @@ int SolvePETSc(void *s,void *m)
       SNES snes;
       SNESType snestype;
       ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
-      ierr = SNESGetType(snes,&snestype);                                            CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) context.flag_is_linear = 1;
-      else                               context.flag_is_linear = 0;
+      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
+      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
+                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
+      if (!strcmp(snestype,SNESKSPONLY)) {
+        context.flag_is_linear = 1;
+        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear);
+                                                                                    CHKERRQ(ierr);
+      } else {
+        context.flag_is_linear = 0;
+        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
+                                                                                    CHKERRQ(ierr);
+      }
+      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
 
     } else {
 

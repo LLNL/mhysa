@@ -58,6 +58,7 @@ PetscErrorCode PetscIJacobianIMEX_Jac_Pre           (TS,PetscReal,Vec,Vec,PetscR
 PetscErrorCode PetscIJacobianIMEX_JFNK_JacIsPre     (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
 PetscErrorCode PetscIJacobianIMEX_Jac_NoPre         (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
 PetscErrorCode PetscJacobianFunctionIMEX_JFNK       (Mat,Vec,Vec);             
+PetscErrorCode PetscJacobianFunctionIMEX_Linear     (Mat,Vec,Vec);             
 
 /* Other functions */
 PetscErrorCode PetscPreStage        (TS,PetscReal);
