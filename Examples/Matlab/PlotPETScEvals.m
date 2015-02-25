@@ -49,22 +49,6 @@ for i=1:MaxFiles
         flagRHSFunctionExpl = 0;
     end
 
-    if (exist(RHSFunctionIMEX_eval_fname,'file'))
-        fprintf('Plotting RHSFunctionIMEX eigenvalues from  %s\n',RHSFunctionIMEX_eval_fname);
-        dataRHSFunctionIMEX  = load(RHSFunctionIMEX_eval_fname);
-        figure(EigPlot);
-        plot(dataRHSFunctionIMEX(:,2),dataRHSFunctionIMEX(:,3),'kx');
-        hold on;
-        flagRHSFunctionIMEX = 1;
-        legend_str = [legend_str;'F(u) IMEX    '];
-        xmin = min(xmin,min(dataRHSFunctionIMEX(:,2)));
-        xmax = max(xmax,max(dataRHSFunctionIMEX(:,2)));
-        ymin = min(ymin,min(dataRHSFunctionIMEX(:,3)));
-        ymax = max(ymax,max(dataRHSFunctionIMEX(:,3)));
-    else
-        flagRHSFunctionIMEX = 0;
-    end
-
     if (exist(IFunctionIMEX_eval_fname,'file'))
         fprintf('Plotting IFunctionIMEX eigenvalues from  %s\n',IFunctionIMEX_eval_fname);
         dataIFunctionIMEX  = load(IFunctionIMEX_eval_fname);
@@ -79,6 +63,22 @@ for i=1:MaxFiles
         ymax = max(ymax,max(dataIFunctionIMEX(:,3)));
     else
         flagIFunctionIMEX = 0;
+    end
+
+    if (exist(RHSFunctionIMEX_eval_fname,'file'))
+        fprintf('Plotting RHSFunctionIMEX eigenvalues from  %s\n',RHSFunctionIMEX_eval_fname);
+        dataRHSFunctionIMEX  = load(RHSFunctionIMEX_eval_fname);
+        figure(EigPlot);
+        plot(dataRHSFunctionIMEX(:,2),dataRHSFunctionIMEX(:,3),'kx');
+        hold on;
+        flagRHSFunctionIMEX = 1;
+        legend_str = [legend_str;'F(u) IMEX    '];
+        xmin = min(xmin,min(dataRHSFunctionIMEX(:,2)));
+        xmax = max(xmax,max(dataRHSFunctionIMEX(:,2)));
+        ymin = min(ymin,min(dataRHSFunctionIMEX(:,3)));
+        ymax = max(ymax,max(dataRHSFunctionIMEX(:,3)));
+    else
+        flagRHSFunctionIMEX = 0;
     end
 
     if (flagRHSFunctionExpl || flagRHSFunctionIMEX || flagIFunctionIMEX)
