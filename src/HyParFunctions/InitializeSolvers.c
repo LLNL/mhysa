@@ -137,6 +137,29 @@ int InitializeSolvers(void *s, void *m)
         return(1);
       }
     }
+  } else if (!strcmp(solver->spatial_scheme_hyp,_SECOND_ORDER_CENTRAL_)) {
+    /* Second order central scheme */
+    if (solver->nvars > 1) {
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_))
+        solver->InterpolateInterfacesHyp = Interp1PrimSecondOrderCentralChar;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
+        solver->InterpolateInterfacesHyp = Interp1PrimSecondOrderCentral;
+      else {
+        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
+        fprintf(stderr,"supported interpolation type.\n");
+        return(1);
+      }
+    } else {
+      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) 
+        solver->InterpolateInterfacesHyp = Interp1PrimSecondOrderCentral;
+      else if (!strcmp(solver->interp_type,_COMPONENTS_))
+        solver->InterpolateInterfacesHyp = Interp1PrimSecondOrderCentral;
+      else {
+        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
+        fprintf(stderr,"supported interpolation type.\n");
+        return(1);
+      }
+    }
   } else if (!strcmp(solver->spatial_scheme_hyp,_THIRD_ORDER_MUSCL_)) {
     /* Third order MUSCL scheme */
     if (solver->nvars > 1) {

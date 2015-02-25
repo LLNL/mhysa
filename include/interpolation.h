@@ -79,6 +79,8 @@
    (for conservative discretization of the 1st derivative) on a uniform grid */
 /* First-order upwind */
 int Interp1PrimFirstOrderUpwind           (double*,double*,double*,double*,int,int,void*,void*,int);
+/* Second-order central */
+int Interp1PrimSecondOrderCentral         (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Third-order MUSCL scheme */
 int Interp1PrimThirdOrderMUSCL            (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order WENO scheme */
@@ -94,6 +96,8 @@ int Interp1PrimFifthOrderWENO1U           (double*,double*,double*,double*,int,i
    (for conservative discretization of the 1st derivative) on a uniform grid */
 /* First-order upwind */
 int Interp1PrimFirstOrderUpwindChar       (double*,double*,double*,double*,int,int,void*,void*,int);
+/* Second-Order Central */
+int Interp1PrimSecondOrderCentralChar     (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Third-order MUSCL scheme */
 int Interp1PrimThirdOrderMUSCLChar        (double*,double*,double*,double*,int,int,void*,void*,int);
 /* Fifth-order WENO scheme */
