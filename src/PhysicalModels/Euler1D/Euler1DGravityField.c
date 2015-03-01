@@ -43,7 +43,7 @@ int Euler1DGravityField(void *s,void *m)
       _ArraySetValue_(offset,_MODEL_NDIMS_,0); offset[d] = -ghosts;
       done = 0; _ArraySetValue_(indexb,_MODEL_NDIMS_,0);
       while (!done) {
-        _ArrayCopy1D_(indexb,indexi,_MODEL_NDIMS_); indexi[d] = 0;
+        _ArrayCopy1D_(indexb,indexi,_MODEL_NDIMS_); indexi[d] = ghosts-1-indexb[d];
         int p1; _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,indexb,offset,ghosts,p1);
         int p2; _ArrayIndex1D_  (_MODEL_NDIMS_,dim,indexi,ghosts,p2);
         S[p1] = S[p2];
@@ -56,7 +56,7 @@ int Euler1DGravityField(void *s,void *m)
       _ArraySetValue_(offset,_MODEL_NDIMS_,0); offset[d] = dim[d];
       done = 0; _ArraySetValue_(indexb,_MODEL_NDIMS_,0);
       while (!done) {
-        _ArrayCopy1D_(indexb,indexi,_MODEL_NDIMS_); indexi[d] = dim[d]-1;
+        _ArrayCopy1D_(indexb,indexi,_MODEL_NDIMS_); indexi[d] = dim[d]-1-indexb[d];
         int p1; _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,indexb,offset,ghosts,p1);
         int p2; _ArrayIndex1D_  (_MODEL_NDIMS_,dim,indexi,ghosts,p2);
         S[p1] = S[p2];
