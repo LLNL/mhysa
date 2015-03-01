@@ -18,8 +18,8 @@ int BCExtrapolateU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,doub
     while (!done) {
       _ArrayCopy1D_(indexb,indexi,ndims);
       _ArrayAdd1D_(indexi,indexi,boundary->is,ndims);
-      if (face == 1)        indexi[dim] = 0;
-      else if (face == -1)  indexi[dim] = size[dim]-1;
+      if (face == 1)        indexi[dim] = ghosts-1-indexb[dim];
+      else if (face == -1)  indexi[dim] = size[dim]-indexb[dim]-1;
       else                  return(1);
       int p1,p2;
       _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
