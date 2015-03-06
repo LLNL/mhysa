@@ -26,7 +26,7 @@ int main()
           fscanf(in,"%d",&NI);
           fscanf(in,"%d",&NJ);
         } else if (!strcmp(word, "n_iter")) fscanf(in,"%d",&n_iter);
-        else if (!strcmp(word, "dt")) fscanf(in,"%d",&dt);
+        else if (!strcmp(word, "dt")) fscanf(in,"%lf",&dt);
       }
     } else {
       fprintf(stderr,"Error: Illegal format in solver.inp. Crash and burn!\n");
@@ -70,7 +70,7 @@ int main()
 	double dy = 1.0 / ((double)NJ);
 
   tf = (double)n_iter * dt;
-  printf("Final time: %lf\n", tf);
+  printf("dt: %lf, n_iter: %d, Final time: %lf\n",dt,n_iter,tf);
 	
   double *x, *y, *u;
 	x = (double*) calloc (NI   , sizeof(double));
