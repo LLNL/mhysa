@@ -41,6 +41,7 @@ int SolvePETSc(void *s,void *m)
   context.flag_hyperbolic_df  = _EXPLICIT_; 
   context.flag_parabolic      = _EXPLICIT_; 
   context.flag_source         = _EXPLICIT_; 
+  context.flag_is_linear      = 0;
 
   /* create and initialize PETSc solution vector and other parameters */
   /* PETSc solution vector does not have ghost points */
