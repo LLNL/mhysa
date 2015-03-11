@@ -23,6 +23,10 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
       params->nstages = 4;
       params->r       = 2;
       params->gamma   = 0.0;
+    } else if (!strcmp(type,_GLM_GEE_25I_)) {
+      params->nstages = 5;
+      params->r       = 2;
+      params->gamma   = 0.0;
     } else if (!strcmp(type,_GLM_GEE_35_)) {
       params->nstages = 5;
       params->r       = 2;
@@ -119,6 +123,56 @@ int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
       params->C_yyt[1*r+0] = 75.0/58.0;
       params->C_yyt[1*r+1] = -17.0/58.0;
       params->C_yyt[2*r+1] = params->C_yyt[3*r+1] = 1.0;
+
+      params->D_yyt[0*r+0] = 1.0;
+      params->D_yyt[1*r+1] = 1.0;
+
+      double T[r*r],Tinv[r*r];
+      T[0*r+0] = 1.0;
+      T[0*r+1] = 0.0;
+      T[1*r+0] = 1.0;
+      T[1*r+1] = 1.0-params->gamma;
+      _MatrixInvert_(T,Tinv,r);
+
+      _ArrayCopy1D_(params->A_yyt,params->A_yeps,(s*s));
+      _MatrixMultiplyNonSquare_(Tinv,params->B_yyt,params->B_yeps,r,r,s);
+      _MatrixMultiplyNonSquare_(params->C_yyt,T,params->C_yeps,s,r,r);
+      _ArrayCopy1D_(params->D_yyt,params->D_yeps,(r*r));
+
+    } else if (!strcmp(type,_GLM_GEE_25I_)) {
+
+      params->A_yyt[1*s+0]=-0.94079244066783383269;
+      params->A_yyt[2*s+0]= 0.64228187778301907108;
+      params->A_yyt[2*s+1]= 0.10915356933958500042;
+      params->A_yyt[3*s+0]=-0.51764297742287450812;
+      params->A_yyt[3*s+1]= 0.74414270351096040738;
+      params->A_yyt[3*s+2]=-0.71404164927824538121;
+      params->A_yyt[4*s+0]=-0.44696561556825969206;
+      params->A_yyt[4*s+1]=-0.76768425657590196518;
+      params->A_yyt[4*s+2]= 0.20111608138142987881;
+      params->A_yyt[4*s+3]= 0.93828186737840469796;
+
+      params->B_yyt[0*s+0]=-0.029309178948150356153;
+      params->B_yyt[0*s+1]=-0.49671981884013874923;
+      params->B_yyt[0*s+2]= 0.34275801517650053274;
+      params->B_yyt[0*s+3]= 0.32941112623949194988;
+      params->B_yyt[0*s+4]= 0.85385985637229662276;
+      params->B_yyt[1*s+0]= 0.78133219686062535272;
+      params->B_yyt[1*s+1]= 0.074238691892675897635;
+      params->B_yyt[1*s+2]= 0.57957363498384957966;
+      params->B_yyt[1*s+3]=-0.24638502829674959968;
+      params->B_yyt[1*s+4]=-0.18875949544040123033;
+
+      params->C_yyt[0*r+0]= 0.16911424754448327735;
+      params->C_yyt[0*r+1]= 0.83088575245551672265;
+      params->C_yyt[1*r+0]= 0.53638465733199574340;
+      params->C_yyt[1*r+1]= 0.46361534266800425660;
+      params->C_yyt[2*r+0]= 0.39901579167169582526;
+      params->C_yyt[2*r+1]= 0.60098420832830417474;
+      params->C_yyt[3*r+0]= 0.87689005530618575480;
+      params->C_yyt[3*r+1]= 0.12310994469381424520;
+      params->C_yyt[4*r+0]= 0.99056100455550913009;
+      params->C_yyt[4*r+1]= 0.0094389954444908699092;
 
       params->D_yyt[0*r+0] = 1.0;
       params->D_yyt[1*r+1] = 1.0;

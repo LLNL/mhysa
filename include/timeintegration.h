@@ -51,6 +51,7 @@ int TimeExplicitRKCleanup   (void*);
 #define _GLM_GEE_YEPS_    "yeps"
 #define _GLM_GEE_23_      "23"
 #define _GLM_GEE_24_      "24"
+#define _GLM_GEE_25I_     "25i"
 #define _GLM_GEE_35_      "35"
 #define _GLM_GEE_EXRK2A_  "exrk2a"
 #define _GLM_GEE_RK32G1_  "rk32g1"
