@@ -41,17 +41,17 @@ int CalculateError(void *s,void *m)
     double solution_norm[3] = {0.0,0.0,0.0};
     /* L1 */
     sum = ArraySumAbsnD   (solver->nvars,solver->ndims,solver->dim_local,
-                           solver->ghosts,solver->index,solver->u);
+                           solver->ghosts,solver->index,uex);
     global_sum = 0; MPISum_double(&global_sum,&sum,1,&mpi->world);
     solution_norm[0] = global_sum/((double)solver->npoints_global);
     /* L2 */
     sum = ArraySumSquarenD(solver->nvars,solver->ndims,solver->dim_local,
-                           solver->ghosts,solver->index,solver->u);
+                           solver->ghosts,solver->index,uex);
     global_sum = 0; MPISum_double(&global_sum,&sum,1,&mpi->world);
     solution_norm[1] = sqrt(global_sum/((double)solver->npoints_global));
     /* Linf */
     sum = ArrayMaxnD      (solver->nvars,solver->ndims,solver->dim_local,
-                           solver->ghosts,solver->index,solver->u);
+                           solver->ghosts,solver->index,uex);
     global_sum = 0; MPIMax_double(&global_sum,&sum,1,&mpi->world);
     solution_norm[2] = global_sum;
 
