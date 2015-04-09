@@ -71,6 +71,7 @@ petsc_flags = [petsc_flags, '-snes_atol 1e-10 '];
 petsc_flags = [petsc_flags, '-ksp_type gmres '];
 petsc_flags = [petsc_flags, '-ksp_rtol 1e-10 '];
 petsc_flags = [petsc_flags, '-ksp_atol 1e-10 '];
+petsc_flags = [petsc_flags, '-jfnk_nopre '];
 % petsc_flags = [petsc_flags, '-log_summary'];
 
 % set solution output to text file
