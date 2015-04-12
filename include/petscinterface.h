@@ -48,10 +48,11 @@ int PetscRegisterTIMethods (int);
 
 /* Right and left -hand side functions */
 PetscErrorCode PetscRHSFunctionExpl (TS,PetscReal,Vec,Vec,void*);
+PetscErrorCode PetscRHSFunctionImpl (TS,PetscReal,Vec,Vec,void*);
 PetscErrorCode PetscRHSFunctionIMEX (TS,PetscReal,Vec,Vec,void*);
 PetscErrorCode PetscIFunctionIMEX   (TS,PetscReal,Vec,Vec,Vec,void*);
 
-/* Jacobian functions for left-hand side */
+/* Jacobian functions for left-hand side (IMEX) */
 PetscErrorCode PetscIJacobianIMEX_JFNK_NoPre        (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
 PetscErrorCode PetscIJacobianIMEX_JFNK_Pre          (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
 PetscErrorCode PetscIJacobianIMEX_Jac_Pre           (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
@@ -59,6 +60,15 @@ PetscErrorCode PetscIJacobianIMEX_JFNK_JacIsPre     (TS,PetscReal,Vec,Vec,PetscR
 PetscErrorCode PetscIJacobianIMEX_Jac_NoPre         (TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
 PetscErrorCode PetscJacobianFunctionIMEX_JFNK       (Mat,Vec,Vec);             
 PetscErrorCode PetscJacobianFunctionIMEX_Linear     (Mat,Vec,Vec);             
+
+/* Jacobian functions for right-hand side (implicit) */
+PetscErrorCode PetscRHSJacobianImpl_JFNK_NoPre      (TS,PetscReal,Vec,Mat,Mat,void*);
+PetscErrorCode PetscRHSJacobianImpl_JFNK_Pre        (TS,PetscReal,Vec,Mat,Mat,void*);
+PetscErrorCode PetscRHSJacobianImpl_Jac_Pre         (TS,PetscReal,Vec,Mat,Mat,void*);
+PetscErrorCode PetscRHSJacobianImpl_JFNK_JacIsPre   (TS,PetscReal,Vec,Mat,Mat,void*);
+PetscErrorCode PetscRHSJacobianImpl_Jac_NoPre       (TS,PetscReal,Vec,Mat,Mat,void*);
+PetscErrorCode PetscJacobianFunctionImpl_JFNK       (Mat,Vec,Vec);             
+PetscErrorCode PetscJacobianFunctionImpl_Linear     (Mat,Vec,Vec);             
 
 /* Other functions */
 PetscErrorCode PetscPreStage        (TS,PetscReal);

@@ -327,10 +327,12 @@ typedef struct main_parameters {
       count_par, /*!< number of times the parabolic function is called */
       count_sou; /*!< number of times the source function is called */
 #ifdef with_petsc
-  int count_RHSFunction,  /*!< number of times the RHSFunction is called */
-      count_IFunction,    /*!< number of times the IFunction is called */
-      count_IJacobian,    /*!< number of times the Ijacobian is called */
-      count_IJacFunction; /*!< number of times the IJacFunction is called */
+  int count_RHSFunction,    /*!< number of times the RHSFunction is called */
+      count_IFunction,      /*!< number of times the IFunction is called */
+      count_IJacobian,      /*!< number of times the IJacobian is called */
+      count_RHSJacobian,    /*!< number of times the RHSJacobian is called */
+      count_IJacFunction,   /*!< number of times the IJacFunction is called */
+      count_RHSJacFunction; /*!< number of times the RHSJacFunction is called */
 #endif
 
 } HyPar;
