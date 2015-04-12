@@ -10,5 +10,7 @@ libPETScFunctions_a_SOURCES = \
   PetscRegisterTIMethods.c \
   PetscRHSFunctionExpl.c \
   PetscRHSFunctionIMEX.c \
+  PetscRHSFunctionImpl.c \
+  PetscRHSJacobianImpl.c \
   TransferFromPETSc.c \
   TransferToPETSc.c
