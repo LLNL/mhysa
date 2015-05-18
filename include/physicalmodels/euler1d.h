@@ -177,6 +177,7 @@ For the treatment of gravitational source terms, refer to:
 typedef struct euler1d_parameters {
   double  gamma;  /* Ratio of heat capacities */
   double  grav;   /* acceleration due to gravity */
+  int     grav_type; /* type of gravitational field */
   double  *grav_field; /* gravity potential field */
   double  *fast_jac; /* linearized fast-waves Jacobian */
   double  *solution; /* reference solution for linearization */

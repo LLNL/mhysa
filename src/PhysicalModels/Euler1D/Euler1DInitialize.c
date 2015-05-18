@@ -47,8 +47,9 @@ int Euler1DInitialize(void *s,void *m)
   }
 
   /* default values */
-  physics->gamma = 1.4; 
-  physics->grav  = 0.0;
+  physics->gamma      = 1.4; 
+  physics->grav       = 0.0;
+  physics->grav_type  = 0;
   strcpy(physics->upw_choice,"roe");
 
   /* reading physical model specific inputs - all processes */
@@ -69,6 +70,9 @@ int Euler1DInitialize(void *s,void *m)
           } else if (!strcmp(word, "gravity")) { 
             ferr = fscanf(in,"%lf",&physics->grav); 
             if (ferr != 1) return(1);
+          } else if (!strcmp(word, "gravity_type")) { 
+            ferr = fscanf(in,"%d",&physics->grav_type); 
+            if (ferr != 1) return(1);
           } else if (!strcmp(word,"upwinding")) {
             ferr = fscanf(in,"%s",physics->upw_choice); 
             if (ferr != 1) return(1);
@@ -88,8 +92,9 @@ int Euler1DInitialize(void *s,void *m)
   }
 
 #ifndef serial
-  IERR MPIBroadcast_double    (&physics->gamma,1,0,&mpi->world);                      CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->grav ,1,0,&mpi->world);                      CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->gamma    ,1,0,&mpi->world);                  CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->grav     ,1,0,&mpi->world);                  CHECKERR(ierr);
+  IERR MPIBroadcast_integer   (&physics->grav_type,1,0,&mpi->world);                  CHECKERR(ierr);
   IERR MPIBroadcast_character (physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world);  CHECKERR(ierr);
 #endif
 
