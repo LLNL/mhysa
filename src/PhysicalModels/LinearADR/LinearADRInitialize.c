@@ -90,7 +90,7 @@ int LinearADRInitialize(void *s,void *m)
   solver->HFunction          = LinearADRDiffusionH;
   solver->SFunction          = LinearADRReaction;
   solver->Upwind             = LinearADRUpwind;
-  solver->JFunction          = LinearADRJacobian;
+  /* solver->JFunction          = LinearADRJacobian; */
 
   solver->Jac = (BandedMatrix*) calloc (1,sizeof(BandedMatrix));
   IERR BandedMatrixInitialize(solver->Jac); CHECKERR(ierr); /* deallocated in src/HyParFunctions/Cleanup.c */
