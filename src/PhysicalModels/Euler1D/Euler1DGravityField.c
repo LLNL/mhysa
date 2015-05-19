@@ -32,7 +32,8 @@ int Euler1DGravityField(void *s,void *m)
       S[p] = exp(-param->grav*xcoord);
     } else if (param->grav_type == 1) {
       double pi = 4.0 * atan(1.0);
-      S[p] = exp(-param->grav*sin(2*pi*xcoord)/(2*pi));
+      double phi = -sin(2*pi*xcoord)/(2*pi);
+      S[p] = exp(-phi);
     }
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
   }
