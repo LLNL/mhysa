@@ -1,3 +1,5 @@
+#ifdef with_petsc
+
 /*
   Function to compute and print (to file) matrix representations
   of the IFunction and RHSFunction.
@@ -224,5 +226,7 @@ int PetscComputeRHSOperators(TS ts,double t,void *ctxt)
   free(f0);
   return(0);
 }
+
+#endif
 
 #endif
