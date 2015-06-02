@@ -62,8 +62,8 @@ int main()
   srand(time(NULL));
   double *phi = (double*) calloc (limit+1,sizeof(double));
   for (k=1; k<=limit; k++) {
-//    phi[k] = -pi + 2*pi*(((double) rand()) / ((double) RAND_MAX));
-    phi[k] = pi/2.0;;
+    phi[k] = -pi + 2*pi*(((double) rand()) / ((double) RAND_MAX));
+//    phi[k] = pi/2.0;;
   }
 
 	double *x, *rho,*rhou,*e;
