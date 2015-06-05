@@ -1,15 +1,26 @@
-/* interpolation scheme definitions */
+/*! @file interpolation.h
+    @brief Definitions for the functions computing the interpolated value of the primitive at the cell interfaces from the cell-centered values.
+    @author Debojyoti Ghosh
+*/
+
+/*! First order upwind scheme */
 #define _FIRST_ORDER_UPWIND_    "1"
+/*! Second order central scheme */
 #define _SECOND_ORDER_CENTRAL_  "2"
+/*! Third order MUSCL scheme with Koren's limiter */
 #define _THIRD_ORDER_MUSCL_     "muscl3"
+/*! Fifth order Weighted Essentially Non-Oscillatory (WENO) scheme */
 #define _FIFTH_ORDER_WENO_      "weno5"
+/*! Fifth order Compact Reconstruction Weighted Essentially Non-Oscillatory (CRWENO) scheme */
 #define _FIFTH_ORDER_CRWENO_    "crweno5"
+/*! Fifth order hybrid compact-WENO scheme */
 #define _FIFTH_ORDER_HCWENO_    "hcweno5"
+/*! Hybrid first-order upwind + WENO scheme */
 #define _FIFTH_ORDER_WENO_1U_   "weno5-1u"
 
 /* interpolation type definitions */
-#define _CHARACTERISTIC_        "characteristic" /* characteristic-based interpolation */
-#define _COMPONENTS_            "components"     /* component-wise interpolation       */
+#define _CHARACTERISTIC_        "characteristic" /*!< Characteristic-based interpolation of vectors (Physical model must define left and right eigenvectors) */
+#define _COMPONENTS_            "components"     /*!< Component-wise interpolation of vectors      */
 
 /*
   One-dimensional Interpolation Functions:-
@@ -77,110 +88,137 @@
 
 /* functions to interpolate the first primitive in a component-wise way
    (for conservative discretization of the 1st derivative) on a uniform grid */
-/* First-order upwind */
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the first-order upwind scheme */
 int Interp1PrimFirstOrderUpwind           (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Second-order central */
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the second-order central scheme */
 int Interp1PrimSecondOrderCentral         (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Third-order MUSCL scheme */
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the third-order MUSCL scheme */
 int Interp1PrimThirdOrderMUSCL            (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Fifth-order WENO scheme */
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order WENO scheme */
 int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Fifth-order CRWENO scheme */
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order CRWENO scheme */
 int Interp1PrimFifthOrderCRWENO           (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Fifth-order hybrid-compact WENO scheme */
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order hybrid-compact WENO scheme */
 int Interp1PrimFifthOrderHCWENO           (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Fifth-order WENO-1U scheme */
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order WENO-1U scheme */
 int Interp1PrimFifthOrderWENO1U           (double*,double*,double*,double*,int,int,void*,void*,int);
 
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) on a uniform grid */
-/* First-order upwind */
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the first-order upwind scheme */
 int Interp1PrimFirstOrderUpwindChar       (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Second-Order Central */
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the second-order central scheme */
 int Interp1PrimSecondOrderCentralChar     (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Third-order MUSCL scheme */
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the third-order MUSCL scheme */
 int Interp1PrimThirdOrderMUSCLChar        (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Fifth-order WENO scheme */
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order WENO scheme */
 int Interp1PrimFifthOrderWENOChar         (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Fifth-order CRWENO scheme */
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order CRWENO scheme */
 int Interp1PrimFifthOrderCRWENOChar       (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Fifth-order hybrid-compact WENO scheme */
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order hybrid-compact WENO scheme */
 int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,int,void*,void*,int);
-/* Fifth-order WENO-1U scheme */
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order WENO-1U scheme */
 int Interp1PrimFifthOrderWENO1UChar       (double*,double*,double*,double*,int,int,void*,void*,int);
 
 /* functions to interpolate the second primitive 
    (for conservative discretization of the 2nd derivative) */
-/* Second-order central */
+/*! Interpolation of the second primitive at the cell interfaces using the second-order central scheme */
 int Interp2PrimSecondOrder  (double*,double*,int,void*,void*);
 
-/* Function to calculate and save the nonlinear interpolation coefficients */
+/*! Function to calculate and save the nonlinear interpolation coefficients for a non-linear (solution-dependent) interpolation scheme (eg. #_FIFTH_ORDER_WENO_, #_FIFTH_ORDER_CRWENO_, #_FIFTH_ORDER_HCWENO_, etc). */
 int InterpSetLimiterVar(double*,double*,double*,int,void*,void*);
 
-/* MUSCL scheme related parameters */
+/*! \def MUSCLParameters
+    \brief Structure of variables/parameters needed by the MUSCL scheme
+ * This structure contains the variables/parameters needed by the MUSCL scheme.
+*/
+/*! \brief Structure of variables/parameters needed by the MUSCL scheme
+ *
+ * This structure contains the variables/parameters needed by the MUSCL scheme.
+*/
 typedef struct paramters_muscl {
-  double eps;
+  double eps; /*!< Epsilon parameter for the limiter */
 } MUSCLParameters;
 int MUSCLInitialize(void*,void*);
 
-/* WENO/CRWENO/HCWENO schemes related parameters and functions */
+/*! \def WENOParameters
+    \brief Structure of variables/parameters needed by the WENO-type scheme
+ * This structure contains the variables/parameters needed by the WENO-type scheme (#_FIFTH_ORDER_WENO_, #_FIFTH_ORDER_CRWENO_, #_FIFTH_ORDER_HCWENO_).
+*/
+/*! \brief Structure of variables/parameters needed by the WENO-type scheme
+ *
+ * This structure contains the variables/parameters needed by the WENO-type scheme (#_FIFTH_ORDER_WENO_, #_FIFTH_ORDER_CRWENO_, #_FIFTH_ORDER_HCWENO_).
+*/
 typedef struct parameters_weno {
-  /* Options related to the type of WENO scheme */
-  int     mapped;		    /* Use mapped weights?                                    */
-  int     borges;		    /* Use Borges' implementation of weights?                 */
-  int     yc;		        /* Use Yamaleev-Carpenter implementation of weights?      */
-  int     no_limiting;  /* Remove limiting -> 5th order polynomial interpolation  */
-  double  eps;		      /* epsilon parameter                                      */
-  double	p;			      /* p parameter                                            */
-  double  tol;          /* a general tolerance parameter                          */
+  int     mapped;		    /*!< Use mapped weights? (Henrick, Aslam, J. Comput. Phys., 2005) */
+  int     borges;		    /*!< Use Borges' implementation of weights? (Borges, et. al, J. Comput. Phys., 2008) */
+  int     yc;		        /*!< Use Yamaleev-Carpenter implementation of weights? (Yamaleev, Carpenter, J. Comput. Phys., 2009) */
+  int     no_limiting;  /*!< Remove limiting -> 5th order polynomial interpolation (freeze the WENO weights to the optimal coefficients)  */
+  double  eps;		      /*!< epsilon parameter */
+  double	p;			      /*!< p parameter */
+  double  tol;          /*!< a general tolerance parameter */
 
   /* hybrid compact-WENO scheme related parameters 
-   * References: 
+   * **References**: 
    * + http://dx.doi.org/10.1006/jcph.2002.7021
    * + http://dx.doi.org/10.1016/j.jcp.2003.07.006
   */
-  double  rc, xi;
+  double  rc, /*!< Parameter for the hybrid compact-WENO scheme */
+          xi; /*!< Parameter for the hybrid compact-WENO scheme */
 
   /* CRWENO scheme: sub-, main-, and super-diagonals
    * and the right-hand-side */
-  double *A, *B, *C, *R;
-  /* CRWENO scheme: buffer arrays for sending and
-   * receiving data */
-  double *sendbuf, *recvbuf;
+  double *A, /*!< Array to save the sub-diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
+         *B, /*!< Array to save the diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
+         *C, /*!< Array to save the super-diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
+         *R;/*!< Array to save the right-hand-side of the tridiagonal system resulting from the fifth-order CRWENO scheme */
+  /* CRWENO scheme: buffer arrays for sending and receiving data */
+  double *sendbuf, /*!< Buffer array to send data across processors */
+         *recvbuf; /*!< Buffer array to receive data across processors */
 
   /* Arrays to save the WENO weights */
-  double *w1, *w2, *w3;
+  double *w1, /*!< Array to save the first WENO weight */
+         *w2, /*!< Array to save the second WENO weight */
+         *w3;/*!< Array to save the third WENO weight */
   /* size and offset for the WENO weights arrays */
-  int *offset, size;
+  int *offset /*! Array containing the offset information for the WENO weights */, 
+      size /*! Size of the WENO weights array */;
 
 } WENOParameters;
-int WENOInitialize(void*,void*,char*,char*);
+/*! Initialize the structure containing variables and parameters for WENO-type schemes */
+int WENOInitialize(void*,void*,char*,char*); 
+/*! Clean up the structure containing variables and parameters for WENO-type schemes */
 int WENOCleanup(void*);
 
 /* define optimal weights */
+/*! Optimal value for the first fifth-order WENO weight */
 #define   _WENO_OPTIMAL_WEIGHT_1_   0.1
+/*! Optimal value for the second fifth-order WENO weight */
 #define   _WENO_OPTIMAL_WEIGHT_2_   0.6
+/*! Optimal value for the third fifth-order WENO weight */
 #define   _WENO_OPTIMAL_WEIGHT_3_   0.3
+/*! Optimal value for the first fifth-order CRWENO weight */
 #define   _CRWENO_OPTIMAL_WEIGHT_1_ 0.2
+/*! Optimal value for the second fifth-order CRWENO weight */
 #define   _CRWENO_OPTIMAL_WEIGHT_2_ 0.5
+/*! Optimal value for the third fifth-order CRWENO weight */
 #define   _CRWENO_OPTIMAL_WEIGHT_3_ 0.3
 
-/* Macro to calculate the fifth-order WENO weights 
- *
- * Arguments:-
- *  w1,w2,w3      : the nonlinear WENO weights
- *  c1,c2,c3      : optimal coefficients
- *  m3,m2,m1,p1,p2: function value at stencil points corresponding 
- *                  to the interface i-1/2: i-3,i-2,i-1,i,i+1
- *  weno          : object of type WENOParameters containing 
- *                  parameters for the WENO method
- *
- * References:
- *  + http://dx.doi.org/10.1006/jcph.1996.0130
- *  + http://dx.doi.org/10.1016/j.jcp.2005.01.023
- *  + http://dx.doi.org/10.1016/j.jcp.2007.11.038
- *  + http://dx.doi.org/10.1016/j.jcp.2009.03.002
- *  + http://dx.doi.org/10.1007/s10915-014-9818-0
+/*! \def _WENOWeights_
+ * Macro to calculate the fifth-order WENO weights
+ * \n
+ * Arguments:-\n
+ *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
+ *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
+ *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
+ *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
+ *\n
+ * **References**:\n
+ *  + http://dx.doi.org/10.1006/jcph.1996.0130\n
+ *  + http://dx.doi.org/10.1016/j.jcp.2005.01.023\n
+ *  + http://dx.doi.org/10.1016/j.jcp.2007.11.038\n
+ *  + http://dx.doi.org/10.1016/j.jcp.2009.03.002\n
+ *  + http://dx.doi.org/10.1007/s10915-014-9818-0\n
  *  
  */
 #define _WENOWeights_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno) \
@@ -226,6 +264,19 @@ int WENOCleanup(void*);
     } \
   }
 
+/*! \def _WENOWeights_v_JS_
+ * Compute the WENO weights according the the Jiang & Shu formulation.
+ * \n
+ * Arguments:-\n
+ *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
+ *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
+ *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
+ *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
+ *  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
+ *\n
+ * **Reference**:\n
+ *  + Jiang, Shu, J. Comput. Phys., 1996. http://dx.doi.org/10.1006/jcph.1996.0130\n
+ */
 #define _WENOWeights_v_JS_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \
@@ -248,6 +299,19 @@ int WENOCleanup(void*);
     } \
   }
 
+/*! \def _WENOWeights_v_M_
+ * Compute the WENO weights according the the Mapped-WENO formulation.
+ * \n
+ * Arguments:-\n
+ *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
+ *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
+ *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
+ *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
+ *  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
+ *\n
+ * **Reference**:\n
+ *  + Henrick, Aslam, Powers, J. Comput. Phys., 2005. http://dx.doi.org/10.1016/j.jcp.2005.01.023\n
+ */
 #define _WENOWeights_v_M_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \
@@ -278,6 +342,19 @@ int WENOCleanup(void*);
     } \
   }
 
+/*! \def _WENOWeights_v_Z_
+ * Compute the WENO weights according the the WENO-Z formulation.
+ * \n
+ * Arguments:-\n
+ *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
+ *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
+ *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
+ *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
+ *  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
+ *\n
+ * **Reference**:\n
+ *  + Borges, et. al., J. Comput. Phys., 2008. http://dx.doi.org/10.1016/j.jcp.2007.11.038\n
+ */
 #define _WENOWeights_v_Z_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \
@@ -301,6 +378,19 @@ int WENOCleanup(void*);
     } \
   }
 
+/*! \def _WENOWeights_v_YC_
+ * Compute the WENO weights according the the ESWENO formulation.
+ * \n
+ * Arguments:-\n
+ *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
+ *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
+ *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
+ *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
+ *  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
+ *\n
+ * **Reference**:\n
+ *  + Yamaleev, Carpenter, J. Comput. Phys., 2009. http://dx.doi.org/10.1016/j.jcp.2009.03.002\n
+ */
 #define _WENOWeights_v_YC_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \

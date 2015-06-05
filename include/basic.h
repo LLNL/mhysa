@@ -1,3 +1,9 @@
+/*! @file basic.h
+    @brief Some basic definitions and macros
+    @author Debojyoti Ghosh
+*/
+
+/*! Maximum size of character strings */
 #define _MAX_STRING_SIZE_ 500
 #ifdef debug
   #define IERR ierr= 
@@ -9,16 +15,8 @@
   #define CHECKERR(ierr)
 #endif
 
-/* Macro to get the coordinate value from the array containing the coordinate values
- * along all the dimensions.
- * Arguments:-
- *  dir       : coordinate dimension (x is 0, y is 1, z is 2, ...) (int)
- *  i         : grid index along that dimension (int)
- *  dim       : array of the grid sizes in each dimension (int[])
- *  ghosts    : number of ghost points 
- *  x         : array containing the coordinate values in all dimensions
- * Output:
- *  coord     : the coordinate value
+/*! \def _GetCoordinate_
+ * Macro to get the spatial coordinate \a coord along the \a dir dimension of a grid point whose index in that dimension is \a i, in a grid of size \a dim with \a ghosts ghost points in each dimension. The array containing the spatial coordinates of the entire grid is \a x.
 */
 #define _GetCoordinate_(dir,i,dim,ghosts,x,coord) \
   { \

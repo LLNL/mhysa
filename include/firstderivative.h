@@ -1,6 +1,13 @@
-/* first derivative scheme definitions */
+/*! @file firstderivative.h
+    @brief Definitions for the functions computing the first derivative.
+    @author Debojyoti Ghosh
+*/
+
+/*! First order scheme */
 #define _FIRST_ORDER_           "1"
+/*! Second order central scheme */
 #define _SECOND_ORDER_CENTRAL_  "2"
+/*! Fourth order central scheme */
 #define _FOURTH_ORDER_CENTRAL_  "4"
 
 /* One-dimensional first derivative functions: Functions to calculate the
@@ -39,7 +46,6 @@
  *    at and near the boundaries.
 */
 
-/* First derivative functions */
-int FirstDerivativeFirstOrder         (double*,double*,int,int,void*,void*);
-int FirstDerivativeSecondOrderCentral (double*,double*,int,int,void*,void*);
-int FirstDerivativeFourthOrderCentral (double*,double*,int,int,void*,void*);
+int FirstDerivativeFirstOrder         (double*,double*,int,int,void*,void*); /*!< First order approximation to the first derivative (note: not divided by grid spacing) */
+int FirstDerivativeSecondOrderCentral (double*,double*,int,int,void*,void*); /*!< Second order approximation to the first derivative (note: not divided by grid spacing) */
+int FirstDerivativeFourthOrderCentral (double*,double*,int,int,void*,void*); /*!< Fourth order approximation to the first derivative (note: not divided by grid spacing) */
