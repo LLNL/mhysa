@@ -1,36 +1,50 @@
+/*! @file mathfunctions.h
+    @brief Contains macros and function definitions for common mathematical functions.
+    @author Debojyoti Ghosh
+ */
+
 /* Basic functions */
 #include <math.h>
 
-/* function to calculate the grid points corresponding to
- * a given interval */
-void FindInterval      (double,double,double*,int,int*,int*);
+/*! Function to calculate the grid points corresponding to a given interval */
+void FindInterval(double,double,double*,int,int*,int*);
 
-/* minimum of two numbers */
+/*! \def min 
+ *  Minimum of two numbers 
+*/
 #define min(a,b) ((a)<(b)?(a):(b))
-/* maximum of two numbers */
+/*! \def max
+ * Maximum of two numbers
+*/
 #define max(a,b) ((a)>(b)?(a):(b))
 
-/* minimum of three numbers */
+/*! \def min3
+ *  Minimum of three numbers 
+*/
 #define min3(a,b,c) min(min((a),(b)),min((b),(c)))
-/* maximum of three numbers */
+/*! \def max3 
+ *  Maximum of three numbers 
+*/
 #define max3(a,b,c) max(max((a),(b)),max((b),(c)))
 
-/* absolute value */
+/*! \def absolute
+ * Absolute value
+*/
 #define absolute(a) ((a)<0?-(a):(a))
 
-/* raise to a power: y = x^a */
+/*! \def raiseto
+ * Raise to a power: y = x^a
+*/
 #define raiseto(x,a) (exp((a)*log(x)))
 
-/* return the sign of the argument */
+/*! \def sign
+ * Returns the sign of the argument
+*/
 #define sign(a) ((a)<0?-1.0:1.0)
 
-/* Matrix-Matrix multiplication
- * N    : size of the matrices (NxN) (int)
- * A    : product matrix (double[])
- * X,Y  : input matrices (A = XY) (double[])
- *
- * Note: A, X, Y are 1D arrays of size N*N
- * saved in row-major format 
+/*! \def MatMult
+ * Matrix-Matrix multiplication: \a A = \a X \a Y, where \a A, \a X, \a Y 
+ * are square matrices of size \a N, saved as 1D arrays in row-major format.
 */
 #define MatMult(N,A,X,Y) \
   { \
@@ -43,7 +57,9 @@ void FindInterval      (double,double,double*,int,int*,int*);
     } \
   }
 
-/* Matrix-Matrix multiplication: loop unrolled for N=3 */
+/*! \def MatMult3
+ * #MatMult, loop unrolled for \a N = 3.
+*/
 #define MatMult3(N,A,X,Y) \
   { \
     A[0] = X[0]*Y[0] + X[1]*Y[3] + X[2]*Y[6]; \
@@ -57,7 +73,9 @@ void FindInterval      (double,double,double*,int,int*,int*);
     A[8] = X[6]*Y[2] + X[7]*Y[5] + X[8]*Y[8]; \
   }
 
-/* Matrix-Matrix multiplication: loop unrolled for N=4 */
+/*! \def MatMult4
+ * #MatMult, loop unrolled for \a N = 4.
+*/
 #define MatMult4(N,A,X,Y) \
   { \
     A[0]  =  X[0]*Y[0]  +  X[1]*Y[4]  +  X[2]*Y[8]  +  X[3]*Y[12]; \
@@ -78,7 +96,9 @@ void FindInterval      (double,double,double*,int,int*,int*);
     A[15] =  X[12]*Y[3] +  X[13]*Y[7] +  X[14]*Y[11] + X[15]*Y[15];\
   }
 
-/* Matrix-Matrix multiplication: loop unrolled for N=5 */
+/*! \def MatMult5
+ * #MatMult, loop unrolled for \a N = 5.
+*/
 #define MatMult5(N,A,X,Y) \
   { \
     A[0]  =  X[0]*Y[0]  +  X[1]*Y[5]  +  X[2]*Y[10]  +  X[3]*Y[15]  +  X[4]*Y[20]; \
@@ -108,14 +128,10 @@ void FindInterval      (double,double,double*,int,int*,int*);
     A[24] =  X[20]*Y[4] +  X[21]*Y[9] +  X[22]*Y[14] +  X[23]*Y[19] +  X[24]*Y[24];\
   }
 
-/* Matrix-Vector multiplication
- * N    : size of the matrix and vectors (int)
- * A    : product matrix (double[])
- * x    : input vector (double[])
- * y    : output vector (y = Ax) (double[])
- *
- * Note: A is 1D arrays of size N*N saved in row-major format,
- * x,y are 1D arrays of size N
+/*! \def MatVecMult
+ * Matrix-Vector multiplication: \a y = \a A \a x, where \a x, \a y are vectors
+ * of size \a N, and \a A is a square matrix of size \a N saved as a 1D array
+ * in row-major format.
 */
 #define MatVecMult(N,y,A,x) \
   { \
@@ -126,7 +142,9 @@ void FindInterval      (double,double,double*,int,int*,int*);
     } \
   }
 
-/* Matrix-Vector multiplication: loop-unrolled for N=3 */
+/*! \def MatVecMult3
+ * #MatVecMult, loop unrolled for \a N = 3.
+*/
 #define MatVecMult3(N,y,A,x) \
   { \
     y[0] = A[0]*x[0] + A[1]*x[1] + A[2]*x[2];\
@@ -134,7 +152,9 @@ void FindInterval      (double,double,double*,int,int*,int*);
     y[2] = A[6]*x[0] + A[7]*x[1] + A[8]*x[2];\
   }
 
-/* Matrix-Vector multiplication: loop-unrolled for N=4 */
+/*! \def MatVecMult4
+ * #MatVecMult, loop unrolled for \a N = 4.
+*/
 #define MatVecMult4(N,y,A,x) \
   { \
     y[0] = A[0]*x[0]  +  A[1]*x[1]  +  A[2]*x[2]  +  A[3]*x[3]; \
@@ -143,7 +163,9 @@ void FindInterval      (double,double,double*,int,int*,int*);
     y[3] = A[12]*x[0] +  A[13]*x[1] +  A[14]*x[2] +  A[15]*x[3];\
   }
 
-/* Matrix-Vector multiplication: loop-unrolled for N=5 */
+/*! \def MatVecMult5
+ * #MatVecMult, loop unrolled for \a N = 5.
+*/
 #define MatVecMult5(N,y,A,x) \
   { \
     y[0] = A[0]*x[0]  +  A[1]*x[1]  +  A[2]*x[2]  +  A[3]*x[3]  +  A[4]*x[4]; \

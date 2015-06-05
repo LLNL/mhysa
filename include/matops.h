@@ -1,18 +1,24 @@
+/*! @file matops.h
+    @brief Contains macros and function definitions for common matrix operations.
+    @author Debojyoti Ghosh
+ */
+
 #include <stdio.h>
 
-/* Matrix-matrix and matrix-vector operations:-
- * Note that all matrices are 1D arrays of size N*N, stored in
- * row-major format
+/*! \def _MatrixZero_
+ * Set all elements of the square matrix \a A of size \a N to 0, stored as 
+ * a 1D array in row-major format.
 */
-
-/* A = [0] */
 #define _MatrixZero_(A,N) \
   { \
     int arraycounter; \
     for (arraycounter=0; arraycounter<(N)*(N); arraycounter++) *((A)+arraycounter) = 0.0; \
   }
 
-/* C = AB */
+/*! \def _MatrixMultiply_
+ * \a C = \a A \a B, where \a A, \a B, \a C are square matrices of size \a N,
+ * stored as 1D arrays in row major format.
+*/
 #define _MatrixMultiply_(A,B,C,N) \
   { \
     int matopsi,matopsj,matopsk; \
@@ -23,9 +29,10 @@
       } \
   }
 
-/* 
-  C = AB where A,B,C are not square but consistent 
-  (NColA=NRowB, NRowC=NRowA, NColC=NColB)
+/*! \def _MatrixMultiplyNonSquare_
+ * \a C = \a A \a B where \a A is a \a NRowA X \a NColA matrix, 
+ * \a B is a \a NColA X \a NColB matrix, and \a C is a \a NRowA X \a NColB
+ * matrix. All matrices are stored as 1D arrays in row-major format.
 */
 #define _MatrixMultiplyNonSquare_(A,B,C,NRowA,NColA,NColB) \
   { \
@@ -37,7 +44,10 @@
       } \
   }
 
-/* C = C - AB */
+/*! \def _MatrixMultiplySubtract_
+ * \a C = \a C - \a A \a B, where \a A, \a B, \a C are square matrices
+ * of size \a N, saved as 1D arrays in row-major format.
+*/
 #define _MatrixMultiplySubtract_(C,A,B,N) \
   { \
     int matopsi,matopsj,matopsk; \
@@ -46,7 +56,11 @@
         for (matopsk=0; matopsk<(N); matopsk++) *((C)+matopsi*(N)+matopsj) -= ((*((A)+matopsi*(N)+matopsk)) * (*((B)+matopsk*(N)+matopsj))); \
   } \
 
-/* y = Ax */
+/*! \def _MatVecMultiply_
+ * \a y = \a A \a x, where \a x, \a y are vectors of size \a N, and
+ * \a A is a square matrix of size \a N stored as a 1D array in row
+ * major format.
+*/
 #define _MatVecMultiply_(A,x,y,N) \
   { \
     int matopsi,matopsj; \
@@ -56,7 +70,11 @@
     } \
   }
 
-/* y = y - Ax */
+/*! \def _MatVecMultiplySubtract_
+ * \a y = \a y - \a A \a x, where \a x, \a y are vectors of size \a N, and
+ * \a A is a square matrix of size \a N stored as a 1D array in row
+ * major format.
+*/
 #define _MatVecMultiplySubtract_(y,A,x,N) \
   { \
     int matopsi,matopsj; \
@@ -64,7 +82,11 @@
       for (matopsj=0; matopsj<(N); matopsj++) *((y)+matopsi) -= (*((A)+matopsi*N+matopsj) * *((x)+matopsj)); \
   }
 
-/* B =A^{-1}                */
+/*! \def _MatrixInvert_
+ * B =A^{-1} (Inverse of \a A), where \a A, \a B are square matrices of
+ * size \a N stored as 1D arrays in row-major format. Uses LU decomposition.
+ * If \a A is singular, \a B will contain NaN or Inf.
+*/
 #define _MatrixInvert_(A,B,N)  \
   { \
     int matopsi,matopsj,matopsk; \

@@ -78,9 +78,9 @@ typedef struct main_parameters {
   /*! an ndims-dimensional integer array used to reference grid points */
   int    *index;
 
-  /*! the coordinate vector: one 1D array containing the grid coordinates along each dimension,
-   * one dimension after the other.
-   * Use _GetCoordinate_ in basic.h to access the grid coordinate at a specific grid point */
+  /*! the coordinate vector: one 1D array containing the spatial coordinates along each dimension
+   * of the grid points, one dimension after the other.
+   * Use #_GetCoordinate_ to access the spatial coordinate at a specific grid point */
   double *x;                          
 
   /*! array containing (1.0/dx): layout same as that of x */
@@ -88,7 +88,7 @@ typedef struct main_parameters {
 
   /*! Solution vector: the ndims-dimensional solution vector with nvars components at each 
    * grid point is stored as a 1D array. **Includes ghost points**
-   * Use _ArrayIndex1D_ (in arrayfunctions.h) to calculate the index in the 1D array 
+   * Use #_ArrayIndex1D_ to calculate the index in the 1D array 
    * corresponding to an ndims-dimensional index (i_0, i_1, i_2, ..., i_{ndims-1}) */
   double *u;
 
