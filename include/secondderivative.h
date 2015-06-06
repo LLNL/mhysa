@@ -1,5 +1,11 @@
-/* second derivative scheme definitions */
+/*! @file secondderivative.h
+    @brief Definitions for the functions computing the second derivative.
+    @author Debojyoti Ghosh
+*/
+
+/*! Second order central scheme */
 #define _SECOND_ORDER_CENTRAL_  "2"
+/*! Fourth order central scheme */
 #define _FOURTH_ORDER_CENTRAL_  "4"
 
 /* One-dimensional second derivative functions: Functions to calculate the
@@ -36,5 +42,5 @@
 */
 
 /* Second derivative functions */
-int SecondDerivativeSecondOrderCentral (double*,double*,int,void*,void*);
-int SecondDerivativeFourthOrderCentral (double*,double*,int,void*,void*);
+int SecondDerivativeSecondOrderCentral (double*,double*,int,void*,void*); /*!< Second order approximation to the second derivative (**note**: not divided by square of grid spacing). */
+int SecondDerivativeFourthOrderCentral (double*,double*,int,void*,void*); /*!< Fourth order approximation to the second derivative (**note**: not divided by square of grid spacing). */
