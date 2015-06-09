@@ -14,16 +14,16 @@ int TransferVecFromPETSc(double *u,Vec Y,void *ctxt)
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;
   PetscErrorCode  ierr     = 0;
-  double          *Yarr;
+  const double    *Yarr;
 
   PetscFunctionBegin;
 
   int *index = (int*) calloc (solver->ndims,sizeof(int));
 
-  ierr = VecGetArray(Y,&Yarr); CHKERRQ(ierr);
-  ierr = ArrayCopynD(solver->ndims,Yarr,u,solver->dim_local,0,
+  ierr = VecGetArrayRead(Y,&Yarr); CHKERRQ(ierr);
+  ierr = ArrayCopynD(solver->ndims,(double*)Yarr,u,solver->dim_local,0,
                      solver->ghosts,index,solver->nvars); CHECKERR(ierr);
-  ierr = VecRestoreArray(Y,&Yarr); CHKERRQ(ierr);
+  ierr = VecRestoreArrayRead(Y,&Yarr); CHKERRQ(ierr);
 
   free(index);
   PetscFunctionReturn(0);
