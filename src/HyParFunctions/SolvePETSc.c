@@ -1,3 +1,10 @@
+/*! @file SolvePETSc.c
+    @brief Integrate in time using PETSc
+    Integrate the spatially discretized system in time using PETSc's TS module.\n
+    (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html)
+    @author Debojyoti Ghosh
+*/
+
 #ifdef with_petsc
 
 #include <stdio.h>
@@ -14,7 +21,21 @@
 #undef __FUNCT__
 #define __FUNCT__ "SolvePETSc"
 
-int SolvePETSc(void *s,void *m)
+/*! \brief Integrate in time with PETSc
+
+    This function integrates the semi-discrete ODE (obtained from discretizing
+    the PDE in space) using the time-integration module of PETSc 
+    (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html).
+    The time-integration context is set up using the parameters specified in 
+    the input file. However, they can also be specified using PETSc's command
+    line inputs.\n
+    \n
+    See PETSc's documentation and examples for more details on how to use its
+    TS module.
+*/
+
+int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
+               void *m  /*!< MPI object of type #MPIVariables */)
 {
   HyPar           *solver = (HyPar*)        s;
   MPIVariables    *mpi    = (MPIVariables*) m;
@@ -22,7 +43,8 @@ int SolvePETSc(void *s,void *m)
   TS              ts;     /* time integration object               */
   Vec             Y;      /* PETSc solution vector                 */
   Mat             A, B;   /* Jacobian and preconditioning matrices */
-  TSType          time_scheme;
+  TSType          time_scheme;  /* time integration method         */
+  TSProblemType   ptype;  /* problem type - nonlinear or linear    */
   int             flag_mat_b = 0;
 
   PetscFunctionBegin;
@@ -64,334 +86,47 @@ int SolvePETSc(void *s,void *m)
 
   /* Define the right and left -hand side functions for each time-integration scheme */
   ierr = TSGetType(ts,&time_scheme);                                      CHKERRQ(ierr);
-  if (   (!strcmp(time_scheme,TSEULER))
-      || (!strcmp(time_scheme,TSSSP  ))
-      || (!strcmp(time_scheme,TSRK   )) ) {
-    
-    ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionExpl,&context); CHKERRQ(ierr);
-
-  } else if (     (!strcmp(time_scheme,TSBEULER )) 
-              ||  (!strcmp(time_scheme,TSCN     ))
-              ||  (!strcmp(time_scheme,TSALPHA  ))
-              ||  (!strcmp(time_scheme,TSTHETA  )) ) {
-  
-    ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionImpl,&context); CHKERRQ(ierr);
-
-    /* read in the Jacobian-evaluation related flags */
-    context.flag_jfnk_nopre = 0;
-    context.flag_jfnk_pre   = 0;
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-jfnk_nopre",(PetscBool*)(&context.flag_jfnk_nopre),PETSC_NULL); CHKERRQ(ierr);
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-jfnk_pre"  ,(PetscBool*)(&context.flag_jfnk_pre)  ,PETSC_NULL); CHKERRQ(ierr);
-
-    if ( ((!solver->JFunction) && (!solver->PFunction)) || (context.flag_jfnk_nopre) ){
-
-      /* Physical model does not specify Jacobian and preconditioning functions, or
-         user input flag specifies:
-         Use: Unpreconditioned Jacobian-free Newton-Krylov
-      */
-
-      if (!mpi->rank) {
-        printf("No Jacobian or preconditioner provided. ");
-        printf("Using the unpreconditioned Jacobian-free Newton-Krylov approach.\n");
-      }
-      /* set pre-conditioner to none for MatShell */
-      SNES     snes;
-      KSP      ksp;
-      PC       pc;
-      SNESType snestype;
-      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
-
-      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
-      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) {
-        context.flag_is_linear = 1;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_Linear);
-                                                                                    CHKERRQ(ierr);
-      } else {
-        context.flag_is_linear = 0;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_JFNK);
-                                                                                    CHKERRQ(ierr);
-      }
-      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
-      /* Set the RHSJacobian function for TS */
-      ierr = TSSetRHSJacobian(ts,A,A,PetscRHSJacobianImpl_JFNK_NoPre,&context);     CHKERRQ(ierr);
-      /* Set PC (preconditioner) to none */
-      ierr = SNESGetKSP(snes,&ksp);                                                 CHKERRQ(ierr);
-      ierr = KSPGetPC(ksp,&pc);                                                     CHKERRQ(ierr);
-      ierr = PCSetType(pc,PCNONE);                                                  CHKERRQ(ierr);
-
-    } else if ( (solver->PFunction) && ((!solver->JFunction) || (context.flag_jfnk_pre)) ) {
-
-      /* Physical model specifies a preconditioning function, but Jacobian function is not
-         specified or user input flag specifies:
-         Use: Preconditioned Jacobian-free Newton-Krylov
-      */
-
-      if (!mpi->rank) printf("Using the preconditioned Jacobian-free Newtown-Krylov approach.\n");
-      /* Preconditioning matrix */
-      flag_mat_b = 1;
-      ierr = MatCreate  (MPI_COMM_WORLD,&B);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(B,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(B,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (B,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (B);                                                        CHKERRQ(ierr);
-      /* Set the RHSJacobian function for TS */
-      ierr = TSSetRHSJacobian(ts,A,B,PetscRHSJacobianImpl_JFNK_Pre,&context);       CHKERRQ(ierr);
-
-      SNES snes;
-      SNESType snestype;
-      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
-      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
-      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) {
-        context.flag_is_linear = 1;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_Linear);
-                                                                                    CHKERRQ(ierr);
-      } else {
-        context.flag_is_linear = 0;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_JFNK);
-                                                                                    CHKERRQ(ierr);
-      }
-      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
-
-    } else if ( (solver->PFunction) && (solver->JFunction) ) {
-
-      /* Physical model does specifies Jacobian and preconditioning functions
-         Use: the specified Jacobian and preconditioning matrices
-      */
-
-      if (!mpi->rank) printf("Using specified Jacobian and preconditioner matrices.\n");
-      /* Jacobian matrix */
-      ierr = MatCreate  (MPI_COMM_WORLD,&A);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(A,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(A,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (A,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (A);                                                        CHKERRQ(ierr);
-      /* Preconditioning matrix */
-      flag_mat_b = 1; 
-      ierr = MatCreate  (MPI_COMM_WORLD,&B);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(B,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(B,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (B,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (B);                                                        CHKERRQ(ierr);
-      /* Set the RHSJacobian function for TS */
-      ierr = TSSetRHSJacobian(ts,A,B,PetscRHSJacobianImpl_Jac_Pre,&context);        CHKERRQ(ierr);
-
-    } else if ( (solver->JFunction) && (context.flag_jfnk_pre) ) {
-
-      /* Physical model does specifies Jacobian function but not preconditioning function, and
-         input flag wants to use preconditioned JFNK,
-         Use: Preconditioned Jacobian-free Newton-Krylov with the Jacobian function as the 
-              preconditioner.
-      */
-
-      if (!mpi->rank) printf("Using specified Jacobian as preconditioner to Jacobian-free Newton-Krylov approach.\n");
-      /* Preconditioning matrix */
-      flag_mat_b = 1; 
-      ierr = MatCreate  (MPI_COMM_WORLD,&B);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(B,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(B,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (B,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (B);                                                        CHKERRQ(ierr);
-      /* Set the RHSJacobian function for TS */
-      ierr = TSSetRHSJacobian(ts,A,B,PetscRHSJacobianImpl_JFNK_JacIsPre,&context);  CHKERRQ(ierr);
-
-      SNES snes;
-      SNESType snestype;
-      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
-      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
-      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) {
-        context.flag_is_linear = 1;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_Linear);
-                                                                                    CHKERRQ(ierr);
-      } else {
-        context.flag_is_linear = 0;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_JFNK);
-                                                                                    CHKERRQ(ierr);
-      }
-      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
-
-    } else {
-
-      /* Physical model does specifies Jacobian function but not preconditioning function
-         Use: specified Jacobian matrix, and the same matrix as the preconditioner matrix
-      */
-
-      if (!mpi->rank) printf("Using specified Jacobian and using it as a preconditioner too.\n");
-      /* Jacobian matrix */
-      ierr = MatCreate  (MPI_COMM_WORLD,&A);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(A,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(A,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (A,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (A);                                                        CHKERRQ(ierr);
-      /* Set the RHSJacobian function for TS */
-      ierr = TSSetRHSJacobian(ts,A,A,PetscRHSJacobianImpl_Jac_NoPre,&context);      CHKERRQ(ierr);
-
-    }
-
-  } else if (!strcmp(time_scheme,TSARKIMEX)) {
+  ierr = TSGetProblemType(ts,&ptype);                                     CHKERRQ(ierr);
+  if (!strcmp(time_scheme,TSARKIMEX)) {
 
     ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionIMEX,&context); CHKERRQ(ierr);
     ierr = TSSetIFunction  (ts,PETSC_NULL,PetscIFunctionIMEX,  &context); CHKERRQ(ierr);
 
-    /* read in the Jacobian-evaluation related flags */
-    context.flag_jfnk_nopre = 0;
-    context.flag_jfnk_pre   = 0;
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-jfnk_nopre",(PetscBool*)(&context.flag_jfnk_nopre),PETSC_NULL); CHKERRQ(ierr);
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-jfnk_pre"  ,(PetscBool*)(&context.flag_jfnk_pre)  ,PETSC_NULL); CHKERRQ(ierr);
+    SNES     snes;
+    KSP      ksp;
+    PC       pc;
+    SNESType snestype;
+    ierr = TSGetSNES(ts,&snes);                                           CHKERRQ(ierr);
+    ierr = SNESGetType(snes,&snestype);                                   CHKERRQ(ierr);
 
-    if ( ((!solver->JFunction) && (!solver->PFunction)) || (context.flag_jfnk_nopre) ){
-
-      /* Physical model does not specify Jacobian and preconditioning functions, or
-         user input flag specifies:
-         Use: Unpreconditioned Jacobian-free Newton-Krylov
-      */
-
-      if (!mpi->rank) {
-        printf("No Jacobian or preconditioner provided. ");
-        printf("Using the unpreconditioned Jacobian-free Newton-Krylov approach.\n");
-      }
-      /* set pre-conditioner to none for MatShell */
-      SNES     snes;
-      KSP      ksp;
-      PC       pc;
-      SNESType snestype;
-      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
-
-      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
-      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) {
-        context.flag_is_linear = 1;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear);
-                                                                                    CHKERRQ(ierr);
-      } else {
-        context.flag_is_linear = 0;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
-                                                                                    CHKERRQ(ierr);
-      }
-      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
-      /* Set the IJacobian function for TS */
-      ierr = TSSetIJacobian(ts,A,A,PetscIJacobianIMEX_JFNK_NoPre,&context);         CHKERRQ(ierr);
-      /* Set PC (preconditioner) to none */
-      ierr = SNESGetKSP(snes,&ksp);                                                 CHKERRQ(ierr);
-      ierr = KSPGetPC(ksp,&pc);                                                     CHKERRQ(ierr);
-      ierr = PCSetType(pc,PCNONE);                                                  CHKERRQ(ierr);
-
-    } else if ( (solver->PFunction) && ((!solver->JFunction) || (context.flag_jfnk_pre)) ) {
-
-      /* Physical model specifies a preconditioning function, but Jacobian function is not
-         specified or user input flag specifies:
-         Use: Preconditioned Jacobian-free Newton-Krylov
-      */
-
-      if (!mpi->rank) printf("Using the preconditioned Jacobian-free Newtown-Krylov approach.\n");
-      /* Preconditioning matrix */
-      flag_mat_b = 1;
-      ierr = MatCreate  (MPI_COMM_WORLD,&B);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(B,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(B,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (B,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (B);                                                        CHKERRQ(ierr);
-      /* Set the IJacobian function for TS */
-      ierr = TSSetIJacobian(ts,A,B,PetscIJacobianIMEX_JFNK_Pre,&context);           CHKERRQ(ierr);
-
-      SNES snes;
-      SNESType snestype;
-      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
-      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
-      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) {
-        context.flag_is_linear = 1;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear);
-                                                                                    CHKERRQ(ierr);
-      } else {
-        context.flag_is_linear = 0;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
-                                                                                    CHKERRQ(ierr);
-      }
-      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
-
-    } else if ( (solver->PFunction) && (solver->JFunction) ) {
-
-      /* Physical model does specifies Jacobian and preconditioning functions
-         Use: the specified Jacobian and preconditioning matrices
-      */
-
-      if (!mpi->rank) printf("Using specified Jacobian and preconditioner matrices.\n");
-      /* Jacobian matrix */
-      ierr = MatCreate  (MPI_COMM_WORLD,&A);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(A,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(A,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (A,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (A);                                                        CHKERRQ(ierr);
-      /* Preconditioning matrix */
-      flag_mat_b = 1; 
-      ierr = MatCreate  (MPI_COMM_WORLD,&B);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(B,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(B,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (B,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (B);                                                        CHKERRQ(ierr);
-      /* Set the IJacobian function for TS */
-      ierr = TSSetIJacobian(ts,A,B,PetscIJacobianIMEX_Jac_Pre,&context);            CHKERRQ(ierr);
-
-    } else if ( (solver->JFunction) && (context.flag_jfnk_pre) ) {
-
-      /* Physical model does specifies Jacobian function but not preconditioning function, and
-         input flag wants to use preconditioned JFNK,
-         Use: Preconditioned Jacobian-free Newton-Krylov with the Jacobian function as the 
-              preconditioner.
-      */
-
-      if (!mpi->rank) printf("Using specified Jacobian as preconditioner to Jacobian-free Newton-Krylov approach.\n");
-      /* Preconditioning matrix */
-      flag_mat_b = 1; 
-      ierr = MatCreate  (MPI_COMM_WORLD,&B);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(B,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(B,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (B,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (B);                                                        CHKERRQ(ierr);
-      /* Set the IJacobian function for TS */
-      ierr = TSSetIJacobian(ts,A,B,PetscIJacobianIMEX_JFNK_JacIsPre,&context);      CHKERRQ(ierr);
-
-      SNES snes;
-      SNESType snestype;
-      ierr = TSGetSNES(ts,&snes);                                                   CHKERRQ(ierr);
-      ierr = SNESGetType(snes,&snestype);                                           CHKERRQ(ierr);
-      ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                            PETSC_DETERMINE,&context,&A);                           CHKERRQ(ierr);
-      if (!strcmp(snestype,SNESKSPONLY)) {
-        context.flag_is_linear = 1;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear);
-                                                                                    CHKERRQ(ierr);
-      } else {
-        context.flag_is_linear = 0;
-        ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
-                                                                                    CHKERRQ(ierr);
-      }
-      ierr = MatSetUp(A);                                                           CHKERRQ(ierr);
-
+    /* Matrix-free representation of the Jacobian */
+    ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
+                          PETSC_DETERMINE,&context,&A);                   CHKERRQ(ierr);
+    if ((!strcmp(snestype,SNESKSPONLY)) || (ptype == TS_LINEAR)) {
+      /* linear problem */
+      context.flag_is_linear = 1;
+      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear);
+                                                                          CHKERRQ(ierr);
+      ierr = SNESSetType(snes,SNESKSPONLY);                               CHKERRQ(ierr);
     } else {
+      /* nonlinear problem */
+      context.flag_is_linear = 0;
+      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
+                                                                          CHKERRQ(ierr);
+    }
+    ierr = MatSetUp(A);                                                   CHKERRQ(ierr);
+    /* Set the IJacobian function for TS */
+    ierr = TSSetIJacobian(ts,A,A,PetscIJacobianIMEX,&context); CHKERRQ(ierr);
 
-      /* Physical model does specifies Jacobian function but not preconditioning function
-         Use: specified Jacobian matrix, and the same matrix as the preconditioner matrix
-      */
+    context.flag_use_precon = 0;
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-use_preconditioning",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
 
-      if (!mpi->rank) printf("Using specified Jacobian and using it as a preconditioner too.\n");
-      /* Jacobian matrix */
-      ierr = MatCreate  (MPI_COMM_WORLD,&A);                                        CHKERRQ(ierr);
-      ierr = MatSetSizes(A,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE);  CHKERRQ(ierr);
-      ierr = MatSetBlockSize(A,solver->nvars);                                      CHKERRQ(ierr);
-      ierr = MatSetType (A,MATAIJ);                                                 CHKERRQ(ierr);
-      ierr = MatSetUp   (A);                                                        CHKERRQ(ierr);
-      /* Set the IJacobian function for TS */
-      ierr = TSSetIJacobian(ts,A,A,PetscIJacobianIMEX_Jac_NoPre,&context);          CHKERRQ(ierr);
-
+    if (context.flag_use_precon) {
+    } else {
+      /* Set PC (preconditioner) to none */
+      ierr = SNESGetKSP(snes,&ksp);                                        CHKERRQ(ierr);
+      ierr = KSPGetPC(ksp,&pc);                                            CHKERRQ(ierr);
+      ierr = PCSetType(pc,PCNONE);                                         CHKERRQ(ierr);
     }
 
     /* read the implicit/explicit flags for each of the terms for IMEX schemes */
@@ -463,10 +198,7 @@ int SolvePETSc(void *s,void *m)
       else                                            printf("Source            term: Implicit\n");
     }
 
-  } else {
-    fprintf(stderr,"Error in SolvePETSc: TSType %s not supported.\n",time_scheme);
-    return(1);
-  }
+  } else ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionExpl,&context); CHKERRQ(ierr);
 
   /* Set pre/post-stage and post-timestep function */
   ierr = TSSetPreStep (ts,PetscPreTimeStep );                             CHKERRQ(ierr);
