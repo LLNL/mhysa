@@ -14,7 +14,6 @@ int    LinearADRAdvection         (double*,double*,int,void*,double);
 int    LinearADRDiffusionG        (double*,double*,int,void*,double);
 int    LinearADRDiffusionH        (double*,double*,int,int,void*,double);
 int    LinearADRReaction          ();
-int    LinearADRJacobian          (void*,double*,void*,void*,double,double);
 int    LinearADRUpwind            (double*,double*,double*,double*,
                                    double*,double*,int,void*,double);
 
@@ -90,11 +89,6 @@ int LinearADRInitialize(void *s,void *m)
   solver->HFunction          = LinearADRDiffusionH;
   solver->SFunction          = LinearADRReaction;
   solver->Upwind             = LinearADRUpwind;
-  /* solver->JFunction          = LinearADRJacobian; */
-
-  solver->Jac = (BandedMatrix*) calloc (1,sizeof(BandedMatrix));
-  IERR BandedMatrixInitialize(solver->Jac); CHECKERR(ierr); /* deallocated in src/HyParFunctions/Cleanup.c */
-  IERR BandedMatrixPreallocate(solver->Jac,2*solver->ndims+1,solver->npoints_local,solver->nvars); CHECKERR(ierr);
 
   return(0);
 }

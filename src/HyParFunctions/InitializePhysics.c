@@ -37,8 +37,6 @@ int InitializePhysics(void *s,void *m)
   solver->HFunction             = NULL;
   solver->SFunction             = NULL;
   solver->UFunction             = NULL;
-  solver->JFunction             = NULL;
-  solver->PFunction             = NULL;
   solver->Upwind                = NULL;
   solver->UpwinddF              = NULL;
   solver->PreStage              = NULL;
@@ -49,7 +47,6 @@ int InitializePhysics(void *s,void *m)
   solver->AveragingFunction     = NULL;
   solver->GetLeftEigenvectors   = NULL;
   solver->GetRightEigenvectors  = NULL;
-  solver->Jac                   = NULL;
 
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
 

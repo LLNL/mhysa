@@ -65,12 +65,6 @@ int Cleanup(void *s,void *m)
   }
   free(solver->physics);
 
-  /* clean up Jacobian object, if created */
-  if (solver->Jac) {
-    IERR BandedMatrixDestroy(solver->Jac); CHECKERR(ierr);
-    free(solver->Jac);
-  }
-
   /* Clean up any allocations from time-integration */
 #ifdef with_petsc
   if (!solver->use_petscTS) {
