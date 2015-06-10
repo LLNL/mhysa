@@ -8,10 +8,16 @@
 #endif
 
 /*! \def MPIVariables
- * Structure of MPI-related variables.
+ *  \brief Structure of MPI-related variables.
+ * This structure contains all the variables needed for parallel computations 
+ * using the MPI library.
 */
 
-/*! Structure of MPI-related variables. */
+/*! \brief Structure of MPI-related variables.
+ *
+ * This structure contains all the variables needed for parallel computations 
+ * using the MPI library.
+*/
 typedef struct mpi_variables {
   int   rank;     /*!< Process rank                                       */
   int   nproc;    /*!< Total number of processes                          */
