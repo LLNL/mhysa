@@ -7,6 +7,7 @@ libEuler1D_a_SOURCES = \
   Euler1DFunctions.c \
 	Euler1DGravityField.c \
   Euler1DInitialize.c \
+  Euler1DJacobian.c \
   Euler1DModifiedSolution.c \
   Euler1DPreStep.c \
 	Euler1DSource.c \

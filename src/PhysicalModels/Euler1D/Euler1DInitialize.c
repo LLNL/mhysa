@@ -1,3 +1,8 @@
+/*! @file Euler1DInitialize.c
+    @author Debojyoti Ghosh
+    @brief Initialize the 1D Euler equations module.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +24,8 @@ int    Euler1DUpwindLLF  (double*,double*,double*,double*,double*,double*,int,vo
 int    Euler1DUpwinddFLLF(double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindSWFS (double*,double*,double*,double*,double*,double*,int,void*,double);
 
+int    Euler1DJacobian   (double*,double*,void*,int,int);
+
 int    Euler1DRoeAverage        (double*,double*,double*,void*);
 int    Euler1DLeftEigenvectors  (double*,double*,void*,int);
 int    Euler1DRightEigenvectors (double*,double*,void*,int);
@@ -30,6 +37,10 @@ int    Euler1DSourceUpwindRoe   (double*,double*,double*,double*,int,void*,doubl
 int    Euler1DModifiedSolution  (double*,double*,int,void*,void*,double);
 int    Euler1DPreStep           (double*,void*,void*,double);
 
+/*! Function to initialize the Euler1D (1D inviscid Euler equations) module: 
+    Sets the default parameters, read in and set physics-related parameters, 
+    and set the physics-related function pointers in #HyPar.
+*/
 int Euler1DInitialize(void *s,void *m)
 {
   HyPar         *solver  = (HyPar*)         s;
@@ -52,7 +63,7 @@ int Euler1DInitialize(void *s,void *m)
   physics->grav_type  = 0;
   strcpy(physics->upw_choice,"roe");
 
-  /* reading physical model specific inputs - all processes */
+  /* reading physical model specific inputs */
   if (!mpi->rank) {
     FILE *in;
     printf("Reading physical model inputs from file \"physics.inp\".\n");
@@ -112,6 +123,7 @@ int Euler1DInitialize(void *s,void *m)
   solver->FFunction          = Euler1DFlux;
   solver->SFunction          = Euler1DSource;
   solver->UFunction          = Euler1DModifiedSolution;
+  solver->JFunction          = Euler1DJacobian;
   if      (!strcmp(physics->upw_choice,_ROE_ )) solver->Upwind = Euler1DUpwindRoe;
   else if (!strcmp(physics->upw_choice,_RF_  )) solver->Upwind = Euler1DUpwindRF;
   else if (!strcmp(physics->upw_choice,_LLF_ )) solver->Upwind = Euler1DUpwindLLF;
