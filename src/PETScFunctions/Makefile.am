@@ -1,6 +1,7 @@
 noinst_LIBRARIES = libPETScFunctions.a
 libPETScFunctions_a_SOURCES = \
   PetscComputeRHSOperators.c \
+  PetscComputePreconMatIMEX.c \
   PetscIFunctionIMEX.c \
   PetscIJacobianIMEX.c \
   PetscPostStage.c \

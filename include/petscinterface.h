@@ -113,7 +113,11 @@ PetscErrorCode PetscJacobianFunctionIMEX_JFNK       (Mat,Vec,Vec);
     of the ODE \a dy/dt - \a g(y) = \a f(y).
     \sa #PetscIJacobianIMEX_JFNK_NoPre, #PetscIJacobianIMEX_JFNK_Pre
 */
-PetscErrorCode PetscJacobianFunctionIMEX_Linear     (Mat,Vec,Vec);             
+PetscErrorCode PetscJacobianFunctionIMEX_Linear     (Mat,Vec,Vec);
+
+/*! Function to compute the preconditioning matrix */
+int PetscComputePreconMatIMEX(Mat,Vec,void*);
+
 
 /* Other functions */
 /*! Function called at the beginning of each stage computation in multi-stage time-integration methods. */

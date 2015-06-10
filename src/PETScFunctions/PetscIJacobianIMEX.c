@@ -37,11 +37,15 @@ PetscErrorCode PetscIJacobianIMEX(
 {
   PETScContext *context = (PETScContext*) ctxt;
   HyPar        *solver  = context->solver;
+  _DECLARE_IERR_;
 
   PetscFunctionBegin;
   solver->count_IJacobian++;
   context->shift = a;
   context->waqt  = t;
+  /* Construct preconditioning matrix */
+  if (context->flag_use_precon) { IERR PetscComputePreconMatIMEX(B,Y,context); CHECKERR(ierr); }
+
   PetscFunctionReturn(0);
 }
 

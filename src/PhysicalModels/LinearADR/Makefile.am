@@ -6,5 +6,6 @@ libLinearADR_a_SOURCES = \
   LinearADRComputeDiffNumber.c \
   LinearADRAdvection.c \
   LinearADRDiffusion.c \
+  LinearADRJacobian.c \
   LinearADRReaction.c \
   LinearADRUpwind.c

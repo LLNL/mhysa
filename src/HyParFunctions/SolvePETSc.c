@@ -50,7 +50,7 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   PetscFunctionBegin;
 
   /* Register custom time-integration methods, if specified */
-  ierr = PetscRegisterTIMethods(mpi->rank);                               CHECKERR(ierr);
+  ierr = PetscRegisterTIMethods(mpi->rank); CHECKERR(ierr);
   if(!mpi->rank) printf("Setting up PETSc time integration... \n");
 
   /* create and set a PETSc context */
@@ -70,23 +70,23 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   int total_size = 1;
   for (d=0; d<solver->ndims; d++) total_size *= (solver->dim_local[d]);
   total_size *= solver->nvars;
-  ierr = VecCreate(MPI_COMM_WORLD,&Y);                                    CHKERRQ(ierr);
-  ierr = VecSetSizes(Y,total_size,PETSC_DECIDE);                          CHKERRQ(ierr);
-  ierr = VecSetUp(Y);                                                     CHKERRQ(ierr);
+  ierr = VecCreate(MPI_COMM_WORLD,&Y); CHKERRQ(ierr);
+  ierr = VecSetSizes(Y,total_size,PETSC_DECIDE); CHKERRQ(ierr);
+  ierr = VecSetUp(Y); CHKERRQ(ierr);
 
   /* copy initial solution to PETSc's vector */
-  ierr = TransferVecToPETSc(solver->u,Y,&context);                        CHECKERR(ierr);
+  ierr = TransferVecToPETSc(solver->u,Y,&context); CHECKERR(ierr);
 
   /* Define and initialize the time-integration object */
-  ierr = TSCreate(MPI_COMM_WORLD,&ts);                                    CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,solver->n_iter,solver->dt*solver->n_iter);      CHKERRQ(ierr);
-  ierr = TSSetInitialTimeStep(ts,0.0,solver->dt);                         CHKERRQ(ierr);
-  ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP);             CHKERRQ(ierr);
-  ierr = TSSetFromOptions(ts);                                            CHKERRQ(ierr);
+  ierr = TSCreate(MPI_COMM_WORLD,&ts); CHKERRQ(ierr);
+  ierr = TSSetDuration(ts,solver->n_iter,solver->dt*solver->n_iter); CHKERRQ(ierr);
+  ierr = TSSetInitialTimeStep(ts,0.0,solver->dt); CHKERRQ(ierr);
+  ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP); CHKERRQ(ierr);
+  ierr = TSSetFromOptions(ts); CHKERRQ(ierr);
 
   /* Define the right and left -hand side functions for each time-integration scheme */
-  ierr = TSGetType(ts,&time_scheme);                                      CHKERRQ(ierr);
-  ierr = TSGetProblemType(ts,&ptype);                                     CHKERRQ(ierr);
+  ierr = TSGetType(ts,&time_scheme); CHKERRQ(ierr);
+  ierr = TSGetProblemType(ts,&ptype); CHKERRQ(ierr);
   if (!strcmp(time_scheme,TSARKIMEX)) {
 
     ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionIMEX,&context); CHKERRQ(ierr);
@@ -96,37 +96,52 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     KSP      ksp;
     PC       pc;
     SNESType snestype;
-    ierr = TSGetSNES(ts,&snes);                                           CHKERRQ(ierr);
-    ierr = SNESGetType(snes,&snestype);                                   CHKERRQ(ierr);
+    ierr = TSGetSNES(ts,&snes); CHKERRQ(ierr);
+    ierr = SNESGetType(snes,&snestype); CHKERRQ(ierr);
 
     /* Matrix-free representation of the Jacobian */
     ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
-                          PETSC_DETERMINE,&context,&A);                   CHKERRQ(ierr);
+                          PETSC_DETERMINE,&context,&A); CHKERRQ(ierr);
     if ((!strcmp(snestype,SNESKSPONLY)) || (ptype == TS_LINEAR)) {
       /* linear problem */
       context.flag_is_linear = 1;
-      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear);
-                                                                          CHKERRQ(ierr);
-      ierr = SNESSetType(snes,SNESKSPONLY);                               CHKERRQ(ierr);
+      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_Linear); CHKERRQ(ierr);
+      ierr = SNESSetType(snes,SNESKSPONLY); CHKERRQ(ierr);
     } else {
       /* nonlinear problem */
       context.flag_is_linear = 0;
-      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK);
-                                                                          CHKERRQ(ierr);
+      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK); CHKERRQ(ierr);
     }
-    ierr = MatSetUp(A);                                                   CHKERRQ(ierr);
-    /* Set the IJacobian function for TS */
-    ierr = TSSetIJacobian(ts,A,A,PetscIJacobianIMEX,&context); CHKERRQ(ierr);
+    ierr = MatSetUp(A); CHKERRQ(ierr);
 
     context.flag_use_precon = 0;
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-use_preconditioning",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-with_pc",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
 
     if (context.flag_use_precon) {
+      /* check if flux Jacobian of the physical model is defined */
+      if (!solver->JFunction) {
+        if (!mpi->rank) {
+          fprintf(stderr,"Error in SolvePETSc(): solver->JFunction (point-wise flux Jacobian) must ");
+          fprintf(stderr,"be defined for preconditioning.\n");
+        }
+        PetscFunctionReturn(1);
+      }
+      /* Set up preconditioner matrix */
+      flag_mat_b = 1;
+      ierr = MatCreate(MPI_COMM_WORLD,&B); CHKERRQ(ierr);
+      ierr = MatSetSizes(B,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE); CHKERRQ(ierr);
+      ierr = MatSetBlockSize(B,solver->nvars);
+      ierr = MatSetType(B,MATAIJ);
+      ierr = MatSetUp(B);
+      /* Set the IJacobian function for TS */
+      ierr = TSSetIJacobian(ts,A,B,PetscIJacobianIMEX,&context); CHKERRQ(ierr);
     } else {
+      /* Set the IJacobian function for TS */
+      ierr = TSSetIJacobian(ts,A,A,PetscIJacobianIMEX,&context); CHKERRQ(ierr);
       /* Set PC (preconditioner) to none */
-      ierr = SNESGetKSP(snes,&ksp);                                        CHKERRQ(ierr);
-      ierr = KSPGetPC(ksp,&pc);                                            CHKERRQ(ierr);
-      ierr = PCSetType(pc,PCNONE);                                         CHKERRQ(ierr);
+      ierr = SNESGetKSP(snes,&ksp); CHKERRQ(ierr);
+      ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
+      ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
     }
 
     /* read the implicit/explicit flags for each of the terms for IMEX schemes */
@@ -167,17 +182,17 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     }
 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_explicit",&flag,PETSC_NULL);  CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_parabolic = _EXPLICIT_; 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_implicit",&flag,PETSC_NULL);  CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_parabolic = _IMPLICIT_; 
 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-source_explicit",&flag,PETSC_NULL);     CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-source_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_source = _EXPLICIT_; 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-source_implicit",&flag,PETSC_NULL);     CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-source_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_source = _IMPLICIT_; 
 
     /* print out a summary of the treatment of each term */
@@ -201,41 +216,39 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   } else ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionExpl,&context); CHKERRQ(ierr);
 
   /* Set pre/post-stage and post-timestep function */
-  ierr = TSSetPreStep (ts,PetscPreTimeStep );                             CHKERRQ(ierr);
-  ierr = TSSetPreStage(ts,PetscPreStage    );                             CHKERRQ(ierr);
-  ierr = TSSetPostStage(ts,PetscPostStage  );                             CHKERRQ(ierr);
-  ierr = TSSetPostStep(ts,PetscPostTimeStep);                             CHKERRQ(ierr);
+  ierr = TSSetPreStep (ts,PetscPreTimeStep ); CHKERRQ(ierr);
+  ierr = TSSetPreStage(ts,PetscPreStage    ); CHKERRQ(ierr);
+  ierr = TSSetPostStage(ts,PetscPostStage  ); CHKERRQ(ierr);
+  ierr = TSSetPostStep(ts,PetscPostTimeStep); CHKERRQ(ierr);
   /* Set solution vector for TS */
-  ierr = TSSetSolution(ts,Y);                                             CHKERRQ(ierr);
+  ierr = TSSetSolution(ts,Y); CHKERRQ(ierr);
   /* Set it all up */
-  ierr = TSSetUp(ts);                                                     CHKERRQ(ierr);
+  ierr = TSSetUp(ts); CHKERRQ(ierr);
   /* Set application context */
-  ierr = TSSetApplicationContext(ts,&context);                            CHKERRQ(ierr);
+  ierr = TSSetApplicationContext(ts,&context); CHKERRQ(ierr);
 
   if (!mpi->rank) {
-    if (context.flag_is_linear) {
-      printf("SolvePETSc(): Note that SNES type is set to %s. ",SNESKSPONLY);
-      printf("A linear system will be assumed when (if) computing Jacobian.\n");
-    }
+    if (context.flag_is_linear) printf("SolvePETSc(): Problem type is linear.\n");
+    else                        printf("SolvePETSc(): Problem type is nonlinear.\n");
   }
 
   if (!mpi->rank) printf("** Starting PETSc time integration **\n");
-  ierr = TSSolve(ts,Y);                                                   CHKERRQ(ierr);
+  ierr = TSSolve(ts,Y); CHKERRQ(ierr);
   if (!mpi->rank) printf("** Completed PETSc time integration **\n");
 
   /* Get the number of time steps */
-  ierr = TSGetTimeStepNumber(ts,&solver->n_iter);                         CHKERRQ(ierr);
+  ierr = TSGetTimeStepNumber(ts,&solver->n_iter); CHKERRQ(ierr);
 
   /* copy final solution from PETSc's vector */
-  ierr = TransferVecFromPETSc(solver->u,Y,&context);                      CHECKERR(ierr);
+  ierr = TransferVecFromPETSc(solver->u,Y,&context); CHECKERR(ierr);
 
   /* clean up */
   if (!strcmp(time_scheme,TSARKIMEX)) {
-    ierr = MatDestroy(&A);                                                CHKERRQ(ierr);
-    if (flag_mat_b) ierr = MatDestroy(&B);                                CHKERRQ(ierr);
+    ierr = MatDestroy(&A); CHKERRQ(ierr);
+    if (flag_mat_b) { ierr = MatDestroy(&B); CHKERRQ(ierr); }
   }
-  ierr = TSDestroy(&ts);                                                  CHKERRQ(ierr);
-  ierr = VecDestroy(&Y);                                                  CHKERRQ(ierr);
+  ierr = TSDestroy(&ts); CHKERRQ(ierr);
+  ierr = VecDestroy(&Y); CHKERRQ(ierr);
 
   /* write a final solution file, if last iteration did not write one */
   if (context.tic) { IERR OutputSolution(solver,mpi); CHECKERR(ierr); }

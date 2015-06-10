@@ -1,3 +1,8 @@
+/*! @file LinearADRInitialize.c
+    @author Debojyoti Ghosh
+    @brief Initialize the linear advection-diffusion-reaction module
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +21,12 @@ int    LinearADRDiffusionH        (double*,double*,int,int,void*,double);
 int    LinearADRReaction          ();
 int    LinearADRUpwind            (double*,double*,double*,double*,
                                    double*,double*,int,void*,double);
+int    LinearADRJacobian          (double*,double*,void*,int,int);
 
+/*! Initialize the linear advection-diffusion-reaction physics module - 
+    allocate and set physics-related parameters, read physics-related inputs
+    from file, and set the physics-related function pointers in #HyPar
+*/
 int LinearADRInitialize(void *s,void *m)
 {
   HyPar         *solver  = (HyPar*)         s;
@@ -88,6 +98,7 @@ int LinearADRInitialize(void *s,void *m)
   solver->GFunction          = LinearADRDiffusionG;
   solver->HFunction          = LinearADRDiffusionH;
   solver->SFunction          = LinearADRReaction;
+  solver->JFunction          = LinearADRJacobian;
   solver->Upwind             = LinearADRUpwind;
 
   return(0);

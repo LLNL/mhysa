@@ -249,6 +249,9 @@ typedef struct main_parameters {
   /*! Function to calculate the modified solution for upwinding */
   int    (*UFunction)          (double*,double*,int,void*,void*,double);
 
+  /*! Function to calculate the flux Jacobian at a grid point */
+  int    (*JFunction)          (double*,double*,void*,int,int);
+
   /*! Function to do some pre-time-integration-stage computations, if required */
   int    (*PreStage)           (int,double**,void*,void*,double);
   /*! Function to do some post-time-integration-stage computations, if required */
