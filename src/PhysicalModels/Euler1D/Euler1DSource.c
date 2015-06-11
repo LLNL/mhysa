@@ -1,3 +1,8 @@
+/*! @file Euler1DSource.c
+    @author Debojyoti Ghosh
+    @brief Contains the functions to compute the gravitation source terms for the 1D Euler equations.
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -5,17 +10,24 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-/* function to calculate the gravitational source term
- * Reference: Xing, Shu, "High Order Well-Balanced WENO
- * Scheme for the Gas Dynamics Equations Under Gravitational
- * Fields", J. Sci. Comput., 54, 2013, pp. 645--662
- * http://dx.doi.org/10.1007/s10915-012-9585-8
-*/
-
 static int Euler1DSourceFunction(double*,double*,double*,void*,void*,double);
 int ApplyBoundaryConditions(void*,void*,double*,double*,int,double);
 
-int Euler1DSource(double *source,double *u,void *s,void *m,double t)
+/*! Compute the gravitational source terms for the 1D Euler equations. The source term
+    is computed according to the balanced formulation introduced in the reference below.
+    The source term is reformulated and "discretized" in a similar fashion as the hyperbolic
+    flux to ensure that the hydrostatic balance is maintained to machine precision.
+    + Xing, Shu, "High Order Well-Balanced WENO Scheme for the Gas Dynamics Equations 
+                  Under Gravitational Fields", J. Sci. Comput., 54, 2013, pp. 645--662,
+                  http://dx.doi.org/10.1007/s10915-012-9585-8.
+*/
+int Euler1DSource(
+                  double  *source, /*!< Computed source terms (array size & layout same as u) */
+                  double  *u,      /*!< Solution (conserved variables) */
+                  void    *s,      /*!< Solver object of type #HyPar */
+                  void    *m,      /*!< MPI object of type #MPIVariables */
+                  double  t        /*!< Current solution time */
+                 )
 {
   HyPar         *solver = (HyPar* ) s;
   MPIVariables  *mpi = (MPIVariables*) m;
@@ -67,7 +79,22 @@ int Euler1DSource(double *source,double *u,void *s,void *m,double t)
   return(0);
 }
 
-int Euler1DSourceFunction(double *f,double *u,double *x,void *s,void *m,double t)
+/*! Compute the gravitational source function that is then "discretized" in a way similar to 
+    the hyperbolic flux function for the balanced formulation introduced in the reference below.
+    The source term is reformulated and "discretized" in a similar fashion as the hyperbolic
+    flux to ensure that the hydrostatic balance is maintained to machine precision.
+    + Xing, Shu, "High Order Well-Balanced WENO Scheme for the Gas Dynamics Equations 
+                  Under Gravitational Fields", J. Sci. Comput., 54, 2013, pp. 645--662,
+                  http://dx.doi.org/10.1007/s10915-012-9585-8.
+*/
+int Euler1DSourceFunction(
+                          double  *f, /*!< Computed source function (array size and layout same as u) */
+                          double  *u, /*!< Solution (conserved variables) */
+                          double  *x, /*!< Spatial coordinates */
+                          void    *s, /*!< Solver object of type #HyPar */
+                          void    *m, /*!< MPI object of type #MPIVariables */
+                          double  t   /*!< Current solution time */
+                         )
 {
   HyPar         *solver = (HyPar* )       s;
   Euler1D       *param  = (Euler1D*)      solver->physics;

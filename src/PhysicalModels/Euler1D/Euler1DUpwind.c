@@ -1,3 +1,8 @@
+/*! @file Euler1DUpwind.c
+    @author Debojyoti Ghosh
+    @brief Contains functions to compute the upwind flux at grid interfaces for the 1D Euler equations.
+*/
+
 #include <stdlib.h>
 #include <math.h>
 #include <basic.h>
@@ -6,7 +11,32 @@
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! Roe's upwinding scheme.
+    \f{equation}{
+      {\bf f}_{j+1/2} = \frac{1}{2}\left[ {\bf f}_{j+1/2}^L + {\bf f}_{j+1/2}^R 
+                         - \left| A\left({\bf u}_{j+1/2}^L,{\bf u}_{j+1/2}^R\right) \right|
+                           \left( {\bf u}_{j+1/2}^R - {\bf u}_{j+1/2}^L  \right)\right]
+    \f}
+    + Roe, P. L., “Approximate Riemann solvers, parameter vectors, and difference schemes,” Journal of
+    Computational Physics, Vol. 43, No. 2, 1981, pp. 357–372, http://dx.doi.org/10.1016/0021-9991(81)90128-5.
+    
+    This upwinding scheme is modified for the balanced discretization of the 1D Euler equations when there is a non-zero gravitational force. See the reference below. For flows without any gravitational forces, it reduces to its original form.
+    + Xing, Shu, "High Order Well-Balanced WENO Scheme for the Gas Dynamics Equations 
+                  Under Gravitational Fields", J. Sci. Comput., 54, 2013, pp. 645--662,
+                  http://dx.doi.org/10.1007/s10915-012-9585-8.
+
+*/
+int Euler1DUpwindRoe(
+                      double  *fI, /*!< Computed upwind interface flux */
+                      double  *fL, /*!< Left-biased reconstructed interface flux */
+                      double  *fR, /*!< Right-biased reconstructed interface flux */
+                      double  *uL, /*!< Left-biased reconstructed interface solution */
+                      double  *uR, /*!< Right-biased reconstructed interface solution */
+                      double  *u,  /*!< Cell-centered solution */
+                      int     dir, /*!< Spatial dimension (unused since this is a 1D system) */
+                      void    *s,  /*!< Solver object of type #HyPar */
+                      double  t    /*!< Current solution time */
+                    )
 {
   HyPar     *solver = (HyPar*)    s;
   Euler1D   *param  = (Euler1D*)  solver->physics;
@@ -67,7 +97,31 @@ int Euler1DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,doub
   return(0);
 }
 
-int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! Characteristic-based Roe-fixed upwinding scheme.
+    \f{align}{
+      \alpha_{j+1/2}^{k,L} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf f}_{j+1/2}^{k,L}, \\
+      \alpha_{j+1/2}^{k,R} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf f}_{j+1/2}^{k,R}, \\
+      v_{j+1/2}^{k,L} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf u}_{j+1/2}^{k,L}, \\
+      v_{j+1/2}^{k,R} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf u}_{j+1/2}^{k,R}, \\
+      \alpha_{j+1/2}^k &= \left\{ \begin{array}{cc} \alpha_{j+1/2}^{k,L} & {\rm if}\ \lambda_{j,j+1/2,j+1} > 0 \\ \alpha_{j+1/2}^{k,R} & {\rm if}\ \lambda_{j,j+1/2,j+1} < 0 \\ \frac{1}{2}\left[ \alpha_{j+1/2}^{k,L} + \alpha_{j+1/2}^{k,R} - \left(\max_{\left[j,j+1\right]} \lambda\right) \left( v_{j+1/2}^{k,R} - v_{j+1/2}^{k,L} \right) \right] & {\rm otherwise} \end{array}\right., \\
+      {\bf f}_{j+1/2} &= \sum_{k=1}^3 \alpha_{j+1/2}^k {\bf r}_{j+1/2}^k
+    \f}
+    where \f${\bf l}\f$, \f${\bf r}\f$, and \f$\lambda\f$ are the left-eigenvectors, right-eigenvectors and eigenvalues. The subscripts denote the grid locations.
+    + C.-W. Shu, and S. Osher, "Efficient implementation of essentially non-oscillatory schemes, II", J. Comput. Phys., 83 (1989), pp. 32–78, http://dx.doi.org/10.1016/0021-9991(89)90222-2.
+
+    Note that this upwinding scheme cannot be used for solving flows with non-zero gravitational forces.
+*/
+int Euler1DUpwindRF(
+                      double  *fI, /*!< Computed upwind interface flux */
+                      double  *fL, /*!< Left-biased reconstructed interface flux */
+                      double  *fR, /*!< Right-biased reconstructed interface flux */
+                      double  *uL, /*!< Left-biased reconstructed interface solution */
+                      double  *uR, /*!< Right-biased reconstructed interface solution */
+                      double  *u,  /*!< Cell-centered solution */
+                      int     dir, /*!< Spatial dimension (unused since this is a 1D system) */
+                      void    *s,  /*!< Solver object of type #HyPar */
+                      double  t    /*!< Current solution time */
+                    )
 {
   HyPar     *solver = (HyPar*)    s;
   Euler1D   *param  = (Euler1D*)  solver->physics;
@@ -136,7 +190,35 @@ int Euler1DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,doubl
   return(0);
 }
 
-int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! Characteristic-based local Lax-Friedrich upwinding scheme.
+    \f{align}{
+      \alpha_{j+1/2}^{k,L} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf f}_{j+1/2}^{k,L}, \\
+      \alpha_{j+1/2}^{k,R} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf f}_{j+1/2}^{k,R}, \\
+      v_{j+1/2}^{k,L} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf u}_{j+1/2}^{k,L}, \\
+      v_{j+1/2}^{k,R} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf u}_{j+1/2}^{k,R}, \\
+      \alpha_{j+1/2}^k &= \frac{1}{2}\left[ \alpha_{j+1/2}^{k,L} + \alpha_{j+1/2}^{k,R} - \left(\max_{\left[j,j+1\right]} \lambda\right) \left( v_{j+1/2}^{k,R} - v_{j+1/2}^{k,L} \right) \right], \\
+      {\bf f}_{j+1/2} &= \sum_{k=1}^3 \alpha_{j+1/2}^k {\bf r}_{j+1/2}^k
+    \f}
+    where \f${\bf l}\f$, \f${\bf r}\f$, and \f$\lambda\f$ are the left-eigenvectors, right-eigenvectors and eigenvalues. The subscripts denote the grid locations.
+    + C.-W. Shu, and S. Osher, "Efficient implementation of essentially non-oscillatory schemes, II", J. Comput. Phys., 83 (1989), pp. 32–78, http://dx.doi.org/10.1016/0021-9991(89)90222-2.
+
+    This upwinding scheme is modified for the balanced discretization of the 1D Euler equations when there is a non-zero gravitational force. See the reference below. For flows without any gravitational forces, it reduces to its original form.
+    + Xing, Shu, "High Order Well-Balanced WENO Scheme for the Gas Dynamics Equations 
+                  Under Gravitational Fields", J. Sci. Comput., 54, 2013, pp. 645--662,
+                  http://dx.doi.org/10.1007/s10915-012-9585-8.
+
+*/
+int Euler1DUpwindLLF(
+                      double  *fI, /*!< Computed upwind interface flux */
+                      double  *fL, /*!< Left-biased reconstructed interface flux */
+                      double  *fR, /*!< Right-biased reconstructed interface flux */
+                      double  *uL, /*!< Left-biased reconstructed interface solution */
+                      double  *uR, /*!< Right-biased reconstructed interface solution */
+                      double  *u,  /*!< Cell-centered solution */
+                      int     dir, /*!< Spatial dimension (unused since this is a 1D system) */
+                      void    *s,  /*!< Solver object of type #HyPar */
+                      double  t    /*!< Current solution time */
+                    )
 {
   HyPar     *solver = (HyPar*)    s;
   Euler1D   *param  = (Euler1D*)  solver->physics;
@@ -200,7 +282,24 @@ int Euler1DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,doub
   return(0);
 }
 
-int Euler1DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! Steger-Warming Flux-Splitting scheme
+    + Steger, J.L., Warming, R.F., "Flux vector splitting of the inviscid gasdynamic equations with 
+      application to finite-difference methods", J. Comput. Phys., 40(2), 1981, pp. 263-293,
+      http://dx.doi.org/10.1016/0021-9991(81)90210-2.
+
+    Note that this method cannot be used for flows with non-zero gravitational forces.
+*/
+int Euler1DUpwindSWFS(
+                      double  *fI, /*!< Computed upwind interface flux */
+                      double  *fL, /*!< Left-biased reconstructed interface flux */
+                      double  *fR, /*!< Right-biased reconstructed interface flux */
+                      double  *uL, /*!< Left-biased reconstructed interface solution */
+                      double  *uR, /*!< Right-biased reconstructed interface solution */
+                      double  *u,  /*!< Cell-centered solution */
+                      int     dir, /*!< Spatial dimension (unused since this is a 1D system) */
+                      void    *s,  /*!< Solver object of type #HyPar */
+                      double  t    /*!< Current solution time */
+                    )
 {
   HyPar     *solver = (HyPar*)    s;
   Euler1D   *param  = (Euler1D*)  solver->physics;
@@ -264,7 +363,21 @@ int Euler1DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double *uR,dou
   return(0);
 }
 
-int Euler1DUpwinddFRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! The Roe upwinding scheme (#Euler1DUpwindRoe) for the partitioned hyperbolic flux that comprises
+    of the acoustic waves only (see #Euler1DStiffFlux, #_Euler1DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+*/
+int Euler1DUpwinddFRoe(
+                      double  *fI, /*!< Computed upwind interface flux */
+                      double  *fL, /*!< Left-biased reconstructed interface flux */
+                      double  *fR, /*!< Right-biased reconstructed interface flux */
+                      double  *uL, /*!< Left-biased reconstructed interface solution */
+                      double  *uR, /*!< Right-biased reconstructed interface solution */
+                      double  *u,  /*!< Cell-centered solution */
+                      int     dir, /*!< Spatial dimension (unused since this is a 1D system) */
+                      void    *s,  /*!< Solver object of type #HyPar */
+                      double  t    /*!< Current solution time */
+                    )
 {
   HyPar     *solver = (HyPar*)    s;
   Euler1D   *param  = (Euler1D*)  solver->physics;
@@ -326,7 +439,21 @@ int Euler1DUpwinddFRoe(double *fI,double *fL,double *fR,double *uL,double *uR,do
   return(0);
 }
 
-int Euler1DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! The characteristic-based Roe-fixed upwinding scheme (#Euler1DUpwindRF) for the partitioned hyperbolic flux 
+    that comprises of the acoustic waves only (see #Euler1DStiffFlux, #_Euler1DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+*/
+int Euler1DUpwinddFRF(
+                      double  *fI, /*!< Computed upwind interface flux */
+                      double  *fL, /*!< Left-biased reconstructed interface flux */
+                      double  *fR, /*!< Right-biased reconstructed interface flux */
+                      double  *uL, /*!< Left-biased reconstructed interface solution */
+                      double  *uR, /*!< Right-biased reconstructed interface solution */
+                      double  *u,  /*!< Cell-centered solution */
+                      int     dir, /*!< Spatial dimension (unused since this is a 1D system) */
+                      void    *s,  /*!< Solver object of type #HyPar */
+                      double  t    /*!< Current solution time */
+                    )
 {
   HyPar     *solver = (HyPar*)    s;
   Euler1D   *param  = (Euler1D*)  solver->physics;
@@ -396,7 +523,21 @@ int Euler1DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double *uR,dou
   return(0);
 }
 
-int Euler1DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! The characteristic-based local Lax-Friedrich upwinding scheme (#Euler1DUpwindLLF) for the partitioned hyperbolic 
+    flux that comprises of the acoustic waves only (see #Euler1DStiffFlux, #_Euler1DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+*/
+int Euler1DUpwinddFLLF(
+                      double  *fI, /*!< Computed upwind interface flux */
+                      double  *fL, /*!< Left-biased reconstructed interface flux */
+                      double  *fR, /*!< Right-biased reconstructed interface flux */
+                      double  *uL, /*!< Left-biased reconstructed interface solution */
+                      double  *uR, /*!< Right-biased reconstructed interface solution */
+                      double  *u,  /*!< Cell-centered solution */
+                      int     dir, /*!< Spatial dimension (unused since this is a 1D system) */
+                      void    *s,  /*!< Solver object of type #HyPar */
+                      double  t    /*!< Current solution time */
+                    )
 {
   HyPar     *solver = (HyPar*)    s;
   Euler1D   *param  = (Euler1D*)  solver->physics;

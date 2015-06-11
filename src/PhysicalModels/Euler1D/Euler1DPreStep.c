@@ -1,8 +1,24 @@
+/*! @file Euler1DPreStep.c
+    @author Debojyoti Ghosh
+    @brief Contains the 1D Euler-specific function to be called at the beginning of each time step.
+*/
+
 #include <arrayfunctions.h>
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-int Euler1DPreStep(double *u,void *s,void *m,double waqt)
+/*! 1D Euler-specific function called at the beginning of each time-step: For a simulation 
+    that splits the hyperbolic flux into its acoustic and entropy components for implicit-
+    explicit time-integration, this function computes the fast Jacobian at the beginning of
+    a time step for the linearized formulation.
+    \sa #_Euler1DSetLinearizedStiffFlux_, #_Euler1DSetStiffJac_, #Euler1DStiffFlux
+*/
+int Euler1DPreStep(
+                    double  *u,   /*!< Solution (conserved variables) */
+                    void    *s,   /*!< Solver object of type #HyPar */
+                    void    *m,   /*!< MPI object of type #MPIVariables */
+                    double  waqt  /*!< Current solution time */
+                  )
 {
   HyPar             *solver = (HyPar*)   s;
   Euler1D           *param  = (Euler1D*) solver->physics;

@@ -1,3 +1,8 @@
+/*! @file Euler1DGravityField.c
+    @author Debojyoti Ghosh
+    @brief Contains the function to compute the gravitational field
+*/
+
 #include <stdlib.h>
 #include <math.h>
 #include <arrayfunctions.h>
@@ -5,7 +10,20 @@
 #include <hypar.h>
 #include <mpivars.h>
 
-int Euler1DGravityField(void *s,void *m)
+/*! Compute the gravitational field over the domain. See
+    + Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme
+      for the Gas Dynamics Equations Under Gravitational Fields",
+      Journal of Scientific Computing, 54, 2013, pp. 645-662.
+      http://dx.doi.org/10.1007/s10915-012-9585-8\n
+    for details on the treatment of the gravitational source term.
+    This function computes the graviational potential function. If
+    there is no gravity, the gravitational field is 1.0 all over 
+    the domain.
+*/
+int Euler1DGravityField(
+                        void *s, /*!< Solver object of type #HyPar */
+                        void *m  /*!< MPI object of type #MPIVariables */
+                       )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -40,8 +58,8 @@ int Euler1DGravityField(void *s,void *m)
 
   if (param->grav_type != 1) {
     /* a sensible simulation will not specify peridic boundary conditions 
-    * along a direction in which gravity acts, so extrapolate the gravity
-    * field at the boundaries */
+    * along a direction in which gravity acts (unless the gravitational field
+    * itself is sinusoidal), so extrapolate the gravity field at the boundaries */
     int indexb[_MODEL_NDIMS_], indexi[_MODEL_NDIMS_];
     for (d = 0; d < _MODEL_NDIMS_; d++) {
       /* left boundary */

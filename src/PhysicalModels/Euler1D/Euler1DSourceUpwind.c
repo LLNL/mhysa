@@ -1,3 +1,8 @@
+/*! @file Euler1DSourceUpwind.c
+    @author Debojyoti Ghosh
+    @brief Contains functions to compute the "upwind" source term at an interface (for a balanced finite-difference discretization of the 1D Euler equations with gravitational source terms).
+*/
+
 #include <stdlib.h>
 #include <math.h>
 #include <basic.h>
@@ -6,7 +11,22 @@
 #include <physicalmodels/euler1d.h>
 #include <hypar.h>
 
-int Euler1DSourceUpwindLLF(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
+/*! Compute the "upwind" source term in the balanced formulation introduced in the 
+    reference below. The "upwind" state is just the arithmetic average of the left
+    and right states.
+    + Xing, Shu, "High Order Well-Balanced WENO Scheme for the Gas Dynamics Equations 
+                  Under Gravitational Fields", J. Sci. Comput., 54, 2013, pp. 645--662,
+                  http://dx.doi.org/10.1007/s10915-012-9585-8.
+*/
+int Euler1DSourceUpwindLLF(
+                            double  *fI, /*!< Computed interface source term ("upwinded") */
+                            double  *fL, /*!< Left-biased interface source term */
+                            double  *fR, /*!< Right-biased interface source term */
+                            double  *u,  /*!< Solution (conserved variables) */
+                            int     dir, /*!< Spatial dimension (unused since this is a 1D case) */
+                            void    *s,  /*!< Solver object of type #HyPar */
+                            double  t    /*!< Current solution time */
+                          )
 {
   HyPar     *solver = (HyPar*)    s;
   int       done,k;
@@ -34,7 +54,22 @@ int Euler1DSourceUpwindLLF(double *fI,double *fL,double *fR,double *u,int dir,vo
   return(0);
 }
 
-int Euler1DSourceUpwindRoe(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
+/*! Compute the "upwind" source term in the balanced formulation introduced in the 
+    reference below. The "upwind" state is just the arithmetic average of the left
+    and right states.
+    + Xing, Shu, "High Order Well-Balanced WENO Scheme for the Gas Dynamics Equations 
+                  Under Gravitational Fields", J. Sci. Comput., 54, 2013, pp. 645--662,
+                  http://dx.doi.org/10.1007/s10915-012-9585-8.
+*/
+int Euler1DSourceUpwindRoe(
+                            double  *fI, /*!< Computed interface source term ("upwinded") */
+                            double  *fL, /*!< Left-biased interface source term */
+                            double  *fR, /*!< Right-biased interface source term */
+                            double  *u,  /*!< Solution (conserved variables) */
+                            int     dir, /*!< Spatial dimension (unused since this is a 1D case) */
+                            void    *s,  /*!< Solver object of type #HyPar */
+                            double  t    /*!< Current solution time */
+                          )
 {
   HyPar     *solver = (HyPar*)    s;
   int       done,k;
