@@ -41,7 +41,10 @@ int    Euler1DPreStep           (double*,void*,void*,double);
     Sets the default parameters, read in and set physics-related parameters, 
     and set the physics-related function pointers in #HyPar.
 */
-int Euler1DInitialize(void *s,void *m)
+int Euler1DInitialize(
+                      void *s, /*!< Solver object of type #HyPar */
+                      void *m  /*!< Object of type #MPIVariables containing MPI-related info */
+                     )
 {
   HyPar         *solver  = (HyPar*)         s;
   MPIVariables  *mpi     = (MPIVariables*)  m; 

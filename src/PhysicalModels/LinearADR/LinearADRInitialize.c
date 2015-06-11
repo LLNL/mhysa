@@ -27,7 +27,10 @@ int    LinearADRJacobian          (double*,double*,void*,int,int);
     allocate and set physics-related parameters, read physics-related inputs
     from file, and set the physics-related function pointers in #HyPar
 */
-int LinearADRInitialize(void *s,void *m)
+int LinearADRInitialize(
+                        void *s, /*!< Solver object of type #HyPar */
+                        void *m  /*!< Object of type #MPIVariables containing MPI-related info */
+                       )
 {
   HyPar         *solver  = (HyPar*)         s;
   MPIVariables  *mpi     = (MPIVariables*)  m; 
