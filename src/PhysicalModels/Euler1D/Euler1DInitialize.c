@@ -24,7 +24,8 @@ int    Euler1DUpwindLLF  (double*,double*,double*,double*,double*,double*,int,vo
 int    Euler1DUpwinddFLLF(double*,double*,double*,double*,double*,double*,int,void*,double);
 int    Euler1DUpwindSWFS (double*,double*,double*,double*,double*,double*,int,void*,double);
 
-int    Euler1DJacobian   (double*,double*,void*,int,int);
+int    Euler1DJacobian      (double*,double*,void*,int,int);
+int    Euler1DStiffJacobian (double*,double*,void*,int,int);
 
 int    Euler1DRoeAverage        (double*,double*,double*,void*);
 int    Euler1DLeftEigenvectors  (double*,double*,void*,int);
@@ -126,7 +127,6 @@ int Euler1DInitialize(
   solver->FFunction          = Euler1DFlux;
   solver->SFunction          = Euler1DSource;
   solver->UFunction          = Euler1DModifiedSolution;
-  solver->JFunction          = Euler1DJacobian;
   if      (!strcmp(physics->upw_choice,_ROE_ )) solver->Upwind = Euler1DUpwindRoe;
   else if (!strcmp(physics->upw_choice,_RF_  )) solver->Upwind = Euler1DUpwindRF;
   else if (!strcmp(physics->upw_choice,_LLF_ )) solver->Upwind = Euler1DUpwindLLF;
@@ -138,6 +138,7 @@ int Euler1DInitialize(
   }
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     solver->dFFunction = Euler1DStiffFlux;
+    solver->JFunction  = Euler1DStiffJacobian;
     if      (!strcmp(physics->upw_choice,_ROE_ )) solver->UpwinddF = Euler1DUpwinddFRoe;
     else if (!strcmp(physics->upw_choice,_RF_  )) solver->UpwinddF = Euler1DUpwinddFRF;
     else if (!strcmp(physics->upw_choice,_LLF_ )) solver->UpwinddF = Euler1DUpwinddFLLF;
@@ -153,6 +154,7 @@ int Euler1DInitialize(
   } else {
     solver->dFFunction = NULL;
     solver->UpwinddF   = NULL;
+    solver->JFunction          = Euler1DJacobian;
   }
   solver->AveragingFunction     = Euler1DRoeAverage;
   solver->GetLeftEigenvectors   = Euler1DLeftEigenvectors;
