@@ -60,6 +60,9 @@ typedef struct _petsccontext_ {
   /*! Flag to indicate if the system being solved for implicit time-integration is linear/nonlinear. */
   int flag_is_linear;
 
+  /*! \f$\epsilon\f$ parameter for the Jacobian-free Newton-Krylov directional derivative computation */
+  double jfnk_eps;
+
 } PETScContext;
 
 /* Copy Functions */

@@ -110,6 +110,8 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     } else {
       /* nonlinear problem */
       context.flag_is_linear = 0;
+      context.jfnk_eps = 1e-7;
+      ierr = PetscOptionsGetReal(NULL,"-jfnk_epsilon",&context.jfnk_eps,NULL); CHKERRQ(ierr);
       ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK); CHKERRQ(ierr);
     }
     ierr = MatSetUp(A); CHKERRQ(ierr);

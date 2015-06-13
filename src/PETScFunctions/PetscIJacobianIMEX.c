@@ -96,7 +96,7 @@ PetscErrorCode PetscJacobianFunctionIMEX_JFNK(
 
   } else {
     
-    double epsilon = (context->flag_is_linear ? 1.0 : 1e-7 / normY );
+    double epsilon =  context->jfnk_eps / normY;
     /* copy solution from PETSc vector */
     ierr = TransferVecFromPETSc(u,Y,context);                             CHECKERR(ierr);
     _ArrayAYPX_(uref,epsilon,u,size*solver->nvars);
