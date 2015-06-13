@@ -154,7 +154,7 @@ int Euler1DInitialize(
   } else {
     solver->dFFunction = NULL;
     solver->UpwinddF   = NULL;
-    solver->JFunction          = Euler1DJacobian;
+    solver->JFunction  = Euler1DJacobian;
   }
   solver->AveragingFunction     = Euler1DRoeAverage;
   solver->GetLeftEigenvectors   = Euler1DLeftEigenvectors;
