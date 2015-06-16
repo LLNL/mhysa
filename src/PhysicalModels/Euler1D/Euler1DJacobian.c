@@ -30,9 +30,9 @@ int Euler1DJacobian(
   _Euler1DRightEigenvectors_(u,R,param,0);
 
   int aupw = absolute(upw), k;
-  k = 0; D[k] = (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]);
-  k = 4; D[k] = (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]);
-  k = 8; D[k] = (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]);
+  k = 0; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
+  k = 4; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
+  k = 8; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
 
   MatMult3(3,DL,D,L);
   MatMult3(3,Jac,R,DL);
@@ -66,8 +66,8 @@ int Euler1DStiffJacobian(
 
   int aupw = absolute(upw), k;
   k = 0; D[k] = 0.0; /* remove the entropy eigenmode */
-  k = 4; D[k] = (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]);
-  k = 8; D[k] = (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]);
+  k = 4; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
+  k = 8; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
 
   MatMult3(3,DL,D,L);
   MatMult3(3,Jac,R,DL);
