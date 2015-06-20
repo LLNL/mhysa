@@ -1,3 +1,8 @@
+/*! @file BCTurbulentSupersonicInflow.c
+    @author Debojyoti Ghosh
+    @brief Turbulent supersonic inflow boundary condition (specific to the 3D Navier-Stokes system).
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -6,19 +11,23 @@
 #include <boundaryconditions.h>
 #include <mpivars.h>
 
-/* 
- * Turbulent Supersonic Inflow BC (specific to NavierStokes3D)
- * Used for turbulent supersonic inflow into the domain.
- *
- * A mean flow is specified and the flow fluctuations are 
- * added on this mean state.
- *
- * boundary->var is irrelevant, it acts on on the components
- * so no need to specify it for each component, just specify
- * it once with an arbitrary value for boundary->var 
+/*! Applies the turbulent supersonic inflow boundary condition: The inflow consists
+    of a mean supersonic inflow on which turbulent flow fluctuations are added. This 
+    boundary condition is specific to the 3D Navier-Stokes system (#NavierStokes3D).
+    \n\n
+    Note: Some parts of the code may be hardcoded for use with the shock-turbulence
+    interaction problem (for which this boundary condition was written).
 */
-
-int BCTurbulentSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+int BCTurbulentSupersonicInflowU(
+                                  void    *b,     /*!< Boundary object of type #DomainBoundary */
+                                  void    *m,     /*!< MPI object of type #MPIVariables */
+                                  int     ndims,  /*!< Number of spatial dimensions */
+                                  int     nvars,  /*!< Number of variables/DoFs per grid point */
+                                  int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                                  int     ghosts, /*!< Number of ghost points */
+                                  double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                                  double  waqt    /*!< Current solution time */
+                                )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -89,7 +98,23 @@ int BCTurbulentSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,i
   return(0);
 }
 
-int BCTurbulentSupersonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies the turbulent supersonic inflow boundary condition to the delta-solution: 
+    In reality, this function just sets the ghost values of the delta-solution to zero,
+    because these functions were written for the shock-turbulence interaction problem 
+    and implicit time-integration was not used. Hence this function was never used!
+*/
+int BCTurbulentSupersonicInflowDU(
+                                  void    *b,       /*!< Boundary object of type #DomainBoundary */
+                                  void    *m,       /*!< MPI object of type #MPIVariables */
+                                  int     ndims,    /*!< Number of spatial dimensions */
+                                  int     nvars,    /*!< Number of variables/DoFs per grid point */
+                                  int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                                  int     ghosts,   /*!< Number of ghost points */
+                                  double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                                         Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                                  double  *phi_ref, /*!< Reference solution */
+                                  double  waqt      /*!< Current solution time */
+                                 )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   int             v;
@@ -108,6 +133,12 @@ int BCTurbulentSupersonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,
   return(0);
 }
 
+/*! Read in the turbulent inflow data: The turbulent inflow data needs to be provided
+    as a binary file. For parallel runs, only rank 0 reads the file, and then 
+    distributes the data to the other processors.
+    \n\n
+    This function needs to be better documented.
+*/
 int BCReadTurbulentInflowData(void *b,void *m,int ndims,int nvars,int *DomainSize)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;

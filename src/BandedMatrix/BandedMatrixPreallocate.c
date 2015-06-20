@@ -1,7 +1,18 @@
+/*! @file BandedMatrixPreallocate.c
+    @author Debojyoti Ghosh
+    @brief Preallocate memory for a banded matrix object.
+*/
+
 #include <stdlib.h>
 #include <bandedmatrix.h>
 
-int BandedMatrixPreallocate(void *A,int nbands,int nrows_local,int BlockSize)
+/*! Preallocate memory for a banded matrix object. */
+int BandedMatrixPreallocate(
+                              void  *A,           /*!< Banded matrix object of the type BandedMatrix */
+                              int   nbands,       /*!< Number of bands */
+                              int   nrows_local,  /*!< Local number of rows */
+                              int   BlockSize     /*!< Block size */
+                           )
 {
   BandedMatrix *B = (BandedMatrix*) A;
 

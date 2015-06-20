@@ -1,3 +1,7 @@
+/*! @file BCNoslipWall.c
+    @author Debojyoti Ghosh
+    @brief No-slip wall boundary conditions (can also handle moving walls)
+*/
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -6,16 +10,23 @@
 #include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
-/* 
- * No-Slip Wall BC - specific to NavierStokes2D/NavierStokes3D
- * Used for viscous walls
- *
- * boundary->var is irrelevant, it acts on on the components
- * so no need to specify it for each component, just specify
- * it once with an arbitrary value for boundary->var 
+/*! Applies the no-slip wall boundary conditions: Used to simulate viscous walls. 
+    The density and pressure at the physical boundary ghost points are extrapolated 
+    from the interior, while the velocities are set such that the interpolated 
+    velocity at the boundary face is the specified wall velocity. This boundary 
+    condition is specific to the two and three dimensional Navier-Stokes systems 
+    (#NavierStokes2D, #NavierStokes3D).
 */
-
-int BCNoslipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+int BCNoslipWallU(
+                  void    *b,     /*!< Boundary object of type #DomainBoundary */
+                  void    *m,     /*!< MPI object of type #MPIVariables */
+                  int     ndims,  /*!< Number of spatial dimensions */
+                  int     nvars,  /*!< Number of variables/DoFs per grid point */
+                  int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                  int     ghosts, /*!< Number of ghost points */
+                  double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                  double  waqt    /*!< Current solution time */
+                 )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -117,7 +128,29 @@ int BCNoslipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,doubl
   return(0);
 }
 
-int BCNoslipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies the no-slip wall boundary conditions to the delta-solution: Used to 
+    simulate viscous walls. The density and pressure at the physical boundary ghost 
+    points are extrapolated from the interior, while the velocities are set such 
+    that the interpolated velocity at the boundary face is the specified wall velocity. 
+    This boundary condition is specific to the two and three dimensional Navier-Stokes 
+    systems (#NavierStokes2D, #NavierStokes3D).
+    \n\n
+    The delta-solution is added to the reference solution; the above treatment is applied
+    to this solution and the reference solution; and then the  reference solution is subtracted 
+    to find the appropriate delta-solution values for the ghost points.
+*/
+int BCNoslipWallDU(
+                    void    *b,       /*!< Boundary object of type #DomainBoundary */
+                    void    *m,       /*!< MPI object of type #MPIVariables */
+                    int     ndims,    /*!< Number of spatial dimensions */
+                    int     nvars,    /*!< Number of variables/DoFs per grid point */
+                    int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                    int     ghosts,   /*!< Number of ghost points */
+                    double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                           Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                    double  *phi_ref, /*!< Reference solution */
+                    double  waqt      /*!< Current solution time */
+                  )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

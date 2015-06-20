@@ -1,7 +1,13 @@
+/*! @file BandedMatrixInitialize.c
+    @author Debojyoti Ghosh
+    @brief Initialize a banded matrix object
+*/
+
 #include <stdlib.h>
 #include <bandedmatrix.h>
 
-int BandedMatrixInitialize(void *A)
+/*! Initialize a newly-created banded matrix object. */
+int BandedMatrixInitialize(void *A /*!< Banded matrix object of type BandedMatrix*/)
 {
   BandedMatrix *B = (BandedMatrix*) A;
 

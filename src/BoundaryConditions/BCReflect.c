@@ -1,9 +1,26 @@
+/*! @file BCReflect.c
+    @author Debojyoti Ghosh
+    @brief Reflection boundary condition
+*/
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
-int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+/*! Applies the reflection boundary condition: The values at the physical 
+    boundary ghost points are set to the negative of the interior values
+    adjacent to the boundary.
+*/
+int BCReflectU(
+                void    *b,     /*!< Boundary object of type #DomainBoundary */
+                void    *m,     /*!< MPI object of type #MPIVariables */
+                int     ndims,  /*!< Number of spatial dimensions */
+                int     nvars,  /*!< Number of variables/DoFs per grid point */
+                int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                int     ghosts, /*!< Number of ghost points */
+                double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                double  waqt    /*!< Current solution time */
+              )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -31,7 +48,22 @@ int BCReflectU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *
   return(0);
 }
 
-int BCReflectDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies the reflection boundary condition on the delta-solution: The values 
+    at the physical boundary ghost points are set to the negative of the interior 
+    values adjacent to the boundary.
+*/
+int BCReflectDU(
+                 void    *b,       /*!< Boundary object of type #DomainBoundary */
+                 void    *m,       /*!< MPI object of type #MPIVariables */
+                 int     ndims,    /*!< Number of spatial dimensions */
+                 int     nvars,    /*!< Number of variables/DoFs per grid point */
+                 int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                 int     ghosts,   /*!< Number of ghost points */
+                 double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                        Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                 double  *phi_ref, /*!< Reference solution */
+                 double  waqt      /*!< Current solution time */
+               )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

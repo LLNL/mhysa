@@ -1,7 +1,13 @@
+/*! @file BCCleanup.c
+    @author Debojyoti Ghosh
+    @brief Function to clean up boundary-conditions related variables
+*/
+
 #include <stdlib.h>
 #include <boundaryconditions.h>
 
-int BCCleanup(void *b)
+/*! Cleans up a boundary object of type #DomainBoundary */
+int BCCleanup(void *b /*!< Boundary object of type #DomainBoundary*/)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   free(boundary->xmin);

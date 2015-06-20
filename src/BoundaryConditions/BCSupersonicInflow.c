@@ -1,3 +1,8 @@
+/*! @file BCSupersonicInflow.c
+    @author Debojyoti Ghosh
+    @brief Supersonic inflow boundary conditions (specific to Euler/Navier-Stokes systems)
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -6,17 +11,26 @@
 #include <physicalmodels/euler2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
-/* 
- * Supersonic Inflow BC - specific to Euler2D/NavierStokes3D
- * Used for supersonic inflow into the domain.
- * All flow variables are specified.
- *
- * boundary->var is irrelevant, it acts on on the components
- * so no need to specify it for each component, just specify
- * it once with an arbitrary value for boundary->var 
+/*! Applies the supersonic (steady) inflow boundary condition: All the flow variables
+    (density, pressure, velocity) are specified at the physical boundary ghost points,
+    since it is supersonic inflow. This boundary condition is specific to two and three
+    dimensional Euler/Navier-Stokes systems (#Euler2D, #NavierStokes2D, #NavierStokes3D).
+    \n\n
+    Note: the Dirichlet boundary condition (#_DIRICHLET_) could be used as well for
+    supersonic inflow; however the specified Dirichlet state should be in terms of the 
+    conserved variables, while the specified supersonic inflow state here is in terms of
+    the flow variables.
 */
-
-int BCSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+int BCSupersonicInflowU(
+                        void    *b,     /*!< Boundary object of type #DomainBoundary */
+                        void    *m,     /*!< MPI object of type #MPIVariables */
+                        int     ndims,  /*!< Number of spatial dimensions */
+                        int     nvars,  /*!< Number of variables/DoFs per grid point */
+                        int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                        int     ghosts, /*!< Number of ghost points */
+                        double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                        double  waqt    /*!< Current solution time */
+                       )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -91,7 +105,22 @@ int BCSupersonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts
   return(0);
 }
 
-int BCSupersonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies the supersonic (steady) inflow boundary condition to the delta-solution: 
+    Sets the physical boundary ghost point values for the delta-solution as zero, since
+    inflow is steady.
+*/
+int BCSupersonicInflowDU(
+                          void    *b,       /*!< Boundary object of type #DomainBoundary */
+                          void    *m,       /*!< MPI object of type #MPIVariables */
+                          int     ndims,    /*!< Number of spatial dimensions */
+                          int     nvars,    /*!< Number of variables/DoFs per grid point */
+                          int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                          int     ghosts,   /*!< Number of ghost points */
+                          double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                                 Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                          double  *phi_ref, /*!< Reference solution */
+                          double  waqt      /*!< Current solution time */
+                        )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   int             v;

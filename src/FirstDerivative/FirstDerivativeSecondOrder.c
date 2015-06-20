@@ -1,3 +1,8 @@
+/*! @file FirstDerivativeSecondOrder.c
+    @author Debojyoti Ghosh
+    @brief Second order finite-difference approximation to first derivative
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
@@ -13,11 +18,31 @@ typedef HyPar         SolverContext;
 #include <omp.h>
 #endif
 
-/* 
-  Second order central differencing
+/*! Computes the second-order finite-difference approximation to the first derivative 
+    (\b Note: not divided by the grid spacing):
+    \f{equation}{
+      \left(\partial f\right)_i = \left\{ \begin{array}{ll} \frac{1}{2}\left(-3f_i+4f_{i+1}-f_{i+2}\right) & i = -g \\ \frac{1}{2}\left( f_{i+1} - f_{i-1} \right) & -g+1 \leq i \leq N+g-2 \\ \frac{1}{2}\left( f_{i-2} -4f_{i-1}+3f_i \right) & i = N+g-1 \end{array}\right.
+    \f}
+    where \f$i\f$ is the grid index along the spatial dimension of the derivative, \f$g\f$ is the number of ghost points, and \f$N\f$ is the number of grid points (not including the ghost points) in the spatial dimension of the derivative.
+    \n\n
+    Notes:
+    + The first derivative is computed at the grid points or the cell centers.
+    + The first derivative is computed at the ghost points too. Thus, biased schemes are used
+      at and near the boundaries.
+    + \b Df and \b f are 1D arrays containing the function and its computed derivatives on a multi-
+      dimensional grid. The derivative along the specified dimension \b dir is computed by looping
+      through all grid lines along \b dir.
 */
-
-int FirstDerivativeSecondOrderCentral(double *Df,double *f,int dir,int bias,void *s,void *m)
+int FirstDerivativeSecondOrderCentral(
+                                        double  *Df,  /*!< Array to hold the computed first derivative (with ghost points) */
+                                        double  *f,   /*!< Array containing the grid point function values whose first 
+                                                           derivative is to be computed (with ghost points) */
+                                        int     dir,  /*!< The spatial dimension along which the derivative is computed */
+                                        int     bias, /*!< Forward or backward differencing for non-central 
+                                                           finite-difference schemes (-1: backward, 1: forward)*/
+                                        void    *s,   /*!< Solver object of type #SolverContext */
+                                        void    *m    /*!< MPI object of type #MPIContext */
+                                     )
 {
   SolverContext *solver = (SolverContext*) s;
   int           i, j, v;

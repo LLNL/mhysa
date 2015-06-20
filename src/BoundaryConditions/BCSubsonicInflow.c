@@ -1,3 +1,8 @@
+/*! @file BCSubsonicInflow.c
+    @author Debojyoti Ghosh
+    @brief Subsonic inflow boundary conditions (specific to Euler/Navier-Stokes systems)
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -6,18 +11,22 @@
 #include <physicalmodels/euler2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
-/* 
- * Subsonic Inflow BC - specific to Euler2D/NavierStokes3D
- * Used for subsonic inflow into the domain.
- * Density and velocities are specified, pressure is extrapolated
- * for inside the domain.
- *
- * boundary->var is irrelevant, it acts on on the components
- * so no need to specify it for each component, just specify
- * it once with an arbitrary value for boundary->var 
+/*! Applies the subsonic inflow boundary condition: The density and velocity
+    at the physical boundary ghost points are specified, while the pressure
+    is extrapolated from the interior of the domain. This boundary condition
+    is specific to two and three dimension Euler and Navier-Stokes systems 
+    (#Euler2D, #NavierStokes2D, #NavierStokes3D).
 */
-
-int BCSubsonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+int BCSubsonicInflowU(
+                      void    *b,     /*!< Boundary object of type #DomainBoundary */
+                      void    *m,     /*!< MPI object of type #MPIVariables */
+                      int     ndims,  /*!< Number of spatial dimensions */
+                      int     nvars,  /*!< Number of variables/DoFs per grid point */
+                      int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                      int     ghosts, /*!< Number of ghost points */
+                      double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                      double  waqt    /*!< Current solution time */
+                     )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -119,7 +128,27 @@ int BCSubsonicInflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,d
   return(0);
 }
 
-int BCSubsonicInflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies the subsonic inflow boundary condition to the delta-solution: The 
+    density and velocity at the physical boundary ghost points are specified, 
+    while the pressure is extrapolated from the interior of the domain. This 
+    boundary condition is specific to two and three dimension Euler and Navier-
+    Stokes systems (#Euler2D, #NavierStokes2D, #NavierStokes3D).
+    \n\n
+    The delta-solution is added to the reference solution, and the above treatment
+    is applied to this total solution.
+*/
+int BCSubsonicInflowDU(
+                        void    *b,       /*!< Boundary object of type #DomainBoundary */
+                        void    *m,       /*!< MPI object of type #MPIVariables */
+                        int     ndims,    /*!< Number of spatial dimensions */
+                        int     nvars,    /*!< Number of variables/DoFs per grid point */
+                        int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                        int     ghosts,   /*!< Number of ghost points */
+                        double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                               Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                        double  *phi_ref, /*!< Reference solution */
+                        double  waqt      /*!< Current solution time */
+                      )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

@@ -1,9 +1,15 @@
+/*! @file BCInitialize.c
+    @author Debojyoti Ghosh
+    @brief Initialize boundary-conditions-related function pointers.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <boundaryconditions.h>
 
-int BCInitialize(void *b)
+/*! Assign the function pointers for boundary condition application depending on the boundary
+    type, for a given boundary object */
+int BCInitialize(void *b /*!< Boundary object of type #DomainBoundary*/)
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

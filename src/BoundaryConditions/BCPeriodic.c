@@ -1,18 +1,31 @@
+/*! @file BCPeriodic.c
+    @author Debojyoti Ghosh
+    @brief Periodic boundary conditions
+*/
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <boundaryconditions.h>
 
-/*
-  This function implements periodic BCs through ghost points
-  only if the number of processes along that particular dimension
-  is 1.
-
-  If it's greater than 1, it's handled by MPIExchangeBoundaries()
+/*! Applies periodic boundary conditions: Implemented by copying the solution 
+    from the other end of the domain into the physical boundary ghost points.
+    \n\n
+    **Note**: This function only acts if the the number of processors is 1 along
+    the spatial dimension this boundary corresponds to. If there are more than 1
+    processors along this dimension, periodicity is handled by MPIExchangeBoundariesnD()
+    to minimize communication.
 */
-
-int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+int BCPeriodicU(
+                  void    *b,     /*!< Boundary object of type #DomainBoundary */
+                  void    *m,     /*!< MPI object of type #MPIVariables */
+                  int     ndims,  /*!< Number of spatial dimensions */
+                  int     nvars,  /*!< Number of variables/DoFs per grid point */
+                  int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                  int     ghosts, /*!< Number of ghost points */
+                  double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                  double  waqt    /*!< Current solution time */
+               )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   MPIVariables   *mpi      = (MPIVariables*)   m;
@@ -44,7 +57,26 @@ int BCPeriodicU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
   return(0);
 }
 
-int BCPeriodicDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies periodic boundary conditions to the delta-solution: Implemented by copying 
+    the solution from the other end of the domain into the physical boundary ghost points.
+    \n\n
+    **Note**: This function only acts if the the number of processors is 1 along
+    the spatial dimension this boundary corresponds to. If there are more than 1
+    processors along this dimension, periodicity is handled by MPIExchangeBoundariesnD()
+    to minimize communication.
+*/
+int BCPeriodicDU(
+                  void    *b,       /*!< Boundary object of type #DomainBoundary */
+                  void    *m,       /*!< MPI object of type #MPIVariables */
+                  int     ndims,    /*!< Number of spatial dimensions */
+                  int     nvars,    /*!< Number of variables/DoFs per grid point */
+                  int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                  int     ghosts,   /*!< Number of ghost points */
+                  double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                         Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                  double  *phi_ref, /*!< Reference solution */
+                  double  waqt      /*!< Current solution time */
+                )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
   MPIVariables   *mpi      = (MPIVariables*)   m;

@@ -87,7 +87,8 @@ typedef struct time_integration_variables {
       {\bf u}_{n+1} &= {\bf u}_n + \delta t \sum_{i=1}^{n} b_i \dot{\bf U}^{\left(i\right)}\ {\rm (Step\ completion)},
     \f}
     where \f${\bf u}_n\f$ is the current solution, \f${\bf u}_{n+1}\f$ is the solution
-    at the next time step, \f$A_{ij}\f$ and \f$b_i\f$ are the stage computation and 
+    at the next time step, \f${\bf U}\f$ are the stage solutions, \f$\dot{\bf U}\f$ are 
+    the stage right-hand-sides, and \f$A_{ij}\f$ and \f$b_i\f$ are the stage computation and 
     step completion coefficients in the Butcher tableau form.\n\n
     For explanation about the Butcher tableaux, see:
     + Butcher, J., Numerical Methods for Ordinary Differential Equations, Wiley, 2003.

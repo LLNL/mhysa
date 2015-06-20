@@ -1,3 +1,8 @@
+/*! @file BCNoFlux.c
+    @author Debojyoti Ghosh
+    @brief No-flux boundary condition (specific to #Numa2D and #Numa3D).
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -6,20 +11,24 @@
 #include <physicalmodels/numa2d.h>
 #include <physicalmodels/numa3d.h>
 
-/* 
- * No-Flux BC - specific to the NUMA 2D/3D systems
- * Used for inviscid walls or symmetry boundaries
- * (It's equivalent to the slip-wall BC of the Euler/
- * Navier-Stokes system, but the solution vector 
- * is (drho,u,v,w,dtheta) where theta is the temperature
- * potential.
- *
- * boundary->var is irrelevant, it acts on on the components
- * so no need to specify it for each component, just specify
- * it once with an arbitrary value for boundary->var 
+/*! Applies the no-flux boundary conditions: This boundary condition is specific 
+    to the NUMA 2D/3D (#Numa2D, #Numa3D). Used for simulating inviscid walls or 
+    symmetry boundaries. It's equivalent to the slip-wall BC of the Euler/Navier-
+    Stokes system.\n\n
+    The density, potential temperature, and tangential velocity are extrapolated, 
+    while the normal velocity at the ghost point is set to the negative of that in 
+    the interior (to enforce zero-normal velocity at the boundary face).
 */
-
-int BCNoFluxU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+int BCNoFluxU(
+               void    *b,     /*!< Boundary object of type #DomainBoundary */
+               void    *m,     /*!< MPI object of type #MPIVariables */
+               int     ndims,  /*!< Number of spatial dimensions */
+               int     nvars,  /*!< Number of variables/DoFs per grid point */
+               int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+               int     ghosts, /*!< Number of ghost points */
+               double  *phi,   /*!< The solution array on which to apply the boundary condition */
+               double  waqt    /*!< Current solution time */
+             )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -60,7 +69,21 @@ int BCNoFluxU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *p
   return(0);
 }
 
-int BCNoFluxDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies the no-flux boundary conditions to the delta-solution by setting the physical boundary ghost 
+    point delta-solution values to zero.
+*/
+int BCNoFluxDU(
+                void    *b,       /*!< Boundary object of type #DomainBoundary */
+                void    *m,       /*!< MPI object of type #MPIVariables */
+                int     ndims,    /*!< Number of spatial dimensions */
+                int     nvars,    /*!< Number of variables/DoFs per grid point */
+                int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                int     ghosts,   /*!< Number of ghost points */
+                double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                       Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                double  *phi_ref, /*!< Reference solution */
+                double  waqt      /*!< Current solution time */
+              )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

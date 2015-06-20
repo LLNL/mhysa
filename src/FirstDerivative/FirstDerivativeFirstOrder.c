@@ -1,3 +1,8 @@
+/*! @file FirstDerivativeFirstOrder.c
+    @author Debojyoti Ghosh
+    @brief First order approximation to the first derivative
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
@@ -14,11 +19,31 @@ typedef HyPar         SolverContext;
 #include <omp.h>
 #endif
 
-/* 
-  First order differencing
+/*! Computes the first-order finite-difference approximation to the first derivative 
+    (\b Note: not divided by the grid spacing):
+    \f{equation}{
+      \left(\partial f\right)_i = \left\{ \begin{array}{ll} f_{i+1} - f_i  & {\rm bias} = 1 \\ f_i - f_{i-1}  & {\rm bias} = -1 \end{array}\right.
+    \f}
+    where \f$i\f$ is the grid index along the spatial dimension of the derivative.
+    \n\n
+    Notes:
+    + The first derivative is computed at the grid points or the cell centers.
+    + The first derivative is computed at the ghost points too. Thus, biased schemes are used
+      at and near the boundaries.
+    + \b Df and \b f are 1D arrays containing the function and its computed derivatives on a multi-
+      dimensional grid. The derivative along the specified dimension \b dir is computed by looping
+      through all grid lines along \b dir.
 */
-
-int FirstDerivativeFirstOrder(double *Df,double *f,int dir,int bias,void *s,void *m)
+int FirstDerivativeFirstOrder(
+                                double  *Df,  /*!< Array to hold the computed first derivative (with ghost points) */
+                                double  *f,   /*!< Array containing the grid point function values whose first 
+                                                   derivative is to be computed (with ghost points) */
+                                int     dir,  /*!< The spatial dimension along which the derivative is computed */
+                                int     bias, /*!< Forward or backward differencing for non-central 
+                                                   finite-difference schemes (-1: backward, 1: forward)*/
+                                void    *s,   /*!< Solver object of type #SolverContext */
+                                void    *m    /*!< MPI object of type #MPIContext */
+                             )
 {
   SolverContext *solver = (SolverContext*) s;
   int           i, j, v;

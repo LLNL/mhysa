@@ -1,7 +1,13 @@
+/*! @file BandedMatrixDestroy.c
+    @author Debojyoti Ghosh
+    @brief Destroy a banded matrix object
+*/
+
 #include <stdlib.h>
 #include <bandedmatrix.h>
 
-int BandedMatrixDestroy(void *A)
+/*! Free up allocations inside a banded matrix object */
+int BandedMatrixDestroy(void *A /*!< Banded matrix object of type #BandedMatrix */)
 {
   BandedMatrix *B = (BandedMatrix*) A;
 

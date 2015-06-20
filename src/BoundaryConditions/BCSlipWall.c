@@ -1,3 +1,8 @@
+/*! @file BCSlipWall.c
+    @author Debojyoti Ghosh
+    @brief Slip-wall boundary conditions
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -7,16 +12,23 @@
 #include <physicalmodels/euler2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
-/* 
- * Slip Wall BC - specific to Euler2D / Navier-Stokes 3D
- * Used for inviscid walls or symmetry boundaries
- *
- * boundary->var is irrelevant, it acts on on the components
- * so no need to specify it for each component, just specify
- * it once with an arbitrary value for boundary->var 
+/*! Applies the slip-wall boundary condition: This is specific to the two and three
+    dimensional Euler and Navier-Stokes systems (#Euler2D, #NavierStokes2D, #NavierStokes3D).
+    It is used for simulating inviscid walls or symmetric boundaries. The pressure, density,
+    and tangential velocity at the ghost points are extrapolated from the interior, while the
+    normal velocity at the ghost points is set such that the interpolated value at the boundary 
+    face is equal to the specified wall velocity.
 */
-
-int BCSlipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+int BCSlipWallU(
+                 void    *b,     /*!< Boundary object of type #DomainBoundary */
+                 void    *m,     /*!< MPI object of type #MPIVariables */
+                 int     ndims,  /*!< Number of spatial dimensions */
+                 int     nvars,  /*!< Number of variables/DoFs per grid point */
+                 int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                 int     ghosts, /*!< Number of ghost points */
+                 double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                 double  waqt    /*!< Current solution time */
+               )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -182,7 +194,27 @@ int BCSlipWallU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double 
   return(0);
 }
 
-int BCSlipWallDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies the slip-wall boundary condition to the delta-solution: This is specific to the two 
+    and three dimensional Euler and Navier-Stokes systems (#Euler2D, #NavierStokes2D, #NavierStokes3D).
+    It is used for simulating inviscid walls or symmetric boundaries. The pressure, density,
+    and tangential velocity at the ghost points are extrapolated from the interior, while the
+    normal velocity at the ghost points is set such that the interpolated value at the boundary 
+    face is equal to the specified wall velocity.
+    \n\n
+    The above treatment is applied on the delta-solution added to the reference solution.
+*/
+int BCSlipWallDU(
+                 void    *b,       /*!< Boundary object of type #DomainBoundary */
+                 void    *m,       /*!< MPI object of type #MPIVariables */
+                 int     ndims,    /*!< Number of spatial dimensions */
+                 int     nvars,    /*!< Number of variables/DoFs per grid point */
+                 int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                 int     ghosts,   /*!< Number of ghost points */
+                 double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                        Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                 double  *phi_ref, /*!< Reference solution */
+                 double  waqt      /*!< Current solution time */
+                )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

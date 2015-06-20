@@ -1,3 +1,8 @@
+/*! @file BCSupersonicOutflow.c
+    @author Debojyoti Ghosh
+    @brief Supersonic outflow boundary conditions (specific to Euler/Navier-Stokes systems)
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -6,17 +11,26 @@
 #include <physicalmodels/euler2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
-/* 
- * Supersonic Outflow BC - specific to Euler2D/NavierStokes3D
- * Used for supersonic outflow from the domain.
- * All flow variables are extrapolated.
- *
- * boundary->var is irrelevant, it acts on on the components
- * so no need to specify it for each component, just specify
- * it once with an arbitrary value for boundary->var 
+/*! Applies the supersonic outflow boundary condition: All flow variables
+    (density, pressure, velocity) are extrapolated from the interior since
+    the outflow is supersonic. This boundary condition is specific to two
+    and three dimensional Euler/Navier-Stokes systems (#Euler2D, #NavierStokes2D,
+    #NavierStokes3D).
+    \n\n
+    Note: The extrapolate boundary condition (#_EXTRAPOLATE_) can be used as well
+    for this boundary. I am not entirely sure why I wrote the code for this boundary
+    in such a complicated fashion.
 */
-
-int BCSupersonicOutflowU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double waqt)
+int BCSupersonicOutflowU(
+                          void    *b,     /*!< Boundary object of type #DomainBoundary */
+                          void    *m,     /*!< MPI object of type #MPIVariables */
+                          int     ndims,  /*!< Number of spatial dimensions */
+                          int     nvars,  /*!< Number of variables/DoFs per grid point */
+                          int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                          int     ghosts, /*!< Number of ghost points */
+                          double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                          double  waqt    /*!< Current solution time */
+                        )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -118,7 +132,26 @@ int BCSupersonicOutflowU(void *b,void *m,int ndims,int nvars,int *size,int ghost
   return(0);
 }
 
-int BCSupersonicOutflowDU(void *b,void *m,int ndims,int nvars,int *size,int ghosts,double *phi,double *phi_ref,double waqt)
+/*! Applies the supersonic outflow boundary condition to the delta-solution: 
+    All flow variables are extrapolated from the interior since
+    the outflow is supersonic. This boundary condition is specific to two
+    and three dimensional Euler/Navier-Stokes systems (#Euler2D, #NavierStokes2D,
+    #NavierStokes3D).
+    \n\n
+    Note: The code here is identical to BCExtrapolateDU().
+*/
+int BCSupersonicOutflowDU(
+                          void    *b,       /*!< Boundary object of type #DomainBoundary */
+                          void    *m,       /*!< MPI object of type #MPIVariables */
+                          int     ndims,    /*!< Number of spatial dimensions */
+                          int     nvars,    /*!< Number of variables/DoFs per grid point */
+                          int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
+                          int     ghosts,   /*!< Number of ghost points */
+                          double  *phi,     /*!< The solution array on which to apply the boundary condition -
+                                                 Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
+                          double  *phi_ref, /*!< Reference solution */
+                          double  waqt      /*!< Current solution time */
+                         )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 

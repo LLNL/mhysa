@@ -1,6 +1,29 @@
+/*! @file FindInterval.c
+    @author Debojyoti Ghosh
+    @brief Find grid point indices corresponding to a spatial interval.
+*/
+
 #include <mathfunctions.h>
 
-void FindInterval(double a, double b, double *x, int N, int *imin, int *imax)
+/*! Given an interval \f$\left[a,b\right], a\leq b\f$, find grid indices \a imin 
+    and \a imax, such that
+    \f{align}{
+      imin &= \min\ i\ {\rm satisfying}\ x_i \geq a\\
+      imax &= \max\ i\ {\rm satisfying}\  x_i \leq b
+    \f}
+    where \f$\left\{x_i; 0\leq i < N , x_i < x_{i+1} \forall i \right\}\f$ 
+    represents a 1-dimensional grid.
+    \n\n
+    Note: This function handles 1-dimensional intervals and grids only.
+*/
+void FindInterval(
+                  double  a,      /*!< Lower bound of interval */
+                  double  b,      /*!< Upper bound of interval */
+                  double  *x,     /*!< Array of spatial coordinates representing a grid */
+                  int     N,      /*!< Number of grid points / size of x */
+                  int     *imin,  /*!< Lowest grid index within [a,b] */
+                  int     *imax   /*!< Highest grid index within [a,b] */
+                 )
 {
   int i;
   *imax = -1;
