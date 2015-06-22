@@ -1,3 +1,8 @@
+/*! @file CalculateError.c
+    @author Debojyoti Ghosh
+    @brief Computes the error in the solution.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +15,17 @@
 
 int ExactSolution(void*,void*,double*,int*);
 
-int CalculateError(void *s,void *m)
+/*! Calculates the error in the solution if the exact solution is 
+    available. If the exact solution is not available, the errors
+    are reported as zero.
+    \n\n
+    The exact solution should be provided in the file "exact.inp"
+    in the same format as the initial solution.
+*/
+int CalculateError(
+                    void *s, /*!< Solver object of type #HyPar */
+                    void *m  /*!< MPI object of type #MPIVariables */
+                  )
 {
   HyPar         *solver     = (HyPar*)        s;
   MPIVariables  *mpi        = (MPIVariables*) m;

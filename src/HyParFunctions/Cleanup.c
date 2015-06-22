@@ -1,3 +1,7 @@
+/*! @file Cleanup.c
+    @author Debojyoti Ghosh
+    @brief Clean up and free memory after simulation is complete.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +27,11 @@
 #include <physicalmodels/numa2d.h>
 #include <physicalmodels/numa3d.h>
 
-int Cleanup(void *s,void *m)
+/*! Cleans up and frees the memory after the completion of the simulation. */
+int Cleanup(
+              void *s, /*!< Solver object of type #HyPar */
+              void *m  /*!< MPI object of type #MPIVariables */
+           )
 {
   HyPar           *solver   = (HyPar*)          s;
   MPIVariables    *mpi      = (MPIVariables*)   m;

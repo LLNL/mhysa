@@ -1,3 +1,8 @@
+/*! @file ExactSolution.c
+    @author Debojyoti Ghosh
+    @brief Read in exact solution, if available.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +17,15 @@ static int ExactSolutionParallel  (void*, void*, double*, int*);
 static int ExactSolutionMPI_IO    (void*, void*, double*, int*);
 #endif
 
-int ExactSolution(void *s, void *m, double *uex, int *flag)
+/*! Read in the exact solution, if available: wrapper function that calls 
+    the appropriate function depending on input mode (#HyPar::input_mode).
+*/
+int ExactSolution(
+                    void    *s,     /*!< Solver object of type #HyPar */
+                    void    *m,     /*!< MPI object of type #MPIVariables */
+                    double  *uex,   /*!< Array to hold the exact solution, if available */
+                    int     *flag   /*!< Flag to indicate if exact solution was available */
+                 )
 {
   HyPar  *solver = (HyPar*) s;
   if      (!strcmp(solver->input_mode,"serial"))    return(ExactSolutionSerial    (s,m,uex,flag));
@@ -26,7 +39,23 @@ int ExactSolution(void *s, void *m, double *uex, int *flag)
   }
 }
 
-int ExactSolutionSerial(void *s, void *m, double *uex, int *exact_flag)
+/*! Read the exact solution in a serial fashion: For multi-processor simulation, only rank 0
+    reads in the entire solution from the file, and then distributes the relevant portions
+    to each of the processors. This involves memory allocation for the global domain on rank
+    0. Thus, do not use for large domains. This approach is not very scalable either, if running
+    with a very large number of processors (> 1000).
+    \n
+    + Supports both binary and ASCII formats for the exact solution file.
+
+    For serial runs, this is the only input mode (of course!).
+    \sa InitialSolutionSerial(), OutputSolutionSerial()
+*/
+int ExactSolutionSerial(
+                          void    *s,           /*!< Solver object of type #HyPar */
+                          void    *m,           /*!< MPI object of type #MPIVariables */
+                          double  *uex,         /*!< Array to hold the exact solution, if available */
+                          int     *exact_flag   /*!< Flag to indicate if exact solution was available */
+                       )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -135,7 +164,29 @@ int ExactSolutionSerial(void *s, void *m, double *uex, int *exact_flag)
 
 #ifndef serial
 
-int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
+/*! Read in the exact solution in a parallel fashion: The number of MPI ranks participating in file I/O
+    is specified as an input. All the MPI ranks are divided into that many I/O groups, with one rank in 
+    each group as the "leader" that does the file reading and writing. For reading in the solution,
+    the leader of an I/O group reads its own file and distributes the solution to the processors in 
+    its group. The number of I/O group is typically specified as the number of I/O nodes available 
+    on the HPC platform, given the number of compute nodes the code is running on. This is a good 
+    balance between all the processors serially reading from the same file, and having as many 
+    files (with the local solution) as the number of processors. This approach has been observed to 
+    be very scalable (up to ~ 100,000 - 1,000,000 processors).
+    \n
+    + The file read by each I/O leader must contain the partitioned solution for each processor in
+      its group. Use Extras/ParallelInput.c to generate these files from the standard exact/initial
+      solution file containing the entire solution.
+    + Supports only binary format for exact solution file.
+
+    \sa InitialSolutionParallel(), OutputSolutionParallel()
+*/
+int ExactSolutionParallel(
+                          void    *s,           /*!< Solver object of type #HyPar */
+                          void    *m,           /*!< MPI object of type #MPIVariables */
+                          double  *uex,         /*!< Array to hold the exact solution, if available */
+                          int     *exact_flag   /*!< Flag to indicate if exact solution was available */
+                         )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -250,7 +301,24 @@ int ExactSolutionParallel(void *s, void *m, double *uex, int *exact_flag)
 
 }
 
-int ExactSolutionMPI_IO(void *s, void *m, double *uex, int *exact_flag)
+/*! Read in the exact solution in a parallel fashion using MPI-IO: Similar to ExactSolutionParallel(),
+    except that the I/O leaders read from the file using the MPI I/O routines. These are constantly 
+    being developed to be scalable on the latest and greatest HPC platforms.
+    \n
+    + Read the documentation for ExactSolutionParallel() first.
+    + The file read by each I/O leader must contain the partitioned solution for each processor in
+      its group. Use Extras/MPIInput.c to generate these files from the standard exact/initial
+      solution file containing the entire solution.
+    + Supports only binary format for exact solution file.
+
+    \sa InitialSolutionMPI_IO
+*/
+int ExactSolutionMPI_IO(
+                          void    *s,           /*!< Solver object of type #HyPar */
+                          void    *m,           /*!< MPI object of type #MPIVariables */
+                          double  *uex,         /*!< Array to hold the exact solution, if available */
+                          int     *exact_flag   /*!< Flag to indicate if exact solution was available */
+                       )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

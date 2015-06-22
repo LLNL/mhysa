@@ -1,10 +1,23 @@
+/*! @file BoundaryIntegral.c
+    @author Debojyoti Ghosh
+    @brief Compute the flux integral over the physical boundary.
+*/
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-int BoundaryIntegral(void *s,void *m)
+/*! Computes the flux integral over the boundary. The local flux integral
+    (on this processor) is computed for physical as well as MPI boundaries.
+    The global boundary integral is computed by summing the local integrals
+    over all the processors, since the contributions from the MPI boundaries
+    cancel out.
+*/
+int BoundaryIntegral(
+                      void *s, /*!< Solver object of type #HyPar */
+                      void *m  /*!< MPI object of type #MPIVariables */
+                    )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

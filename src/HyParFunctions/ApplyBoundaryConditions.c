@@ -1,8 +1,9 @@
 /*! @file ApplyBoundaryConditions.c
- *  @brief Apply physical boundary conditions to domain.
- * Contains the function that applies the physical boundary conditions 
- * to each boundary zone.
  *  @author Debojyoti Ghosh
+ *  @brief Apply physical boundary conditions to domain.
+ *
+ *  Contains the function that applies the physical boundary conditions 
+ *  to each boundary zone.
 */
 
 #include <basic.h>
