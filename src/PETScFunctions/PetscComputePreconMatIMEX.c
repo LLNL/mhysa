@@ -65,7 +65,7 @@ int PetscComputePreconMatIMEX(
       int pgL; _ArrayIndex1DWO_(ndims,dim_g,indexL,mpi->is,0,pgL);
       int pgR; _ArrayIndex1DWO_(ndims,dim_g,indexR,mpi->is,0,pgR);
       int pL;  _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
-      int pR;  _ArrayIndex1D_(ndims,dim,indexR,ghosts,pL);
+      int pR;  _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
       /* Retrieve 1/delta-x at this grid point */
       _GetCoordinate_(dir,index[dir],dim,ghosts,solver->dxinv,dxinv);
 
@@ -73,7 +73,6 @@ int PetscComputePreconMatIMEX(
       for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pg + v; }
       ierr = solver->JFunction(values,(u+nvars*p),solver->physics,dir,0);
       _ArrayScale1D_(values,dxinv,(nvars*nvars));
-      for (v=0; v<nvars; v++) values[nvars*v+v] += context->shift;
       ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
 
       /* left neighbor */
@@ -96,7 +95,8 @@ int PetscComputePreconMatIMEX(
   }
   ierr = MatAssemblyBegin(Pmat,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
   ierr = MatAssemblyEnd  (Pmat,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-
+  
+  ierr = MatShift(Pmat,context->shift); CHKERRQ(ierr);
   PetscFunctionReturn(0);
 }
 
