@@ -38,7 +38,7 @@ int    Euler1DSourceUpwindRoe   (double*,double*,double*,double*,int,void*,doubl
 int    Euler1DModifiedSolution  (double*,double*,int,void*,void*,double);
 int    Euler1DPreStep           (double*,void*,void*,double);
 
-/*! Function to initialize the Euler1D (1D inviscid Euler equations) module: 
+/*! Function to initialize the 1D inviscid Euler equations (#Euler1D) module: 
     Sets the default parameters, read in and set physics-related parameters, 
     and set the physics-related function pointers in #HyPar.
 */
