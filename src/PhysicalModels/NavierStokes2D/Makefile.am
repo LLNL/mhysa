@@ -7,6 +7,7 @@ libNavierStokes2D_a_SOURCES = \
   NavierStokes2DFunctions.c \
 	NavierStokes2DGravityField.c \
   NavierStokes2DInitialize.c \
+  NavierStokes2DJacobian.c \
 	NavierStokes2DModifiedSolution.c \
 	NavierStokes2DParabolicFunction.c \
 	NavierStokes2DPreStep.c \

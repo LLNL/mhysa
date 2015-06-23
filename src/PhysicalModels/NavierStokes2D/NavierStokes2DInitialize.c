@@ -1,3 +1,7 @@
+/*! @file NavierStokes2DInitialize.c
+    @author Debojyoti Ghosh
+    @brief Initialization of the physics-related variables and function pointers for the 2D Navier-Stokes system
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +18,9 @@ int    NavierStokes2DStiffFlux         (double*,double*,int,void*,double);
 int    NavierStokes2DRoeAverage        (double*,double*,double*,void*);
 int    NavierStokes2DParabolicFunction (double*,double*,void*,void*,double);
 int    NavierStokes2DSource            (double*,double*,void*,void*,double);
+
+int    NavierStokes2DJacobian          (double*,double*,void*,int,int);
+int    NavierStokes2DStiffJacobian     (double*,double*,void*,int,int);
 
 int    NavierStokes2DLeftEigenvectors  (double*,double*,void*,int);
 int    NavierStokes2DRightEigenvectors (double*,double*,void*,int);
@@ -33,7 +40,14 @@ int    NavierStokes2DGravityField      (void*,void*);
 int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
 int    NavierStokes2DPreStep           (double*,void*,void*,double);
 
-int NavierStokes2DInitialize(void *s,void *m)
+/*! Initialize the 2D Navier-Stokes (#NavierStokes2D) module:
+    Sets the default parameters, read in and set physics-related parameters,
+    and set the physics-related function pointers in #HyPar.
+*/
+int NavierStokes2DInitialize(
+                              void *s, /*!< Solver object of type #HyPar */
+                              void *m  /*!< MPI object of type #MPIVariables */
+                            )
 {
   HyPar           *solver  = (HyPar*)          s;
   MPIVariables    *mpi     = (MPIVariables*)   m; 
@@ -173,6 +187,7 @@ int NavierStokes2DInitialize(void *s,void *m)
   }
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     solver->dFFunction = NavierStokes2DStiffFlux;
+    solver->JFunction  = NavierStokes2DStiffJacobian;
     if      (!strcmp(physics->upw_choice,_ROE_    )) solver->UpwinddF = NavierStokes2DUpwinddFRoe;
     else if (!strcmp(physics->upw_choice,_RF_     )) solver->UpwinddF = NavierStokes2DUpwinddFRF;
     else if (!strcmp(physics->upw_choice,_LLF_    )) solver->UpwinddF = NavierStokes2DUpwinddFLLF;
@@ -186,7 +201,7 @@ int NavierStokes2DInitialize(void *s,void *m)
       }
       return(1);
     }
-  }
+  } else solver->JFunction      = NavierStokes2DJacobian;
   solver->AveragingFunction     = NavierStokes2DRoeAverage;
   solver->GetLeftEigenvectors   = NavierStokes2DLeftEigenvectors;
   solver->GetRightEigenvectors  = NavierStokes2DRightEigenvectors;
