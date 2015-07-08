@@ -19,6 +19,7 @@
 #include <physicalmodels/navierstokes3d.h>
 #include <physicalmodels/numa2d.h>
 #include <physicalmodels/numa3d.h>
+#include <physicalmodels/shallowwater1d.h>
 
 int InitializePhysics(void *s,void *m)
 {
@@ -103,6 +104,11 @@ int InitializePhysics(void *s,void *m)
 
     solver->physics = (Numa3D*) calloc (1,sizeof(Numa3D));
     IERR Numa3DInitialize(solver,mpi); CHECKERR(ierr);
+
+  } else if (!strcmp(solver->model,_SHALLOW_WATER_1D_)) {
+
+    solver->physics = (ShallowWater1D*) calloc (1,sizeof(ShallowWater1D));
+    IERR ShallowWater1DInitialize(solver,mpi); CHECKERR(ierr);
 
   } else {
 

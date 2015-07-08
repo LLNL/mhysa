@@ -57,6 +57,17 @@ void FindInterval(double,double,double*,int,int*,int*);
     } \
   }
 
+/*! \def MatMult2
+ * #MatMult, loop unrolled for \a N = 2.
+*/
+#define MatMult2(N,A,X,Y) \
+  { \
+    A[0] = X[0]*Y[0] + X[1]*Y[2]; \
+    A[1] = X[0]*Y[1] + X[1]*Y[3]; \
+    A[2] = X[2]*Y[0] + X[3]*Y[2]; \
+    A[3] = X[2]*Y[1] + X[3]*Y[3]; \
+  }
+
 /*! \def MatMult3
  * #MatMult, loop unrolled for \a N = 3.
 */
@@ -140,6 +151,15 @@ void FindInterval(double,double,double*,int,int*,int*);
       y[i] = 0; \
       for (j = 0; j < (N); j++) y[i] += A[i*(N)+j]*x[j]; \
     } \
+  }
+
+/*! \def MatVecMult2
+ * #MatVecMult, loop unrolled for \a N = 2.
+*/
+#define MatVecMult2(N,y,A,x) \
+  { \
+    y[0] = A[0]*x[0] + A[1]*x[1];\
+    y[1] = A[2]*x[0] + A[3]*x[1];\
   }
 
 /*! \def MatVecMult3
