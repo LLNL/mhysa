@@ -142,13 +142,9 @@
 */
 typedef struct shallowwater1d_parameters {
   double  g;         /*!< Acceleration due to gravity */
-  /*! Type of bottom topography
-      (0 is constant, 
-       1 is ??)\n
-  */
-  int    bt_type;    
-  double *b;  /*!< Array to store the bottom topography \f$b(x)\f$ */
-  char   upw_choice[_MAX_STRING_SIZE_]; /*!< Choice of upwinding scheme.\sa #_ROE_, #_LLF_*/
+  int     bt_type;   /*!< 1 -> bottom topography is periodic, 0 -> bottom topography is not periodic */
+  double  *b;        /*!< Array to store the bottom topography \f$b(x)\f$ */
+  char    upw_choice[_MAX_STRING_SIZE_]; /*!< Choice of upwinding scheme.\sa #_ROE_, #_LLF_*/
   /*! Function pointer to the function that computes the "upwinding" step in source term computation. To 
       understand the implementation of the gravitational source terms, see:
       + Xing, Y., Shu, C.-W., "High order finite difference WENO schemes with the 
