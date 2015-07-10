@@ -253,7 +253,12 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   ierr = VecDestroy(&Y); CHKERRQ(ierr);
 
   /* write a final solution file, if last iteration did not write one */
-  if (context.tic) { IERR OutputSolution(solver,mpi); CHECKERR(ierr); }
+  if (context.tic) { 
+    if (solver->PhysicsOutput) {
+      IERR solver->PhysicsOutput(solver,mpi); CHECKERR(ierr);
+    }
+    IERR OutputSolution(solver,mpi); CHECKERR(ierr); 
+  }
   /* calculate error if exact solution has been provided */
   IERR CalculateError(solver,mpi); CHECKERR(ierr);
 

@@ -77,8 +77,12 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   }
 
   /* Write intermediate solution to file */
-  if (iter%solver->file_op_iter == 0) 
-    { ierr = OutputSolution(solver,mpi); CHECKERR(ierr); context->tic=0; }
+  if (iter%solver->file_op_iter == 0) { 
+    if (solver->PhysicsOutput) {
+      IERR solver->PhysicsOutput(solver,mpi); CHECKERR(ierr);
+    }
+    ierr = OutputSolution(solver,mpi); CHECKERR(ierr); context->tic=0; 
+  }
 
   PetscFunctionReturn(0);
 }

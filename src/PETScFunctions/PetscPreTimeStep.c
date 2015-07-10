@@ -65,8 +65,12 @@ PetscErrorCode PetscPreTimeStep(TS ts)
     { ierr = PetscComputeRHSOperators(ts,waqt,context); CHECKERR(ierr); }
 #endif
   /* Write initial solution file if this is the first iteration */
-  if (!iter) 
-    { ierr = OutputSolution(solver,mpi); CHECKERR(ierr); }
+  if (!iter) { 
+    if (solver->PhysicsOutput) {
+      IERR solver->PhysicsOutput(solver,mpi); CHECKERR(ierr);
+    }
+    ierr = OutputSolution(solver,mpi); CHECKERR(ierr); 
+  }
 
   PetscFunctionReturn(0);
 }
