@@ -1,0 +1,18 @@
+begin
+  ndims             1
+  nvars             2
+  size              200
+  iproc             1
+  ghost             3
+  n_iter            200
+  time_scheme       rk
+  time_scheme_type  44
+  hyp_space_scheme  weno5
+  hyp_interp_type   characteristic
+  dt                0.001
+  screen_op_iter    1
+  file_op_iter      9999
+  op_file_format    text
+  op_overwrite      yes
+  model             shallow-water-1d
+end
