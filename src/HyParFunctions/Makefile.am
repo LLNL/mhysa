@@ -26,6 +26,7 @@ libHyParFunctions_a_SOURCES = \
   SolvePETSc.c \
   SourceFunction.c \
   VolumeIntegral.c \
+  WriteArray.c \
   WriteBinary.c \
   WriteTecplot2D.c \
   WriteTecplot3D.c \
