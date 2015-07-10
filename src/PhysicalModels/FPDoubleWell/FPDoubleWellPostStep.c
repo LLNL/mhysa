@@ -5,7 +5,7 @@
 #include <physicalmodels/fpdoublewell.h>
 #include <hypar.h>
 
-int FPDoubleWellPostStep(double *u,void* s,void *m,double t)
+int FPDoubleWellPostStep(double *u,void* s,void *m,double t,int iter)
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

@@ -46,6 +46,7 @@ int InitializePhysics(void *s,void *m)
   solver->PreStep               = NULL;
   solver->PostStep              = NULL;
   solver->PrintStep             = NULL;
+  solver->PhysicsOutput         = NULL;
   solver->AveragingFunction     = NULL;
   solver->GetLeftEigenvectors   = NULL;
   solver->GetRightEigenvectors  = NULL;

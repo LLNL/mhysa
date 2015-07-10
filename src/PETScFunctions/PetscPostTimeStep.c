@@ -37,7 +37,7 @@ PetscErrorCode PetscPostTimeStep(TS ts)
   ierr = TransferVecFromPETSc(solver->u,Y,context);
 
   /* Call any physics-specific post-step function */
-  if (solver->PostStep)  { ierr = solver->PostStep(solver->u,solver,mpi,waqt); CHECKERR(ierr); }
+  if (solver->PostStep)  { ierr = solver->PostStep(solver->u,solver,mpi,waqt,iter); CHECKERR(ierr); }
 
   /* Calculate CFL and diffusion number */
   double local_max_cfl  = -1.0, max_cfl  = -1.0;

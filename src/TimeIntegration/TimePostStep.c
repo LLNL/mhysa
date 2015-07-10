@@ -41,7 +41,7 @@ int TimePostStep(void *ts)
     IERR solver->CalculateConservationError(solver,mpi); CHECKERR(ierr);
   }
 
-  if (solver->PostStep)  { IERR solver->PostStep(solver->u,solver,mpi,TS->waqt); CHECKERR(ierr); }
+  if (solver->PostStep)  { IERR solver->PostStep(solver->u,solver,mpi,TS->waqt,TS->iter); CHECKERR(ierr); }
 
   return(0);
 }

@@ -14,7 +14,7 @@ int    FPPowerSystem3BusAdvection         (double*,double*,int,void*,double);
 int    FPPowerSystem3BusDiffusion         (double*,double*,int,int,void*,double);
 int    FPPowerSystem3BusUpwind            (double*,double*,double*,double*,
                                            double*,double*,int,void*,double);
-int    FPPowerSystem3BusPostStep          (double*,void*,void*,double);
+int    FPPowerSystem3BusPostStep          (double*,void*,void*,double,int);
 int    FPPowerSystem3BusPrintStep         (void*,void*,double);
 int    FPPowerSystem3BusCalculateAInv     (double*,double*,void*,double*);
 
@@ -217,7 +217,7 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
   solver->PrintStep          = FPPowerSystem3BusPrintStep;
 
   /* Calculate and print the PDF integral of the initial solution */
-  IERR FPPowerSystem3BusPostStep(solver->u,solver,mpi,0.0);        CHECKERR(ierr);
+  IERR FPPowerSystem3BusPostStep(solver->u,solver,mpi,0.0,0);      CHECKERR(ierr);
   if (!mpi->rank) IERR FPPowerSystem3BusPrintStep(solver,mpi,0.0); CHECKERR(ierr);
 
   /* calculate the inverse of the impedance matrix */
@@ -225,4 +225,3 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
 
   return(0);
 }
-

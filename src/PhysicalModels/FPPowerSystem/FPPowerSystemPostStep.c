@@ -5,7 +5,7 @@
 #include <physicalmodels/fppowersystem.h>
 #include <hypar.h>
 
-int FPPowerSystemPostStep(double *u,void* s,void *m,double t)
+int FPPowerSystemPostStep(double *u,void* s,void *m,double t,int iter)
 {
   HyPar         *solver = (HyPar*)         s;
   MPIVariables  *mpi    = (MPIVariables*)  m;

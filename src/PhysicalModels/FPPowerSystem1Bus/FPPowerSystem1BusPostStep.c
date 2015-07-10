@@ -5,7 +5,7 @@
 #include <physicalmodels/fppowersystem1bus.h>
 #include <hypar.h>
 
-int FPPowerSystem1BusPostStep(double *u,void* s,void *m,double t)
+int FPPowerSystem1BusPostStep(double *u,void* s,void *m,double t,int iter)
 {
   HyPar             *solver = (HyPar*)              s;
   MPIVariables      *mpi    = (MPIVariables*)       m;

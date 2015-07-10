@@ -15,7 +15,7 @@ int    FPPowerSystem1BusDiffusionLaplacian(double*,double*,int,void*,double);
 int    FPPowerSystem1BusDiffusionGeneral  (double*,double*,int,int,void*,double);
 int    FPPowerSystem1BusUpwind            (double*,double*,double*,double*,
                                            double*,double*,int,void*,double);
-int    FPPowerSystem1BusPostStep          (double*,void*,void*,double);
+int    FPPowerSystem1BusPostStep          (double*,void*,void*,double,int);
 int    FPPowerSystem1BusPrintStep         (void*,void*,double);
 
 int FPPowerSystem1BusInitialize(void *s,void *m)

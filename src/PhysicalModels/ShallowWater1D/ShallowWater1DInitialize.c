@@ -28,6 +28,7 @@ int    ShallowWater1DSourceUpwindLLF   (double*,double*,double*,double*,int,void
 int    ShallowWater1DSourceUpwindRoe   (double*,double*,double*,double*,int,void*,double);
 
 int    ShallowWater1DModifiedSolution  (double*,double*,int,void*,void*,double);
+int    ShallowWater1DWriteTopography   (void*,void*);
 
 /*! Function to initialize the 1D shallow water equations (#ShallowWater1D) module: 
     Sets the default parameters, read in and set physics-related parameters, 
@@ -115,6 +116,7 @@ int ShallowWater1DInitialize(
   solver->AveragingFunction     = ShallowWater1DRoeAverage;
   solver->GetLeftEigenvectors   = ShallowWater1DLeftEigenvectors;
   solver->GetRightEigenvectors  = ShallowWater1DRightEigenvectors;
+  solver->PhysicsOutput         = ShallowWater1DWriteTopography;
    
   if      (!strcmp(physics->upw_choice,_LLF_ )) physics->SourceUpwind = ShallowWater1DSourceUpwindLLF;
   else if (!strcmp(physics->upw_choice,_ROE_ )) physics->SourceUpwind = ShallowWater1DSourceUpwindRoe;

@@ -135,7 +135,6 @@
  *  This structure contains the physical parameters, variables, and function pointers 
  *  specific to the 1D ShallowWater equations.
 */
-
 /*! \brief Structure containing variables and parameters specific to the 1D Shallow Water equations.
  *  This structure contains the physical parameters, variables, and function pointers 
  *  specific to the 1D ShallowWater equations.

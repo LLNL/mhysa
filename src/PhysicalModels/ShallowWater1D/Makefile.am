@@ -11,4 +11,5 @@ libShallowWater1D_a_SOURCES = \
 	ShallowWater1DSource.c \
 	ShallowWater1DSourceUpwind.c \
 	ShallowWater1DTopography.c \
-  ShallowWater1DUpwind.c
+  ShallowWater1DUpwind.c \
+  ShallowWater1DWriteTopography.c

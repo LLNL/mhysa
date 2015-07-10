@@ -13,7 +13,7 @@ int    FPDoubleWellAdvection         (double*,double*,int,void*,double);
 int    FPDoubleWellDiffusion         (double*,double*,int,void*,double);
 int    FPDoubleWellUpwind            (double*,double*,double*,double*,
                                       double*,double*,int,void*,double);
-int    FPDoubleWellPostStep          (double*,void*,void*,double);
+int    FPDoubleWellPostStep          (double*,void*,void*,double,int);
 int    FPDoubleWellPrintStep         (void*,void*,double);
 
 int FPDoubleWellInitialize(void *s,void *m)
@@ -88,7 +88,7 @@ int FPDoubleWellInitialize(void *s,void *m)
   solver->PrintStep          = FPDoubleWellPrintStep;
 
   /* Calculate and print the PDF integral of the initial solution */
-  IERR FPDoubleWellPostStep(solver->u,solver,mpi,0.0);  CHECKERR(ierr);
+  IERR FPDoubleWellPostStep(solver->u,solver,mpi,0.0,0);CHECKERR(ierr);
   IERR FPDoubleWellPrintStep(solver,mpi,0.0);           CHECKERR(ierr);
   
   return(0);

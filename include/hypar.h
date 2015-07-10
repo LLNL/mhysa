@@ -259,10 +259,13 @@ typedef struct main_parameters {
   /*! Function to do some pre-time-integration-step computations, if required */
   int    (*PreStep)            (double*,void*,void*,double);
   /*! Function to do some post-time-integration-step computations, if required */
-  int    (*PostStep)           (double*,void*,void*,double);
+  int    (*PostStep)           (double*,void*,void*,double,int);
   /*! Function to do print some physics-specific time-integration-step information,
    * if required */
   int    (*PrintStep)          (void*,void*,double);
+  /*! Function to write (to file) physics-related data that may not be 
+      a part of the solution */
+  int    (*PhysicsOutput)      (void*,void*);
 
   /*! Function to calculate the averaged solution at the interface (provided by the physics) */
   int   (*AveragingFunction)   (double*,double*,double*,void*);

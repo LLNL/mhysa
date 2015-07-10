@@ -30,7 +30,12 @@ int Solve(void *s,void *m)
       { IERR ComputeRHSOperators(solver,mpi,TS.waqt); CHECKERR(ierr); }
 #endif
     /* Write initial solution to file if this is the first iteration */
-    if (!TS.iter) { IERR OutputSolution(solver,mpi); CHECKERR(ierr); }
+    if (!TS.iter) { 
+      if (solver->PhysicsOutput) {
+        IERR solver->PhysicsOutput(solver,mpi); CHECKERR(ierr);
+      }
+      IERR OutputSolution(solver,mpi); CHECKERR(ierr); 
+    }
     /* Step in time */
     IERR TimeStep     (&TS); CHECKERR(ierr);
     /* Call post-step function */
@@ -40,12 +45,22 @@ int Solve(void *s,void *m)
     tic++;
 
     /* Write intermediate solution to file */
-    if ((TS.iter+1)%solver->file_op_iter == 0) 
-      { IERR OutputSolution(solver,mpi); CHECKERR(ierr); tic = 0; }
+    if ((TS.iter+1)%solver->file_op_iter == 0) { 
+      if (solver->PhysicsOutput) {
+        IERR solver->PhysicsOutput(solver,mpi); CHECKERR(ierr);
+      }
+      IERR OutputSolution(solver,mpi); CHECKERR(ierr); 
+      tic = 0; 
+    }
   }
 
   /* write a final solution file, if last iteration did not write one */
-  if (tic) { IERR OutputSolution(solver,mpi); CHECKERR(ierr); }
+  if (tic) { 
+    if (solver->PhysicsOutput) {
+      IERR solver->PhysicsOutput(solver,mpi); CHECKERR(ierr);
+    }
+    IERR OutputSolution(solver,mpi); CHECKERR(ierr); 
+  }
 
   if (!mpi->rank) printf("Completed time integration (Final time: %f).\n",TS.waqt);
 

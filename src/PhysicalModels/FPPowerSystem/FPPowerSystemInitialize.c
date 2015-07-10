@@ -14,7 +14,7 @@ int    FPPowerSystemAdvection         (double*,double*,int,void*,double);
 int    FPPowerSystemDiffusion         (double*,double*,int,void*,double);
 int    FPPowerSystemUpwind            (double*,double*,double*,double*,
                                        double*,double*,int,void*,double);
-int    FPPowerSystemPostStep          (double*,void*,void*,double);
+int    FPPowerSystemPostStep          (double*,void*,void*,double,int);
 int    FPPowerSystemPrintStep         (void*,void*,double);
 
 int FPPowerSystemInitialize(void *s,void *m)
@@ -99,7 +99,7 @@ int FPPowerSystemInitialize(void *s,void *m)
   solver->PrintStep          = FPPowerSystemPrintStep;
 
   /* Calculate and print the PDF integral of the initial solution */
-  IERR FPPowerSystemPostStep(solver->u,solver,mpi,0.0);        CHECKERR(ierr);
+  IERR FPPowerSystemPostStep(solver->u,solver,mpi,0.0,0);      CHECKERR(ierr);
   if (!mpi->rank) IERR FPPowerSystemPrintStep(solver,mpi,0.0); CHECKERR(ierr);
   
   return(0);
