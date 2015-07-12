@@ -20,6 +20,7 @@
 #include <physicalmodels/numa2d.h>
 #include <physicalmodels/numa3d.h>
 #include <physicalmodels/shallowwater1d.h>
+#include <physicalmodels/shallowwater2d.h>
 
 int InitializePhysics(void *s,void *m)
 {
@@ -110,6 +111,11 @@ int InitializePhysics(void *s,void *m)
 
     solver->physics = (ShallowWater1D*) calloc (1,sizeof(ShallowWater1D));
     IERR ShallowWater1DInitialize(solver,mpi); CHECKERR(ierr);
+
+  } else if (!strcmp(solver->model,_SHALLOW_WATER_2D_)) {
+
+    solver->physics = (ShallowWater2D*) calloc (1,sizeof(ShallowWater2D));
+    IERR ShallowWater2DInitialize(solver,mpi); CHECKERR(ierr);
 
   } else {
 

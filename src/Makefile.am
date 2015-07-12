@@ -32,6 +32,7 @@ HyPar_LDADD = \
   PhysicalModels/Numa2D/libNuma2D.a \
   PhysicalModels/Numa3D/libNuma3D.a \
   PhysicalModels/ShallowWater1D/libShallowWater1D.a \
+  PhysicalModels/ShallowWater2D/libShallowWater2D.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   FirstDerivative/libFirstDerivative.a \
   SecondDerivative/libSecondDerivative.a \

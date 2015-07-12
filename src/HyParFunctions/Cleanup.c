@@ -27,6 +27,7 @@
 #include <physicalmodels/numa2d.h>
 #include <physicalmodels/numa3d.h>
 #include <physicalmodels/shallowwater1d.h>
+#include <physicalmodels/shallowwater2d.h>
 
 /*! Cleans up and frees the memory after the completion of the simulation. */
 int Cleanup(
@@ -73,6 +74,8 @@ int Cleanup(
     IERR Numa3DCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_SHALLOW_WATER_1D_)) {
     IERR ShallowWater1DCleanup(solver->physics); CHECKERR(ierr);
+  } else if (!strcmp(solver->model,_SHALLOW_WATER_2D_)) {
+    IERR ShallowWater2DCleanup(solver->physics); CHECKERR(ierr);
   }
   free(solver->physics);
 

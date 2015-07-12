@@ -10,4 +10,5 @@ SUBDIRS = \
   NavierStokes3D \
   Numa2D \
   Numa3D \
-  ShallowWater1D
+  ShallowWater1D \
+  ShallowWater2D
