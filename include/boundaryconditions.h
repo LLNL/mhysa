@@ -36,6 +36,12 @@
 /*! No-flux boundary condition (specific to NUMA) \sa #BCNoFluxU */
 #define _NO_FLUX_BC_                    "numa-nfbc"
 
+/* some BC types unique to the shallow water system */
+/*! Slip boundary condition (specific to shallow water equations) \sa #BCSWSlipWallU */
+#define _SW_SLIP_WALL_                  "shallow-water-slip-wall"
+/*! Viscous wall boundary condition (specific to shallow water equations) \sa #BCSWNoslipWallU */
+#define _SW_NOSLIP_WALL_                "shallow-water-noslip-wall"
+
 /*! \def DomainBoundary
     \brief Structure containing the variables and function pointers defining a boundary
  * This structure contains all the variables and function pointers needed to specify
@@ -113,6 +119,8 @@ int BCSupersonicOutflowU            (void*,void*,int,int,int*,int,double*,double
 int BCTurbulentSupersonicInflowU    (void*,void*,int,int,int*,int,double*,double);    
 /*! No-Flux (inviscid wall) boundary conditions for the solution vector U */
 int BCNoFluxU                       (void*,void*,int,int,int*,int,double*,double);    
+/*! Slip (inviscid) wall boundary conditions for the solution vector U */
+int BCSWSlipWallU                   (void*,void*,int,int,int*,int,double*,double);    
 
 /* Boundary condition implementations for the (\Delta U) */
 /*! Periodic boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
@@ -139,6 +147,8 @@ int BCSupersonicOutflowDU           (void*,void*,int,int,int*,int,double*,double
 int BCTurbulentSupersonicInflowDU   (void*,void*,int,int,int*,int,double*,double*,double);    
 /*! No-Flux ((inviscid wall) boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
 int BCNoFluxDU                      (void*,void*,int,int,int*,int,double*,double*,double);    
+/*! Slip (inviscid) wall boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
+int BCSWSlipWallDU                  (void*,void*,int,int,int*,int,double*,double*,double);    
 
 /*! a special BC enforcement - an absorbent sponge - enforced through a source term */
 int BCSpongeSource        (void*,int,int,int,int*,double*,double*,double*);

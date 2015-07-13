@@ -14,4 +14,5 @@ libBoundaryConditions_a_SOURCES = \
 	BCSubsonicOutflow.c \
 	BCSupersonicInflow.c \
 	BCSupersonicOutflow.c \
+  BCSWSlipWall.c \
 	BCTurbulentSupersonicInflow.c

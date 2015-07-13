@@ -76,6 +76,14 @@ int InitializeBoundaries(void *s,void *m)
         for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
       }
 
+      if (    (!strcmp(boundary[n].bctype,_SW_SLIP_WALL_)) 
+          ||  (!strcmp(boundary[n].bctype,_SW_NOSLIP_WALL_)) ) {
+        boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+                                     /* deallocated in BCCleanup.c */
+        /* read the wall velocity */
+        for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
+      }
+
       if (!strcmp(boundary[n].bctype,_SUBSONIC_INFLOW_)) {
         boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
                                      /* deallocated in BCCleanup.c */
@@ -173,6 +181,12 @@ int InitializeBoundaries(void *s,void *m)
 
     if (    (!strcmp(boundary[n].bctype,_SLIP_WALL_)) 
         ||  (!strcmp(boundary[n].bctype,_NOSLIP_WALL_)) ) {
+      if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+      IERR MPIBroadcast_double(boundary[n].FlowVelocity,solver->ndims,0,&mpi->world); CHECKERR(ierr);
+    }
+
+    if (    (!strcmp(boundary[n].bctype,_SW_SLIP_WALL_)) 
+        ||  (!strcmp(boundary[n].bctype,_SW_NOSLIP_WALL_)) ) {
       if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
       IERR MPIBroadcast_double(boundary[n].FlowVelocity,solver->ndims,0,&mpi->world); CHECKERR(ierr);
     }
