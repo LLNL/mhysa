@@ -1,0 +1,5 @@
+4
+extrapolate   0       1    0  0     0   50.0
+extrapolate   0      -1    0  0     0   50.0
+extrapolate   1       1    0  50.0  0   0 
+extrapolate   1      -1    0  50.0  0   0 
