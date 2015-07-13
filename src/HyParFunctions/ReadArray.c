@@ -96,7 +96,6 @@ int ReadArraySerial(
   if (!mpi->rank) {
 
     if (!strcmp(solver->ip_file_type,"ascii")) {
-
       char filename[_MAX_STRING_SIZE_];
       strcpy(filename,fname_root);
       strcat(filename,".inp");
@@ -122,7 +121,6 @@ int ReadArraySerial(
 
         /* read solution */
         for (i = 0; i < nvars; i++) {
-          int *index = index;
           int done = 0; _ArraySetValue_(index,ndims,0);
           while (!done) {
             int p; _ArrayIndex1D_(ndims,dim_global,index,0,p);
@@ -134,7 +132,6 @@ int ReadArraySerial(
 
         fclose(in);
       }
-
     } else if ((!strcmp(solver->ip_file_type,"bin")) || (!strcmp(solver->ip_file_type,"binary"))) {
 
       char filename[_MAX_STRING_SIZE_];

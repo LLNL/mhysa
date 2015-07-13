@@ -48,10 +48,10 @@ int ShallowWater2DSource(
   double  *dxinv  = solver->dxinv;
   int     index[ndims],index1[ndims],index2[ndims],dim_interface[ndims];
 
+  /* Along X */
+  
   /* set interface dimensions */
   _ArrayCopy1D_(dim,dim_interface,ndims); dim_interface[_XDIR_]++;
-  
-  /* Along X */
 
   /* calculate the first source function */
   IERR ShallowWater2DSourceFunction1(SourceC,u,x,solver,mpi,t,_XDIR_); CHECKERR(ierr);
@@ -91,14 +91,16 @@ int ShallowWater2DSource(
     double dx_inverse;  _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,dxinv,dx_inverse);
     double h, uvel, vvel; _ShallowWater2DGetFlowVar_((u+_MODEL_NVARS_*p),h,uvel,vvel);
     double term[_MODEL_NVARS_] = { 0.0, -param->g * (h + param->b[p]), 0.0 };
-    for (v=0; v<_MODEL_NVARS_; v++) {
+    for (v=0; v<_MODEL_NVARS_; v++)
       source[_MODEL_NVARS_*p+v] += term[v]*(SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dx_inverse;
-    }
     uvel = vvel = h; /* useless statement to avoid compiler warning */
     _ArrayIncrementIndex_(ndims,dim,index,done);
   }
 
   /* Along Y */
+
+  /* set interface dimensions */
+  _ArrayCopy1D_(dim,dim_interface,ndims); dim_interface[_YDIR_]++;
 
   /* calculate the first source function */
   IERR ShallowWater2DSourceFunction1(SourceC,u,x,solver,mpi,t,_YDIR_); CHECKERR(ierr);
@@ -138,9 +140,8 @@ int ShallowWater2DSource(
     double dy_inverse;  _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,dxinv,dy_inverse);
     double h, uvel, vvel; _ShallowWater2DGetFlowVar_((u+_MODEL_NVARS_*p),h,uvel,vvel);
     double term[_MODEL_NVARS_] = { 0.0, 0.0, -param->g * (h + param->b[p]) };
-    for (v=0; v<_MODEL_NVARS_; v++) {
+    for (v=0; v<_MODEL_NVARS_; v++)
       source[_MODEL_NVARS_*p+v] += term[v]*(SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dy_inverse;
-    }
     uvel = vvel = h; /* useless statement to avoid compiler warning */
     _ArrayIncrementIndex_(ndims,dim,index,done);
   }
