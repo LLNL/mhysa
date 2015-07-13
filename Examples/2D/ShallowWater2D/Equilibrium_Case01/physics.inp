@@ -1,0 +1,5 @@
+begin
+  gravity         9.812
+  topography_type 0
+  upwinding       llf-char
+end

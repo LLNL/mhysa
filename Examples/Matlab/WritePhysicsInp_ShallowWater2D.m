@@ -1,6 +1,6 @@
-function WritePhysicsInp_ShallowWater1D(gravity,topo_type,upw)
+function WritePhysicsInp_ShallowWater2D(gravity,topo_type,upw)
 %WRITEPHYSICSINP Writes the physics.inp file for HyPar 
-%                for the 1D shallow water model
+%                for the 2D shallow water model
 
 fid = fopen('physics.inp','w');
 fprintf(fid,'begin\n');

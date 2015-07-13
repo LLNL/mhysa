@@ -1,0 +1,23 @@
+begin
+	ndims              2
+	nvars              3
+	size               201 101
+	iproc              1 1 
+	ghost              3
+	n_iter             300
+	restart_iter       0 
+	time_scheme        rk
+	time_scheme_type   44
+	hyp_space_scheme   weno5
+	hyp_interp_type    components
+	dt                 0.002
+	conservation_check no
+	screen_op_iter     1
+	file_op_iter       60
+	op_file_format     text
+	ip_file_type       ascii
+	input_mode         serial
+	output_mode        serial
+	op_overwrite       no
+	model              shallow-water-2d
+end
