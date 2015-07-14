@@ -70,19 +70,16 @@
 /*! \def _ShallowWater1DRoeAverage_
     Compute the Roe average of two conserved solution
     vectors.\n
-    Note: Implemented as the arithmetic average right now.
 */
 #define _ShallowWater1DRoeAverage_(uavg,uL,uR,p) \
   { \
     double h ,v; \
     double hL,vL; \
     double hR,vR; \
-    hL = uL[0]; \
-    vL = uL[1] / hL; \
-    hR = uR[0]; \
-    vR = uR[1] / hR; \
+    _ShallowWater1DGetFlowVar_(uL,hL,vL); \
+    _ShallowWater1DGetFlowVar_(uR,hR,vR); \
     h  = 0.5 * (hL + hR); \
-    v  = 0.5 * (vL + vR); \
+    v  = (sqrt(hL)*vL + sqrt(hR)*vR) / (sqrt(hL) + sqrt(hR)); \
     uavg[0] = h; \
     uavg[1] = h*v; \
   }
@@ -96,8 +93,7 @@
 #define _ShallowWater1DEigenvalues_(u,D,p,dir) \
   { \
     double h,v,c; \
-    h = u[0]; \
-    v = u[1] / h; \
+    _ShallowWater1DGetFlowVar_(u,h,v); \
     c = sqrt(p->g*h); \
     D[0*_MODEL_NVARS_+0] = (v+c);  D[0*_MODEL_NVARS_+1] = 0;     \
     D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = (v-c); \
@@ -121,8 +117,7 @@
 #define _ShallowWater1DRightEigenvectors_(u,R,p,dir) \
   { \
     double h,v,c; \
-    h = u[0]; \
-    v = u[1] / h; \
+    _ShallowWater1DGetFlowVar_(u,h,v); \
     c    = sqrt(p->g*h); \
     R[0*_MODEL_NVARS_+0] = 1.0; \
     R[1*_MODEL_NVARS_+0] = v+c; \
