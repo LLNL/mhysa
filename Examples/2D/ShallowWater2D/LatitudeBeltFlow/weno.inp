@@ -1,0 +1,11 @@
+begin
+	mapped               0
+	borges               0
+	yc                   1
+	no_limiting          0
+	epsilon              1.0e-6
+	p                    2
+	rc                   0.3
+	xi                   0.001
+	tol                  1e-16
+end

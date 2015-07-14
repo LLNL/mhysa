@@ -1,0 +1,7 @@
+4
+periodic                  0       1    0    0           0   4400000.0
+periodic                  0      -1    0    0           0   4400000.0
+shallow-water-slip-wall   1       1    0    6000000.0   0   0 
+0.0 0.0
+shallow-water-slip-wall   1      -1    0    6000000.0   0   0
+0.0 0.0

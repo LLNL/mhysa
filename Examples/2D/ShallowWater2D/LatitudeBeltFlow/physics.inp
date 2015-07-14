@@ -1,0 +1,8 @@
+begin
+  gravity         10.0
+  topography_type 0
+  coriolis_fhat   0.0001
+  coriolis_beta   1.5e-11
+  coriolis_D      4400000
+  upwinding       llf-char
+end
