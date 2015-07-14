@@ -55,7 +55,7 @@ int Solve(void *s,void *m)
   }
 
   /* write a final solution file, if last iteration did not write one */
-  if (tic) { 
+  if (tic || (!TS.n_iter)) { 
     if (solver->PhysicsOutput) {
       IERR solver->PhysicsOutput(solver,mpi); CHECKERR(ierr);
     }
