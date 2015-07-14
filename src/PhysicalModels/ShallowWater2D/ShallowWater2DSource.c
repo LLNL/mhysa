@@ -14,14 +14,22 @@ static int ShallowWater2DSourceFunction1  (double*,double*,double*,void*,void*,d
 static int ShallowWater2DSourceFunction2  (double*,double*,double*,void*,void*,double,int);
 int        ApplyBoundaryConditions        (void*,void*,double*,double*,int,double);
 
-/*! Compute the source terms for the 2D shallow water equations. The source term
-    is computed according to the balanced formulation introduced in the reference below.
-    The source term is reformulated and "discretized" in a similar fashion as the hyperbolic
-    flux to ensure that the hydrostatic balance is maintained to machine precision.
-    + Xing, Y., Shu, C.-W., "High order finite difference WENO schemes with the
+/*! Compute the source terms for the 2D shallow water equations. 
+    + The topography gradient source term is computed according to the balanced 
+      formulation introduced in the reference below. The source term is reformulated 
+      and "discretized" in a similar fashion as the hyperbolic flux to ensure that 
+      the hydrostatic balance is maintained to machine precision.\n
+      Xing, Y., Shu, C.-W., "High order finite difference WENO schemes with the
       exact conservation property for the shallow water equations", Journal of
       Computational Physics, 208, 2005, pp. 206-227.
       http://dx.doi.org/10.1016/j.jcp.2005.02.006
+    + The Coriolis source term is added in a naive way -- a balanced formulation
+      may be needed. The Coriolis source term is implemented as described in:\n
+      Zhu, Et. al., "Variational Data Assimilation with a Variable Resolution 
+      Finite-Element Shallow-Water Equations Model", Monthly Weather Review,
+      122, 1994, pp. 946--965
+      http://dx.doi.org/10.1175/1520-0493(1994)122%3C0946:VDAWAV%3E2.0.CO;2\n
+      Eqns. (2.1)-(2.3), (2.4)
 */
 int ShallowWater2DSource(
                           double  *source, /*!< Computed source terms (array size & layout same as u) */
@@ -143,6 +151,21 @@ int ShallowWater2DSource(
     for (v=0; v<_MODEL_NVARS_; v++)
       source[_MODEL_NVARS_*p+v] += term[v]*(SourceI[_MODEL_NVARS_*p2+v]-SourceI[_MODEL_NVARS_*p1+v])*dy_inverse;
     uvel = vvel = h; /* useless statement to avoid compiler warning */
+    _ArrayIncrementIndex_(ndims,dim,index,done);
+  }
+
+  /* Naive addition of Coriolis force terms */
+  done = 0; _ArraySetValue_(index,ndims,0);
+  while (!done) {
+    _ArrayIndex1D_(ndims,dim,index ,ghosts,p);
+    double h, uvel, vvel;
+    _ShallowWater2DGetFlowVar_((u+_MODEL_NVARS_*p),h,uvel,vvel);
+    double ycoord; _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,solver->x,ycoord);
+    double coeff = param->fhat + param->beta * (ycoord - 0.5*param->D);
+    double coriolis_x =  coeff * vvel,
+           coriolis_y = -coeff * uvel;
+    source[_MODEL_NVARS_*p+1] += coriolis_x;
+    source[_MODEL_NVARS_*p+2] += coriolis_y;
     _ArrayIncrementIndex_(ndims,dim,index,done);
   }
 

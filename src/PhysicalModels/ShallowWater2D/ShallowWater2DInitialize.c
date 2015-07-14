@@ -56,6 +56,9 @@ int ShallowWater2DInitialize(
   /* default values */
   physics->g       = 1.0; 
   physics->bt_type = 0;
+  physics->fhat    = 0.0;
+  physics->beta    = 0.0;
+  physics->D       = 0.0;
   strcpy(physics->upw_choice,"roe");
 
   /* reading physical model specific inputs */
@@ -75,6 +78,15 @@ int ShallowWater2DInitialize(
             if (ferr != 1) return(1);
           } else if (!strcmp(word, "topography_type")) { 
             ferr = fscanf(in,"%d",&physics->bt_type); 
+            if (ferr != 1) return(1);
+          } else if (!strcmp(word, "coriolis_fhat")) { 
+            ferr = fscanf(in,"%lf",&physics->fhat); 
+            if (ferr != 1) return(1);
+          } else if (!strcmp(word, "coriolis_beta")) { 
+            ferr = fscanf(in,"%lf",&physics->beta); 
+            if (ferr != 1) return(1);
+          } else if (!strcmp(word, "coriolis_D")) { 
+            ferr = fscanf(in,"%lf",&physics->D); 
             if (ferr != 1) return(1);
           } else if (!strcmp(word,"upwinding")) {
             ferr = fscanf(in,"%s",physics->upw_choice); 
@@ -97,6 +109,9 @@ int ShallowWater2DInitialize(
 #ifndef serial
   IERR MPIBroadcast_double    (&physics->g        ,1,0,&mpi->world);                  CHECKERR(ierr);
   IERR MPIBroadcast_integer   (&physics->bt_type  ,1,0,&mpi->world);                  CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->fhat     ,1,0,&mpi->world);                  CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->beta     ,1,0,&mpi->world);                  CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->D        ,1,0,&mpi->world);                  CHECKERR(ierr);
   IERR MPIBroadcast_character (physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world);  CHECKERR(ierr);
 #endif
 

@@ -9,11 +9,24 @@
     + \frac {\partial} {\partial x} \left[\begin{array}{c} hu \\ hu^2 + \frac{1}{2}gh^2 \\ huv  \end{array} \right] 
     + \frac {\partial} {\partial x} \left[\begin{array}{c} hv \\ huv \\ hv^2 + \frac{1}{2}gh^2  \end{array} \right] 
     = \left[\begin{array}{c} 0 \\ -ghb_x \\ -ghb_y \end{array}\right]
+    + \left[\begin{array}{c} 0 \\ fv     \\ -fu    \end{array}\right]
     \f}
     where \f$h\f$ is the height, \f$\left(u,v\right)\f$ are the velocity components, \f$b(x,y)\f$ is the bottom 
     topography, and \f$g\f$ is the gravitational constant.\n\n
 
-    For the treatment of the source term (well-balanced formulation), refer to:\n
+    The Coriolis parameter \f$f\f$ is defined as
+    \f{equation}{
+      f = \hat{f} + \beta\left( y - \frac{D}{2} \right)
+    \f}
+    based on:
+    + Zhu, Et. al., "Variational Data Assimilation with a Variable Resolution
+      Finite-Element Shallow-Water Equations Model", Monthly Weather Review,
+      122, 1994, pp. 946--965
+      http://dx.doi.org/10.1175/1520-0493(1994)122%3C0946:VDAWAV%3E2.0.CO;2\n
+      Eqns. (2.1)-(2.3), (2.4)
+
+    For the treatment of the topography gradient source term (well-balanced formulation), 
+    refer to:\n
     + Xing, Y., Shu, C.-W., "High order finite difference WENO schemes with the 
       exact conservation property for the shallow water equations", Journal of 
       Computational Physics, 208, 2005, pp. 206-227.
@@ -225,9 +238,12 @@
  *  specific to the 2D ShallowWater equations.
 */
 typedef struct shallowwater2d_parameters {
-  double  g;         /*!< Acceleration due to gravity */
   int     bt_type;   /*!< 1 -> bottom topography is periodic, 0 -> bottom topography is not periodic */
-  double  *b;        /*!< Array to store the bottom topography \f$b(x,y)\f$ */
+  double  g,         /*!< Acceleration due to gravity */
+          *b,        /*!< Array to store the bottom topography \f$b(x,y)\f$ */
+          fhat,      /*!< Coriolis parameter */
+          beta,      /*!< beta-plane approximation parameter for Coriolis force */
+          D;         /*!< Channel width for Coriolis force calculation */
   char    upw_choice[_MAX_STRING_SIZE_]; /*!< Choice of upwinding scheme.\sa #_ROE_, #_LLF_*/
   /*! Function pointer to the function that computes the "upwinding" step in source term computation. To 
       understand the implementation of the gravitational source terms, see:
