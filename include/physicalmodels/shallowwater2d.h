@@ -91,7 +91,6 @@
 /*! \def _ShallowWater2DRoeAverage_
     Compute the Roe average of two conserved solution
     vectors.\n
-    Note: Implemented as the arithmetic average right now.
 */
 #define _ShallowWater2DRoeAverage_(uavg,uL,uR,p) \
   { \
@@ -101,8 +100,8 @@
     _ShallowWater2DGetFlowVar_(uL,hL,uvelL,vvelL); \
     _ShallowWater2DGetFlowVar_(uR,hR,uvelR,vvelR); \
     h    = 0.5 * (hL    + hR   ); \
-    uvel = 0.5 * (uvelL + uvelR); \
-    vvel = 0.5 * (vvelL + vvelR); \
+    uvel = (sqrt(hL)*uvelL + sqrt(hR)*uvelR) / (sqrt(hL) + sqrt(hR)); \
+    vvel = (sqrt(hL)*vvelL + sqrt(hR)*vvelR) / (sqrt(hL) + sqrt(hR)); \
     uavg[0] = h; \
     uavg[1] = h*uvel; \
     uavg[2] = h*vvel; \
