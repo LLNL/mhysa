@@ -5,6 +5,7 @@ SUBDIRS = \
   FirstDerivative \
   HyParFunctions \
   InterpolationFunctions \
+  IOFunctions \
   PETScFunctions \
   PhysicalModels \
   MathFunctions \
@@ -40,4 +41,5 @@ HyPar_LDADD = \
   MPIFunctions/libMPIFunctions.a \
   BandedMatrix/libBandedMatrix.a \
   ArrayFunctions/libArrayFunctions.a \
-  MathFunctions/libMathFunctions.a
+  MathFunctions/libMathFunctions.a \
+  IOFunctions/libIOFunctions.a

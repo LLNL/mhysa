@@ -20,14 +20,8 @@ libHyParFunctions_a_SOURCES = \
   ParabolicFunctionNC1Stage.c \
   ParabolicFunctionNC2Stage.c \
   ParabolicFunctionNC1.5Stage.c \
-  ReadArray.c \
   ReadInputs.c \
   Solve.c \
   SolvePETSc.c \
   SourceFunction.c \
-  VolumeIntegral.c \
-  WriteArray.c \
-  WriteBinary.c \
-  WriteTecplot2D.c \
-  WriteTecplot3D.c \
-  WriteText.c
+  VolumeIntegral.c

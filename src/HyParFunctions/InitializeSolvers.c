@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mpivars.h>
+#include <io.h>
 #include <hypar.h>
 #include <tridiagLU.h>
 #include <timeintegration.h>
@@ -10,10 +11,6 @@
 #include <secondderivative.h>
 
 /* Function declarations */
-int  WriteBinary                 (int,int,int*,double*,double*,char*,int*);
-int  WriteText                   (int,int,int*,double*,double*,char*,int*);
-int  WriteTecplot2D              (int,int,int*,double*,double*,char*,int*);
-int  WriteTecplot3D              (int,int,int*,double*,double*,char*,int*);
 int  ApplyBoundaryConditions     (void*,void*,double*,double*,int,double);
 int  HyperbolicFunction          (double*,double*,void*,void*,double,int,
                                   int(*)(double*,double*,int,void*,double),

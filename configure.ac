@@ -115,6 +115,7 @@ AC_CONFIG_FILES([
  src/FirstDerivative/Makefile
  src/HyParFunctions/Makefile
  src/InterpolationFunctions/Makefile
+ src/IOFunctions/Makefile
  src/MathFunctions/Makefile
  src/MPIFunctions/Makefile
  src/PETScFunctions/Makefile

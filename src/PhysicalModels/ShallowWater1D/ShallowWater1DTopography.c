@@ -6,11 +6,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arrayfunctions.h>
+#include <io.h>
 #include <physicalmodels/shallowwater1d.h>
 #include <hypar.h>
 #include <mpivars.h>
-
-int ReadArray(int,int,int*,int*,int,void*,void*,double*,char*,int*);
 
 /*! Set the bottom topography over the domain - reads the topography
     data from a file, if available, else sets it to a constant

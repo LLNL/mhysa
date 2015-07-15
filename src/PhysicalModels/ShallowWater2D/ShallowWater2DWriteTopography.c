@@ -5,11 +5,10 @@
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <io.h>
 #include <mpivars.h>
 #include <hypar.h>
 #include <physicalmodels/shallowwater2d.h>
-
-int WriteArray(int,int,int*,int*,int,double*,double*,void*,void*,char*);
 
 /*! Write out the topography data to file */
 int ShallowWater2DWriteTopography(
