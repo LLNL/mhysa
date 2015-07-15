@@ -4,6 +4,7 @@
 */
 #include <math.h>
 #include <basic.h>
+#include <mathfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 
@@ -21,10 +22,17 @@ int CalculateConservationError(
   int           v,nvars = solver->nvars;
   double        error;
 
+  double base = 0.0;
+  for (v=0; v<nvars; v++) {
+    if (absolute(solver->VolumeIntegralInitial[v]) > base)
+      base = absolute(solver->VolumeIntegralInitial[v]);
+  }
+  if (base == 0.0) base = 1.0;
+  
   for (v=0; v<nvars; v++) {
     error =  (solver->VolumeIntegral[v]+solver->TotalBoundaryIntegral[v]-solver->VolumeIntegralInitial[v]) 
            * (solver->VolumeIntegral[v]+solver->TotalBoundaryIntegral[v]-solver->VolumeIntegralInitial[v]);
-    solver->ConservationError[v] = sqrt(error);
+    solver->ConservationError[v] = sqrt(error)/base;
   }
   
   return(0);
