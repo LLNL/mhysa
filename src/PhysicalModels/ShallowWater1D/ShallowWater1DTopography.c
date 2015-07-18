@@ -29,7 +29,7 @@ int ShallowWater1DTopography(
 
   /* read topography from provided file, if available */
   IERR ReadArray(solver->ndims,1,solver->dim_global,solver->dim_local,solver->ghosts,
-                 solver,mpi,S,"topography",&flag); CHECKERR(ierr);
+                 solver,mpi,NULL,S,"topography",&flag); CHECKERR(ierr);
   if (!flag) {
     /* if topography file not available, set it to zero */
     _ArraySetValue_(S,solver->npoints_local_wghosts,0.0);
