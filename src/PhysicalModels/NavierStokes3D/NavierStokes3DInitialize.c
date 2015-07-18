@@ -124,8 +124,8 @@ int NavierStokes3DInitialize(void *s,void *m)
    * the dissipation terms in the general form                      */
   solver->ParabolicFunction = NavierStokes3DParabolicFunction;
 
-  /* check that solver has the correct choice of diffusion formulation */
-  if (strcmp(solver->spatial_type_par,_NC_2STAGE_)) {
+  /* check that solver has the correct choice of diffusion formulation, if viscous flow */
+  if (strcmp(solver->spatial_type_par,_NC_2STAGE_) && (physics->Re > 0)) {
     if (!mpi->rank) {
       fprintf(stderr,"Error in NavierStokes3DInitialize(): Parabolic term spatial discretization must be \"%s\"\n",_NC_2STAGE_);
     }
