@@ -238,7 +238,8 @@
  *  specific to the 2D ShallowWater equations.
 */
 typedef struct shallowwater2d_parameters {
-  int     bt_type;   /*!< 1 -> bottom topography is periodic, 0 -> bottom topography is not periodic */
+  int     bt_type,   /*!< 1 -> bottom topography is periodic, 0 -> bottom topography is not periodic */
+          topo_flag; /*!< Flag to indicate if topography file was provided */
   double  g,         /*!< Acceleration due to gravity */
           *b,        /*!< Array to store the bottom topography \f$b(x,y)\f$ */
           fhat,      /*!< Coriolis parameter */

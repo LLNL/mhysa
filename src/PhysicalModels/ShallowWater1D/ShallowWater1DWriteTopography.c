@@ -21,9 +21,11 @@ int ShallowWater1DWriteTopography(
   ShallowWater1D  *params = (ShallowWater1D*) solver->physics;
   _DECLARE_IERR_;
 
-  IERR WriteArray(solver->ndims,1,solver->dim_global,solver->dim_local,
-                  solver->ghosts,solver->x,params->b,solver,mpi,
-                  "topography"); CHECKERR(ierr);
+  if (params->topo_flag) {
+    IERR WriteArray(solver->ndims,1,solver->dim_global,solver->dim_local,
+                    solver->ghosts,solver->x,params->b,solver,mpi,
+                    "topography"); CHECKERR(ierr);
+  }
 
   return(0);
 }

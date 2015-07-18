@@ -23,14 +23,14 @@ int ShallowWater2DTopography(
   MPIVariables   *mpi    = (MPIVariables*) m;
   ShallowWater2D *param  = (ShallowWater2D*) solver->physics;
   double         *S      = param->b;
-  int            flag, d, done, *dim = solver->dim_local, 
+  int            d, done, *dim = solver->dim_local, 
                  ghosts = solver->ghosts;
   _DECLARE_IERR_;
 
   /* read topography from provided file, if available */
   IERR ReadArray(solver->ndims,1,solver->dim_global,solver->dim_local,solver->ghosts,
-                 solver,mpi,NULL,S,"topography",&flag); CHECKERR(ierr);
-  if (!flag) {
+                 solver,mpi,NULL,S,"topography",&param->topo_flag); CHECKERR(ierr);
+  if (!param->topo_flag) {
     /* if topography file not available, set it to zero */
     _ArraySetValue_(S,solver->npoints_local_wghosts,0.0);
   }

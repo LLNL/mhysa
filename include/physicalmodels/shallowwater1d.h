@@ -136,7 +136,8 @@
 */
 typedef struct shallowwater1d_parameters {
   double  g;         /*!< Acceleration due to gravity */
-  int     bt_type;   /*!< 1 -> bottom topography is periodic, 0 -> bottom topography is not periodic */
+  int     bt_type,   /*!< 1 -> bottom topography is periodic, 0 -> bottom topography is not periodic */
+          topo_flag; /*!< Flag to indicate if topography file was provided */
   double  *b;        /*!< Array to store the bottom topography \f$b(x)\f$ */
   char    upw_choice[_MAX_STRING_SIZE_]; /*!< Choice of upwinding scheme.\sa #_ROE_, #_LLF_*/
   /*! Function pointer to the function that computes the "upwinding" step in source term computation. To 
