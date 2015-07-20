@@ -38,8 +38,8 @@ HyPar_LDADD = \
   FirstDerivative/libFirstDerivative.a \
   SecondDerivative/libSecondDerivative.a \
   TridiagLU/libTridiagLU.a \
+  IOFunctions/libIOFunctions.a \
   MPIFunctions/libMPIFunctions.a \
   BandedMatrix/libBandedMatrix.a \
   ArrayFunctions/libArrayFunctions.a \
-  MathFunctions/libMathFunctions.a \
-  IOFunctions/libIOFunctions.a
+  MathFunctions/libMathFunctions.a
