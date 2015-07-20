@@ -185,7 +185,7 @@ int PetscRegisterTIMethods(int rank)
               if (c)  printf("  %+1.5lf |",c[i]);
               else    printf("           |");
               for (j = 0; j < s; j++) printf (" %+1.5lf :",A[i*s+j]);
-              printf("\t");
+              printf("          ");
               if (ct)  printf("%+1.5lf |",ct[i]);
               else     printf("           |");
               for (j = 0; j < s; j++) printf (" %+1.5lf :",At[i*s+j]);
@@ -193,15 +193,15 @@ int PetscRegisterTIMethods(int rank)
             }
             printf("  ---------|");
             for (j = 0; j < s; j++) printf("-----------");
-            printf("\t");
+            printf("            ");
             printf("---------|");
             for (j = 0; j < s; j++) printf("-----------");
             printf("\n");
             printf("           |");
             if (b)   for (j = 0; j < s; j++) printf(" %+1.5lf :",b[j]);
             else     for (j = 0; j < s; j++) printf("          :");
-            printf("\t");
-            printf("         |");
+            printf("          ");
+            printf("           |");
             if (bt)  for (j = 0; j < s; j++) printf(" %+1.5lf :",bt[j]);
             else     for (j = 0; j < s; j++) printf("          :");
             printf("\n\n");
