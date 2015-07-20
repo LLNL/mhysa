@@ -1,10 +1,9 @@
 /*! @file WriteArray.c
     @author Debojyoti Ghosh
-    @brief Write an array to file
+    @brief Write a vector field, stored as an array, to file
 
-    Contains functions to write out an array (which is not
-    a part of the solution) to a file in the same format 
-    and mode as the solution output file.
+    Contains functions to write out a vector field, stored
+    as an array to a file.
 */
 
 #include <stdio.h>
@@ -13,23 +12,15 @@
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
-#include <timeintegration.h>
 #include <hypar.h>
 
 /* Function declarations */
 static int WriteArraySerial   (int,int,int*,int*,int,double*,double*,void*,void*,char*);
 static int WriteArrayParallel (int,int,int*,int*,int,double*,double*,void*,void*,char*);
 
-/*! Write out an array data to file: wrapper function that calls 
-    the appropriate function depending on output mode (#HyPar::output_mode).\n\n
-    This function can be used to write out a variable array of a physical 
-    quantity that is not a part of the solution (for example, the 
-    topography in #ShallowWater1D). The array is written out in the same 
-    format (#HyPar::op_file_format) and using the same mode (#HyPar::output_mode)
-    as the solution. The global and local dimensions, number of ghost points, 
-    number of spatial dimensions, and number of variables per grid point may be 
-    different from the solution. 
-    \sa OutputSolution()
+/*! Write out a vector field, stored as an array, to file: wrapper function that calls 
+    the appropriate function depending on output mode (#HyPar::output_mode). The 
+    output file format is determined by #HyPar::op_file_format
 */
 int WriteArray(
                 int     ndims,        /*!< Number of spatial dimensions */
@@ -37,8 +28,8 @@ int WriteArray(
                 int     *dim_global,  /*!< Integer array of size ndims with global grid size in each dimension */
                 int     *dim_local,   /*!< Integer array of size ndims with local  grid size in each dimension */
                 int     ghosts,       /*!< Number of ghost points */
-                double  *x,           /*!< Array of spatial coordinates */
-                double  *u,           /*!< Array to write */
+                double  *x,           /*!< Array of spatial coordinates (i.e. the grid) */
+                double  *u,           /*!< Vector field to write */
                 void    *s,           /*!< Solver object of type #HyPar */
                 void    *m,           /*!< MPI object of type #MPIVariables */
                 char*   fname_root    /*!< Filename root (extension is added automatically). For unsteady output,
@@ -64,23 +55,24 @@ int WriteArray(
 }
 
 /*!
-  Function to write out an array to a file in serial mode.
-  It will allocate the global domain on rank 0, so do not
-  use for big problems for which the entire global domain 
-  will not fit on one node. This approach is also not very
-  scalable.\n\n
-  + See WriteArray() for what this is used for.
-  + Supports both binary, and ascii-type formats.
-  \sa ReadArraySerial(), OutputSolutionSerial()
-*/
+  Function to write out a vector field, stored as an array, and
+  its associated Cartesian grid to a file in serial mode. It will 
+  allocate the global domain on rank 0, so do not use for big 
+  problems for which the entire global domain will not fit on one 
+  node. This approach is also not very scalable.
+  + Supports binary and ASCII formats (specified through
+    #HyPar::output_format).
+
+  \sa WriteBinary(), WriteText(), WriteTecplot2D(), WriteTecplot3D()
+*/ 
 int WriteArraySerial(
                       int     ndims,        /*!< Number of spatial dimensions */
                       int     nvars,        /*!< Number of variables per grid point */
                       int     *dim_global,  /*!< Integer array of size ndims with global grid size in each dimension */
                       int     *dim_local,   /*!< Integer array of size ndims with local  grid size in each dimension */
                       int     ghosts,       /*!< Number of ghost points */
-                      double  *x,           /*!< Array of spatial coordinates */
-                      double  *u,           /*!< Array to write */
+                      double  *x,           /*!< Array of spatial coordinates (i.e. the grid) */
+                      double  *u,           /*!< Vector field to write */
                       void    *s,           /*!< Solver object of type #HyPar */
                       void    *m,           /*!< MPI object of type #MPIVariables */
                       char*   fname_root    /*!< Filename root (extension is added automatically). For unsteady output,
@@ -148,14 +140,49 @@ int WriteArraySerial(
   return(0);
 }
 
-/*!
-  Function to write an array to file in parallel. See InitialSolutionParallel()
-  to understand the logic of parallel I/O. This function uses the same I/O groups
-  and ranks to write out the files. This approach to file output has been observed
-  to be very scalable. \n
-  + Supports only binary output
-  + See WriteArray() to understand what this is used for.
-  \sa InitialSolutionParallel, OutputSolutionParallel()
+/*! Write a vector field, stored as an array, and its associated Cartesian grid
+    to a file in parallel. All the MPI ranks are divided into IO groups,
+    each with a group leader that writes out the data for the ranks in 
+    its group. The number of groups (and thus, the number of ranks 
+    participating in file I/O) is given by #MPIVariables::N_IORanks.
+    The group leader receives the local data from each rank in its 
+    group, and writes it out to the corresponding file.
+    + The data is written in binary format only.
+    + The number of files written is equal to the number of IO groups
+      (#MPIVariables::N_IORanks), and are named as <fname_root>.bin.nnnn
+      where "nnnn" is a string of format "%04d" representing n, 
+      0 <= n < MPIVariables::N_IORanks.
+    + Each file contains the following blocks of data:\n
+      {\n
+        x0_i (0 <= i < dim_local[0])\n
+        x1_i (0 <= i < dim_local[1])\n
+        ...\n
+        x{ndims-1}_i (0 <= i < dim_local[ndims-1])\n
+        [u0,u1,...,u{nvars-1}]_p (0 <= p < N) (with no commas)\n
+        \n
+        where \n
+        x0, x1, ..., x{ndims-1} represent the spatial dimensions (for a 3D problem, x0 = x, x1 = y, x2 = z),\n
+        u0, u1, ..., u{nvars-1} are each component of the vector u at a grid point,\n
+        N = dim_local[0]*dim_local[1]*...*dim_local[ndims-1] is the total number of points,\n
+        and p = i0 + dim_local[0]*( i1 + dim_local[1]*( i2 + dim_local[2]*( ... _ i{ndims-1} )))\n
+        with i0, i1, i2, etc representing grid indices along each spatial dimension, i.e.,\n
+        0 <= i0 < dim_local[0]-1\n
+        0 <= i1 < dim_local[1]-1\n
+        ...\n
+        0 <= i{ndims-1} < dim_local[ndims=1]-1\n
+      }\n
+      for each rank in the corresponding group (i.e., there are #MPIVariables::nproc divided by
+      #MPIVariables::N_IORanks such blocks in each file).
+    + To stitch all the local data in these files into the global solution, and write that out to 
+      a binary file can be done by Extras/ParallelOutput.c.
+    + If #HyPar::op_overwrite is set to 0, the vector field at the various simulation times are appended
+      to each of the <fname_root>.bin.nnnn. The code Extras/ParallelOutput.c will take care of writing
+      the global solution at each simulation time to a different file (in binary format) (the same files
+      that WriteArraySerial() would have written out if serial file output was chosen).
+
+    This approach has been observed to be very scalable (with up to ~500,000 MPI ranks). The number of MPI
+    ranks participating in file I/O (#MPIVariables::N_IORanks) should be set to the number of I/O nodes 
+    available on a HPC platform, given the number of compute nodes the simulation is running on.
 */
 int WriteArrayParallel(
                         int     ndims,        /*!< Number of spatial dimensions */
@@ -163,8 +190,8 @@ int WriteArrayParallel(
                         int     *dim_global,  /*!< Integer array of size ndims with global grid size in each dimension */
                         int     *dim_local,   /*!< Integer array of size ndims with local  grid size in each dimension */
                         int     ghosts,       /*!< Number of ghost points */
-                        double  *x,           /*!< Array of spatial coordinates */
-                        double  *u,           /*!< Array to write */
+                        double  *x,           /*!< Array of spatial coordinates (i.e. the grid) */
+                        double  *u,           /*!< Vector field to write */
                         void    *s,           /*!< Solver object of type #HyPar */
                         void    *m,           /*!< MPI object of type #MPIVariables */
                         char*   fname_root    /*!< Filename root (extension is added automatically). For unsteady output,

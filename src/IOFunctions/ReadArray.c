@@ -114,7 +114,8 @@ int ReadArray(
     x0, x1, ..., x{ndims-1} represent the spatial dimensions (for a 3D problem, x0 = x, x1 = y, x2 = z),\n
     u0, u1, ..., u{nvars-1} are each component of the vector u,\n
     N = dim_global[0]*dim_global[1]*...*dim_global[ndims-1] is the total number of points,\n
-    and p = i0 + dim_global[0]*( i1 + dim_global[1]*( i2 + dim_global[2]*( ... _ i{ndims-1} )))\n
+    and p = i0 + dim_global[0]*( i1 + dim_global[1]*( i2 + dim_global[2]*( ... + dim_global[ndims-2]*i{ndims-1} )))
+    (see #_ArrayIndexnD_)\n
     with i0, i1, i2, etc representing grid indices along each spatial dimension, i.e.,\n
     0 <= i0 < dim_global[0]-1\n
     0 <= i1 < dim_global[1]-1\n
@@ -134,7 +135,8 @@ int ReadArray(
     x0, x1, ..., x{ndims-1} represent the spatial dimensions (for a 3D problem, x0 = x, x1 = y, x2 = z),\n
     u0, u1, ..., u{nvars-1} are each component of the vector u at a grid point,\n
     N = dim_global[0]*dim_global[1]*...*dim_global[ndims-1] is the total number of points,\n
-    and p = i0 + dim_global[0]*( i1 + dim_global[1]*( i2 + dim_global[2]*( ... _ i{ndims-1} )))\n
+    and p = i0 + dim_global[0]*( i1 + dim_global[1]*( i2 + dim_global[2]*( ... + dim_global[ndims-2]*i{ndims-1} )))
+    (see #_ArrayIndexnD_)\n
     with i0, i1, i2, etc representing grid indices along each spatial dimension, i.e.,\n
     0 <= i0 < dim_global[0]-1\n
     0 <= i1 < dim_global[1]-1\n
@@ -307,7 +309,8 @@ int ReadArraySerial(
      x0, x1, ..., x{ndims-1} represent the spatial dimensions (for a 3D problem, x0 = x, x1 = y, x2 = z),\n
      u0, u1, ..., u{nvars-1} are each component of the vector u at a grid point,\n
      N = dim_local[0]*dim_local[1]*...*dim_local[ndims-1] is the total number of points,\n
-     and p = i0 + dim_local[0]*( i1 + dim_local[1]*( i2 + dim_local[2]*( ... _ i{ndims-1} )))\n
+     and p = i0 + dim_local[0]*( i1 + dim_local[1]*( i2 + dim_local[2]*( ... + dim_global[ndims-2]*i{ndims-1} ))) 
+     (see #_ArrayIndexnD_)\n
      with i0, i1, i2, etc representing grid indices along each spatial dimension, i.e.,\n
      0 <= i0 < dim_local[0]-1\n
      0 <= i1 < dim_local[1]-1\n
@@ -479,7 +482,8 @@ int ReadArrayParallel(
      x0, x1, ..., x{ndims-1} represent the spatial dimensions (for a 3D problem, x0 = x, x1 = y, x2 = z),\n
      u0, u1, ..., u{nvars-1} are each component of the vector u at a grid point,\n
      N = dim_local[0]*dim_local[1]*...*dim_local[ndims-1] is the total number of points,\n
-     and p = i0 + dim_local[0]*( i1 + dim_local[1]*( i2 + dim_local[2]*( ... _ i{ndims-1} )))\n
+     and p = i0 + dim_local[0]*( i1 + dim_local[1]*( i2 + dim_local[2]*( ... + dim_global[ndims-2]*i{ndims-1} )))
+     (see #_ArrayIndexnD_)\n
      with i0, i1, i2, etc representing grid indices along each spatial dimension, i.e.,\n
      0 <= i0 < dim_local[0]-1\n
      0 <= i1 < dim_local[1]-1\n
