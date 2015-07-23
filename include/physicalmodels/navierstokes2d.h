@@ -1,3 +1,22 @@
+/*! @file navierstokes2d.h
+    @author Debojyoti Ghosh
+    @brief 2D Navier Stokes equations (compressible flows)
+
+    2D Navier-Stokes equations for viscous and inviscid compressible flows (with gravitational terms)\n
+
+  \f{equation}{
+    \frac {\partial} {\partial t} \left[\begin{array}{c} \rho \\ \rho u \\ \rho v \\ e \end{array}\right]
+  + \frac {\partial} {\partial x} \left[\begin{array}{c} \rho u \\ \rho u^2 + p \\ \rho u v \\ (e+p) u\end{array}\right]
+  + \frac {\partial} {\partial y} \left[\begin{array}{c} \rho v \\ \rho u v \\ \rho v^2 + p \\ (e+p) v \end{array}\right]
+  = \left[\begin{array}{c} 0 \\ -\rho  \\ -\rho u {\bf g}\dot\hat{\bf i} - \rho v {\bf g}\dot\hat{\bf j} \end{array}\right]
+  \f}
+  where
+  \f{equation}{
+    e = \frac {p} {\gamma-1} + \frac{1}{2} \rho \left(u^2 + v^2\right)
+  \f}
+
+
+*/
 /*
 
   2D Navier-Stokes Equations for Inviscid, Compressible Flows
@@ -55,6 +74,7 @@
     vsq  = (vx*vx) + (vy*vy); \
     P   = (e - 0.5*rho*vsq) * (gamma-1.0); \
   }
+
 
 #define _NavierStokes2DSetFlux_(f,rho,vx,vy,e,P,dir) \
   { \
