@@ -14,13 +14,13 @@
 #include <hypar.h>
 
 /*! Computes the matrices representing the Jacobians of the hyperbolic
-    (#HyPar::FFunction), parabolic (#HyPar::GFunction, #HyPar::HFunction), 
-    and the source (#HyPar::SFunction) terms. Each element is compute through 
-    finite-differences, by perturbing one DOF of the solution at a time.
-    The matrices are not stored in the memory, instead the non-zero are 
-    written to file as soon as they are computed. The filenames for the
-    matrices are "Mat_*Function_nnnnn.dat", where "nnnnn" is a time-
-    dependent index. 
+    (#HyPar::HyperbolicFunction), parabolic (#HyPar::ParabolicFunction), 
+    and the source (#HyPar::SourceFunction) terms. \n\n
+    Each element is compute through finite-differences, by perturbing 
+    one DOF of the solution at a time. The matrices are not stored in the 
+    memory, instead the non-zero are written to file as soon as they are 
+    computed. The filenames for the matrices are "Mat_*Function_nnnnn.dat", 
+    where "nnnnn" is a time-dependent index. 
     \n\n
     + This function is called after #HyPar::file_op_iter iterations (i.e.
       the same frequency at which solution files are written).
@@ -140,12 +140,18 @@ int ComputeRHSOperators(
     fprintf(fout,"%d\n",ndof);
     /* compute the FFunction of u0 */
     _ArraySetValue_(f0,ndof,0.0);
-    IERR solver->HyperbolicFunction(rhs,u0,solver,mpi,t,1,solver->FFunction,
-                                    solver->Upwind); CHECKERR(ierr);
-    IERR solver->HyperbolicFunction(drhs,u0,solver,mpi,t,0,solver->dFFunction,
-                                    solver->UpwinddF); CHECKERR(ierr);
-    _ArrayScale1D_(rhs,-1.0,size);
-    _ArrayAXPY_(drhs,1.0,rhs,size);
+    if (solver->flag_fdf_specified) {
+      IERR solver->HyperbolicFunction(rhs,u0,solver,mpi,t,1,solver->FdFFunction,
+                                      solver->UpwindFdF); CHECKERR(ierr);
+      _ArrayScale1D_(rhs,-1.0,size);
+    } else {
+      IERR solver->HyperbolicFunction(rhs,u0,solver,mpi,t,1,solver->FFunction,
+                                      solver->Upwind); CHECKERR(ierr);
+      IERR solver->HyperbolicFunction(drhs,u0,solver,mpi,t,0,solver->dFFunction,
+                                      solver->UpwinddF); CHECKERR(ierr);
+      _ArrayScale1D_(rhs,-1.0,size);
+      _ArrayAXPY_(drhs,1.0,rhs,size);
+    }
     /* transfer to an array f0 which as no ghost points */
     IERR ArrayCopynD(ndims,rhs,f0,dim,ghosts,0,index,nvars); CHECKERR(ierr);
     for (i=0; i<ndof; i++) {
@@ -164,12 +170,18 @@ int ComputeRHSOperators(
       IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the FFunction of u */
-      IERR solver->HyperbolicFunction(rhs,u,solver,mpi,t,1,solver->FFunction,
-                                      solver->Upwind); CHECKERR(ierr);
-      IERR solver->HyperbolicFunction(drhs,u,solver,mpi,t,0,solver->dFFunction,
-                                      solver->UpwinddF); CHECKERR(ierr);
-      _ArrayScale1D_(rhs,-1.0,size);
-      _ArrayAXPY_(drhs,1.0,rhs,size);
+      if (solver->flag_fdf_specified) {
+        IERR solver->HyperbolicFunction(rhs,u,solver,mpi,t,1,solver->FdFFunction,
+                                        solver->UpwindFdF); CHECKERR(ierr);
+        _ArrayScale1D_(rhs,-1.0,size);
+      } else {
+        IERR solver->HyperbolicFunction(rhs,u,solver,mpi,t,1,solver->FFunction,
+                                        solver->Upwind); CHECKERR(ierr);
+        IERR solver->HyperbolicFunction(drhs,u,solver,mpi,t,0,solver->dFFunction,
+                                        solver->UpwinddF); CHECKERR(ierr);
+        _ArrayScale1D_(rhs,-1.0,size);
+        _ArrayAXPY_(drhs,1.0,rhs,size);
+      }
       /* transfer to an array f which as no ghost points */
       _ArraySetValue_(f,ndof,0.0);
       IERR ArrayCopynD(ndims,rhs,f,dim,ghosts,0,index,nvars); CHECKERR(ierr);

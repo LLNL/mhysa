@@ -1,11 +1,8 @@
-#ifdef with_petsc
-
-/*
-  Function to compute and print (to file) matrix representations
-  of the IFunction and RHSFunction.
-
-  Implemented only for single-processor simulations.
+/*! @file PetscComputeRHSOperators.c
+    @author Debojyoti Ghosh
+    @brief Compute the Jacobians representing the time-integration right-hand-sides.
 */
+#ifdef with_petsc
 
 #ifdef compute_rhs_operators
 
@@ -21,9 +18,41 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscComputeRHSOperators"
 
+/*! Absolute value of a number */
 #define absolute(a) ((a)<0?-(a):(a))
 
-int PetscComputeRHSOperators(TS ts,double t,void *ctxt)
+/*! Computes the matrices representing the Jacobians of the following terms:
+    + PetscRHSFunctionExpl(): the right-hand-side for explicit time-integraion.
+    + PetscRHSFunctionIMEX(): the right-hand-side (explicit part) for implicit-explicit
+      time integration.
+    + PetscIFunctionIMEX(): the left-hand-side (implcit part) for implicit-explicit
+      time integration.
+    
+    Each element is compute through finite-differences, by perturbing 
+    one DOF of the solution at a time. The matrices are not stored in the 
+    memory, instead the non-zero are written to file as soon as they are 
+    computed. The filenames for the matrices are "Mat_*Function_nnnnn.dat", 
+    where "nnnnn" is a time-dependent index.
+    + This function is called after #HyPar::file_op_iter iterations (i.e.
+      the same frequency at which solution files are written).
+    + If a splitting for the hyperbolic flux is defined, then the Jacobians
+      of the complete hyperbolic term, as well as the split terms are computed.
+    + The eigenvalues of these matrices can be computed and plotted in MATLAB 
+      using the scripts Examples/Matlab/ComputeEvals.m and Examples/Matlab/PlotEvals.m
+      respectively.
+    + To use this function, the code must be compiled with the flag 
+      \b -Dcompute_rhs_operators, and run on a single processor. This 
+      is very slow for larger domains, and should be used only for 
+      the numerical analysis of test cases.
+    + The current solution stored in #HyPar::u is used as the reference state
+      at which the Jacobians are computed (this is relevant to know for 
+      non-linear right-hand-sides functions).
+*/
+int PetscComputeRHSOperators(
+                              TS      ts,   /*!< Time integrator of PETSc type TS */
+                              double  t,    /*!< Current simulation time */
+                              void    *ctxt /*!< Object of type #PETScContext */
+                            )
 {
   PETScContext  *context = (PETScContext*) ctxt;
   HyPar         *solver  = (HyPar*)        context->solver;
