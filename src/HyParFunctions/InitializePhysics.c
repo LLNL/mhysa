@@ -35,6 +35,7 @@ int InitializePhysics(void *s,void *m)
   solver->ComputeDiffNumber     = NULL;
   solver->FFunction             = NULL;
   solver->dFFunction            = NULL;
+  solver->FdFFunction           = NULL;
   solver->GFunction             = NULL;
   solver->HFunction             = NULL;
   solver->SFunction             = NULL;
@@ -42,6 +43,7 @@ int InitializePhysics(void *s,void *m)
   solver->JFunction             = NULL;
   solver->Upwind                = NULL;
   solver->UpwinddF              = NULL;
+  solver->UpwindFdF             = NULL;
   solver->PreStage              = NULL;
   solver->PostStage             = NULL;
   solver->PreStep               = NULL;
@@ -146,6 +148,8 @@ int InitializePhysics(void *s,void *m)
       }
       return(1);
     }
+    if (solver->FdFFunction && solver->UpwindFdF) solver->flag_fdf_specified = 1;
+    else                                          solver->flag_fdf_specified = 0;
   }
   return(0);
 }

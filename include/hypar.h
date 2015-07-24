@@ -227,15 +227,35 @@ typedef struct main_parameters {
 
   /*! Function to calculate the hyperbolic flux function */
   int    (*FFunction)          (double*,double*,int,void*,double);
-  /*! If hyperbolic flux is split, function to calculate the split part of
-   * the hyperbolic flux function. The splitting is
-   * F(u) = [F(u) - dF(u)] + dF(u) */ 
+  /*! If hyperbolic flux is split as \f$f\left(u\right) = \left[f\left(u\right)-df\left(u\right)\right] + df\left(u\right)\f$
+      (see #HyPar::SplitHyperbolicFlux), 
+      function to calculate \f$df\left(u\right)\f$ */ 
   int    (*dFFunction)         (double*,double*,int,void*,double);
+  /*! If hyperbolic flux is split as \f$f\left(u\right) = \left[f\left(u\right)-df\left(u\right)\right] + df\left(u\right)\f$, 
+      (see #HyPar::SplitHyperbolicFlux), 
+      function to calculate \f$\left[f-df\right]\left(u\right)\f$.\n
+   Specifying this is optional; if the physical model does not explicitly specify this, then it is computed by subtracting 
+   HyPar::dFFunction() from HyPar::FFunction(). \sa #HyPar::flag_fdf_specified */ 
+  int    (*FdFFunction)         (double*,double*,int,void*,double);
+  /*! Flag indicating whether the physical model has explicitly specified the function to compute 
+      \f$\left[f-df\right]\left(u\right)\f$ (HyPar::FdFFunction()) or not. Relevant if the hyperbolic flux
+      is being partitioned. \sa #HyPar::SplitHyperbolicFlux, HyPar::dFFunction(), HyPar::FdFFunction() */
+  int flag_fdf_specified;
 
   /*! Function to calculate the upwind interface flux, given the left- and right-biased fluxes */
   int    (*Upwind)             (double*,double*,double*,double*,double*,double*,int,void*,double);
-  /*! Function to calculate the upwind interface split flux, given the left- and right-biased fluxes */
+  /*! Function to calculate the upwind interface split flux \f$df\left(u\right)\f$, given the left- and right-biased 
+      approximations. Relevant only if the hyperbolic flux is being partitioned as 
+      \f$f\left(u\right) = \left[f\left(u\right)-df\left(u\right)\right] + df\left(u\right)\f$
+      \sa #HyPar::SplitHyperbolicFlux, HyPar::dFFunction()*/
   int    (*UpwinddF)           (double*,double*,double*,double*,double*,double*,int,void*,double);
+  /*! Function to calculate the upwind interface split flux \f$\left[f-df\right]\left(u\right)\f$, given its left- 
+      and right-biased approximations. Relevant only if the hyperbolic flux is being partitioned as 
+      \f$f\left(u\right) = \left[f\left(u\right)-df\left(u\right)\right] + df\left(u\right)\f$ (see
+      #HyPar::SplitHyperbolicFlux, HyPar::dFFunction()), and if the split part
+      \f$\left[f-df\right]\left(u\right)\f$ is being specified explicitly (see HyPar::FdFFunction(),
+      #HyPar::flag_fdf_specified). */
+  int    (*UpwindFdF)          (double*,double*,double*,double*,double*,double*,int,void*,double);
 
   /*! Function to calculate the parabolic function */
   int    (*GFunction)          (double*,double*,int,void*,double);

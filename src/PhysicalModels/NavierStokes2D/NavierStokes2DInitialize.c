@@ -15,6 +15,7 @@
 double NavierStokes2DComputeCFL        (void*,void*,double,double);
 int    NavierStokes2DFlux              (double*,double*,int,void*,double);
 int    NavierStokes2DStiffFlux         (double*,double*,int,void*,double);
+int    NavierStokes2DNonStiffFlux      (double*,double*,int,void*,double);
 int    NavierStokes2DRoeAverage        (double*,double*,double*,void*);
 int    NavierStokes2DParabolicFunction (double*,double*,void*,void*,double);
 int    NavierStokes2DSource            (double*,double*,void*,void*,double);
@@ -35,6 +36,11 @@ int    NavierStokes2DUpwinddFRoe       (double*,double*,double*,double*,double*,
 int    NavierStokes2DUpwinddFRF        (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwinddFLLF       (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwinddFRusanov   (double*,double*,double*,double*,double*,double*,int,void*,double);
+
+int    NavierStokes2DUpwindFdFRoe      (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwindFdFRF       (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwindFdFLLF      (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwindFdFRusanov  (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 int    NavierStokes2DGravityField      (void*,void*);
 int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
@@ -186,13 +192,23 @@ int NavierStokes2DInitialize(
     return(1);
   }
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
-    solver->dFFunction = NavierStokes2DStiffFlux;
-    solver->JFunction  = NavierStokes2DStiffJacobian;
-    if      (!strcmp(physics->upw_choice,_ROE_    )) solver->UpwinddF = NavierStokes2DUpwinddFRoe;
-    else if (!strcmp(physics->upw_choice,_RF_     )) solver->UpwinddF = NavierStokes2DUpwinddFRF;
-    else if (!strcmp(physics->upw_choice,_LLF_    )) solver->UpwinddF = NavierStokes2DUpwinddFLLF;
-    else if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->UpwinddF = NavierStokes2DUpwinddFRusanov;
-    else {
+    solver->FdFFunction = NavierStokes2DNonStiffFlux;
+    solver->dFFunction  = NavierStokes2DStiffFlux;
+    solver->dFFunction  = NavierStokes2DStiffFlux;
+    solver->JFunction   = NavierStokes2DStiffJacobian;
+    if      (!strcmp(physics->upw_choice,_ROE_)) {
+      solver->UpwinddF  = NavierStokes2DUpwinddFRoe;
+      solver->UpwindFdF = NavierStokes2DUpwindFdFRoe;
+    } else if (!strcmp(physics->upw_choice,_RF_)) {
+      solver->UpwinddF  = NavierStokes2DUpwinddFRF;
+      solver->UpwindFdF = NavierStokes2DUpwindFdFRF;
+    } else if (!strcmp(physics->upw_choice,_LLF_)) {
+      solver->UpwinddF  = NavierStokes2DUpwinddFLLF;
+      solver->UpwindFdF = NavierStokes2DUpwindFdFLLF;
+    } else if (!strcmp(physics->upw_choice,_RUSANOV_)) {
+      solver->UpwinddF  = NavierStokes2DUpwinddFRusanov;
+      solver->UpwindFdF = NavierStokes2DUpwindFdFRusanov;
+    } else {
       if (!mpi->rank) {
         fprintf(stderr,"Error in NavierStokes2DInitialize(): %s is not a valid upwinding scheme ",
                 physics->upw_choice);

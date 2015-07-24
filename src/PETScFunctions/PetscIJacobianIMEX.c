@@ -107,7 +107,20 @@ PetscErrorCode PetscJacobianFunctionIMEX_JFNK(
 
     /* Evaluate hyperbolic, parabolic and source terms  and the RHS for U+dU */
     _ArraySetValue_(rhs,size*solver->nvars,0.0);
-    if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    if ((!strcmp(solver->SplitHyperbolicFlux,"yes")) && solver->flag_fdf_specified) {
+      if (context->flag_hyperbolic_f == _IMPLICIT_) {
+        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                          solver->FdFFunction,solver->UpwindFdF);
+        CHECKERR(ierr);
+        _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+      } 
+      if (context->flag_hyperbolic_df == _IMPLICIT_) {
+        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                          solver->dFFunction,solver->UpwinddF); 
+        CHECKERR(ierr);
+        _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+      }
+    } else if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
       if (context->flag_hyperbolic_f == _IMPLICIT_) {
         ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
                                           solver->FFunction,solver->Upwind);
@@ -207,7 +220,20 @@ PetscErrorCode PetscJacobianFunctionIMEX_Linear(
 
     /* Evaluate hyperbolic, parabolic and source terms  and the RHS for U+dU */
     _ArraySetValue_(rhs,size*solver->nvars,0.0);
-    if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    if ((!strcmp(solver->SplitHyperbolicFlux,"yes")) && solver->flag_fdf_specified) {
+      if (context->flag_hyperbolic_f == _IMPLICIT_) {
+        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                          solver->FdFFunction,solver->UpwindFdF);
+        CHECKERR(ierr);
+        _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+      } 
+      if (context->flag_hyperbolic_df == _IMPLICIT_) {
+        ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                          solver->dFFunction,solver->UpwinddF); 
+        CHECKERR(ierr);
+        _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
+      }
+    } else if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
       if (context->flag_hyperbolic_f == _IMPLICIT_) {
         ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
                                           solver->FFunction,solver->Upwind);

@@ -129,6 +129,31 @@
     } \
   }
 
+/*! \def _NavierStokes2DSetNonStiffFlux_
+  Compute the stiff flux vector (comprising the acoustic modes only), given the flow variables
+  \f{eqnarray}{
+    dir = x, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{\gamma-1}{\gamma}\rho u \\ \frac{\gamma-1}{\gamma}\rho u^2 \\ \frac{\gamma-11}{\gamma}\rho u v \\ \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2\right)u \end{array}\right], \\
+    dir = y, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{\gamma-1}{\gamma}\rho v \\ \frac{\gamma-1}{\gamma}\rho u v \\ \frac{\gamma-1}{\gamma}\rho v^2 \\ \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2\right)v \end{array}\right]
+  \f}
+  Reference:
+  + Not yet published!
+*/
+#define _NavierStokes2DSetNonStiffFlux_(f,rho,vx,vy,e,P,dir,gamma) \
+  { \
+    double gamma_inv = 1.0/gamma; \
+    if (dir == _XDIR_) { \
+      f[0] = (gamma-1.0) * gamma_inv * rho * vx; \
+      f[1] = (gamma-1.0) * gamma_inv * rho * vx * vx; \
+      f[2] = (gamma-1.0) * gamma_inv * rho * vx * vy; \
+      f[3] = 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy) * vx; \
+    } else if (dir == _YDIR_) { \
+      f[0] = (gamma-1.0) * gamma_inv * rho * vy; \
+      f[1] = (gamma-1.0) * gamma_inv * rho * vy * vx; \
+      f[2] = (gamma-1.0) * gamma_inv * rho * vy * vy; \
+      f[3] = 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy) * vy; \
+    } \
+  }
+
 /*! \def _NavierStokes2DRoeAverage_
   Compute the Roe-average of two solutions.
 */
