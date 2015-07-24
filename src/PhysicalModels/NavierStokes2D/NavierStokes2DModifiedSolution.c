@@ -1,21 +1,41 @@
+/*! @file NavierStokes2DModifiedSolution.c
+    @author Debojyoti Ghosh
+    @brief Compute the modified solution for the well-balanced treatment of gravitational source terms.
+*/
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <physicalmodels/navierstokes2d.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-/*
-
-  Refer to 
-  + Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme 
-    for the Gas Dynamics Equations Under Gravitational Fields", 
-    Journal of Scientific Computing, 54, 2013, pp. 645-662,
-    http://dx.doi.org/10.1007/s10915-012-9585-8
-
-    Equation (3.8) on Page 651 on why this modification is needed.
+/*!
+    This function computes the modified solution for the well-balanced treatment of the 
+    gravitational source terms. The modified solution vector is given by
+    \f{equation}{
+      {\bf u}^* = \left[\begin{array}{c} \rho \varrho^{-1}\left(x,y\right) \\ \rho u \varrho^{-1}\left(x,y\right) \\ \rho v \varrho^{-1}\left(x,y\right) \\ e^* \end{array}\right]
+    \f}
+    where 
+    \f{equation}{
+      e^* = \frac{p \varphi^{-1}\left(x,y\right)}{\gamma-1} + \frac{1}{2}\rho \varrho^{-1}\left(x,y\right) \left(u^2+v^2\right)
+    \f}
+    \f$\varrho\f$ and \f$\varphi\f$ are computed in #NavierStokes2DGravityField(). For flows without gravity, \f${\bf u}^* = {\bf u}\f$.
+    
+    References:
+    + Ghosh, D., Constantinescu, E.M., Well-Balanced Formulation of Gravitational Source
+      Terms for Conservative Finite-Difference Atmospheric Flow Solvers, AIAA Paper 2015-2889,
+      7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
+      http://dx.doi.org/10.2514/6.2015-2889
+    + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
+      for Atmospheric Flows, Submitted
 */
-
-int NavierStokes2DModifiedSolution(double *uC,double *u,int d,void *s,void *m,double waqt)
+int NavierStokes2DModifiedSolution(
+                                    double  *uC,  /*!< Array to hold the computed modified solution */
+                                    double  *u,   /*!< Solution vector array */
+                                    int     d,    /*!< spatial dimension (not used) */
+                                    void    *s,   /*!< Solver object of type #HyPar */
+                                    void    *m,   /*!< MPI object of time #MPIVariables */
+                                    double waqt   /*!< Current simulation time */
+                                  )
 {
   HyPar           *solver = (HyPar*)          s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;

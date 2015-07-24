@@ -1,3 +1,7 @@
+/*! @file NavierStokes2DUpwind.c
+    @author Debojyoti Ghosh
+    @brief Contains functions to compute the upwind flux at grid interfaces for the 2D Navier Stokes equations.
+*/
 #include <stdlib.h>
 #include <math.h>
 #include <basic.h>
@@ -6,17 +10,37 @@
 #include <mathfunctions.h>
 #include <hypar.h>
 
-/*
-  Note: Only the Roe, Rusanov and LLF upwinding are modified to handle flows
-  with gravity, because they are the only ones that can be expressed
-  in the well-balanced form. Refer to:
-    Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme 
-    for the Gas Dynamics Equations Under Gravitational Fields", 
-    Journal of Scientific Computing, 54, 2013, pp. 645-662,
-    http://dx.doi.org/10.1007/s10915-012-9585-8
-*/
+/*! Roe's upwinding scheme.
+    \f{equation}{
+      {\bf f}_{j+1/2} = \frac{1}{2}\left[ {\bf f}_{j+1/2}^L + {\bf f}_{j+1/2}^R 
+                         - \left| A\left({\bf u}_{j+1/2}^L,{\bf u}_{j+1/2}^R\right) \right|
+                           \left( {\bf u}_{j+1/2}^R - {\bf u}_{j+1/2}^L  \right)\right]
+    \f}
+    + Roe, P. L., “Approximate Riemann solvers, parameter vectors, and difference schemes,” Journal of
+    Computational Physics, Vol. 43, No. 2, 1981, pp. 357–372, http://dx.doi.org/10.1016/0021-9991(81)90128-5.
+    
+    This upwinding scheme is modified for the balanced discretization of the 2D Navier Stokes equations when 
+    there is a non-zero gravitational force. See the reference below. For flows without any gravitational forces, 
+    it reduces to its original form.
+    + Ghosh, D., Constantinescu, E.M., Well-Balanced Formulation of Gravitational Source
+      Terms for Conservative Finite-Difference Atmospheric Flow Solvers, AIAA Paper 2015-2889,
+      7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
+      http://dx.doi.org/10.2514/6.2015-2889
+    + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
+      for Atmospheric Flows, Submitted
 
-int NavierStokes2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+*/
+int NavierStokes2DUpwindRoe(
+                            double  *fI, /*!< Computed upwind interface flux */
+                            double  *fL, /*!< Left-biased reconstructed interface flux */
+                            double  *fR, /*!< Right-biased reconstructed interface flux */
+                            double  *uL, /*!< Left-biased reconstructed interface solution */
+                            double  *uR, /*!< Right-biased reconstructed interface solution */
+                            double  *u,  /*!< Cell-centered solution */
+                            int     dir, /*!< Spatial dimension (x or y) */
+                            void    *s,  /*!< Solver object of type #HyPar */
+                            double  t    /*!< Current solution time */
+                           )
 {
   HyPar           *solver = (HyPar*)          s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
@@ -78,7 +102,31 @@ int NavierStokes2DUpwindRoe(double *fI,double *fL,double *fR,double *uL,double *
   return(0);
 }
 
-int NavierStokes2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! Characteristic-based Roe-fixed upwinding scheme.
+    \f{align}{
+      \alpha_{j+1/2}^{k,L} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf f}_{j+1/2}^{k,L}, \\
+      \alpha_{j+1/2}^{k,R} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf f}_{j+1/2}^{k,R}, \\
+      v_{j+1/2}^{k,L} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf u}_{j+1/2}^{k,L}, \\
+      v_{j+1/2}^{k,R} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf u}_{j+1/2}^{k,R}, \\
+      \alpha_{j+1/2}^k &= \left\{ \begin{array}{cc} \alpha_{j+1/2}^{k,L} & {\rm if}\ \lambda_{j,j+1/2,j+1} > 0 \\ \alpha_{j+1/2}^{k,R} & {\rm if}\ \lambda_{j,j+1/2,j+1} < 0 \\ \frac{1}{2}\left[ \alpha_{j+1/2}^{k,L} + \alpha_{j+1/2}^{k,R} - \left(\max_{\left[j,j+1\right]} \lambda\right) \left( v_{j+1/2}^{k,R} - v_{j+1/2}^{k,L} \right) \right] & {\rm otherwise} \end{array}\right., \\
+      {\bf f}_{j+1/2} &= \sum_{k=1}^3 \alpha_{j+1/2}^k {\bf r}_{j+1/2}^k
+    \f}
+    where \f${\bf l}\f$, \f${\bf r}\f$, and \f$\lambda\f$ are the left-eigenvectors, right-eigenvectors and eigenvalues. The subscripts denote the grid locations.
+    + C.-W. Shu, and S. Osher, "Efficient implementation of essentially non-oscillatory schemes, II", J. Comput. Phys., 83 (1989), pp. 32–78, http://dx.doi.org/10.1016/0021-9991(89)90222-2.
+
+    Note that this upwinding scheme cannot be used for solving flows with non-zero gravitational forces.
+*/
+int NavierStokes2DUpwindRF(
+                            double  *fI, /*!< Computed upwind interface flux */
+                            double  *fL, /*!< Left-biased reconstructed interface flux */
+                            double  *fR, /*!< Right-biased reconstructed interface flux */
+                            double  *uL, /*!< Left-biased reconstructed interface solution */
+                            double  *uR, /*!< Right-biased reconstructed interface solution */
+                            double  *u,  /*!< Cell-centered solution */
+                            int     dir, /*!< Spatial dimension (x or y) */
+                            void    *s,  /*!< Solver object of type #HyPar */
+                            double  t    /*!< Current solution time */
+                           )
 {
   HyPar    *solver = (HyPar*)    s;
   NavierStokes2D  *param  = (NavierStokes2D*)  solver->physics;
@@ -149,7 +197,39 @@ int NavierStokes2DUpwindRF(double *fI,double *fL,double *fR,double *uL,double *u
   return(0);
 }
 
-int NavierStokes2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! Characteristic-based local Lax-Friedrich upwinding scheme.
+    \f{align}{
+      \alpha_{j+1/2}^{k,L} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf f}_{j+1/2}^{k,L}, \\
+      \alpha_{j+1/2}^{k,R} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf f}_{j+1/2}^{k,R}, \\
+      v_{j+1/2}^{k,L} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf u}_{j+1/2}^{k,L}, \\
+      v_{j+1/2}^{k,R} &= \sum_{k=1}^3 {\bf l}_{j+1/2}^k \cdot {\bf u}_{j+1/2}^{k,R}, \\
+      \alpha_{j+1/2}^k &= \frac{1}{2}\left[ \alpha_{j+1/2}^{k,L} + \alpha_{j+1/2}^{k,R} - \left(\max_{\left[j,j+1\right]} \lambda\right) \left( v_{j+1/2}^{k,R} - v_{j+1/2}^{k,L} \right) \right], \\
+      {\bf f}_{j+1/2} &= \sum_{k=1}^3 \alpha_{j+1/2}^k {\bf r}_{j+1/2}^k
+    \f}
+    where \f${\bf l}\f$, \f${\bf r}\f$, and \f$\lambda\f$ are the left-eigenvectors, right-eigenvectors and eigenvalues. The subscripts denote the grid locations.
+    + C.-W. Shu, and S. Osher, "Efficient implementation of essentially non-oscillatory schemes, II", J. Comput. Phys., 83 (1989), pp. 32–78, http://dx.doi.org/10.1016/0021-9991(89)90222-2.
+
+    This upwinding scheme is modified for the balanced discretization of the 2D Navier Stokes equations when 
+    there is a non-zero gravitational force. See the reference below. For flows without any gravitational forces, 
+    it reduces to its original form.
+    + Ghosh, D., Constantinescu, E.M., Well-Balanced Formulation of Gravitational Source
+      Terms for Conservative Finite-Difference Atmospheric Flow Solvers, AIAA Paper 2015-2889,
+      7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
+      http://dx.doi.org/10.2514/6.2015-2889
+    + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
+      for Atmospheric Flows, Submitted
+*/
+int NavierStokes2DUpwindLLF(
+                            double  *fI, /*!< Computed upwind interface flux */
+                            double  *fL, /*!< Left-biased reconstructed interface flux */
+                            double  *fR, /*!< Right-biased reconstructed interface flux */
+                            double  *uL, /*!< Left-biased reconstructed interface solution */
+                            double  *uR, /*!< Right-biased reconstructed interface solution */
+                            double  *u,  /*!< Cell-centered solution */
+                            int     dir, /*!< Spatial dimension (x or y) */
+                            void    *s,  /*!< Solver object of type #HyPar */
+                            double  t    /*!< Current solution time */
+                           )
 {
   HyPar    *solver = (HyPar*)    s;
   NavierStokes2D  *param  = (NavierStokes2D*)  solver->physics;
@@ -225,7 +305,24 @@ int NavierStokes2DUpwindLLF(double *fI,double *fL,double *fR,double *uL,double *
   return(0);
 }
 
-int NavierStokes2DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! Steger-Warming Flux-Splitting scheme
+    + Steger, J.L., Warming, R.F., "Flux vector splitting of the inviscid gasdynamic equations with 
+      application to finite-difference methods", J. Comput. Phys., 40(2), 1981, pp. 263-293,
+      http://dx.doi.org/10.1016/0021-9991(81)90210-2.
+
+    Note that this method cannot be used for flows with non-zero gravitational forces.
+*/
+int NavierStokes2DUpwindSWFS(
+                              double  *fI, /*!< Computed upwind interface flux */
+                              double  *fL, /*!< Left-biased reconstructed interface flux */
+                              double  *fR, /*!< Right-biased reconstructed interface flux */
+                              double  *uL, /*!< Left-biased reconstructed interface solution */
+                              double  *uR, /*!< Right-biased reconstructed interface solution */
+                              double  *u,  /*!< Cell-centered solution */
+                              int     dir, /*!< Spatial dimension (x or y) */
+                              void    *s,  /*!< Solver object of type #HyPar */
+                              double  t    /*!< Current solution time */
+                            )
 {
   HyPar             *solver = (HyPar*)    s;
   NavierStokes2D    *param  = (NavierStokes2D*)  solver->physics;
@@ -307,7 +404,37 @@ int NavierStokes2DUpwindSWFS(double *fI,double *fL,double *fR,double *uL,double 
   return(0);
 }
 
-int NavierStokes2DUpwindRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! Rusanov's upwinding scheme.
+    \f{equation}{
+      {\bf f}_{j+1/2} = \frac{1}{2}\left[ {\bf f}_{j+1/2}^L + {\bf f}_{j+1/2}^R 
+                         - \max_{j,j+1} \nu_j \left( {\bf u}_{j+1/2}^R - {\bf u}_{j+1/2}^L  \right)\right]
+    \f}
+    where \f$\nu = c + \left|u\right|\f$.
+    + Rusanov, V. V., "The calculation of the interaction of non-stationary shock waves and obstacles," USSR 
+    Computational Mathematics and Mathematical Physics, Vol. 1, No. 2, 1962, pp. 304–320
+    
+    This upwinding scheme is modified for the balanced discretization of the 2D Navier Stokes equations when 
+    there is a non-zero gravitational force. See the reference below. For flows without any gravitational forces, 
+    it reduces to its original form.
+    + Ghosh, D., Constantinescu, E.M., Well-Balanced Formulation of Gravitational Source
+      Terms for Conservative Finite-Difference Atmospheric Flow Solvers, AIAA Paper 2015-2889,
+      7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
+      http://dx.doi.org/10.2514/6.2015-2889
+    + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
+      for Atmospheric Flows, Submitted
+
+*/
+int NavierStokes2DUpwindRusanov(
+                                double  *fI, /*!< Computed upwind interface flux */
+                                double  *fL, /*!< Left-biased reconstructed interface flux */
+                                double  *fR, /*!< Right-biased reconstructed interface flux */
+                                double  *uL, /*!< Left-biased reconstructed interface solution */
+                                double  *uR, /*!< Right-biased reconstructed interface solution */
+                                double  *u,  /*!< Cell-centered solution */
+                                int     dir, /*!< Spatial dimension (x or y) */
+                                void    *s,  /*!< Solver object of type #HyPar */
+                                double  t    /*!< Current solution time */
+                               )
 {
   HyPar           *solver = (HyPar*)          s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
@@ -358,9 +485,21 @@ int NavierStokes2DUpwindRusanov(double *fI,double *fL,double *fR,double *uL,doub
   return(0);
 }
 
-/* for split hyperbolic flux form, upwinding functions for the stiff flux are only defined for Roe, RF, LLF and Rusanov */
-
-int NavierStokes2DUpwinddFRoe(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! The Roe upwinding scheme (#NavierStokes2DUpwindRoe) for the partitioned hyperbolic flux that comprises
+    of the acoustic waves only (see #NavierStokes2DStiffFlux, #_NavierStokes2DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+*/
+int NavierStokes2DUpwinddFRoe(
+                              double  *fI, /*!< Computed upwind interface flux */
+                              double  *fL, /*!< Left-biased reconstructed interface flux */
+                              double  *fR, /*!< Right-biased reconstructed interface flux */
+                              double  *uL, /*!< Left-biased reconstructed interface solution */
+                              double  *uR, /*!< Right-biased reconstructed interface solution */
+                              double  *u,  /*!< Cell-centered solution */
+                              int     dir, /*!< Spatial dimension (x or y) */
+                              void    *s,  /*!< Solver object of type #HyPar */
+                              double  t    /*!< Current solution time */
+                             )
 {
   HyPar           *solver = (HyPar*)          s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
@@ -423,7 +562,21 @@ int NavierStokes2DUpwinddFRoe(double *fI,double *fL,double *fR,double *uL,double
   return(0);
 }
 
-int NavierStokes2DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! The characteristic-based Roe-fixed upwinding scheme (#NavierStokes2DUpwindRF) for the partitioned hyperbolic flux 
+    that comprises of the acoustic waves only (see #NavierStokes2DStiffFlux, #_NavierStokes2DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+*/
+int NavierStokes2DUpwinddFRF(
+                              double  *fI, /*!< Computed upwind interface flux */
+                              double  *fL, /*!< Left-biased reconstructed interface flux */
+                              double  *fR, /*!< Right-biased reconstructed interface flux */
+                              double  *uL, /*!< Left-biased reconstructed interface solution */
+                              double  *uR, /*!< Right-biased reconstructed interface solution */
+                              double  *u,  /*!< Cell-centered solution */
+                              int     dir, /*!< Spatial dimension (x or y) */
+                              void    *s,  /*!< Solver object of type #HyPar */
+                              double  t    /*!< Current solution time */
+                            )
 {
   HyPar    *solver = (HyPar*)    s;
   NavierStokes2D  *param  = (NavierStokes2D*)  solver->physics;
@@ -499,7 +652,21 @@ int NavierStokes2DUpwinddFRF(double *fI,double *fL,double *fR,double *uL,double 
   return(0);
 }
 
-int NavierStokes2DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! The characteristic-based local Lax-Friedrich upwinding scheme (#NavierStokes2DUpwindLLF) for the partitioned hyperbolic 
+    flux that comprises of the acoustic waves only (see #NavierStokes2DStiffFlux, #_NavierStokes2DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+*/
+int NavierStokes2DUpwinddFLLF(
+                              double  *fI, /*!< Computed upwind interface flux */
+                              double  *fL, /*!< Left-biased reconstructed interface flux */
+                              double  *fR, /*!< Right-biased reconstructed interface flux */
+                              double  *uL, /*!< Left-biased reconstructed interface solution */
+                              double  *uR, /*!< Right-biased reconstructed interface solution */
+                              double  *u,  /*!< Cell-centered solution */
+                              int     dir, /*!< Spatial dimension (x or y) */
+                              void    *s,  /*!< Solver object of type #HyPar */
+                              double  t    /*!< Current solution time */
+                             )
 {
   HyPar    *solver = (HyPar*)    s;
   NavierStokes2D  *param  = (NavierStokes2D*)  solver->physics;
@@ -576,7 +743,21 @@ int NavierStokes2DUpwinddFLLF(double *fI,double *fL,double *fR,double *uL,double
   return(0);
 }
 
-int NavierStokes2DUpwinddFRusanov(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! The Rusanov upwinding scheme (#NavierStokes2DUpwindRusanov) for the partitioned hyperbolic flux that comprises
+    of the acoustic waves only (see #NavierStokes2DStiffFlux, #_NavierStokes2DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+*/
+int NavierStokes2DUpwinddFRusanov(
+                                  double  *fI, /*!< Computed upwind interface flux */
+                                  double  *fL, /*!< Left-biased reconstructed interface flux */
+                                  double  *fR, /*!< Right-biased reconstructed interface flux */
+                                  double  *uL, /*!< Left-biased reconstructed interface solution */
+                                  double  *uR, /*!< Right-biased reconstructed interface solution */
+                                  double  *u,  /*!< Cell-centered solution */
+                                  int     dir, /*!< Spatial dimension (x or y) */
+                                  void    *s,  /*!< Solver object of type #HyPar */
+                                  double  t    /*!< Current solution time */
+                                 )
 {
   HyPar           *solver = (HyPar*)          s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;

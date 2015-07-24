@@ -1,3 +1,7 @@
+/*! @file NavierStokes2DComputeCFL.c
+    @author Debojyoti Ghosh
+    @brief Compute the maximum CFL.
+*/
 #include <stdlib.h>
 #include <math.h>
 #include <basic.h>
@@ -6,7 +10,15 @@
 #include <physicalmodels/navierstokes2d.h>
 #include <hypar.h>
 
-double NavierStokes2DComputeCFL(void *s,void *m,double dt,double t)
+/*! Computes the maximum CFL number over the domain. Note that the CFL
+    is computed over the local domain on this processor only.
+*/
+double NavierStokes2DComputeCFL(
+                                void    *s, /*!< Solver object of type #HyPar */
+                                void    *m, /*!< MPI object of type #MPIVariables */
+                                double  dt, /*!< Time step size for which to compute the CFL */
+                                double  t   /*!< Time */
+                               )
 {
   HyPar   *solver = (HyPar*)   s;
   NavierStokes2D *param  = (NavierStokes2D*) solver->physics;
@@ -25,7 +37,7 @@ double NavierStokes2DComputeCFL(void *s,void *m,double dt,double t)
     double rho,vx,vy,e,P,c,dxinv,dyinv,local_cfl[2];
     _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*p),rho,vx,vy,e,P,param);
 
-    c     = sqrt(param->gamma*P/rho); /* speed of sound */
+    c = sqrt(param->gamma*P/rho); /* speed of sound */
     _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv,dxinv); /* 1/dx */
     _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,solver->dxinv,dyinv); /* 1/dy */
 

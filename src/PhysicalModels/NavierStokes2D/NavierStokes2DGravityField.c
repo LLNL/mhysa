@@ -1,3 +1,7 @@
+/*! @file NavierStokes2DGravityField.c
+    @author Debojyoti Ghosh
+    @brief Function to compute the hydrostatically balanced pressure and density variation functions.
+*/
 #include <stdlib.h>
 #include <math.h>
 #include <arrayfunctions.h>
@@ -6,7 +10,30 @@
 #include <hypar.h>
 #include <mpivars.h>
 
-int NavierStokes2DGravityField(void *s,void *m)
+/*!
+    This function computes the pressure and density variation functions for 
+    the hydrostatic balance of the type specified by the user (#NavierStokes2D:HB).
+    The pressure and density in hydrostatic balance are given by
+    \f{equation}{
+      \rho = \rho_0\varrho\left(x,y\right),\ p = p_0\varphi\left(x,y\right)
+    \f}
+    where \f$\rho_0\f$ and \f$p_0\f$ are the reference density (#NavierStokes2D::rho0)
+    and pressure (#NavierStokes2D::p0). This function computes \f$\varrho\f$ 
+    (#NavierStokes2D::grav_field_f) and \f$\varphi\f$ (#NavierStokes2D::grav_field_g).
+    For flows without gravity, \f$\varrho = \varphi = 1\f$.
+    \n\n
+    References:
+    + Ghosh, D., Constantinescu, E.M., Well-Balanced Formulation of Gravitational Source
+      Terms for Conservative Finite-Difference Atmospheric Flow Solvers, AIAA Paper 2015-2889,
+      7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
+      http://dx.doi.org/10.2514/6.2015-2889
+    + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
+      for Atmospheric Flows, Submitted
+*/
+int NavierStokes2DGravityField(
+                                void *s, /*!< Solver object of type #HyPar */
+                                void *m  /*!< MPI object of type #MPIVariables */
+                              )
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;

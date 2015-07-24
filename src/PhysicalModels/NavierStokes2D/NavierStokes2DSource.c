@@ -1,3 +1,7 @@
+/*! @file NavierStokes2DSource.c
+    @author Debojyoti Ghosh
+    @brief Compute the gravitational source term for the 2D Navier Stokes system
+*/
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -5,17 +9,37 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-/* function to calculate the gravitational source term
- * Reference: Xing, Shu, "High Order Well-Balanced WENO
- * Scheme for the Gas Dynamics Equations Under Gravitational
- * Fields", J. Sci. Comput., 54, 2013, pp. 645--662
- * http://dx.doi.org/10.1007/s10915-012-9585-8
-*/
-
 static int NavierStokes2DSourceFunction (double*,double*,double*,void*,void*,double,int);
 static int NavierStokes2DSourceUpwind   (double*,double*,double*,double*,int,void*,double);
 
-int NavierStokes2DSource(double *source,double *u,void *s,void *m,double t)
+/*! Computes the gravitational source term using a well-balanced formulation: the source term
+    is rewritten as follows:
+    \f{equation}{
+      \left[\begin{array}{c} 0 \\ -\rho {\bf g}\cdot{\bf \hat{i}} \\ -\rho {\bf g}\cdot{\bf \hat{j}}  \\ -\rho u {\bf g}\cdot{\bf \hat{i}} - \rho v {\bf g}\cdot{\bf \hat{j}} \end{array}\right] 
+      = 
+      \left[\begin{array}{cccc} 0 & p_0 \varrho^{-1} & 0 &  p_0 u \varrho^{-1} \end{array}\right] \cdot \frac{\partial}{\partial x}\left[\begin{array}{c} 0 \\ \varphi \\ 0 \\ \varphi \end{array}\right]
+      +
+      \left[\begin{array}{cccc} 0 & 0 & p_0 \varrho^{-1} &  p_0 u \varrho^{-1} \end{array}\right] \cdot \frac{\partial}{\partial y}\left[\begin{array}{c} 0 \\ 0 \\ \varphi \\  \varphi \end{array}\right]
+    \f}
+    where \f$\varphi = \varphi\left(x,y\right)\f$ and \f$\varrho = \varrho\left(x,y\right)\f$ are computed in 
+    NavierStokes2DGravityField(). The derivatives are computed in an exactly identical manner as the hyperbolic
+    flux (i.e., using a conservative finite-difference formulation) (see HyperbolicFunction()).
+    \n\n
+    References:
+    + Ghosh, D., Constantinescu, E.M., Well-Balanced Formulation of Gravitational Source
+      Terms for Conservative Finite-Difference Atmospheric Flow Solvers, AIAA Paper 2015-2889,
+      7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
+      http://dx.doi.org/10.2514/6.2015-2889
+    + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
+      for Atmospheric Flows, Submitted
+*/
+int NavierStokes2DSource(
+                          double  *source,  /*!< Array to hold the computed source */
+                          double  *u,       /*!< Solution vector array */
+                          void    *s,       /*!< Solver object of type #HyPar */
+                          void    *m,       /*!< MPI object of type #MPIVariables */
+                          double  t         /*!< Current simulation time */
+                        )
 {
   HyPar           *solver = (HyPar* )         s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
@@ -104,8 +128,31 @@ int NavierStokes2DSource(double *source,double *u,void *s,void *m,double t)
 
   return(0);
 }
-
-int NavierStokes2DSourceFunction(double *f,double *u,double *x,void *s,void *m,double t,int dir)
+/*! Compute the source function in the well-balanced treatment of the source terms. The source
+    function is:
+    \f{equation}{
+      dir = x \rightarrow \left[\begin{array}{c}0 \\ \varphi\left(x,y\right) \\ 0 \\ \varphi\left(x,y\right) \end{array}\right],
+      \ dir = y \rightarrow \left[\begin{array}{c}0 \\ 0 \\ \varphi\left(x,y\right) \\ \varphi\left(x,y\right) \end{array}\right]
+    \f}
+    where \f$\varphi\f$ (#NavierStokes2D::grav_field_g) is computed in NavierStokes2D::GravityField().
+    \n\n
+    References:
+    + Ghosh, D., Constantinescu, E.M., Well-Balanced Formulation of Gravitational Source
+      Terms for Conservative Finite-Difference Atmospheric Flow Solvers, AIAA Paper 2015-2889,
+      7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
+      http://dx.doi.org/10.2514/6.2015-2889
+    + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
+      for Atmospheric Flows, Submitted
+*/
+int NavierStokes2DSourceFunction(
+                                  double  *f, /*!< Array to hold the computed source function */
+                                  double  *u, /*!< Solution vector array */
+                                  double  *x, /*!< Array of spatial coordinates (grid) */
+                                  void    *s, /*!< Solver object of type #HyPar */
+                                  void    *m, /*!< MPI object of type #MPIVariables */
+                                  double  t,  /*!< Current simulation time */
+                                  int     dir /*!< Spatial dimension (x or y) */
+                                )
 {
   HyPar           *solver = (HyPar* )         s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
@@ -134,10 +181,29 @@ int NavierStokes2DSourceFunction(double *f,double *u,double *x,void *s,void *m,d
 
   return(0);
 }
-
-int NavierStokes2DSourceUpwind(double *fI,double *fL,double *fR,double *u,int dir,void *s,double t)
+/*! Compute the "upwind" source function value at the interface: the upwinding is just the
+    arithmetic average of the left and right biased interpolated values of the source function
+    at the interface.
+    \n\n
+    References:
+    + Ghosh, D., Constantinescu, E.M., Well-Balanced Formulation of Gravitational Source
+      Terms for Conservative Finite-Difference Atmospheric Flow Solvers, AIAA Paper 2015-2889,
+      7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
+      http://dx.doi.org/10.2514/6.2015-2889
+    + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
+      for Atmospheric Flows, Submitted
+*/
+int NavierStokes2DSourceUpwind(
+                                double  *fI,  /*!< Array to hold the computed "upwind" interface source function */
+                                double  *fL,  /*!< Interface source function value computed using left-biased interpolation */ 
+                                double  *fR,  /*!< Interface source function value computed using right-biased interpolation */
+                                double  *u,   /*!< Solution vector array */
+                                int     dir,  /*!< Spatial dimension (x or y) */
+                                void    *s,   /*!< Solver object of type #HyPar */
+                                double  t     /*!< Current simulation time */
+                              )
 {
-  HyPar           *solver = (HyPar*)          s;
+  HyPar           *solver = (HyPar*) s;
   int             done,k;
   _DECLARE_IERR_;
 
