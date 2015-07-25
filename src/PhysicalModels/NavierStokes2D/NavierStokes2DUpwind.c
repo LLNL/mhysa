@@ -506,7 +506,7 @@ int NavierStokes2DUpwinddFRoe(
   int             done;
 
   int     *dim  = solver->dim_local;
-  double  *uref = param->solution;
+  double  *uref = (solver->flag_fdf_specified ? u : param->solution);
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -583,7 +583,7 @@ int NavierStokes2DUpwinddFRF(
   int      done,k;
 
   int     *dim  = solver->dim_local;
-  double  *uref = param->solution;
+  double  *uref = (solver->flag_fdf_specified ? u : param->solution);;
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -673,7 +673,7 @@ int NavierStokes2DUpwinddFLLF(
   int      done;
 
   int     *dim  = solver->dim_local;
-  double  *uref = param->solution;
+  double  *uref = (solver->flag_fdf_specified ? u : param->solution);;
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -764,7 +764,7 @@ int NavierStokes2DUpwinddFRusanov(
   int             done;
 
   int     *dim  = solver->dim_local;
-  double  *uref = param->solution;
+  double  *uref = (solver->flag_fdf_specified ? u : param->solution);
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -830,7 +830,7 @@ int NavierStokes2DUpwindFdFRoe(
   int             done;
 
   int     *dim  = solver->dim_local;
-  double  *uref = param->solution;
+  double  *uref = (solver->flag_fdf_specified ? u : param->solution);
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -907,7 +907,7 @@ int NavierStokes2DUpwindFdFRF(
   int      done,k;
 
   int     *dim  = solver->dim_local;
-  double  *uref = param->solution;
+  double  *uref = (solver->flag_fdf_specified ? u : param->solution);
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -997,7 +997,7 @@ int NavierStokes2DUpwindFdFLLF(
   int      done;
 
   int     *dim  = solver->dim_local;
-  double  *uref = param->solution;
+  double  *uref = (solver->flag_fdf_specified ? u : param->solution);
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
@@ -1088,7 +1088,7 @@ int NavierStokes2DUpwindFdFRusanov(
   int             done;
 
   int     *dim  = solver->dim_local;
-  double  *uref = param->solution;
+  double  *uref = (solver->flag_fdf_specified ? u : param->solution);
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
