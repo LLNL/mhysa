@@ -24,9 +24,8 @@ int TimeRK(void *ts)
       _ArrayAXPY_(TS->Udot[i],solver->dt*params->A[stage*params->nstages+i],
                   TS->U[stage],size*solver->nvars); 
     }
-    if (solver->PreStage) { 
-      IERR solver->PreStage(stage,TS->U ,solver,mpi,stagetime); CHECKERR(ierr); 
-    }
+    if (solver->PreStage)
+      { IERR solver->PreStage(stage,TS->U ,solver,mpi,stagetime); CHECKERR(ierr); }
     IERR TS->RHSFunction(TS->Udot[stage],TS->U[stage],solver,mpi,stagetime);
     if (solver->PostStage) 
       { IERR solver->PostStage(stage,TS->U,solver,mpi,stagetime); CHECKERR(ierr); }
