@@ -28,7 +28,7 @@ int TimeRK(void *ts)
       { IERR solver->PreStage(stage,TS->U ,solver,mpi,stagetime); CHECKERR(ierr); }
     IERR TS->RHSFunction(TS->Udot[stage],TS->U[stage],solver,mpi,stagetime);
     if (solver->PostStage) 
-      { IERR solver->PostStage(stage,TS->U,solver,mpi,stagetime); CHECKERR(ierr); }
+      { IERR solver->PostStage(TS->U[stage],solver,mpi,stagetime); CHECKERR(ierr); }
 
     _ArraySetValue_(TS->BoundaryFlux[stage],2*solver->ndims*solver->nvars,0.0);
     _ArrayCopy1D_(solver->StageBoundaryIntegral,TS->BoundaryFlux[stage],2*solver->ndims*solver->nvars);

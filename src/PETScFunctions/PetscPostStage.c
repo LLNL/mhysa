@@ -1,3 +1,7 @@
+/*! @file PetscPostStage.c
+    @author Debojyoti Ghosh
+    @brief Post-time-integration-stage function.
+*/
 #ifdef with_petsc
 
 #include <stdio.h>
@@ -9,7 +13,14 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscPostStage"
 
-PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec *Y)
+/*! Function called after every stage in a multi-stage time-integration method */
+PetscErrorCode PetscPostStage(
+                                TS        ts,         /*!< Time integrator of PETSc type TS */
+                                PetscReal stagetime,  /*!< Current stage time */
+                                PetscInt  stageindex, /*!< Stage */
+                                Vec       *Y          /*!< Stage solutions (all stages) - 
+                                                           be careful what you access */
+                             )
 {
   PETScContext    *context  = NULL;
   HyPar           *solver   = NULL;
@@ -36,6 +47,11 @@ PetscErrorCode PetscPostStage(TS ts,PetscReal stagetime,PetscInt stageindex,Vec 
   if (!strcmp(time_scheme,TSARKIMEX)) {
     ierr = solver->NonlinearInterp(solver->u,solver,mpi,(double)stagetime,
                                    solver->FFunction); CHECKERR(ierr);
+  }
+
+  /* Call any physics-specific post-stage function, if available */
+  if (solver->PostStage) {
+    ierr = solver->PostStage(solver->u,solver,mpi,stagetime); CHECKERR(ierr);
   }
 
   PetscFunctionReturn(0);

@@ -34,7 +34,7 @@ int TimeGLMGEE(void *ts)
 
     if (solver->PreStage) { IERR solver->PreStage(j,U,solver,mpi,stagetime); CHECKERR(ierr); }
     IERR TS->RHSFunction(Udot[j],U[0],solver,mpi,stagetime);
-    if (solver->PostStage) { IERR solver->PostStage(j,U,solver,mpi,stagetime); CHECKERR(ierr); }
+    if (solver->PostStage) { IERR solver->PostStage(U[j],solver,mpi,stagetime); CHECKERR(ierr); }
 
     _ArraySetValue_(TS->BoundaryFlux[j],2*ndims*nvars,0.0);
     _ArrayCopy1D_(solver->StageBoundaryIntegral,TS->BoundaryFlux[j],2*ndims*nvars);

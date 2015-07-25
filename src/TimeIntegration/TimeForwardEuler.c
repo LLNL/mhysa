@@ -16,14 +16,14 @@ int TimeForwardEuler(void *ts)
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
 
   if (solver->PreStage) 
-    { IERR solver->PreStage(0,&solver->u,solver,mpi,TS->waqt);                    CHECKERR(ierr); }
+    { IERR solver->PreStage(0,&solver->u,solver,mpi,TS->waqt);   CHECKERR(ierr); }
 
   /* Evaluate right-hand side and update solution */
-  IERR TS->RHSFunction(TS->rhs,solver->u,solver,mpi,TS->waqt);                    CHECKERR(ierr);
+  IERR TS->RHSFunction(TS->rhs,solver->u,solver,mpi,TS->waqt);   CHECKERR(ierr);
   _ArrayAXPY_(TS->rhs,solver->dt,solver->u,size*solver->nvars);
 
   if (solver->PostStage) 
-    { IERR solver->PostStage(1,&solver->u,solver,mpi,TS->waqt);                    CHECKERR(ierr); }
+    { IERR solver->PostStage(solver->u,solver,mpi,TS->waqt);     CHECKERR(ierr); }
 
   return(0);
 }

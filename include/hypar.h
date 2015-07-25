@@ -275,7 +275,7 @@ typedef struct main_parameters {
   /*! Function to do some pre-time-integration-stage computations, if required */
   int    (*PreStage)           (int,double**,void*,void*,double);
   /*! Function to do some post-time-integration-stage computations, if required */
-  int    (*PostStage)          (int,double**,void*,void*,double);
+  int    (*PostStage)          (double*,void*,void*,double);
   /*! Function to do some pre-time-integration-step computations, if required */
   int    (*PreStep)            (double*,void*,void*,double);
   /*! Function to do some post-time-integration-step computations, if required */

@@ -45,6 +45,7 @@ int    NavierStokes2DUpwindFdFRusanov  (double*,double*,double*,double*,double*,
 int    NavierStokes2DGravityField      (void*,void*);
 int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
 int    NavierStokes2DPreStep           (double*,void*,void*,double);
+int    NavierStokes2DPostStage         (double*,void*,void*,double);
 
 /*! Initialize the 2D Navier-Stokes (#NavierStokes2D) module:
     Sets the default parameters, read in and set physics-related parameters,
@@ -174,6 +175,7 @@ int NavierStokes2DInitialize(
 
   /* initializing physical model-specific functions */
   solver->PreStep     = NavierStokes2DPreStep;
+  solver->PostStage   = NavierStokes2DPostStage;
   solver->ComputeCFL  = NavierStokes2DComputeCFL;
   solver->FFunction   = NavierStokes2DFlux;
   solver->SFunction   = NavierStokes2DSource;
