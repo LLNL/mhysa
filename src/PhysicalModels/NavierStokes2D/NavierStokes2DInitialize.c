@@ -194,7 +194,6 @@ int NavierStokes2DInitialize(
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     solver->FdFFunction = NavierStokes2DNonStiffFlux;
     solver->dFFunction  = NavierStokes2DStiffFlux;
-    solver->dFFunction  = NavierStokes2DStiffFlux;
     solver->JFunction   = NavierStokes2DStiffJacobian;
     if      (!strcmp(physics->upw_choice,_ROE_)) {
       solver->UpwinddF  = NavierStokes2DUpwinddFRoe;
