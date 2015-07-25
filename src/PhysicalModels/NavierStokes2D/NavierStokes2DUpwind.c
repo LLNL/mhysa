@@ -1140,16 +1140,13 @@ int NavierStokes2DUpwindFdFRusanov(
       _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
       _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
 
-      double c, vel[_MODEL_NDIMS_], rho,E,P;
+      double vel[_MODEL_NDIMS_], rho,E,P;
       _NavierStokes2DGetFlowVar_((uref+_MODEL_NVARS_*pL),rho,vel[0],vel[1],E,P,param);
-      c = sqrt(param->gamma*P/rho);
-      double alphaL = c + absolute(vel[dir]);
+      double alphaL = absolute(vel[dir]);
       _NavierStokes2DGetFlowVar_((uref+_MODEL_NVARS_*pR),rho,vel[0],vel[1],E,P,param);
-      c = sqrt(param->gamma*P/rho);
-      double alphaR = c + absolute(vel[dir]);
+      double alphaR = absolute(vel[dir]);
       _NavierStokes2DGetFlowVar_(uavg,rho,vel[0],vel[1],E,P,param);
-      c = sqrt(param->gamma*P/rho);
-      double alphaavg = c + absolute(vel[dir]);
+      double alphaavg = absolute(vel[dir]);
 
       double kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
       double alpha  = kappa*max3(alphaL,alphaR,alphaavg);
