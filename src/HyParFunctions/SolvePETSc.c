@@ -130,11 +130,10 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
       }
       /* Set up preconditioner matrix */
       flag_mat_b = 1;
-      ierr = MatCreate(MPI_COMM_WORLD,&B); CHKERRQ(ierr);
-      ierr = MatSetSizes(B,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE); CHKERRQ(ierr);
+      ierr = MatCreateAIJ(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE,
+                          (solver->ndims*2+1)*solver->nvars,NULL,
+                          2*solver->ndims*solver->nvars,NULL,&B); CHKERRQ(ierr);
       ierr = MatSetBlockSize(B,solver->nvars);
-      ierr = MatSetType(B,MATAIJ);
-      ierr = MatSetUp(B);
       /* Set the IJacobian function for TS */
       ierr = TSSetIJacobian(ts,A,B,PetscIJacobianIMEX,&context); CHKERRQ(ierr);
     } else {
