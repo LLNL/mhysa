@@ -769,6 +769,9 @@ int NavierStokes2DUpwinddFRusanov(
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
   bounds_inter[0] = dim[0]; bounds_inter[1] = dim[1]; bounds_inter[dir]++;
+  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], 
+                L[_MODEL_NVARS_*_MODEL_NVARS_], DL[_MODEL_NVARS_*_MODEL_NVARS_], 
+                modA[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; int index_outer[2] = {0,0}; int index_inter[2];
   while (!done) {
@@ -779,7 +782,7 @@ int NavierStokes2DUpwinddFRusanov(
       int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
       int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
       int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
-      double udiff[_MODEL_NVARS_];
+      double udiff[_MODEL_NVARS_], udiss[_MODEL_NVARS_], uavg[_MODEL_NVARS_];
 
       /* Rusanov's upwinding scheme */
 
@@ -788,20 +791,38 @@ int NavierStokes2DUpwinddFRusanov(
       udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
 
+      _NavierStokes2DRoeAverage_        (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
+      _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
+
       double c, vel[_MODEL_NDIMS_], rho,E,P;
       _NavierStokes2DGetFlowVar_((uref+_MODEL_NVARS_*pL),rho,vel[0],vel[1],E,P,param);
-      c             = sqrt(param->gamma*P/rho);
+      c = sqrt(param->gamma*P/rho);
       double alphaL = c + absolute(vel[dir]);
       _NavierStokes2DGetFlowVar_((uref+_MODEL_NVARS_*pR),rho,vel[0],vel[1],E,P,param);
-      c             = sqrt(param->gamma*P/rho);
+      c = sqrt(param->gamma*P/rho);
       double alphaR = c + absolute(vel[dir]);
-      double kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
-      double alpha  = kappa*max(alphaL,alphaR);
+      _NavierStokes2DGetFlowVar_(uavg,rho,vel[0],vel[1],E,P,param);
+      c = sqrt(param->gamma*P/rho);
+      double alphaavg = c + absolute(vel[dir]);
 
-      fI[_MODEL_NVARS_*p+0] = 0.5*(fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0])-alpha*udiff[0];
-      fI[_MODEL_NVARS_*p+1] = 0.5*(fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1])-alpha*udiff[1];
-      fI[_MODEL_NVARS_*p+2] = 0.5*(fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2])-alpha*udiff[2];
-      fI[_MODEL_NVARS_*p+3] = 0.5*(fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3])-alpha*udiff[3];
+      double kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
+      double alpha  = kappa*max3(alphaL,alphaR,alphaavg);
+
+      _ArraySetValue_(D,_MODEL_NVARS_*_MODEL_NVARS_,0.0);
+      D[0]  = alpha;
+      D[5]  = (dir == _YDIR_ ? 0.0 : alpha);
+      D[10] = (dir == _XDIR_ ? 0.0 : alpha);
+      D[15] = 0.0;
+
+      MatMult4(_MODEL_NVARS_,DL,D,L);
+      MatMult4(_MODEL_NVARS_,modA,R,DL);
+      MatVecMult4(_MODEL_NVARS_,udiss,modA,udiff);
+
+      fI[_MODEL_NVARS_*p+0] = 0.5*(fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0]) - udiss[0];
+      fI[_MODEL_NVARS_*p+1] = 0.5*(fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1]) - udiss[1];
+      fI[_MODEL_NVARS_*p+2] = 0.5*(fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2]) - udiss[2];
+      fI[_MODEL_NVARS_*p+3] = 0.5*(fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3]) - udiss[3];
     }
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds_outer,index_outer,done);
   }
@@ -1093,6 +1114,9 @@ int NavierStokes2DUpwindFdFRusanov(
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
   bounds_inter[0] = dim[0]; bounds_inter[1] = dim[1]; bounds_inter[dir]++;
+  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], 
+                L[_MODEL_NVARS_*_MODEL_NVARS_], DL[_MODEL_NVARS_*_MODEL_NVARS_], 
+                modA[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; int index_outer[2] = {0,0}; int index_inter[2];
   while (!done) {
@@ -1103,7 +1127,7 @@ int NavierStokes2DUpwindFdFRusanov(
       int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
       int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
       int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
-      double udiff[_MODEL_NVARS_];
+      double udiff[_MODEL_NVARS_], udiss[_MODEL_NVARS_], uavg[_MODEL_NVARS_];
 
       /* Rusanov's upwinding scheme */
 
@@ -1112,20 +1136,38 @@ int NavierStokes2DUpwindFdFRusanov(
       udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
 
+      _NavierStokes2DRoeAverage_        (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
+      _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
+
       double c, vel[_MODEL_NDIMS_], rho,E,P;
       _NavierStokes2DGetFlowVar_((uref+_MODEL_NVARS_*pL),rho,vel[0],vel[1],E,P,param);
-      c             = sqrt(param->gamma*P/rho);
+      c = sqrt(param->gamma*P/rho);
       double alphaL = c + absolute(vel[dir]);
       _NavierStokes2DGetFlowVar_((uref+_MODEL_NVARS_*pR),rho,vel[0],vel[1],E,P,param);
-      c             = sqrt(param->gamma*P/rho);
+      c = sqrt(param->gamma*P/rho);
       double alphaR = c + absolute(vel[dir]);
-      double kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
-      double alpha  = kappa*max(alphaL,alphaR);
+      _NavierStokes2DGetFlowVar_(uavg,rho,vel[0],vel[1],E,P,param);
+      c = sqrt(param->gamma*P/rho);
+      double alphaavg = c + absolute(vel[dir]);
 
-      fI[_MODEL_NVARS_*p+0] = 0.5*(fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0])-alpha*udiff[0];
-      fI[_MODEL_NVARS_*p+1] = 0.5*(fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1])-alpha*udiff[1];
-      fI[_MODEL_NVARS_*p+2] = 0.5*(fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2])-alpha*udiff[2];
-      fI[_MODEL_NVARS_*p+3] = 0.5*(fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3])-alpha*udiff[3];
+      double kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
+      double alpha  = kappa*max3(alphaL,alphaR,alphaavg);
+
+      _ArraySetValue_(D,_MODEL_NVARS_*_MODEL_NVARS_,0.0);
+      D[0]  = 0.0;
+      D[5]  = (dir == _XDIR_ ? 0.0 : alpha);
+      D[10] = (dir == _YDIR_ ? 0.0 : alpha);
+      D[15] = alpha;
+
+      MatMult4(_MODEL_NVARS_,DL,D,L);
+      MatMult4(_MODEL_NVARS_,modA,R,DL);
+      MatVecMult4(_MODEL_NVARS_,udiss,modA,udiff);
+
+      fI[_MODEL_NVARS_*p+0] = 0.5*(fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0]) - udiss[0];
+      fI[_MODEL_NVARS_*p+1] = 0.5*(fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1]) - udiss[1];
+      fI[_MODEL_NVARS_*p+2] = 0.5*(fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2]) - udiss[2];
+      fI[_MODEL_NVARS_*p+3] = 0.5*(fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3]) - udiss[3];
     }
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds_outer,index_outer,done);
   }
