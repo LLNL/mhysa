@@ -175,7 +175,6 @@ int NavierStokes2DInitialize(
 
   /* initializing physical model-specific functions */
   solver->PreStep     = NavierStokes2DPreStep;
-  solver->PostStage   = NavierStokes2DPostStage;
   solver->ComputeCFL  = NavierStokes2DComputeCFL;
   solver->FFunction   = NavierStokes2DFlux;
   solver->SFunction   = NavierStokes2DSource;
