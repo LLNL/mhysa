@@ -22,17 +22,17 @@ int CalculateConservationError(
   int           v,nvars = solver->nvars;
   double        error;
 
-  double base = 0.0;
+  double base[nvars];
   for (v=0; v<nvars; v++) {
-    if (absolute(solver->VolumeIntegralInitial[v]) > base)
-      base = absolute(solver->VolumeIntegralInitial[v]);
+    if (absolute(solver->VolumeIntegralInitial[v]) > _MACHINE_ZERO_)
+      base[v] = absolute(solver->VolumeIntegralInitial[v]);
+    else base[v] = 1.0;
   }
-  if (base == 0.0) base = 1.0;
   
   for (v=0; v<nvars; v++) {
     error =  (solver->VolumeIntegral[v]+solver->TotalBoundaryIntegral[v]-solver->VolumeIntegralInitial[v]) 
            * (solver->VolumeIntegral[v]+solver->TotalBoundaryIntegral[v]-solver->VolumeIntegralInitial[v]);
-    solver->ConservationError[v] = sqrt(error)/base;
+    solver->ConservationError[v] = sqrt(error)/base[v];
   }
   
   return(0);

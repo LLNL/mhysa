@@ -15,6 +15,9 @@
   #define CHECKERR(ierr)
 #endif
 
+/*! Numbers smaller than this will be treated as zero */
+#define _MACHINE_ZERO_ 1.0e-14
+
 /*! \def _GetCoordinate_
  * Macro to get the spatial coordinate \a coord along the \a dir dimension of a grid point whose index in that dimension is \a i, in a grid of size \a dim with \a ghosts ghost points in each dimension. The array containing the spatial coordinates of the entire grid is \a x.
 */
