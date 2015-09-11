@@ -82,6 +82,7 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   ierr = TSSetDuration(ts,solver->n_iter,solver->dt*solver->n_iter); CHKERRQ(ierr);
   ierr = TSSetInitialTimeStep(ts,0.0,solver->dt); CHKERRQ(ierr);
   ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP); CHKERRQ(ierr);
+  ierr = TSSetType(ts,TSBEULER); CHKERRQ(ierr);
   ierr = TSSetFromOptions(ts); CHKERRQ(ierr);
 
   /* Define the right and left -hand side functions for each time-integration scheme */
@@ -242,19 +243,25 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     if ((!strcmp(snestype,SNESKSPONLY)) || (ptype == TS_LINEAR)) {
       /* linear problem */
       context.flag_is_linear = 1;
-      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_Linear); CHKERRQ(ierr);
+      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunction_Linear); CHKERRQ(ierr);
       ierr = SNESSetType(snes,SNESKSPONLY); CHKERRQ(ierr);
     } else {
       /* nonlinear problem */
       context.flag_is_linear = 0;
       context.jfnk_eps = 1e-7;
       ierr = PetscOptionsGetReal(NULL,"-jfnk_epsilon",&context.jfnk_eps,NULL); CHKERRQ(ierr);
-      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_JFNK); CHKERRQ(ierr);
+      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunction_JFNK); CHKERRQ(ierr);
     }
     ierr = MatSetUp(A); CHKERRQ(ierr);
 
     context.flag_use_precon = 0;
     ierr = PetscOptionsGetBool(PETSC_NULL,"-with_pc",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
+
+    /* 
+       Since we are using a MatShell to represent the action of the Jacobian on a vector (Jacobian-free approach),
+       we need to define the Jacobian through TSSetIJacobian, and not TSSetRHSJacobian, so that we can define the 
+       complete operator (the shifted Jacobian aI - J )
+    */
 
     if (context.flag_use_precon) {
       /* check if flux Jacobian of the physical model is defined */
@@ -272,10 +279,10 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
                           2*solver->ndims*solver->nvars,NULL,&B); CHKERRQ(ierr);
       ierr = MatSetBlockSize(B,solver->nvars);
       /* Set the RHSJacobian function for TS */
-      ierr = TSSetRHSJacobian(ts,A,B,PetscRHSJacobian,&context); CHKERRQ(ierr);
+      ierr = TSSetIJacobian(ts,A,B,PetscIJacobian,&context); CHKERRQ(ierr);
     } else {
       /* Set the RHSJacobian function for TS */
-      ierr = TSSetRHSJacobian(ts,A,A,PetscRHSJacobian,&context); CHKERRQ(ierr);
+      ierr = TSSetIJacobian(ts,A,A,PetscIJacobian,&context); CHKERRQ(ierr);
       /* Set PC (preconditioner) to none */
       ierr = SNESGetKSP(snes,&ksp); CHKERRQ(ierr);
       ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);

@@ -120,26 +120,26 @@ PetscErrorCode PetscJacobianFunctionIMEX_JFNK       (Mat,Vec,Vec);
 */
 PetscErrorCode PetscJacobianFunctionIMEX_Linear     (Mat,Vec,Vec);
 
-/*! Compute the Jacobian of the right-hand-side \a f(y) for the implicit time integration
+/*! Compute the Jacobian of the left-hand-side \a dy/dt - \a f(y) for the implicit time integration
     of the ODE \a dy/dt = \a f(y), using the Jacobian-free Newtown-Krylov method. 
     \n\n**Note** that for the Jacobian-free Newton-Krylov approach, the Jacobian matrix is
     defined as the PETSc type MatShell (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Mat/MATSHELL.html).
     This function just saves the shift and the current time. The action of the Jacobian matrix is defined through 
-    #PetscJacobianFunctionImpl_JFNK for nonlinear problems and #PetscJacobianFunctionImpl_Linear for linear problems.\n\n
+    #PetscJacobianFunction_JFNK for nonlinear problems and #PetscJacobianFunction_Linear for linear problems.\n\n
     See: http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSSetIJacobian.html
 */
-PetscErrorCode PetscRHSJacobian(TS,PetscReal,Vec,Mat,Mat,void*);
+PetscErrorCode PetscIJacobian(TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
 /*! Function that defines the action of the Jacobian matrix on the input vector for a nonlinear problem
     using the Jacobian-free Newtown-Krylov approach.
-    The Jacobian of the right-hand-side \a f(y) is computed for the implicit time-integration
+    The Jacobian of the left-hand-side \a dy/dt - \a f(y) is computed for the implicit time-integration
     of the ODE \a dy/dt = \a f(y).
 */
-PetscErrorCode PetscJacobianFunctionImpl_JFNK       (Mat,Vec,Vec);             
+PetscErrorCode PetscJacobianFunction_JFNK  (Mat,Vec,Vec);             
 /*! Function that defines the action of the Jacobian matrix on the input vector for a linear problem.
-    The Jacobian of the right-hand-side \a f(y) is computed for the implicit time-integration
+    The Jacobian of the left-hand-side \a dy/dt - \a f(y) is computed for the implicit time-integration
     of the ODE \a dy/dt = \a f(y).
 */
-PetscErrorCode PetscJacobianFunctionImpl_Linear     (Mat,Vec,Vec);
+PetscErrorCode PetscJacobianFunction_Linear(Mat,Vec,Vec);
 
 /*! Function to compute the preconditioning matrix */
 int PetscComputePreconMatIMEX(Mat,Vec,void*);
