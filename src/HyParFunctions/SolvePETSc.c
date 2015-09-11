@@ -89,6 +89,8 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   ierr = TSGetProblemType(ts,&ptype); CHKERRQ(ierr);
   if (!strcmp(time_scheme,TSARKIMEX)) {
 
+    /* implicit - explicit time integration */
+
     ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionIMEX,&context); CHKERRQ(ierr);
     ierr = TSSetIFunction  (ts,PETSC_NULL,PetscIFunctionIMEX,  &context); CHKERRQ(ierr);
 
@@ -216,10 +218,13 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     }
 
   } else if ((!strcmp(time_scheme,TSEULER)) || (!strcmp(time_scheme,TSRK)) || (!strcmp(time_scheme,TSSSP))) {
-    
+
+    /* Explicit time integration */    
     ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionExpl,&context); CHKERRQ(ierr);
 
   } else {
+
+    /* Implicit or explicit time integration */
 
     ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionImpl,&context); CHKERRQ(ierr);
 
