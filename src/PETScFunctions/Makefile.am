@@ -2,6 +2,7 @@ noinst_LIBRARIES = libPETScFunctions.a
 libPETScFunctions_a_SOURCES = \
   PetscComputeRHSOperators.c \
   PetscComputePreconMatIMEX.c \
+  PetscComputePreconMatImpl.c \
   PetscIFunctionIMEX.c \
   PetscIJacobianIMEX.c \
   PetscPostStage.c \
@@ -10,6 +11,8 @@ libPETScFunctions_a_SOURCES = \
   PetscPreTimeStep.c \
   PetscRegisterTIMethods.c \
   PetscRHSFunctionExpl.c \
+  PetscRHSFunctionImpl.c \
   PetscRHSFunctionIMEX.c \
+  PetscRHSJacobian.c \
   TransferFromPETSc.c \
   TransferToPETSc.c

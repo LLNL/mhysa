@@ -214,7 +214,68 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
       else                                            printf("Source            term: Implicit\n");
     }
 
-  } else ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionExpl,&context); CHKERRQ(ierr);
+  } else if ((!strcmp(time_scheme,TSEULER)) || (!strcmp(time_scheme,TSRK)) || (!strcmp(time_scheme,TSSSP))) {
+    
+    ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionExpl,&context); CHKERRQ(ierr);
+
+  } else {
+
+    ierr = TSSetRHSFunction(ts,PETSC_NULL,PetscRHSFunctionImpl,&context); CHKERRQ(ierr);
+
+    SNES     snes;
+    KSP      ksp;
+    PC       pc;
+    SNESType snestype;
+    ierr = TSGetSNES(ts,&snes); CHKERRQ(ierr);
+    ierr = SNESGetType(snes,&snestype); CHKERRQ(ierr);
+
+    /* Matrix-free representation of the Jacobian */
+    ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
+                          PETSC_DETERMINE,&context,&A); CHKERRQ(ierr);
+    if ((!strcmp(snestype,SNESKSPONLY)) || (ptype == TS_LINEAR)) {
+      /* linear problem */
+      context.flag_is_linear = 1;
+      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_Linear); CHKERRQ(ierr);
+      ierr = SNESSetType(snes,SNESKSPONLY); CHKERRQ(ierr);
+    } else {
+      /* nonlinear problem */
+      context.flag_is_linear = 0;
+      context.jfnk_eps = 1e-7;
+      ierr = PetscOptionsGetReal(NULL,"-jfnk_epsilon",&context.jfnk_eps,NULL); CHKERRQ(ierr);
+      ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionImpl_JFNK); CHKERRQ(ierr);
+    }
+    ierr = MatSetUp(A); CHKERRQ(ierr);
+
+    context.flag_use_precon = 0;
+    ierr = PetscOptionsGetBool(PETSC_NULL,"-with_pc",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
+
+    if (context.flag_use_precon) {
+      /* check if flux Jacobian of the physical model is defined */
+      if (!solver->JFunction) {
+        if (!mpi->rank) {
+          fprintf(stderr,"Error in SolvePETSc(): solver->JFunction (point-wise flux Jacobian) must ");
+          fprintf(stderr,"be defined for preconditioning.\n");
+        }
+        PetscFunctionReturn(1);
+      }
+      /* Set up preconditioner matrix */
+      flag_mat_b = 1;
+      ierr = MatCreateAIJ(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,PETSC_DETERMINE,
+                          (solver->ndims*2+1)*solver->nvars,NULL,
+                          2*solver->ndims*solver->nvars,NULL,&B); CHKERRQ(ierr);
+      ierr = MatSetBlockSize(B,solver->nvars);
+      /* Set the RHSJacobian function for TS */
+      ierr = TSSetRHSJacobian(ts,A,B,PetscRHSJacobian,&context); CHKERRQ(ierr);
+    } else {
+      /* Set the RHSJacobian function for TS */
+      ierr = TSSetRHSJacobian(ts,A,A,PetscRHSJacobian,&context); CHKERRQ(ierr);
+      /* Set PC (preconditioner) to none */
+      ierr = SNESGetKSP(snes,&ksp); CHKERRQ(ierr);
+      ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
+      ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
+    }
+
+  }
 
   /* Set pre/post-stage and post-timestep function */
   ierr = TSSetPreStep (ts,PetscPreTimeStep ); CHKERRQ(ierr);
