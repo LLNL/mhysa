@@ -17,11 +17,11 @@
 /*! 
     Compute the Jacobian of the right-hand-side \a f(y) for the implicit
     time integration of the ODE \a dy/dt = \a f(y).\n\n
-    Matrix-free representation of the Jacobian: This function just saves the  
-    time-step size required for the evaluation of the Jacobian. The action of the Jacobian
-    are defined through #PetscJacobianFunctionImpl_JFNK (nonlinear problemts) and 
-    #PetscJacobianFunctionImpl_Linear (linear problems).\n\n
-    The Jacobian matrix is defined as the PETSc type MatShell 
+    Matrix-free representation of the Jacobian: This function just saves the
+    current simulation time required for the evaluation of the Jacobian. 
+    The action of the Jacobian are defined through #PetscJacobianFunctionImpl_JFNK 
+    (nonlinear problemts) and #PetscJacobianFunctionImpl_Linear (linear problems).\n\n
+    The Jacobian matrix is defined as the PETSc type MatShell.
     (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Mat/MATSHELL.html).
 */
 PetscErrorCode PetscRHSJacobian(
@@ -35,6 +35,7 @@ PetscErrorCode PetscRHSJacobian(
 {
   PETScContext *context = (PETScContext*) ctxt;
   HyPar        *solver  = context->solver;
+  MPIVariables *mpi     = context->mpi;
   _DECLARE_IERR_;
 
   PetscFunctionBegin;
@@ -42,6 +43,28 @@ PetscErrorCode PetscRHSJacobian(
   context->waqt  = t;
   /* Construct preconditioning matrix */
   if (context->flag_use_precon) { IERR PetscComputePreconMatImpl(B,Y,context); CHECKERR(ierr); }
+
+  /* Compute the reference RHS for matrix-free Jacobian computation */
+  int size = 1, d;
+  for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+2*solver->ghosts);
+
+  double *uref    = solver->uref;
+  double *rhsref  = solver->rhsref;
+
+  IERR TransferVecFromPETSc(uref,Y,context); CHECKERR(ierr);
+  /* apply boundary conditions and exchange data over MPI interfaces */
+  IERR solver->ApplyBoundaryConditions(solver,mpi,uref,NULL,0,t);       CHECKERR(ierr);
+  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+                                 solver->ghosts,mpi,uref);              CHECKERR(ierr);
+  /* Evaluate hyperbolic, parabolic and source terms  and the RHS for U+dU */
+  _ArraySetValue_(rhsref,size*solver->nvars,0.0);
+  IERR solver->HyperbolicFunction(solver->hyp,uref,solver,mpi,t,0,
+                                    solver->FFunction,solver->Upwind);  CHECKERR(ierr);
+  _ArrayAXPY_(solver->hyp,-1.0,rhsref,size*solver->nvars);
+  IERR solver->ParabolicFunction (solver->par,uref,solver,mpi,t);       CHECKERR(ierr);
+  _ArrayAXPY_(solver->par, 1.0,rhsref,size*solver->nvars);
+  IERR solver->SourceFunction    (solver->source,uref,solver,mpi,t);    CHECKERR(ierr);
+  _ArrayAXPY_(solver->source, 1.0,rhsref,size*solver->nvars);
 
   PetscFunctionReturn(0);
 }
@@ -78,11 +101,8 @@ PetscErrorCode PetscJacobianFunctionImpl_JFNK(
   double *uref    = solver->uref;
   double *rhsref  = solver->rhsref;
   double *rhs     = solver->rhs;
-
-  double t = context->waqt; /* current stage/step time */
-
-  double normY;
-  ierr = VecNorm(Y,NORM_2,&normY);                                        CHKERRQ(ierr);
+  double t        = context->waqt; /* current stage/step time */
+  double normY; ierr = VecNorm(Y,NORM_2,&normY);                          CHKERRQ(ierr);
 
   if (normY < 1e-16) {
 
@@ -90,7 +110,7 @@ PetscErrorCode PetscJacobianFunctionImpl_JFNK(
     ierr = VecZeroEntries(F);                                             CHKERRQ(ierr);
 
   } else {
-    
+
     double epsilon =  context->jfnk_eps / normY;
     /* copy solution from PETSc vector */
     ierr = TransferVecFromPETSc(u,Y,context);                             CHECKERR(ierr);
@@ -101,18 +121,20 @@ PetscErrorCode PetscJacobianFunctionImpl_JFNK(
                                    solver->ghosts,mpi,u);                 CHECKERR(ierr);
 
     /* Evaluate hyperbolic, parabolic and source terms  and the RHS for U+dU */
-    _ArraySetValue_(rhs,size*solver->nvars,0.0);
-    ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
-                                      solver->FFunction,solver->Upwind);  CHECKERR(ierr);
-    _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
-    ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);        CHECKERR(ierr);
-    _ArrayAXPY_(solver->par, 1.0,rhs,size*solver->nvars);
-    ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t);     CHECKERR(ierr);
-    _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
+    IERR solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                    solver->FFunction,solver->Upwind);    CHECKERR(ierr);
+    IERR solver->ParabolicFunction (solver->par,u,solver,mpi,t);          CHECKERR(ierr);
+    IERR solver->SourceFunction    (solver->source,u,solver,mpi,t);       CHECKERR(ierr);
 
+    _ArraySetValue_(rhs,size*solver->nvars,0.0);
+    _ArrayAXPY_(solver->hyp   ,-1.0,rhs,size*solver->nvars);
+    _ArrayAXPY_(solver->par   , 1.0,rhs,size*solver->nvars);
+    _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
     _ArrayAXPY_(rhsref,-1.0,rhs,size*solver->nvars);
+
     /* Transfer RHS to PETSc vector */
-    ierr = TransferVecToPETSc(rhs,F,context);                  CHECKERR(ierr);
+    ierr = TransferVecToPETSc(rhs,F,context); CHECKERR(ierr);
+    ierr = VecScale(F,(1.0/epsilon)); CHKERRQ(ierr);
 
   }
 
@@ -150,11 +172,8 @@ PetscErrorCode PetscJacobianFunctionImpl_Linear(
   double *uref    = solver->uref;
   double *rhsref  = solver->rhsref;
   double *rhs     = solver->rhs;
-
-  double t = context->waqt; /* current stage/step time */
-
-  double normY;
-  ierr = VecNorm(Y,NORM_2,&normY);                                        CHKERRQ(ierr);
+  double t        = context->waqt; /* current stage/step time */
+  double normY; ierr = VecNorm(Y,NORM_2,&normY);                          CHKERRQ(ierr);
 
   if (normY < 1e-16) {
 
@@ -162,7 +181,7 @@ PetscErrorCode PetscJacobianFunctionImpl_Linear(
     ierr = VecZeroEntries(F);                                             CHKERRQ(ierr);
 
   } else {
-    
+
     /* copy solution from PETSc vector */
     ierr = TransferVecFromPETSc(u,Y,context);                             CHECKERR(ierr);
     _ArrayAYPX_(uref,1.0,u,size*solver->nvars);
@@ -172,18 +191,19 @@ PetscErrorCode PetscJacobianFunctionImpl_Linear(
                                    solver->ghosts,mpi,u);                 CHECKERR(ierr);
 
     /* Evaluate hyperbolic, parabolic and source terms  and the RHS for U+dU */
-    _ArraySetValue_(rhs,size*solver->nvars,0.0);
-    ierr = solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
-                                      solver->FFunction,solver->Upwind);  CHECKERR(ierr);
-    _ArrayAXPY_(solver->hyp,-1.0,rhs,size*solver->nvars);
-    ierr = solver->ParabolicFunction (solver->par,u,solver,mpi,t);        CHECKERR(ierr);
-    _ArrayAXPY_(solver->par, 1.0,rhs,size*solver->nvars);
-    ierr = solver->SourceFunction    (solver->source,u,solver,mpi,t);     CHECKERR(ierr);
-    _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
+    IERR solver->HyperbolicFunction(solver->hyp,u,solver,mpi,t,0,
+                                    solver->FFunction,solver->Upwind);    CHECKERR(ierr);
+    IERR solver->ParabolicFunction (solver->par,u,solver,mpi,t);          CHECKERR(ierr);
+    IERR solver->SourceFunction    (solver->source,u,solver,mpi,t);       CHECKERR(ierr);
 
+    _ArraySetValue_(rhs,size*solver->nvars,0.0);
+    _ArrayAXPY_(solver->hyp   ,-1.0,rhs,size*solver->nvars);
+    _ArrayAXPY_(solver->par   , 1.0,rhs,size*solver->nvars);
+    _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
     _ArrayAXPY_(rhsref,-1.0,rhs,size*solver->nvars);
+
     /* Transfer RHS to PETSc vector */
-    ierr = TransferVecToPETSc(rhs,F,context);     CHECKERR(ierr);
+    ierr = TransferVecToPETSc(rhs,F,context); CHECKERR(ierr);
   }
 
   PetscFunctionReturn(0);
