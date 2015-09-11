@@ -45,7 +45,7 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   Mat             A, B;   /* Jacobian and preconditioning matrices */
   TSType          time_scheme;  /* time integration method         */
   TSProblemType   ptype;  /* problem type - nonlinear or linear    */
-  int             flag_mat_b = 0;
+  int             flag_mat_a = 0, flag_mat_b = 0;
 
   PetscFunctionBegin;
 
@@ -100,6 +100,7 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     ierr = SNESGetType(snes,&snestype); CHKERRQ(ierr);
 
     /* Matrix-free representation of the Jacobian */
+    flag_mat_a = 1;
     ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
                           PETSC_DETERMINE,&context,&A); CHKERRQ(ierr);
     if ((!strcmp(snestype,SNESKSPONLY)) || (ptype == TS_LINEAR)) {
@@ -230,6 +231,7 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     ierr = SNESGetType(snes,&snestype); CHKERRQ(ierr);
 
     /* Matrix-free representation of the Jacobian */
+    flag_mat_a = 1;
     ierr = MatCreateShell(MPI_COMM_WORLD,total_size,total_size,PETSC_DETERMINE,
                           PETSC_DETERMINE,&context,&A); CHKERRQ(ierr);
     if ((!strcmp(snestype,SNESKSPONLY)) || (ptype == TS_LINEAR)) {
@@ -305,10 +307,8 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   ierr = TransferVecFromPETSc(solver->u,Y,&context); CHECKERR(ierr);
 
   /* clean up */
-  if (!strcmp(time_scheme,TSARKIMEX)) {
-    ierr = MatDestroy(&A); CHKERRQ(ierr);
-    if (flag_mat_b) { ierr = MatDestroy(&B); CHKERRQ(ierr); }
-  }
+  if (flag_mat_a) { ierr = MatDestroy(&A); CHKERRQ(ierr); }
+  if (flag_mat_b) { ierr = MatDestroy(&B); CHKERRQ(ierr); }
   ierr = TSDestroy(&ts); CHKERRQ(ierr);
   ierr = VecDestroy(&Y); CHKERRQ(ierr);
 
