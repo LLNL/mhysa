@@ -15,6 +15,7 @@
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
+#include <io.h>
 #include <boundaryconditions.h>
 #include <hypar.h>
 #include <petscinterface.h>
@@ -45,11 +46,11 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   MPIVariables    *mpi    = (MPIVariables*) m;
   PetscErrorCode  ierr    = 0, d;
   TS              ts;     /* time integration object               */
-  Vec             Y;      /* PETSc solution vector                 */
+  Vec             Y,Z;    /* PETSc solution vectors                */
   Mat             A, B;   /* Jacobian and preconditioning matrices */
   TSType          time_scheme;  /* time integration method         */
   TSProblemType   ptype;  /* problem type - nonlinear or linear    */
-  int             flag_mat_a = 0, flag_mat_b = 0;
+  int             flag_mat_a = 0, flag_mat_b = 0, iAuxSize = 0, i;
 
   PetscFunctionBegin;
 
@@ -340,6 +341,26 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
 
   /* Get the number of time steps */
   ierr = TSGetTimeStepNumber(ts,&solver->n_iter); CHKERRQ(ierr);
+
+  /* get and write to file any auxiliary solutions */
+  char aux_fname_root[4] = "ts0";
+  ierr = TSGetAuxSolution(ts,&iAuxSize,NULL);CHKERRQ(ierr);
+  if (iAuxSize) {
+    if (iAuxSize > 10) iAuxSize = 10;
+    if (!mpi->rank) printf("Number of auxiliary solutions from time integration: %d\n",iAuxSize);
+    ierr = VecDuplicate(Y,&Z);
+    for (i=0; i<iAuxSize; i++) {
+      ierr = TSGetAuxSolution(ts,&i,&Z);CHKERRQ(ierr);
+      ierr = TransferVecFromPETSc(solver->u,Z,&context); CHECKERR(ierr);
+      IERR WriteArray(solver->ndims,solver->nvars,solver->dim_global,solver->dim_local,
+                      solver->ghosts,solver->x,solver->u,solver,mpi,aux_fname_root); CHECKERR(ierr);
+      aux_fname_root[2]++;
+    }
+    ierr = VecDestroy(&Z); CHKERRQ(ierr);
+  }
+
+  /* if available, get error estimates */
+  ierr = PetscTimeError(ts); CHECKERR(ierr);
 
   /* copy final solution from PETSc's vector */
   ierr = TransferVecFromPETSc(solver->u,Y,&context); CHECKERR(ierr);

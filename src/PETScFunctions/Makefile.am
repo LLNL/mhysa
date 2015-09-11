@@ -6,6 +6,7 @@ libPETScFunctions_a_SOURCES = \
   PetscComputePreconMatImpl.c \
   PetscCreatePointList.c \
   PetscGlobalDOF.c \
+  PetscError.c \
   PetscIJacobian.c \
   PetscIFunctionIMEX.c \
   PetscIJacobianIMEX.c \

@@ -115,4 +115,6 @@ PetscErrorCode PetscPreStage        (TS,PetscReal);
 PetscErrorCode PetscPostStage       (TS,PetscReal,PetscInt,Vec*);
 PetscErrorCode PetscPreTimeStep     (TS);
 PetscErrorCode PetscPostTimeStep    (TS);
+/*! Function to compute any error estimates, if available */
+PetscErrorCode PetscTimeError       (TS);
 
