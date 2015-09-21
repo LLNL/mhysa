@@ -1,3 +1,8 @@
+/*! @file FPPowerSystem3BusInitialize.c
+    @author Debojyoti Ghosh
+    @brief Function to initialize the 3-bus power system model
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -14,11 +19,15 @@ int    FPPowerSystem3BusAdvection         (double*,double*,int,void*,double);
 int    FPPowerSystem3BusDiffusion         (double*,double*,int,int,void*,double);
 int    FPPowerSystem3BusUpwind            (double*,double*,double*,double*,
                                            double*,double*,int,void*,double);
-int    FPPowerSystem3BusPostStep          (double*,void*,void*,double,int);
-int    FPPowerSystem3BusPrintStep         (void*,void*,double);
-int    FPPowerSystem3BusCalculateAInv     (double*,double*,void*,double*);
 
-int FPPowerSystem3BusInitialize(void *s,void *m)
+/*! Initialize the 3-bus power system model:
+    Sets the default parameters, read in and set physics-related parameters,
+    and set the physics-related function pointers in #HyPar.
+*/
+int FPPowerSystem3BusInitialize(
+                                void *s, /*!< Solver object of type #HyPar */
+                                void *m  /*!< MPI object of type #MPIVariables */
+                               )
 {
   HyPar               *solver  = (HyPar*)             s;
   MPIVariables        *mpi     = (MPIVariables*)      m; 
@@ -35,82 +44,51 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
     return(1);
   }
 
-  double PI = 4.0*atan(1.0);
-
-  physics->N    = N = 6;
-  physics->G    = (double*) calloc ((N/2)*(N/2),sizeof(double));
-  physics->B    = (double*) calloc ((N/2)*(N/2),sizeof(double));
-  physics->Gf   = (double*) calloc ((N/2)*(N/2),sizeof(double));
-  physics->Bf   = (double*) calloc ((N/2)*(N/2),sizeof(double));
-  physics->Ainv = (double*) calloc (N*N        ,sizeof(double));
-
+  double pi = 4.0*atan(1.0);
   /* default values of model parameters */
-  physics->PM1     = 3.109260511864138;
-  physics->PM2     = 1.0;
-  physics->H1      = 1000.640;
-  physics->H2      = 3.64;
-  physics->omegaB  = 2*PI*60;
-  physics->D1      = 450;
-  physics->D2      = 1.0;
-  physics->E1      = 1.044225672060674;
-  physics->E2      = 1.034543707656856;
-  physics->Xd1     = 0.02;
-  physics->Xd2     = 0.2;
-  physics->alpha   = 4.386890097147679;
-  physics->beta    = -1.096722524286920;
-
-  physics->lambda[0][0] = 0.1;
+  physics->N            = 2;
+  physics->Pm1_avg      = 0.8;
+  physics->Pm2_avg      = 1.6;
+  physics->Pmref_avg    = 0.79330781761651;
+  physics->H1           = 3.20;
+  physics->H2           = 6.40;
+  physics->Href         = 13.60;
+  physics->E1           = 1.01556070860155;
+  physics->E2           = 1.0491099265981;
+  physics->Eref         = 1.05623172878954;
+  physics->omegaB       = 2*pi*60.0;
+  physics->sigma[0][0]  = 0.0125;
+  physics->sigma[0][1]  = 0.0;
+  physics->sigma[1][0]  = 0.0;
+  physics->sigma[1][1]  = 0.0125;
+  physics->lambda[0][0] = 10.0/physics->omegaB;
   physics->lambda[0][1] = 0.0;
   physics->lambda[1][0] = 0.0;
-  physics->lambda[1][1] = 0.1;
+  physics->lambda[1][1] = 10.0/physics->omegaB;
+  physics->gamma        = 0.25;
 
-  physics->sigma[0][0] = 1.0;
-  physics->sigma[0][1] = 0.0;
-  physics->sigma[1][0] = 0.0;
-  physics->sigma[1][1] = 1.0;
-
-  physics->G[0*N/2+0] =  7.631257631257632;
-  physics->G[0*N/2+1] = -3.815628815628816;
-  physics->G[0*N/2+2] = -3.815628815628816;
-  physics->G[1*N/2+0] = -3.815628815628816;
-  physics->G[1*N/2+1] =  6.839334669523348;
-  physics->G[1*N/2+2] = -3.023705853894533;
-  physics->G[2*N/2+0] = -3.815628815628816;
-  physics->G[2*N/2+1] = -3.023705853894533;
-  physics->G[2*N/2+2] =  6.839334669523348;
-
-  physics->B[0*N/2+0] = -38.053788156288157;
-  physics->B[0*N/2+1] =  19.078144078144078;
-  physics->B[0*N/2+2] =  19.078144078144078;
-  physics->B[1*N/2+0] =  19.078144078144078;
-  physics->B[1*N/2+1] = -34.081673347616743;
-  physics->B[1*N/2+2] =  15.118529269472663;
-  physics->B[2*N/2+0] =  19.078144078144078;
-  physics->B[2*N/2+1] =  15.118529269472663;
-  physics->B[2*N/2+2] = -34.081673347616743;
-
-  physics->Gf[0*N/2+0] =  7.631257631257632;
-  physics->Gf[0*N/2+1] = -3.815628815628816;
-  physics->Gf[0*N/2+2] = -3.815628815628816;
-  physics->Gf[1*N/2+0] = -3.815628815628816;
-  physics->Gf[1*N/2+1] =  6.839334669523348;
-  physics->Gf[1*N/2+2] = -3.023705853894533;
-  physics->Gf[2*N/2+0] = -3.815628815628816;
-  physics->Gf[2*N/2+1] = -3.023705853894533;
-  physics->Gf[2*N/2+2] =  1006.839334669523348;
-
-  physics->Bf[0*N/2+0] = -38.053788156288157;
-  physics->Bf[0*N/2+1] =  19.078144078144078;
-  physics->Bf[0*N/2+2] =  19.078144078144078;
-  physics->Bf[1*N/2+0] =  19.078144078144078;
-  physics->Bf[1*N/2+1] = -34.081673347616743;
-  physics->Bf[1*N/2+2] =  15.118529269472663;
-  physics->Bf[2*N/2+0] =  19.078144078144078;
-  physics->Bf[2*N/2+1] =  15.118529269472663;
-  physics->Bf[2*N/2+2] = -34.081673347616743;
-
-  physics->tf  = 0.1;
-  physics->tcl = 0.3;
+  physics->G   = (double*) calloc ((N+1)*(N+1),sizeof(double));
+  physics->B   = (double*) calloc ((N+1)*(N+1),sizeof(double));
+  
+  physics->G[0*(N+1)+0] = 0.276805493111691;
+  physics->G[0*(N+1)+1] = 0.213024867595501;
+  physics->G[0*(N+1)+2] = 0.209205876527443;
+  physics->G[1*(N+1)+0] = 0.213024867595501;
+  physics->G[1*(N+1)+1] = 0.419642083051144;
+  physics->G[1*(N+1)+2] = 0.286592141665043;
+  physics->G[2*(N+1)+0] = 0.209205876527443;
+  physics->G[2*(N+1)+1] = 0.286592141665044;
+  physics->G[2*(N+1)+2] = 0.844559256324453;
+  
+  physics->B[0*(N+1)+0] = -2.36794416971567;
+  physics->B[0*(N+1)+1] =  1.08817493992579;
+  physics->B[0*(N+1)+2] =  1.22601259339234;
+  physics->B[1*(N+1)+0] =  1.08817493992579;
+  physics->B[1*(N+1)+1] = -2.72352378723346;
+  physics->B[1*(N+1)+2] =  1.51348094527252;
+  physics->B[2*(N+1)+0] =  1.22601259339234;
+  physics->B[2*(N+1)+1] =  1.51348094527252;
+  physics->B[2*(N+1)+2] = -2.98729895217208;
 
   /* reading physical model specific inputs - all processes */
   FILE *in;
@@ -125,21 +103,17 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
     if (!strcmp(word, "begin")){
 	    while (strcmp(word, "end")){
 		    ferr = fscanf(in,"%s",word); if (ferr != 1) return(1);
-        if      (!strcmp(word,"PM1"    ))  {ferr=fscanf(in,"%lf",&physics->PM1   ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"H1"     ))  {ferr=fscanf(in,"%lf",&physics->H1    ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"D1"     ))  {ferr=fscanf(in,"%lf",&physics->D1    ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"E1"     ))  {ferr=fscanf(in,"%lf",&physics->E1    ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"Xd1"    ))  {ferr=fscanf(in,"%lf",&physics->Xd1   ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"PM2"    ))  {ferr=fscanf(in,"%lf",&physics->PM2   ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"H2"     ))  {ferr=fscanf(in,"%lf",&physics->H2    ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"D2"     ))  {ferr=fscanf(in,"%lf",&physics->D2    ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"E2"     ))  {ferr=fscanf(in,"%lf",&physics->E2    ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"Xd2"    ))  {ferr=fscanf(in,"%lf",&physics->Xd2   ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"omegaB" ))  {ferr=fscanf(in,"%lf",&physics->omegaB) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"alpha"  ))  {ferr=fscanf(in,"%lf",&physics->alpha ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"beta"   ))  {ferr=fscanf(in,"%lf",&physics->beta  ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"tf"     ))  {ferr=fscanf(in,"%lf",&physics->tf    ) ;if(ferr!=1)return(1);}
-        else if (!strcmp(word,"tcl"    ))  {ferr=fscanf(in,"%lf",&physics->tcl   ) ;if(ferr!=1)return(1);}
+        if      (!strcmp(word,"Pm1_avg"   ))  {ferr=fscanf(in,"%lf",&physics->Pm1_avg   ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"Pm2_avg"   ))  {ferr=fscanf(in,"%lf",&physics->Pm2_avg   ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"Pmref_avg" ))  {ferr=fscanf(in,"%lf",&physics->Pmref_avg ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"H1"        ))  {ferr=fscanf(in,"%lf",&physics->H1        ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"H2"        ))  {ferr=fscanf(in,"%lf",&physics->H2        ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"Href"      ))  {ferr=fscanf(in,"%lf",&physics->Href      ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"E1"        ))  {ferr=fscanf(in,"%lf",&physics->E1        ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"E2"        ))  {ferr=fscanf(in,"%lf",&physics->E2        ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"Eref"      ))  {ferr=fscanf(in,"%lf",&physics->Eref      ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"omegaB"    ))  {ferr=fscanf(in,"%lf",&physics->omegaB    ) ;if(ferr!=1)return(1);}
+        else if (!strcmp(word,"gamma"     ))  {ferr=fscanf(in,"%lf",&physics->gamma     ) ;if(ferr!=1)return(1);}
         else if (!strcmp(word,"sigma"  ))  {
           ferr=fscanf(in,"%lf",&physics->sigma[0][0]) ;if(ferr!=1)return(1);
           ferr=fscanf(in,"%lf",&physics->sigma[0][1]) ;if(ferr!=1)return(1);
@@ -151,45 +125,25 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
           ferr=fscanf(in,"%lf",&physics->lambda[1][0]) ;if(ferr!=1)return(1);
           ferr=fscanf(in,"%lf",&physics->lambda[1][1]) ;if(ferr!=1)return(1);
         } else if (!strcmp(word,"G"))  {
-          ferr=fscanf(in,"%lf",&physics->G[0*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->G[0*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->G[0*N/2+2]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->G[1*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->G[1*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->G[1*N/2+2]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->G[2*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->G[2*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->G[2*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[0*(N+1)+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[0*(N+1)+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[0*(N+1)+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[1*(N+1)+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[1*(N+1)+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[1*(N+1)+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[2*(N+1)+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[2*(N+1)+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->G[2*(N+1)+2]) ;if(ferr!=1)return(1);
         } else if (!strcmp(word,"B"))  {
-          ferr=fscanf(in,"%lf",&physics->B[0*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->B[0*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->B[0*N/2+2]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->B[1*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->B[1*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->B[1*N/2+2]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->B[2*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->B[2*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->B[2*N/2+2]) ;if(ferr!=1)return(1);
-        } else if (!strcmp(word,"Gf"))  {
-          ferr=fscanf(in,"%lf",&physics->Gf[0*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Gf[0*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Gf[0*N/2+2]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Gf[1*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Gf[1*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Gf[1*N/2+2]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Gf[2*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Gf[2*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Gf[2*N/2+2]) ;if(ferr!=1)return(1);
-        } else if (!strcmp(word,"Bf"))  {
-          ferr=fscanf(in,"%lf",&physics->Bf[0*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Bf[0*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Bf[0*N/2+2]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Bf[1*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Bf[1*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Bf[1*N/2+2]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Bf[2*N/2+0]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Bf[2*N/2+1]) ;if(ferr!=1)return(1);
-          ferr=fscanf(in,"%lf",&physics->Bf[2*N/2+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[0*(N+1)+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[0*(N+1)+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[0*(N+1)+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[1*(N+1)+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[1*(N+1)+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[1*(N+1)+2]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[2*(N+1)+0]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[2*(N+1)+1]) ;if(ferr!=1)return(1);
+          ferr=fscanf(in,"%lf",&physics->B[2*(N+1)+2]) ;if(ferr!=1)return(1);
         }
       }
 	  } else {
@@ -213,15 +167,6 @@ int FPPowerSystem3BusInitialize(void *s,void *m)
   solver->FFunction          = FPPowerSystem3BusAdvection;
   solver->HFunction          = FPPowerSystem3BusDiffusion;
   solver->Upwind             = FPPowerSystem3BusUpwind;
-  solver->PostStep           = FPPowerSystem3BusPostStep;
-  solver->PrintStep          = FPPowerSystem3BusPrintStep;
-
-  /* Calculate and print the PDF integral of the initial solution */
-  IERR FPPowerSystem3BusPostStep(solver->u,solver,mpi,0.0,0);      CHECKERR(ierr);
-  if (!mpi->rank) IERR FPPowerSystem3BusPrintStep(solver,mpi,0.0); CHECKERR(ierr);
-
-  /* calculate the inverse of the impedance matrix */
-  IERR FPPowerSystem3BusCalculateAInv(physics->G,physics->B,physics,physics->Ainv); CHECKERR(ierr);
 
   return(0);
 }

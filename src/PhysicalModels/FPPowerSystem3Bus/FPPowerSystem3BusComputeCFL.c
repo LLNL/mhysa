@@ -1,3 +1,8 @@
+/*! @file FPPowerSystem3BusComputeCFL.c
+    @author Debojyoti Ghosh
+    @brief Function to compute the maximum CFL for the #FPPowerSystem3Bus system
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <mathfunctions.h>
@@ -8,7 +13,15 @@
 
 int FPPowerSystem3BusDriftFunction(int,void*,double*,double,double*);
 
-double FPPowerSystem3BusComputeCFL(void *s,void *m,double dt,double t)
+/*! Computes the maximum CFL number over the domain. Note that the CFL
+    is computed over the local domain on this processor only.
+*/
+double FPPowerSystem3BusComputeCFL(
+                                    void    *s, /*!< Solver object of type #HyPar */
+                                    void    *m, /*!< MPI object of type #MPIVariables */
+                                    double  dt, /*!< Time step size for which to compute the CFL */
+                                    double  t   /*!< Time */
+                                  )
 {
   HyPar             *solver = (HyPar*)              s;
   FPPowerSystem3Bus *params = (FPPowerSystem3Bus*)  solver->physics;

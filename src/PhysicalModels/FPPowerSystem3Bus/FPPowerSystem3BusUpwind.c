@@ -1,3 +1,7 @@
+/*! @file FPPowerSystem3BusUpwind.c
+    @author Debojyoti Ghosh
+    @brief Upwinding function for the 3-bus power system model
+*/
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -6,8 +10,22 @@
 
 int FPPowerSystem3BusDriftFunction(int,void*,double*,double,double*);
 
-int FPPowerSystem3BusUpwind(double *fI,double *fL,double *fR,double *uL,double *uR,
-                        double *u,int dir,void *s,double t)
+/*! Compute the upwind flux at the interface, based on the drift velocity 
+    at that interface, from the left and right biased approximations to the
+    interface flux. The drift (advection) velocity is multiplied to the 
+    solution in this function to get the advective flux.
+*/
+int FPPowerSystem3BusUpwind(
+                            double  *fI, /*!< Computed upwind interface flux */
+                            double  *fL, /*!< Left-biased reconstructed interface flux */
+                            double  *fR, /*!< Right-biased reconstructed interface flux */
+                            double  *uL, /*!< Left-biased reconstructed interface solution */
+                            double  *uR, /*!< Right-biased reconstructed interface solution */
+                            double  *u,  /*!< Cell-centered solution */
+                            int     dir, /*!< Spatial dimension (x or y) */
+                            void    *s,  /*!< Solver object of type #HyPar */
+                            double  t    /*!< Current solution time */
+                           )
 {
   HyPar             *solver = (HyPar*)              s;
   FPPowerSystem3Bus *params = (FPPowerSystem3Bus*)  solver->physics;

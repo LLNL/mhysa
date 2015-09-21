@@ -1,3 +1,8 @@
+/*! @file FPPowerSystem3BusDiffusion.c
+    @author Debojyoti Ghosh
+    @brief Compute the dissipative term for the #FPPowerSystem3Bus system.
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -6,7 +11,15 @@
 
 int FPPowerSystem3BusDissipationFunction(int,int,void*,double,double*);
 
-int FPPowerSystem3BusDiffusion(double *f,double *u,int dir1,int dir2,void *s,double t)
+/*! Compute the dissipation term for the #FPPowerSystem3Bus system */
+int FPPowerSystem3BusDiffusion(
+                                double  *f,   /*!< Array to hold the computed dissipation term vector (same layout as u) */
+                                double  *u,   /*!< Array with the solution vector */
+                                int     dir1, /*!< First spatial dimension for the dissipation term being computed */
+                                int     dir2, /*!< Second spatial dimension for the dissipation term being computed */
+                                void    *s,   /*!< Solver object of type #HyPar */
+                                double  t     /*!< Current simulation time */
+                              )
 {
   HyPar             *solver = (HyPar*)              s;
   FPPowerSystem3Bus *params = (FPPowerSystem3Bus*)  solver->physics;
@@ -14,23 +27,22 @@ int FPPowerSystem3BusDiffusion(double *f,double *u,int dir1,int dir2,void *s,dou
 
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
-  int ndims   = solver->ndims;
-  int nvars   = solver->nvars;
-  int index[ndims], bounds[ndims], offset[ndims];
+  static int index[_MODEL_NDIMS_], bounds[_MODEL_NDIMS_], offset[_MODEL_NDIMS_];
+  static double dissipation[_MODEL_NDIMS_*_MODEL_NDIMS_]; 
 
   /* set bounds for array index to include ghost points */
-  _ArrayCopy1D_(dim,bounds,ndims);
-  for (i=0; i<ndims; i++) bounds[i] += 2*ghosts;
+  _ArrayCopy1D_(dim,bounds,_MODEL_NDIMS_);
+  for (i=0; i<_MODEL_NDIMS_; i++) bounds[i] += 2*ghosts;
 
   /* set offset such that index is compatible with ghost point arrangement */
-  _ArraySetValue_(offset,ndims,-ghosts);
+  _ArraySetValue_(offset,_MODEL_NDIMS_,-ghosts);
 
-  int done = 0; _ArraySetValue_(index,ndims,0);
+  int done = 0; _ArraySetValue_(index,_MODEL_NDIMS_,0);
   while (!done) {
-    int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
-    double dissipation[ndims*ndims]; FPPowerSystem3BusDissipationFunction(dir1,dir2,params,t,dissipation);
-    for (v = 0; v < nvars; v++) f[nvars*p+v] = dissipation[dir1*ndims+dir2] * u[nvars*p+v];
-    _ArrayIncrementIndex_(ndims,bounds,index,done);
+    int p; _ArrayIndex1DWO_(_MODEL_NDIMS_,dim,index,offset,ghosts,p);
+    FPPowerSystem3BusDissipationFunction(dir1,dir2,params,t,dissipation);
+    for (v = 0; v < _MODEL_NVARS_; v++) f[_MODEL_NVARS_*p+v] = dissipation[dir1*_MODEL_NDIMS_+dir2] * u[_MODEL_NVARS_*p+v];
+    _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds,index,done);
   }
 
   return(0);
