@@ -10,20 +10,66 @@
 #include <arrayfunctions.h>
 #include <physicalmodels/fppowersystem3bus.h>
 
+/*! Compute the electrical power of each generator, given their phases and other system parameters */
 static void ComputeElectricalPower(
                                     double theta1,  /*!< Phase of generator 1 */
                                     double theta2,  /*!< Phase of generator 2 */
                                     void   *p,      /*!< Object of type #FPPowerSystem3Bus */
                                     double *Pe1,    /*!< Electrical power of generator 1 */
                                     double *Pe2,    /*!< Electrical power of generator 2 */
-                                    double *Peref   /*!< Electrical power of generator 3 (reference) */
+                                    double *Pe3     /*!< Electrical power of generator 3 */
                                   )
 {
   FPPowerSystem3Bus *params = (FPPowerSystem3Bus*) p;
 
-  *Pe1    = 0.0;
-  *Pe2    = 0.0;
-  *Peref  = 0.0;
+  double E1 = params->E1;
+  double E2 = params->E2;
+  double E3 = params->Eref;
+
+  double *G = params->G;
+  double *B = params->B;
+
+  double Eph[3][2];
+  Eph[0][0] = E1*cos(theta1);   Eph[0][1] = E1*sin(theta1);
+  Eph[1][0] = E2*cos(theta2);   Eph[1][1] = E2*sin(theta2);
+  Eph[2][0] = E3;               Eph[2][1] = 0.0;
+
+  double Y[3][3][2];
+  int i,j;
+  for (i=0; i<3; i++) {
+    for (j=0; j<3; j++) {
+      Y[i][j][0] = G[i*3+j];
+      Y[i][j][1] = B[i*3+j];
+    }
+  }
+
+  double YEph[3][2];
+  YEph[0][0] =   Y[0][0][0]*Eph[0][0] - Y[0][0][1]*Eph[0][1]
+               + Y[0][1][0]*Eph[1][0] - Y[0][1][1]*Eph[1][1]
+               + Y[0][2][0]*Eph[2][0] - Y[0][2][1]*Eph[2][1];
+  YEph[0][1] =   Y[0][0][0]*Eph[0][1] + Y[0][0][1]*Eph[0][0]
+               + Y[0][1][0]*Eph[1][1] + Y[0][1][1]*Eph[1][0]
+               + Y[0][2][0]*Eph[2][1] + Y[0][2][1]*Eph[2][0];
+  YEph[1][0] =   Y[1][0][0]*Eph[0][0] - Y[1][0][1]*Eph[0][1]
+               + Y[1][1][0]*Eph[1][0] - Y[1][1][1]*Eph[1][1]
+               + Y[1][2][0]*Eph[2][0] - Y[1][2][1]*Eph[2][1];
+  YEph[1][1] =   Y[1][0][0]*Eph[0][1] + Y[1][0][1]*Eph[0][0]
+               + Y[1][1][0]*Eph[1][1] + Y[1][1][1]*Eph[1][0]
+               + Y[1][2][0]*Eph[2][1] + Y[1][2][1]*Eph[2][0];
+  YEph[2][0] =   Y[2][0][0]*Eph[0][0] - Y[2][0][1]*Eph[0][1]
+               + Y[2][1][0]*Eph[1][0] - Y[2][1][1]*Eph[1][1]
+               + Y[2][2][0]*Eph[2][0] - Y[2][2][1]*Eph[2][1];
+  YEph[2][1] =   Y[2][0][0]*Eph[0][1] + Y[2][0][1]*Eph[0][0]
+               + Y[2][1][0]*Eph[1][1] + Y[2][1][1]*Eph[1][0]
+               + Y[2][2][0]*Eph[2][1] + Y[2][2][1]*Eph[2][0];
+
+  YEph[0][1] = - YEph[0][1];
+  YEph[1][1] = - YEph[1][1];
+  YEph[2][1] = - YEph[2][1];
+
+  *Pe1 = Eph[0][0]*YEph[0][0] - Eph[0][1]*YEph[0][1];
+  *Pe2 = Eph[1][0]*YEph[1][0] - Eph[1][1]*YEph[1][1];
+  *Pe3 = Eph[2][0]*YEph[2][0] - Eph[2][1]*YEph[2][1];
 }
 
 /*! Compute the drift (advection) coefficients for the 3-bus power system */
