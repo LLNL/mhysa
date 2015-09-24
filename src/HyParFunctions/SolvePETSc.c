@@ -344,13 +344,13 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
 
   /* get and write to file any auxiliary solutions */
   char aux_fname_root[4] = "ts0";
-  ierr = TSGetAuxSolution(ts,&iAuxSize,NULL);CHKERRQ(ierr);
+  ierr = TSGetSolutionComponents(ts,&iAuxSize,NULL);CHKERRQ(ierr);
   if (iAuxSize) {
     if (iAuxSize > 10) iAuxSize = 10;
     if (!mpi->rank) printf("Number of auxiliary solutions from time integration: %d\n",iAuxSize);
     ierr = VecDuplicate(Y,&Z);
     for (i=0; i<iAuxSize; i++) {
-      ierr = TSGetAuxSolution(ts,&i,&Z);CHKERRQ(ierr);
+      ierr = TSGetSolutionComponents(ts,&i,&Z);CHKERRQ(ierr);
       ierr = TransferVecFromPETSc(solver->u,Z,&context); CHECKERR(ierr);
       IERR WriteArray(solver->ndims,solver->nvars,solver->dim_global,solver->dim_local,
                       solver->ghosts,solver->x,solver->u,solver,mpi,aux_fname_root); CHECKERR(ierr);
