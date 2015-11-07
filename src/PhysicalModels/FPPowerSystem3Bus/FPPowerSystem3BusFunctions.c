@@ -139,6 +139,8 @@ int FPPowerSystem3BusDissipationFunction(
   double gamma  = params->gamma;
   double omegaB = params->omegaB;
 
+#if 0
+  /* steady state coefficients */
   dissp[2*_MODEL_NDIMS_+0] = sigma11*sigma11*lambda11*lambda11*omegaB;
   dissp[2*_MODEL_NDIMS_+1] = sigma12*sigma12*lambda12*lambda12*omegaB;
   dissp[3*_MODEL_NDIMS_+0] = sigma21*sigma21*lambda21*lambda21*omegaB;
@@ -148,6 +150,18 @@ int FPPowerSystem3BusDissipationFunction(
   dissp[2*_MODEL_NDIMS_+3] = sigma12*sigma12*lambda12*(1.0-gamma*lambda12);
   dissp[3*_MODEL_NDIMS_+2] = sigma21*sigma21*lambda21*(1.0-gamma*lambda21);
   dissp[3*_MODEL_NDIMS_+3] = sigma22*sigma22*lambda22*(1.0-gamma*lambda22);
+#endif
+
+  /* time-dependent coefficients */
+  dissp[2*_MODEL_NDIMS_+0] = sigma11*sigma11*lambda11*omegaB*(lambda11*(1-exp(-t/lambda11))-t*exp(-t/lambda11));
+  dissp[2*_MODEL_NDIMS_+1] = sigma12*sigma12*lambda12*omegaB*(lambda12*(1-exp(-t/lambda12))-t*exp(-t/lambda12));
+  dissp[3*_MODEL_NDIMS_+0] = sigma21*sigma21*lambda21*omegaB*(lambda21*(1-exp(-t/lambda21))-t*exp(-t/lambda21));
+  dissp[3*_MODEL_NDIMS_+1] = sigma22*sigma22*lambda22*omegaB*(lambda22*(1-exp(-t/lambda22))-t*exp(-t/lambda22));
+
+  dissp[2*_MODEL_NDIMS_+2] = sigma11*sigma11*(lambda11*(1-exp(-t/lambda11))+gamma*lambda11*(t*exp(-t/lambda11)-lambda11*(1-exp(-t/lambda11))));
+  dissp[2*_MODEL_NDIMS_+3] = sigma12*sigma12*(lambda12*(1-exp(-t/lambda12))+gamma*lambda12*(t*exp(-t/lambda12)-lambda12*(1-exp(-t/lambda12))));
+  dissp[3*_MODEL_NDIMS_+2] = sigma21*sigma21*(lambda21*(1-exp(-t/lambda21))+gamma*lambda21*(t*exp(-t/lambda21)-lambda21*(1-exp(-t/lambda21))));
+  dissp[3*_MODEL_NDIMS_+3] = sigma22*sigma22*(lambda22*(1-exp(-t/lambda22))+gamma*lambda22*(t*exp(-t/lambda22)-lambda22*(1-exp(-t/lambda22))));
 
   return(0);
 }

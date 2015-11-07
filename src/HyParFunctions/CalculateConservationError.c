@@ -24,7 +24,7 @@ int CalculateConservationError(
 
   double base[nvars];
   for (v=0; v<nvars; v++) {
-    if (absolute(solver->VolumeIntegralInitial[v]) > _MACHINE_ZERO_)
+    if (absolute(solver->VolumeIntegralInitial[v]) > 1.0)
       base[v] = absolute(solver->VolumeIntegralInitial[v]);
     else base[v] = 1.0;
   }
