@@ -1,3 +1,8 @@
+/*! @file InitializePhysics.c
+    @author Debojyoti Ghosh
+    @brief Initialize the physical model
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +27,16 @@
 #include <physicalmodels/shallowwater1d.h>
 #include <physicalmodels/shallowwater2d.h>
 
-int InitializePhysics(void *s,void *m)
+/*! Initialize the physical model for a simulation: Depending on the 
+    physical model specified, this function calls the initialization
+    function for that physical model. The latter is responsible for
+    setting all the physics-specific functions that are required
+    by the model.
+*/
+int InitializePhysics(
+                        void *s, /*!< Solver object of type #HyPar */
+                        void *m  /*!< MPI object of type #MPIVariables */
+                     )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

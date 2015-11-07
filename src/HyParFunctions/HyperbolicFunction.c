@@ -1,3 +1,8 @@
+/*! @file HyperbolicFunction.c
+    @author Debojyoti Ghosh
+    @brief Compute the hyperbolic term of the governing equations
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -8,9 +13,31 @@ static int ReconstructHyperbolic (double*,double*,double*,double*,int,void*,void
                                   int(*)(double*,double*,double*,double*,double*,double*,int,void*,double));
 static int DefaultUpwinding      (double*,double*,double*,double*,double*,double*,int,void*,double);
 
-int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t,int LimFlag,
-                       int(*FluxFunction)(double*,double*,int,void*,double),
-                       int(*UpwindFunction)(double*,double*,double*,double*,double*,double*,int,void*,double))
+/*! This function computes the hyperbolic term of the governing equations, expressed as follows:- 
+    \f{equation}{
+      {\bf F} \left({\bf u}\right) = \sum_{d=0}^{D-1} \frac {\partial {\bf f}_d\left({\bf u}\right)} {\partial x_d}
+    \f}
+    using a conservative finite-difference discretization is space:
+    \f{equation}{
+      \hat{\bf F} \left({\bf u}\right) = \sum_{d=0}^{D-1} \frac {1} {\Delta x_d} \left[ \hat{\bf f}_{d,j+1/2} - \hat{\bf f}_{d,j-1/2} \right]
+    \f}
+    where \f$d\f$ denotes the spatial dimension, \f$D\f$ denotes the total number of spatial dimensions, the hat denotes 
+    the discretized quantity, and \f$j\f$ is the grid coordinate along dimension \f$d\f$.
+    The approximation to the flux function \f${\bf f}_d\f$ at the interfaces \f$j\pm1/2\f$, denoted by \hat{\bf f}_{d,j\pm1/2},
+    are computed using the function ReconstructHyperbolic().
+*/
+int HyperbolicFunction(
+                        double  *hyp, /*!< Array to hold the computed hyperbolic term (shares the same layout as u */
+                        double  *u,   /*!< Solution array */
+                        void    *s,   /*!< Solver object of type #HyPar */
+                        void    *m,   /*!< MPI object of type #MPIVariables */
+                        double  t,    /*!< Current simulation time */
+                        int     LimFlag,  /*!< Flag to indicate if solution should be limited to avoid numerical oscillations */
+                        /*! Function pointer to the flux function for the hyperbolic term */
+                        int(*FluxFunction)(double*,double*,int,void*,double), 
+                        /*! Function pointer to the upwinding function for the hyperbolic term */
+                        int(*UpwindFunction)(double*,double*,double*,double*,double*,double*,int,void*,double) 
+                      )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -75,8 +102,49 @@ int HyperbolicFunction(double *hyp,double *u,void *s,void *m,double t,int LimFla
   return(0);
 }
 
-int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int dir,void *s,void *m,double t,int LimFlag,
-                          int(*UpwindFunction)(double*,double*,double*,double*,double*,double*,int,void*,double))
+/*! This function computes the numerical flux \f$\hat{\bf f}_{j+1/2}\f$ at the interface from the cell-centered 
+    flux function \f${\bf f}_j\f$. This happens in two steps:-
+
+    \b Interpolation: High-order accurate approximations to the flux at the interface \f$j+1/2\f$ are computed from
+    the cell-centered flux with left- and right-biased interpolation methods. This is done by the
+    #HyPar::InterpolateInterfacesHyp function. This can be expressed as follows:
+    \f{align}{
+      \hat{\bf f}^L_{j+1/2} &= \mathcal{I}\left({\bf f}_j,+1\right), \\
+      \hat{\bf f}^R_{j+1/2} &= \mathcal{I}\left({\bf f}_j,-1\right),
+    \f}
+    where the \f$\pm 1\f$ indicates the interpolation bias, and \f$\mathcal{I}\f$ is the interpolation operator 
+    pointed to by #HyPar::InterpolateInterfacesHyp (see \b src/InterpolationFunctions for all the available operators).
+    The interface values of the solution are similarly computed:
+    \f{align}{
+      \hat{\bf u}^L_{j+1/2} &= \mathcal{I}\left({\bf u}_j,+1\right), \\
+      \hat{\bf u}^R_{j+1/2} &= \mathcal{I}\left({\bf u}_j,-1\right),
+    \f}
+    The specific choice of \f$\mathcal{I}\f$ is set based on #HyPar::spatial_scheme_hyp.
+
+    \b Upwinding: The final flux at the interface is computed as
+    \f{equation}{
+      \hat{\bf f}_{j+1/2} = \mathcal{U}\left( \hat{\bf f}^L_{j+1/2}, \hat{\bf f}^R_{j+1/2}, \hat{\bf u}^L_{j+1/2}, \hat{\bf u}^R_{j+1/2} \right),
+    \f}
+    where \f$\mathcal{U}\f$ denotes the upwinding function UpwindFunction() passed as an argument (if NULL, DefaultUpwinding() is used). The
+    upwinding function is specified by the physical model.
+*/
+int ReconstructHyperbolic(
+                            double  *fluxI,     /*!< Array to hold the computed interface fluxes. This array does not
+                                                     have ghost points. The dimensions are the same as those of u without
+                                                     ghost points in all dimensions, except along dir, where it is one more */
+                            double  *fluxC,     /*!< Array of the flux function computed at the cell centers 
+                                                     (same layout as u) */
+                            double  *u,         /*!< Solution array */
+                            double  *x,         /*!< Array of spatial coordinates */
+                            int     dir,        /*!< Spatial dimension along which to reconstruct the interface fluxes */
+                            void    *s,         /*!< Solver object of type #HyPar */
+                            void    *m,         /*!< MPI object of type #MPIVariables */
+                            double  t,          /*!< Current solution time */
+                            int     LimFlag,    /*!< Flag to indicate whether to limit solution to avoid numerical oscillations */
+                            /*! Function pointer to the upwinding function for the interface flux computation. If NULL, 
+                                DefaultUpwinding() will be used. */
+                            int(*UpwindFunction)(double*,double*,double*,double*,double*,double*,int,void*,double)
+                          )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -115,7 +183,19 @@ int ReconstructHyperbolic(double *fluxI,double *fluxC,double *u,double *x,int di
   return(0);
 }
 
-int DefaultUpwinding(double *fI,double *fL,double *fR,double *uL,double *uR,double *u,int dir,void *s,double t)
+/*! If no upwinding scheme is specified, this function defines the "upwind" flux as the 
+    arithmetic mean of the left- and right-biased fluxes. */
+int DefaultUpwinding(
+                      double  *fI,  /*!< Computed upwind interface flux */
+                      double  *fL,  /*!< Left-biased reconstructed interface flux */
+                      double  *fR,  /*!< Right-biased reconstructed interface flux */
+                      double  *uL,  /*!< Left-biased reconstructed interface solution */
+                      double  *uR,  /*!< Right-biased reconstructed interface solution */
+                      double  *u,   /*!< Cell-centered solution */
+                      int     dir,  /*!< Spatial dimension */
+                      void    *s,   /*!< Solver object of type #HyPar */
+                      double  t     /*!< Current solution time */
+                    )
 {
   HyPar *solver = (HyPar*)    s;
   int   done;

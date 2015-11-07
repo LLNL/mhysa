@@ -1,3 +1,8 @@
+/*! @file InitializeBoundaries.c
+    @author Debojyoti Ghosh
+    @brief Initialize the boundary implementation
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +14,24 @@
 
 static int CalculateLocalExtent(void*,void*);
 
-int InitializeBoundaries(void *s,void *m)
+/*! This function initializes the variables and functions related to implementing
+    the boundary conditions.
+    + Rank 0 reads in the boundary conditions file and broadcasts the information
+      to all processors.
+    + Depending on the type of boundary, additional information is read in. For
+      example, for Dirichlet boundary, the Dirichlet value is read in.
+    + Allocate and initialize arrays and variables related to implementing the 
+      boundary conditions.
+    + Each rank finds out if the subdomain it owns abuts any of the boundaries
+      specified.
+
+    Note that boundary conditions are implemented as boundary objects of the
+    type #DomainBoundary.
+*/
+int InitializeBoundaries(
+                          void *s,  /*!< Solver object of type #HyPar */
+                          void *m   /*!< MPI object of type #MPIVariables */
+                        )
 {
   HyPar           *solver   = (HyPar*)        s;
   MPIVariables    *mpi      = (MPIVariables*) m;
@@ -232,7 +254,14 @@ int InitializeBoundaries(void *s,void *m)
   return(0);
 }
 
-int CalculateLocalExtent(void *s,void *m)
+/*! For each of the boundary conditions, compute its extent on the
+    local sub-domain of each rank (if at all this subdomain abuts
+    that boundary), and accordingly set the bounding grid indices.
+*/
+int CalculateLocalExtent(
+                          void *s, /*!< Solver object of type #HyPar */
+                          void *m  /*!< MPI object of type #MPIVariables */
+                        )
 {
   HyPar           *solver   = (HyPar*)        s;
   MPIVariables    *mpi      = (MPIVariables*) m;

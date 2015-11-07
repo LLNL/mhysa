@@ -1,10 +1,27 @@
+/*! @file Initialize.c
+    @author Debojyoti Ghosh
+    @brief Initialization function
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-int Initialize(void *s, void *m)
+/*! Initialization function called at the beginning of a simulation. This function
+    does the following:
+    + allocates memory for MPI related arrays
+    + initializes the values for MPI variables
+    + creates sub-communicators and communication groups
+    + allocates memory for arrays to store solution, right-hand-side, 
+      flux, and other working vectors.
+    + initializes function counters to zero
+*/
+int Initialize(
+                void *s, /*!< Solver object of type #HyPar */
+                void *m  /*!< MPI object of type #MPIVariables */
+              )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

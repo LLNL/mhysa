@@ -1,3 +1,8 @@
+/*! @file InitializeSolvers.c
+    @author Debojyoti Ghosh
+    @brief Initialize all solvers
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +33,14 @@ void IncrementFilenameIndex      (char*,int);
 int  NonLinearInterpolation      (double*,void*,void*,double,
                                   int(*)(double*,double*,int,void*,double));
 
-int InitializeSolvers(void *s, void *m)
+/*! This function initializes all solvers-specific function pointers 
+    depending on user input. The specific functions used for spatial
+    discretization, time integration, and solution output are set here.
+*/
+int InitializeSolvers(
+                        void *s, /*!< Solver object of type #HyPar */
+                        void *m  /*!< MPI object of type #MPIVariables */
+                     )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
