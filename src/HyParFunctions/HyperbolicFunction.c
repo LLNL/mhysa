@@ -32,7 +32,9 @@ int HyperbolicFunction(
                         void    *s,   /*!< Solver object of type #HyPar */
                         void    *m,   /*!< MPI object of type #MPIVariables */
                         double  t,    /*!< Current simulation time */
-                        int     LimFlag,  /*!< Flag to indicate if solution should be limited to avoid numerical oscillations */
+                        int     LimFlag,  /*!< Flag to indicate if the nonlinear coefficients for solution-dependent 
+                                               interpolation method should be recomputed (see ReconstructHyperbolic() for
+                                               an explanation on why this is needed) */
                         /*! Function pointer to the flux function for the hyperbolic term */
                         int(*FluxFunction)(double*,double*,int,void*,double), 
                         /*! Function pointer to the upwinding function for the hyperbolic term */
@@ -127,6 +129,19 @@ int HyperbolicFunction(
     \f}
     where \f$\mathcal{U}\f$ denotes the upwinding function UpwindFunction() passed as an argument (if NULL, DefaultUpwinding() is used). The
     upwinding function is specified by the physical model.
+
+    \b Note:
+    Solution-dependent, nonlinear interpolation methods (such as WENO, CRWENO) are implemented in a way that separates the calculation of the 
+    nonlinear interpolation weights (based on, say, the smoothness of the flux function), and the actual evaluation of the interpolant, into 
+    different functions. This allows the flexibility to choose if and when the nonlinear coefficients are evaluated (or previously computed 
+    values are reused). Some possible scenarios are:
+    + For explicit time integration, they are computed every time the hyperbolic flux term is being computed.
+    + For implicit time integration, consistency or linearization may require that they be computed and "frozen" 
+      at the beginning of a time step or stage. 
+
+    The argument \b LimFlag controls this behavior:
+    + LimFlag = 1 means recompute the nonlinear coefficients.
+    + LimFlag = 0 means reuse the the previously computed coefficients.
 */
 int ReconstructHyperbolic(
                             double  *fluxI,     /*!< Array to hold the computed interface fluxes. This array does not
@@ -140,7 +155,8 @@ int ReconstructHyperbolic(
                             void    *s,         /*!< Solver object of type #HyPar */
                             void    *m,         /*!< MPI object of type #MPIVariables */
                             double  t,          /*!< Current solution time */
-                            int     LimFlag,    /*!< Flag to indicate whether to limit solution to avoid numerical oscillations */
+                            int     LimFlag,    /*!< Flag to indicate if the nonlinear coefficients for solution-dependent
+                                                     interpolation method should be recomputed */
                             /*! Function pointer to the upwinding function for the interface flux computation. If NULL, 
                                 DefaultUpwinding() will be used. */
                             int(*UpwindFunction)(double*,double*,double*,double*,double*,double*,int,void*,double)

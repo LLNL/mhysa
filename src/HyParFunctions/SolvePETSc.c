@@ -1,8 +1,9 @@
 /*! @file SolvePETSc.c
     @brief Integrate in time using PETSc
+    @author Debojyoti Ghosh
+
     Integrate the spatially discretized system in time using PETSc's TS module.\n
     (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html)
-    @author Debojyoti Ghosh
 */
 
 #ifdef with_petsc
@@ -31,7 +32,10 @@
     line inputs.\n
     \n
     See PETSc's documentation and examples for more details on how to use its
-    TS module.
+    TS module. All functions and data types whose names start with Vec, Mat, 
+    PC, KSP, SNES, and TS are PETSc functions - refer to the PETSc documentation 
+    (usually googling with the function name shows the man page for that function 
+    on PETSc's website).
 */
 
 int SolvePETSc(void *s, /*!< Solver object of type #HyPar */

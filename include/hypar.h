@@ -19,16 +19,16 @@
 */
 typedef struct main_parameters {
 
-  /*! Number of dimensions */
+  /*! Number of dimensions (input - \b solver.inp ) */
   int     ndims;
 
-  /*! Number of variables or DoFs at a grid point */
+  /*! Number of variables or DoFs at a grid point (input - \b solver.inp ) */
   int     nvars;
 
-  /*! Global dimensions: array of size ndims containing the global grid size in each dimension */
+  /*! Global dimensions: array of size ndims containing the global grid size in each dimension  (input - \b solver.inp )*/
   int     *dim_global;
   
-  /*! Local dimensions: array of size ndims containing the local grid size in each dimension */
+  /*! Local dimensions: array of size ndims containing the local grid size in each dimension (computed, based on the number of processors) */
   int     *dim_local;
 
   /*! Global number of grid points 
@@ -39,40 +39,40 @@ typedef struct main_parameters {
    * (product of all the elements of dim_local) */
   int     npoints_local, npoints_local_wghosts;
 
-  /*! Number of ghost points at the boundary - it's the same along all dimensions */
+  /*! Number of ghost points at the boundary - it's the same along all dimensions (input - \b solver.inp ) */
   int     ghosts;
 
-  /*! Number of time steps */
+  /*! Number of time steps (input - \b solver.inp ) */
   int     n_iter;
 
-  /*! If restart run, time step iteration at which to restart. 0 -> not a restart run */
+  /*! If restart run, time step iteration at which to restart. 0 -> not a restart run (input - \b solver.inp ) */
   int     restart_iter;
 
-  /*! time step size */
+  /*! time step size (input - \b solver.inp ) */
   double  dt;
 
-  /*!  choice of time integration class (eg RK) */
+  /*!  choice of time integration class (eg RK) (input - \b solver.inp ) */
   char    time_scheme         [_MAX_STRING_SIZE_];
 
-  /*! specific time-integration scheme in that class (eg. rk44, ssprk3) */
+  /*! specific time-integration scheme in that class (eg. rk44, ssprk3) (input - \b solver.inp ) */
   char    time_scheme_type    [_MAX_STRING_SIZE_];
 
-  /*! choice of spatial discretization scheme for the hyperbolic terms (eg: weno5, crweno5, muscl3) */
+  /*! choice of spatial discretization scheme for the hyperbolic terms (eg: weno5, crweno5, muscl3) (input - \b solver.inp ) */
   char    spatial_scheme_hyp  [_MAX_STRING_SIZE_];
 
   /*! type of reconstruction for spatial discretization of hyperbolic term 
-   * (characteristic or component-wise) */
+   * (characteristic or component-wise) (input - \b solver.inp ) */
   char    interp_type         [_MAX_STRING_SIZE_];
 
   /*! split the hyperbolic flux into two terms - for implicit-explicit time-integration or
-   * for any other purpose */
+   * for any other purpose (input - \b solver.inp ) */
   char    SplitHyperbolicFlux [_MAX_STRING_SIZE_];
 
   /*! type of spatial discretization for the parabolic term 
-   * conservative-1stage, nonconservative-1stage, or nonconservative-2stage */
+   * conservative-1stage, nonconservative-1stage, or nonconservative-2stage (input - \b solver.inp )*/
   char    spatial_type_par    [_MAX_STRING_SIZE_];
 
-  /*! choice of spatial discretization scheme for the parabolic term */
+  /*! choice of spatial discretization scheme for the parabolic term (input - \b solver.inp ) */
   char    spatial_scheme_par  [_MAX_STRING_SIZE_];
 
   /*! an ndims-dimensional integer array used to reference grid points */
@@ -138,29 +138,30 @@ typedef struct main_parameters {
   /*! pointer to the time-integration object */
   void *time_integrator;
 
-  /*! frequency (iterations) of writing iteration information (dt,CFL,norm,etc) to screen */
+  /*! frequency (iterations) of writing iteration information (dt,CFL,norm,etc) to screen (input - \b solver.inp )*/
   int screen_op_iter;
   
-  /*! frequency (iterations) of writing solution to file */
+  /*! frequency (iterations) of writing solution to file (input - \b solver.inp )*/
   int file_op_iter;
 
-  /*! flag to control if residual is written to file */
+  /*! flag to control if residual is written to file (input - \b solver.inp )*/
   int write_residual;
 
-  /*! mode of reading in initial solution: serial, parallel or mpi-io */
+  /*! mode of reading in initial solution: serial, parallel or mpi-io (input - \b solver.inp )*/
   char input_mode    [_MAX_STRING_SIZE_];
 
-  /*! type of initial solution file: ascii or binary */
+  /*! type of initial solution file: ascii or binary (input - \b solver.inp )*/
   char ip_file_type  [_MAX_STRING_SIZE_];
 
-  /*! mode of writing solution to file: serial or parallel */
+  /*! mode of writing solution to file: serial or parallel (input - \b solver.inp )*/
   char output_mode   [_MAX_STRING_SIZE_];
 
-  /*! solution output file format: binary, text, tecplot2d, tecplot 3d  */
+  /*! solution output file format: binary, text, tecplot2d, tecplot 3d  (input - \b solver.inp )*/
   char op_file_format[_MAX_STRING_SIZE_];
 
   /*! overwrite solution file when writing new one? ("yes" - for steady solutions or if interested
-   * only in the final solution; "no" - to keep the solutions written at intermediate time steps). */
+   * only in the final solution; "no" - to keep the solutions written at intermediate time steps). 
+     (input - \b solver.inp )*/
   char op_overwrite  [_MAX_STRING_SIZE_];
 
   /*! filename index for files written every few iterations */
@@ -170,50 +171,56 @@ typedef struct main_parameters {
   /*! solution filename extension */
   char solnfilename_extn[_MAX_STRING_SIZE_];
 
-  /*! Function to write the solution to file */
+  /*! Pointer to function to write the solution to file, assigned in InitializeSolvers() */
   int (*WriteOutput)              (int,int,int*,double*,double*,char*,int*);  
 
-  /*! Function to apply the physical boundary conditions to the solution */
+  /*! Pointer to function to apply the physical boundary conditions to the solution, assigned in InitializeSolvers() */
   int (*ApplyBoundaryConditions)  (void*,void*,double*,double*,int,double);
 
-  /*! Function to integrate the solution in time */
+  /*! Pointer to function to integrate the solution in time, assigned in InitializeSolvers() */
   int (*TimeIntegrate)            (void*);
 
-  /*! Function to interpolate a function at the grid interfaces from the cell-centered values
-   * for the hyperbolic flux */
+  /*! Pointer to function to interpolate a function at the grid interfaces from the cell-centered values
+   * for the hyperbolic flux, assigned in InitializeSolvers() */
   int (*InterpolateInterfacesHyp) (double*,double*,double*,double*,int,int,void*,void*,int);
 
-  /*! Function to pre-calculate the nonlinear interpolation coefficients for the hyperbolic
-   * flux interpolation */
+  /*! Pointer to function to pre-calculate the nonlinear interpolation coefficients for the hyperbolic
+   * flux interpolation, assigned in InitializeSolvers() */
   int (*NonlinearInterp)    (double*,void*,void*,double,
                              int(*)(double*,double*,int,void*,double));
 
-  /*! function to calculate the non-linear interpolation coefficients of the given scheme */
+  /*! Pointer to function to calculate the non-linear interpolation coefficients of the given scheme, 
+      assigned by the initialization function of the non-linear interpolation method 
+      (eg. WENOInitialize() )*/
   int (*SetInterpLimiterVar)      (double*,double*,double*,int,void*,void*);
 
-  /*! Function to interpolate a function at the grid interfaces from the cell-centered values
-   * for the parabolic flux (needed for a conservative 1-stage discretization) */
+  /*! Pointer to function to interpolate a function at the grid interfaces from the cell-centered values
+   * for the parabolic flux (needed for a conservative 1-stage discretization),
+     assigned in InitializeSolvers()*/
   int (*InterpolateInterfacesPar) (double*,double*,int,void*,void*);
 
-  /*! Function to calculate the cell-centered first derivative of a given function */
+  /*! Pointer to function to calculate the cell-centered first derivative of a given function, for the
+      evaluation of the parabolic term; assigned in InitializeSolvers()*/
   int (*FirstDerivativePar)       (double*,double*,int,int,void*,void*);
 
-  /*! Function to calculate the cell-centered second derivative of a given function */
+  /*! Pointer to function to calculate the cell-centered second derivative of a given function, for the
+      evaluation of the parabolic term; assigned in InitializeSolvers()*/
   int (*SecondDerivativePar)      (double*,double*,int,void*,void*);
 
-  /*! Function to calculate the hyperbolic term */
+  /*! Pointer to function to calculate the hyperbolic term (assigned in InitializeSolvers()) */
   int (*HyperbolicFunction) (double*,double*,void*,void*,double,int,
                              int(*)(double*,double*,int,void*,double),
                              int(*)(double*,double*,double*,double*,double*,
                                     double*,int,void*,double));
 
-  /*! Function to calculate the parabolic term */
+  /*! Pointer to function to calculate the parabolic term (assigned in InitializeSolvers())*/
   int (*ParabolicFunction)  (double*,double*,void*,void*,double);
 
-  /*! Function to calculate the source term */
+  /*! Pointer to function to calculate the source term (assigned in InitializeSolvers())*/
   int (*SourceFunction)     (double*,double*,void*,void*,double);
 
-  /*! name of physical model (defined in the header files in folder physicalmodels) */
+  /*! name of physical model (defined in the header files in folder physicalmodels) 
+      (input - \b solver.inp ) */
   char model[_MAX_STRING_SIZE_];
 
   /*! object providing the physics of the PDE being solved */

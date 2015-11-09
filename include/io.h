@@ -1,3 +1,8 @@
+/*! @file io.h
+    @author Debojyoti Ghosh
+    @brief Function declarations for file I/O functions.
+*/
+
 int ReadArray     (int,int,int*,int*,int,void*,void*,double*,double*,char*,int*);
 int WriteArray    (int,int,int*,int*,int,double*,double*,void*,void*,char*);
 

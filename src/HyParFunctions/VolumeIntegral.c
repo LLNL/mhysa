@@ -1,10 +1,22 @@
+/*! @file VolumeIntegral.c
+    @author Debojyoti Ghosh
+    @brief Compute the volume integral of the solution
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-int VolumeIntegral(double *VolumeIntegral,double *u,void *s,void *m)
+/*! Compute the volume integral of the solution.
+*/
+int VolumeIntegral(
+                    double  *VolumeIntegral,  /*!< The computed volume integral */
+                    double  *u,               /*!< Solution */
+                    void    *s,               /*!< Solver object of type #HyPar */
+                    void    *m                /*!< MPI object of type #MPIVariables */
+                  )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
