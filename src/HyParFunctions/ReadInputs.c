@@ -92,7 +92,7 @@ int ReadInputs(
   /* set some default values for optional inputs */
   solver->ndims           = 1;
   solver->nvars           = 1;
-  solver->ghosts          = 1
+  solver->ghosts          = 1;
   solver->dim_global      = NULL;
   solver->dim_local       = NULL;
   mpi->iproc              = NULL;
