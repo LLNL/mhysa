@@ -1,9 +1,10 @@
 /*! @file Interp1PrimFifthOrderCRWENO.c
- *  @brief CRWENO5 Scheme.
+ *  @brief CRWENO5 Scheme (Component-wise application to vectors).
  *
  * Contains the function that computes the first primitive of a
  * function at the grid interfaces from the cell-centered function 
- * values using the 5th order CRWENO scheme.
+ * values using the 5th order CRWENO scheme. Vector quantities are
+ * reconstructed in a component-wise manner.
  *
  *  @author Debojyoti Ghosh
 */
@@ -28,40 +29,68 @@
 */
 #define _MINIMUM_GHOSTS_ 3 
 
-/*!
- * \brief Fifth-order CRWENO scheme.
- *
- * **Reference:** <a href="http://dx.doi.org/10.1137/110857659">Ghosh, D., 
- * Baeder, J. D., Compact Reconstruction Schemes with Weighted ENO Limiting 
- * for Hyperbolic Conservation Laws, SIAM Journal on Scientific Computing, 
- * 34 (3), 2012, A1678–A1706</a>
- * \n
- * \n
- * The first primitive of the function at the grid interfaces are computed 
- * from the cell-centered function values using the fifth-order 
- * Compact-Reconstruction WENO (CRWENO) scheme. The interpolation method is 
- * applied in a component-wise manner to vectors.
- * \n\n
- * **Note:** The non-linear weights are not computed here. They are just
- * used to compute the interpolated value. They are computed in 
- * #WENOFifthOrderCalculateWeights().
- * \n\n
- * See interpolation.h for a detailed description of the function arguments.
- * \n\n
- * This method uses #tridiagLU() to solve the tridiagonal system of equations 
- * (see also #TridiagLU, tridiagLU.h).
- */
+/*! @brief 5th order CRWENO reconstruction (component-wise) on a uniform grid
 
+    Computes the interpolated values of the first primitive of a function \f${\bf f}\left({\bf u}\right)\f$
+    at the interfaces from the cell-centered values of the function using the fifth order CRWENO scheme on a 
+    uniform grid. The first primitive is defined as a function \f${\bf h}\left({\bf u}\right)\f$ that satisfies:
+    \f{equation}{
+      {\bf f}\left({\bf u}\left(x\right)\right) = \frac{1}{\Delta x} \int_{x-\Delta x/2}^{x+\Delta x/2} {\bf h}\left({\bf u}\left(\zeta\right)\right)d\zeta,
+    \f}
+    where \f$x\f$ is the spatial coordinate along the dimension of the interpolation. This function computes the 5th order CRWENO numerical approximation 
+    \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as the convex combination of three 3rd order methods:
+    \f{align}{
+        &\ \omega_1\ \times\ \left[ \frac{2}{3}\hat{\bf f}_{j-1/2} + \frac{1}{3}\hat{\bf f}_{j+1/2} = \frac{1}{6} \left( f_{j-1} + 5f_j \right) \right]\\
+      + &\ \omega_2\ \times\ \left[ \frac{1}{3}\hat{\bf f}_{j-1/2}+\frac{2}{3}\hat{\bf f}_{j+1/2} = \frac{1}{6} \left( 5f_j + f_{j+1} \right) \right]  \\
+      + &\ \omega_3\ \times\ \left[ \frac{2}{3}\hat{\bf f}_{j+1/2} + \frac{1}{3}\hat{\bf f}_{j+3/2} = \frac{1}{6} \left( f_j + 5f_{j+1} \right) \right] \\
+      = &\ \left(\frac{2}{3}\omega_1+\frac{1}{3}\omega_2\right)\hat{\bf f}_{j-1/2} + \left[\frac{1}{3}\omega_1+\frac{2}{3}(\omega_2+\omega_3)\right]\hat{\bf f}_{j+1/2} + \frac{1}{3}\omega_3\hat{\bf f}_{j+3/2} = \frac{\omega_1}{6}{\bf f}_{j-1} + \frac{5(\omega_1+\omega_2)+\omega_3}{6}{\bf f}_j + \frac{\omega_2+5\omega_3}{6}{\bf f}_{j+1},
+    \f}
+    where \f$\omega_k; k=1,2,3\f$ are the nonlinear WENO weights computed in WENOFifthOrderCalculateWeights() (note that the \f$\omega\f$ are different for each component of the vector \f$\hat{\bf f}\f$). The resulting tridiagonal system is solved using tridiagLU() (see also #TridiagLU, tridiagLU.h).
+
+    \b Implementation \b Notes:
+    + This method assumes a uniform grid in the spatial dimension corresponding to the interpolation.
+    + The method described above corresponds to a left-biased interpolation. The corresponding right-biased
+      interpolation can be obtained by reflecting the equations about interface j+1/2.
+    + The scalar interpolation method is applied to the vector function in a component-wise manner.
+    + The function computes the interpolant for the entire grid in one call. It loops over all the grid lines along the interpolation direction
+      and carries out the 1D interpolation along these grid lines.
+    + Location of cell-centers and cell interfaces along the spatial dimension of the interpolation is shown in the following figure:
+      @image html chap1_1Ddomain.png
+      @image latex chap1_1Ddomain.eps width=0.9\textwidth
+
+    \b Function \b arguments:
+
+    Argument  | Type      | Explanation             
+    --------- | --------- | ---------------------------------------------
+    fI        | double*   | Array to hold the computed interpolant at the grid interfaces. This array must have the same layout as the solution, but with \b no \b ghost \b points. Its size should be the same as u in all dimensions, except dir (the dimension along which to interpolate) along which it should be larger by 1 (number of interfaces is 1 more than the number of interior cell centers).
+    fC        | double*   | Array with the cell-centered values of the flux function \f${\bf f}\left({\bf u}\right)\f$. This array must have the same layout and size as the solution, \b with \b ghost \b points. 
+    u         | double*   | The solution array \f${\bf u}\f$ (with ghost points). If the interpolation is characteristic based, this is needed to compute the eigendecomposition. For a multidimensional problem, the layout is as follows: u is a contiguous 1D array of size (nvars*dim[0]*dim[1]*...*dim[D-1]) corresponding to the multi-dimensional solution, with the following ordering - nvars, dim[0], dim[1], ..., dim[D-1], where nvars is the number of solution components (#HyPar::nvars), dim is the local size (#HyPar::dim_local), D is the number of spatial dimensions.
+    x         | double*   | The grid array (with ghost points). This is used only by non-uniform-grid interpolation methods. For multidimensional problems, the layout is as follows: x is a contiguous 1D array of size (dim[0]+dim[1]+...+dim[D-1]), with the spatial coordinates along dim[0] stored from 0,...,dim[0]-1, the spatial coordinates along dim[1] stored along dim[0],...,dim[0]+dim[1]-1, and so forth.
+    upw       | int       | Upwinding direction: if positive, a left-biased interpolant will be computed; if negative, a right-biased interpolant will be computed. If the interpolation method is central, then this has no effect.
+    dir       | int       | Spatial dimension along which to interpolate (eg: 0 for 1D; 0 or 1 for 2D; 0,1 or 2 for 3D)
+    s         | void*     | Solver object of type #HyPar: the following variables are needed - #HyPar::ghosts, #HyPar::ndims, #HyPar::nvars, #HyPar::dim_local.
+    m         | void*     | MPI object of type #MPIVariables: this is needed only by compact interpolation method that need to solve a global implicit system across MPI ranks.
+    uflag     | int       | A flag indicating if the function being interpolated \f${\bf f}\f$ is the solution itself \f${\bf u}\f$ (if 1, \f${\bf f}\left({\bf u}\right) \equiv {\bf u}\f$).
+
+
+    \b Reference: 
+    + Ghosh, D., Baeder, J. D., Compact Reconstruction Schemes with Weighted ENO Limiting 
+      for Hyperbolic Conservation Laws, SIAM Journal on Scientific Computing, 34 (3), 2012, A1678–A1706,
+      http://dx.doi.org/10.1137/110857659
+    + Ghosh, D., Constantinescu, E. M., Brown, J., Efficient Implementation of Nonlinear Compact Schemes on Massively Parallel Platforms, 
+      SIAM Journal on Scientific Computing, 37 (3), 2015, C354–C383,
+      http://dx.doi.org/10.1137/140989261
+ */
 int Interp1PrimFifthOrderCRWENO(
                                 double *fI,  /*!< Array of interpolated function values at the interfaces */
-                                double *fC,  /*!< Array of cell-centered values of function f(u) */
-                                double *u,   /*!< Array of cell-centered values of the solution u */
+                                double *fC,  /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                double *u,   /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
                                 double *x,   /*!< Grid coordinates */
                                 int    upw,  /*!< Upwind direction (left or right biased) */
-                                int    dir,  /*!< Dimension along which the interpolation is taking place */
+                                int    dir,  /*!< Spatial dimension along which to interpolation */
                                 void   *s,   /*!< Object of type #HyPar containing solver-related variables */
                                 void   *m,   /*!< Object of type #MPIVariables containing MPI-related variables */
-                                int    uflag /*!< Flag to indicate if f(u) = u, i.e, the solution is being reconstructed */
+                                int    uflag /*!< Flag to indicate if \f$f(u) \equiv u\f$, i.e, if the solution is being reconstructed */
                                )
 {
   HyPar           *solver = (HyPar*)          s;
@@ -147,7 +176,7 @@ int Interp1PrimFifthOrderCRWENO(
         _ArrayAXBY_(f3,(one_sixth)  ,fm1,(5*one_sixth),fp1,nvars);
       }
 
-      /* calculate WENO weights */
+      /* retrieve the WENO weights */
       double *w1, *w2, *w3;
       w1 = (ww1+p*nvars);
       w2 = (ww2+p*nvars);
