@@ -1,10 +1,43 @@
+/*! @file ParabolicFunctionCons1Stage.c
+    @author Debojyoti Ghosh
+    @brief Evaluate the parabolic term using a conservative spatial discretization
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-int ParabolicFunctionCons1Stage(double *par,double *u,void *s,void *m,double t)
+/*! Evaluate the parabolic term using a conservative finite-difference spatial discretization: 
+    The parabolic term is assumed to be of the form:
+    \f{equation}{
+      {\bf P}\left({\bf u}\right) = \sum_{d=0}^{D-1} \frac {\partial^2 {\bf g}_d\left(\bf u\right)} {\partial x_d^2},
+    \f}
+    which is discretized at a grid point as:
+    \f{equation}{
+      \left.{\bf P}\left({\bf u}\right)\right|_j = \sum_{d=0}^{D-1} \frac { \hat{\bf g}_{j+1/2} - \hat{\bf g}_{j-1/2} } {\Delta x_d^2},
+    \f}
+    where \f$d\f$ is the spatial dimension index, \f$D\f$ is the total number of spatial dimensions (#HyPar::ndims), and \f$j\f$ is
+    the grid index along \f$d\f$. \f$\hat{\bf g}_d\f$ is the numerical approximation to the second primitive of 
+    \f${\bf g}_d\left({\bf u}\right)\f$, computed using #HyPar::InterpolateInterfacesPar.
+
+    \b Note: this form of the parabolic term \b does \b not allow for cross-derivatives.
+
+    To use this form of the parabolic term:
+    + specify \b "par_space_type" in solver.inp as \b "conservative-1stage" (#HyPar::spatial_type_par).
+    + the physical model must specify \f${\bf g}_d\left({\bf u}\right)\f$ through #HyPar::GFunction.
+
+    \b Reference: Liu, Y., Shu, C.-W., Zhang, M., "High order finite difference WENO schemes for nonlinear degenerate parabolic
+                  equations", SIAM J. Sci. Comput., 33 (2), 2011, pp. 939-965, http://dx.doi.org/10.1137/100791002
+*/
+int ParabolicFunctionCons1Stage(
+                                  double  *par, /*!< array to hold the computed parabolic term */
+                                  double  *u,   /*!< solution */
+                                  void    *s,   /*!< Solver object of type #HyPar */
+                                  void    *m,   /*!< MPI object of type #MPIVariables */
+                                  double  t     /*!< Current simulation time */
+                               )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

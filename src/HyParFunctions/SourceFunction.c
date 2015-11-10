@@ -1,3 +1,8 @@
+/*! @file SourceFunction.c
+    @author Debojyoti Ghosh
+    @brief Evaluate the source term
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <basic.h>
@@ -6,7 +11,17 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int SourceFunction(double *source,double *u,void *s,void *m,double t)
+/*! Evaluate the source term \f${\bf S}\left({\bf u}\right)\f$ in the governing equation,
+    if the physical model specifies one. In addition, if the simulation requires a sponge
+    boundary treatment, the sponge BC function is called.
+*/
+int SourceFunction(
+                    double  *source,  /*!< the computed source term */
+                    double  *u,       /*!< solution */
+                    void    *s,       /*!< solver object of type #HyPar */
+                    void    *m,       /*!< MPI object of type #MPIVariables */
+                    double  t         /*!< Current simulation time */
+                  )
 {
   HyPar           *solver   = (HyPar*)        s;
   MPIVariables    *mpi      = (MPIVariables*) m;

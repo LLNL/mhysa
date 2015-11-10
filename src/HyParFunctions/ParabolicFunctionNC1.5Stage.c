@@ -1,23 +1,44 @@
+/*! @file ParabolicFunctionNC1.5Stage.c
+    @author Debojyoti Ghosh
+    @brief Evaluate the parabolic term using a "1.5"-stage discretization.
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-/*
+/*! Evaluate the parabolic term using a "1.5"-stage finite-difference spatial discretization: 
+    The parabolic term is assumed to be of the form:
+    \f{equation}{
+      {\bf P}\left({\bf u}\right) = \sum_{d1=0}^{D-1}\sum_{d2=0}^{D-1} \frac {\partial^2 h_{d1,d2}\left(\bf u\right)} {\partial x_{d1} \partial x_{d2}},
+    \f}
+    where \f$d1\f$ and \f$d2\f$ are spatial dimension indices, and \f$D\f$ is the total number of spatial dimensions (#HyPar::ndims). This term is
+    discretized at a grid point as:
+    \f{equation}{
+      \left.{\bf P}\left({\bf u}\right)\right|_j = \sum_{d1=0}^{D-1} \sum_{d2=0}^{D-1} \frac { \mathcal{D}_{d1}\mathcal{D}_{d2} \left[ {\bf h}_{d1,d2} \right] } {\Delta x_{d1} \Delta x_{d2}},
+    \f}
+    where \f$\mathcal{D}\f$ denotes the finite-difference approximation to the first derivative.
+    + When \f$d = d1 = d2\f$, the operator \f$\mathcal{D}^2_d\left[\cdot\right] = \mathcal{D}_{d}\mathcal{D}_{d}\left[\cdot\right]\f$ is computed in one step as the finite-difference approximation to the  second derivative (Laplacian) \f$\mathcal{L}_d\left[\cdot\right]\f$ using #HyPar::SecondDerivativePar.
+    + When \f$d1 \ne d2 \f$, each of the first derivative approximations are \f$\mathcal{D}_{d1}\f$ and \f$\mathcal{D}_{d2}\f$ are computed separately, and thus the 
+      cross-derivative is evaluated in two steps using #HyPar::FirstDerivativePar.
 
-  "1.5"-stage evaluation of the parabolic terms:
+    \b Note: this form of the parabolic term \b does \b allow for cross-derivatives (\f$ d1 \ne d2 \f$).
 
-  + Second derivatives in one independent variable (i.e. d^2/dx^2, d^2/dy^2,etc)
-    are computed directly using a finite-difference approximation to the second
-    derivative.
+    To use this form of the parabolic term:
+    + specify \b "par_space_type" in solver.inp as \b "nonconservative-1.5stage" (#HyPar::spatial_type_par).
+    + the physical model must specify \f${\bf h}_{d1,d2}\left({\bf u}\right)\f$ through #HyPar::HFunction.
 
-  + Cross derivatives (i.e. d^2/dxdy, etc) are computed in a two-stage fashion - 
-    each stage computes the first derivative along one of the dimensions.
-
+    \sa ParabolicFunctionNC2Stage()
 */
-
-int ParabolicFunctionNC1_5Stage(double *par,double *u,void *s,void *m,double t)
+int ParabolicFunctionNC1_5Stage(
+                                  double  *par, /*!< array to hold the computed parabolic term */
+                                  double  *u,   /*!< solution */
+                                  void    *s,   /*!< Solver object of type #HyPar */
+                                  void    *m,   /*!< MPI object of type #MPIVariables */
+                                  double  t     /*!< Current simulation time */
+                               )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;

@@ -1,3 +1,8 @@
+/*! @file ReadInputs.c
+    @author Debojyoti Ghosh
+    @brief Read the input parameters from \b solver.inp
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +10,80 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-int ReadInputs(void *s,void *m)
+/*! Read the simulation inputs from the file \b solver.inp. 
+    Rank 0 reads in the inputs and broadcasts them to all the
+    processors.\n\n
+    The format of \b solver.inp is as follows:\n
+
+        begin
+            <keyword>   <value>
+            <keyword>   <value>
+            <keyword>   <value>
+            ...
+            <keyword>   <value>
+        end
+
+    where the list of keywords and their type are:\n
+    Keyword name       | Type         | Variable                      | Default value
+    ------------------ | ------------ | ----------------------------- | ------------------------
+    ndims              | int          | #HyPar::ndims                 | 1
+    nvars              | int          | #HyPar::nvars                 | 1
+    size               | int[ndims]   | #HyPar::dim_global            | must be specified
+    iproc              | int[ndims]   | #MPIVariables::iproc          | must be specified
+    ghost              | int          | #HyPar::ghosts                | 1
+    n_iter             | int          | #HyPar::n_iter                | 0
+    restart_iter       | int          | #HyPar::restart_iter          | 0
+    time_scheme        | char[]       | #HyPar::time_scheme           | euler
+    time_scheme_type   | char[]       | #HyPar::time_scheme_type      | none
+    hyp_space_scheme   | char[]       | #HyPar::spatial_scheme_hyp    | 1
+    hyp_flux_split     | char[]       | #HyPar::SplitHyperbolicFlux   | no
+    hyp_interp_type    | char[]       | #HyPar::interp_type           | characteristic
+    par_space_type     | char[]       | #HyPar::spatial_type_par      | nonconservative-1stage
+    par_space_scheme   | char[]       | #HyPar::spatial_scheme_par    | 2
+    dt                 | double       | #HyPar::dt                    | 0.0
+    conservation_check | char[]       | #HyPar::ConservationCheck     | no
+    screen_op_iter     | int          | #HyPar::screen_op_iter        | 1
+    file_op_iter       | int          | #HyPar::file_op_iter          | 1000
+    op_file_format     | char[]       | #HyPar::op_file_format        | text
+    ip_file_type       | char[]       | #HyPar::ip_file_type          | ascii
+    input_mode         | char[]       | #HyPar::input_mode            | serial
+    output_mode        | char[]       | #HyPar::output_mode           | serial
+    op_overwrite       | char[]       | #HyPar::op_overwrite          | no
+    model              | char[]       | #HyPar::model                 | must be specified
+
+    \b Notes:
+    + "ndims" \b must be specified \b before "size" and "iproc".
+    + if "input_mode" or "output_mode" are set to "parallel" or "mpi-io",
+      the number of I/O ranks must be specified right after as an integer.
+      For example:
+
+          begin
+              ...
+              input_mode  parallel 4
+              ...
+          end
+
+      This means that 4 MPI ranks will participate in file I/O (assuming
+      total MPI ranks is more than 4) (see ReadArrayParallel(), 
+      WriteArrayParallel(), ReadArrayMPI_IO() ).
+      - The number of I/O ranks specified for "input_mode" and "output_mode"
+        \b must \b be \b same. Otherwise, the value for the one specified last
+        will be used.
+      - The number of I/O ranks must be such that the total number of MPI ranks
+        is an integer multiple. Otherwise, the code will use only 1 I/O rank.
+    + If any of the keywords are not present, the default value is used, except
+      the ones whose default values say "must be specified". Thus, keywords that
+      are not required for a particular simulation may be left out of the 
+      solver.inp input file. For example, 
+      - a #Euler1D simulation does not need "par_space_type" or "par_space_scheme"
+        because it does not have a parabolic term.
+      - unless a conservation check is required, "conservation_check" can be left
+        out and the code will not check for conservation.
+*/
+int ReadInputs(
+                void *s,  /*!< Solver object of type #HyPar */
+                void *m   /*!< MPI object of type #MPIVariables */
+              )
 {
   HyPar         *solver = (HyPar*) s;
   MPIVariables  *mpi    = (MPIVariables*) m;
@@ -14,6 +92,7 @@ int ReadInputs(void *s,void *m)
   /* set some default values for optional inputs */
   solver->ndims           = 1;
   solver->nvars           = 1;
+  solver->ghosts          = 1
   solver->dim_global      = NULL;
   solver->dim_local       = NULL;
   mpi->iproc              = NULL;
@@ -38,6 +117,7 @@ int ReadInputs(void *s,void *m)
   strcpy(solver->model              ,"none"          );
   strcpy(solver->ConservationCheck  ,"no"            );
   strcpy(solver->SplitHyperbolicFlux,"no"            );
+
   /* reading solver inputs */
   if (!mpi->rank) {
     FILE *in;

@@ -1,14 +1,28 @@
+/*! @file Solve.c
+    @author Debojyoti Ghosh
+    @brief  Solve the governing equations in time
+*/
+
 #include <stdio.h>
 #include <mpivars.h>
 #include <hypar.h>
 #include <timeintegration.h>
 
-int CalculateErrors(void*,void*);
 #ifdef compute_rhs_operators
 int ComputeRHSOperators(void*,void*,double);
 #endif
+int CalculateErrors(void*,void*);
 
-int Solve(void *s,void *m)
+/*! This function integrates the semi-discrete ODE (obtained from discretizing the 
+    PDE in space) using natively implemented time integration methods. It initializes 
+    the time integration object, iterates the simulation for the required number of 
+    time steps, and calculates the errors. After the specified number of iterations, 
+    it writes out some information to the screen and the solution to a file.
+*/
+int Solve(
+            void *s,  /*!< Solver object of type #HyPar */
+            void *m   /*!< MPI object of type #MPIVariables */
+         )
 {
   HyPar         *solver = (HyPar*)        s;
   MPIVariables  *mpi    = (MPIVariables*) m;
