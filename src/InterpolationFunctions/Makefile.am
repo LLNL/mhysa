@@ -10,8 +10,6 @@ libInterpolationFunctions_a_SOURCES = \
   Interp1PrimThirdOrderMUSCLChar.c \
   Interp1PrimFifthOrderWENO.c \
   Interp1PrimFifthOrderWENOChar.c \
-  Interp1PrimFifthOrderWENO1U.c \
-  Interp1PrimFifthOrderWENO1UChar.c \
   Interp1PrimSecondOrderCentral.c \
   Interp1PrimSecondOrderCentralChar.c \
   Interp2PrimSecondOrder.c \

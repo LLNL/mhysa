@@ -15,8 +15,6 @@
 #define _FIFTH_ORDER_CRWENO_    "crweno5"
 /*! Fifth order hybrid compact-WENO scheme */
 #define _FIFTH_ORDER_HCWENO_    "hcweno5"
-/*! Hybrid first-order upwind + WENO scheme */
-#define _FIFTH_ORDER_WENO_1U_   "weno5-1u"
 
 /* interpolation type definitions */
 #define _CHARACTERISTIC_        "characteristic" /*!< Characteristic-based interpolation of vectors (Physical model must define left and right eigenvectors) */
@@ -100,8 +98,6 @@ int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,i
 int Interp1PrimFifthOrderCRWENO           (double*,double*,double*,double*,int,int,void*,void*,int);
 /*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order hybrid-compact WENO scheme */
 int Interp1PrimFifthOrderHCWENO           (double*,double*,double*,double*,int,int,void*,void*,int);
-/*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order WENO-1U scheme */
-int Interp1PrimFifthOrderWENO1U           (double*,double*,double*,double*,int,int,void*,void*,int);
 
 /* functions to interpolate the first primitive in a characteristic-based way
    (for conservative discretization of the 1st derivative) on a uniform grid */
@@ -117,8 +113,6 @@ int Interp1PrimFifthOrderWENOChar         (double*,double*,double*,double*,int,i
 int Interp1PrimFifthOrderCRWENOChar       (double*,double*,double*,double*,int,int,void*,void*,int);
 /*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order hybrid-compact WENO scheme */
 int Interp1PrimFifthOrderHCWENOChar       (double*,double*,double*,double*,int,int,void*,void*,int);
-/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order WENO-1U scheme */
-int Interp1PrimFifthOrderWENO1UChar       (double*,double*,double*,double*,int,int,void*,void*,int);
 
 /* functions to interpolate the second primitive 
    (for conservative discretization of the 2nd derivative) */

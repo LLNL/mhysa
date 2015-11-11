@@ -276,32 +276,6 @@ int InitializeSolvers(
     solver->flag_nonlinearinterp = !(((WENOParameters*)solver->interp)->no_limiting);
     solver->lusolver = (TridiagLU*) calloc (1,sizeof(TridiagLU));
     IERR tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
-  } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_1U_)) {
-    /* Fifth order WENO-1U scheme */
-    if (solver->nvars > 1) {
-      if (!strcmp(solver->interp_type,_CHARACTERISTIC_))
-        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderWENO1UChar;
-      else if (!strcmp(solver->interp_type,_COMPONENTS_))
-        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderWENO1U;
-      else {
-        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
-        fprintf(stderr,"supported interpolation type.\n");
-        return(1);
-      }
-    } else {
-      if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) 
-        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderWENO1U;
-      else if (!strcmp(solver->interp_type,_COMPONENTS_))
-        solver->InterpolateInterfacesHyp = Interp1PrimFifthOrderWENO1U;
-      else {
-        fprintf(stderr,"Error in InitializeSolvers(): %s is not a ",solver->interp_type);
-        fprintf(stderr,"supported interpolation type.\n");
-        return(1);
-      }
-    }
-    solver->interp = (WENOParameters*) calloc(1,sizeof(WENOParameters));
-    IERR WENOInitialize(solver,mpi,solver->spatial_scheme_hyp,solver->interp_type); CHECKERR(ierr);
-    solver->flag_nonlinearinterp = !(((WENOParameters*)solver->interp)->no_limiting);
   } else {
     fprintf(stderr,"Error: %s is a not a supported spatial interpolation scheme.\n",
             solver->spatial_scheme_hyp);
