@@ -1,3 +1,8 @@
+/*! @file Interp1PrimFifthOrderHCWENOChar.c
+    @author Debojyoti Ghosh
+    @brief Characteristic-based hybrid compact-WENO5 Scheme
+*/
+
 #include <stdio.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -11,14 +16,76 @@
 #include <omp.h>
 #endif
 
-/* 
-  Fifth order HCWENO characteristic-based interpolation (uniform grid)
-*/
-
 #undef  _MINIMUM_GHOSTS_
+/*! \def _MINIMUM_GHOSTS_
+ * Minimum number of ghost points required for this interpolation 
+ * method.
+*/
 #define _MINIMUM_GHOSTS_ 3
 
-int Interp1PrimFifthOrderHCWENOChar(double *fI,double *fC,double *u,double *x,int upw,int dir,void *s,void *m,int uflag)
+/*! @brief 5th order hybrid compact-WENO reconstruction (characteristic-based) on a uniform grid
+
+    Computes the interpolated values of the first primitive of a function \f${\bf f}\left({\bf u}\right)\f$
+    at the interfaces from the cell-centered values of the function using the fifth hybrid compact-WENO order  scheme on a 
+    uniform grid. The reconstruction is carried out in terms of
+    \f{equation}{
+      \alpha^k = {\bf l}_k \cdot {\bf f},\ k=1,\cdots,n,
+    \f}
+    which is the \f$k\f$-th characteristic quantity, and \f${\bf l}_k\f$ is the \f$k\f$-th left eigenvector, \f${\bf r}_k\f$ is the \f$k\f$-th right eigenvector, and \f$n\f$ is #HyPar::nvars. The block tridiagonal system is solved using blocktridiagLU() (see also #TridiagLU, tridiagLU.h). The final interpolated function is computed from the interpolated characteristic quantities as:
+    \f{equation}{
+      \hat{\bf f}_{j+1/2} = \sum_{k=1}^n \alpha^k_{j+1/2} {\bf r}_k
+    \f}
+    See the references below for details of the hybrid compact-WENO scheme.
+
+    \b Implementation \b Notes:
+    + This method assumes a uniform grid in the spatial dimension corresponding to the interpolation.
+    + The method described above corresponds to a left-biased interpolation. The corresponding right-biased
+      interpolation can be obtained by reflecting the equations about interface j+1/2.
+    + The WENO weights are computed in WENOFifthOrderCalculateWeightsChar().
+    + The left and right eigenvectors are computed at an averaged quantity at j+1/2. Thus, this function requires
+      functions to compute the average state, and the left and right eigenvectors. These are provided by the physical
+      model through
+      - #HyPar::GetLeftEigenvectors() 
+      - #HyPar::GetRightEigenvectors()
+      - #HyPar::AveragingFunction() 
+
+      If these functions are not provided by the physical model, then a characteristic-based interpolation cannot be used.
+    + The function computes the interpolant for the entire grid in one call. It loops over all the grid lines along the interpolation direction
+      and carries out the 1D interpolation along these grid lines.
+    + Location of cell-centers and cell interfaces along the spatial dimension of the interpolation is shown in the following figure:
+      @image html chap1_1Ddomain.png
+      @image latex chap1_1Ddomain.eps width=0.9\textwidth
+
+    \b Function \b arguments:
+
+    Argument  | Type      | Explanation             
+    --------- | --------- | ---------------------------------------------
+    fI        | double*   | Array to hold the computed interpolant at the grid interfaces. This array must have the same layout as the solution, but with \b no \b ghost \b points. Its size should be the same as u in all dimensions, except dir (the dimension along which to interpolate) along which it should be larger by 1 (number of interfaces is 1 more than the number of interior cell centers).
+    fC        | double*   | Array with the cell-centered values of the flux function \f${\bf f}\left({\bf u}\right)\f$. This array must have the same layout and size as the solution, \b with \b ghost \b points. 
+    u         | double*   | The solution array \f${\bf u}\f$ (with ghost points). If the interpolation is characteristic based, this is needed to compute the eigendecomposition. For a multidimensional problem, the layout is as follows: u is a contiguous 1D array of size (nvars*dim[0]*dim[1]*...*dim[D-1]) corresponding to the multi-dimensional solution, with the following ordering - nvars, dim[0], dim[1], ..., dim[D-1], where nvars is the number of solution components (#HyPar::nvars), dim is the local size (#HyPar::dim_local), D is the number of spatial dimensions.
+    x         | double*   | The grid array (with ghost points). This is used only by non-uniform-grid interpolation methods. For multidimensional problems, the layout is as follows: x is a contiguous 1D array of size (dim[0]+dim[1]+...+dim[D-1]), with the spatial coordinates along dim[0] stored from 0,...,dim[0]-1, the spatial coordinates along dim[1] stored along dim[0],...,dim[0]+dim[1]-1, and so forth.
+    upw       | int       | Upwinding direction: if positive, a left-biased interpolant will be computed; if negative, a right-biased interpolant will be computed. If the interpolation method is central, then this has no effect.
+    dir       | int       | Spatial dimension along which to interpolate (eg: 0 for 1D; 0 or 1 for 2D; 0,1 or 2 for 3D)
+    s         | void*     | Solver object of type #HyPar: the following variables are needed - #HyPar::ghosts, #HyPar::ndims, #HyPar::nvars, #HyPar::dim_local.
+    m         | void*     | MPI object of type #MPIVariables: this is needed only by compact interpolation method that need to solve a global implicit system across MPI ranks.
+    uflag     | int       | A flag indicating if the function being interpolated \f${\bf f}\f$ is the solution itself \f${\bf u}\f$ (if 1, \f${\bf f}\left({\bf u}\right) \equiv {\bf u}\f$).
+
+
+    \b Reference: 
+    + Pirozzoli, S., Conservative Hybrid Compact-WENO Schemes for Shock-Turbulence Interaction, J. Comput. Phys., 178 (1), 2002, pp. 81-117, http://dx.doi.org/10.1006/jcph.2002.7021
+    + Ren, Y.-X., Liu, M., Zhang, H., A characteristic-wise hybrid compact-WENO scheme for solving hyperbolic conservation laws, J. Comput. Phys., 192 (2), 2003, pp. 365-386, 
+ */
+int Interp1PrimFifthOrderHCWENOChar(
+                                    double *fI,  /*!< Array of interpolated function values at the interfaces */
+                                    double *fC,  /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                    double *u,   /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                    double *x,   /*!< Grid coordinates */
+                                    int    upw,  /*!< Upwind direction (left or right biased) */
+                                    int    dir,  /*!< Spatial dimension along which to interpolation */
+                                    void   *s,   /*!< Object of type #HyPar containing solver-related variables */
+                                    void   *m,   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                    int    uflag /*!< Flag to indicate if \f$f(u) \equiv u\f$, i.e, if the solution is being reconstructed */
+                                   )
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;

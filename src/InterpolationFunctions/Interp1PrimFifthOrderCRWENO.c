@@ -1,11 +1,5 @@
 /*! @file Interp1PrimFifthOrderCRWENO.c
  *  @brief CRWENO5 Scheme (Component-wise application to vectors).
- *
- * Contains the function that computes the first primitive of a
- * function at the grid interfaces from the cell-centered function 
- * values using the 5th order CRWENO scheme. Vector quantities are
- * reconstructed in a component-wise manner.
- *
  *  @author Debojyoti Ghosh
 */
 
@@ -43,7 +37,7 @@
         &\ \omega_1\ \times\ \left[ \frac{2}{3}\hat{\bf f}_{j-1/2} + \frac{1}{3}\hat{\bf f}_{j+1/2} = \frac{1}{6} \left( f_{j-1} + 5f_j \right) \right]\\
       + &\ \omega_2\ \times\ \left[ \frac{1}{3}\hat{\bf f}_{j-1/2}+\frac{2}{3}\hat{\bf f}_{j+1/2} = \frac{1}{6} \left( 5f_j + f_{j+1} \right) \right]  \\
       + &\ \omega_3\ \times\ \left[ \frac{2}{3}\hat{\bf f}_{j+1/2} + \frac{1}{3}\hat{\bf f}_{j+3/2} = \frac{1}{6} \left( f_j + 5f_{j+1} \right) \right] \\
-      = &\ \left(\frac{2}{3}\omega_1+\frac{1}{3}\omega_2\right)\hat{\bf f}_{j-1/2} + \left[\frac{1}{3}\omega_1+\frac{2}{3}(\omega_2+\omega_3)\right]\hat{\bf f}_{j+1/2} + \frac{1}{3}\omega_3\hat{\bf f}_{j+3/2} = \frac{\omega_1}{6}{\bf f}_{j-1} + \frac{5(\omega_1+\omega_2)+\omega_3}{6}{\bf f}_j + \frac{\omega_2+5\omega_3}{6}{\bf f}_{j+1},
+      \Rightarrow &\ \left(\frac{2}{3}\omega_1+\frac{1}{3}\omega_2\right)\hat{\bf f}_{j-1/2} + \left[\frac{1}{3}\omega_1+\frac{2}{3}(\omega_2+\omega_3)\right]\hat{\bf f}_{j+1/2} + \frac{1}{3}\omega_3\hat{\bf f}_{j+3/2} = \frac{\omega_1}{6}{\bf f}_{j-1} + \frac{5(\omega_1+\omega_2)+\omega_3}{6}{\bf f}_j + \frac{\omega_2+5\omega_3}{6}{\bf f}_{j+1},
     \f}
     where \f$\omega_k; k=1,2,3\f$ are the nonlinear WENO weights computed in WENOFifthOrderCalculateWeights() (note that the \f$\omega\f$ are different for each component of the vector \f$\hat{\bf f}\f$). The resulting tridiagonal system is solved using tridiagLU() (see also #TridiagLU, tridiagLU.h).
 

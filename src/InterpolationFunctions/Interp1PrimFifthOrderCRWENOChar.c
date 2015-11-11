@@ -1,10 +1,6 @@
 /*! @file Interp1PrimFifthOrderCRWENOChar.c
     @author Debojyoti Ghosh
     @brief Characteristic-based CRWENO5 Scheme
-
-    Contains the function that computes the first primitive of a function as the grid interfaces from the cell-centered
-    function values using the 5th order CRWENO schemes. Vector quantities are reconstructed by applying the scalar
-    interpolation method in the characteristic space.
 */
 
 #include <stdio.h>
@@ -41,7 +37,7 @@
         &\ \omega_1\ \times\ \left[ \frac{2}{3}\hat{\alpha}^k_{j-1/2} + \frac{1}{3}\hat{\alpha}^k_{j+1/2} = \frac{1}{6} \left( f_{j-1} + 5f_j \right) \right]\\
       + &\ \omega_2\ \times\ \left[ \frac{1}{3}\hat{\alpha}^k_{j-1/2}+\frac{2}{3}\hat{\alpha}^k_{j+1/2} = \frac{1}{6} \left( 5f_j + f_{j+1} \right) \right]  \\
       + &\ \omega_3\ \times\ \left[ \frac{2}{3}\hat{\alpha}^k_{j+1/2} + \frac{1}{3}\hat{\alpha}^k_{j+3/2} = \frac{1}{6} \left( f_j + 5f_{j+1} \right) \right] \\
-      = &\ \left(\frac{2}{3}\omega_1+\frac{1}{3}\omega_2\right)\hat{\alpha}^k_{j-1/2} + \left[\frac{1}{3}\omega_1+\frac{2}{3}(\omega_2+\omega_3)\right]\hat{\alpha}^k_{j+1/2} + \frac{1}{3}\omega_3\hat{\alpha}^k_{j+3/2} = \frac{\omega_1}{6}{\alpha}^k_{j-1} + \frac{5(\omega_1+\omega_2)+\omega_3}{6}{\alpha}^k_j + \frac{\omega_2+5\omega_3}{6}{\alpha}^k_{j+1},
+      \Rightarrow &\ \left(\frac{2}{3}\omega_1+\frac{1}{3}\omega_2\right)\hat{\alpha}^k_{j-1/2} + \left[\frac{1}{3}\omega_1+\frac{2}{3}(\omega_2+\omega_3)\right]\hat{\alpha}^k_{j+1/2} + \frac{1}{3}\omega_3\hat{\alpha}^k_{j+3/2} = \frac{\omega_1}{6}{\alpha}^k_{j-1} + \frac{5(\omega_1+\omega_2)+\omega_3}{6}{\alpha}^k_j + \frac{\omega_2+5\omega_3}{6}{\alpha}^k_{j+1},
     \f}
     where
     \f{equation}{
@@ -49,7 +45,7 @@
     \f}
     is the \f$k\f$-th characteristic quantity, and \f${\bf l}_k\f$ is the \f$k\f$-th left eigenvector, \f${\bf r}_k\f$ is the \f$k\f$-th right eigenvector, and \f$n\f$ is #HyPar::nvars. The nonlinear weights \f$\omega_k; k=1,2,3\f$ are the WENO weights computed in WENOFifthOrderCalculateWeightsChar(). The resulting block tridiagonal system is solved using blocktridiagLU() (see also #TridiagLU, tridiagLU.h). The final interpolated function is computed from the interpolated characteristic quantities as:
     \f{equation}{
-      \alpha^k = {\bf l}_k \cdot {\bf f},\ k=1,\cdots,n;\ \hat{\bf f}_{j+1/2} = \sum_{k=1}^n \alpha^k_{j+1/2} {\bf r}_k
+      \hat{\bf f}_{j+1/2} = \sum_{k=1}^n \alpha^k_{j+1/2} {\bf r}_k
     \f}
 
     \b Implementation \b Notes:
@@ -64,7 +60,6 @@
       - #HyPar::AveragingFunction() 
 
       If these functions are not provided by the physical model, then a characteristic-based interpolation cannot be used.
-    + The scalar interpolation method is applied to the vector function in a component-wise manner.
     + The function computes the interpolant for the entire grid in one call. It loops over all the grid lines along the interpolation direction
       and carries out the 1D interpolation along these grid lines.
     + Location of cell-centers and cell interfaces along the spatial dimension of the interpolation is shown in the following figure:
