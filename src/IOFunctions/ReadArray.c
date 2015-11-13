@@ -88,6 +88,8 @@ int ReadArray(
       offset  += (dim[d] + 2*ghosts);
     }
   }
+
+  return(0);
 }
 
 /*! Read an array in a serial fashion: For multi-processor simulation, only rank 0
