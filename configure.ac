@@ -25,8 +25,29 @@ if test "$CC" = "gcc" ; then
 else 
   if test "$CC" = "xlc" ; then
     CFLAGS="$CFLAGS -qlanglvl=stdc99"
+    LIBS="$LIBS"
     MPI_CC=mpixlc
+  else 
+    if test "$CC" = "xlc_r" ; then
+      CFLAGS="$CFLAGS -qlanglvl=stdc99"
+      LIBS="$LIBS"
+      MPI_CC=mpixlc_r
+    fi
   fi
+fi
+
+if test "x$enable_omp" = "xyes" ; then
+  AC_MSG_NOTICE([Compiling with OpenMP support.])
+  if test "$CC" = "gcc"  ; then
+    CFLAGS="$CFLAGS -fopenmp"
+    LIBS="$LIBS -lgomp"
+  else
+    if test "$CC" = "xlc" || test "$CC" = "xlc_r" ; then
+      CFLAGS="$CFLAGS -qsmp=omp"
+      LIBS="$LIBS"
+    fi
+  fi
+  CFLAGS="$CFLAGS -Dwith_omp"
 fi
 
 if test "x$with_mpi_dir" != "x" ; then
@@ -59,12 +80,6 @@ if test "x$MPICC" = "x" ; then
   CFLAGS="$CFLAGS -Dserial"
 else
   CC=$MPICC
-fi
-
-if test "x$enable_omp" = "xyes" ; then
-  AC_MSG_NOTICE([Compiling with OpenMP support.])
-  CFLAGS="$CFLAGS -Dwith_omp -fopenmp"
-  LIBS="$LIBS -lgomp"
 fi
 
 if test "x$enable_scalapack" = "xyes" ; then
