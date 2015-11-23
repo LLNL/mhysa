@@ -127,7 +127,7 @@ int Interp1PrimFifthOrderHCWENOChar(
   double *C = weno->C;
   double *F = weno->R;
 
-#pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,fchar,index_outer,indexC,indexI)
+#pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,index_outer,indexC,indexI)
   for (sys=0; sys<Nsys; sys++) {
     _ArrayIndexnD_(ndims,sys,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
@@ -259,7 +259,7 @@ int Interp1PrimFifthOrderHCWENOChar(
 #endif
 
   /* save the solution to fI */
-#pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,fchar,index_outer,indexC,indexI)
+#pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,index_outer,indexC,indexI)
   for (sys=0; sys<Nsys; sys++) {
     _ArrayIndexnD_(ndims,sys,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexI,ndims);
