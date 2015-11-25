@@ -159,7 +159,7 @@ int main()
   in = fopen("solver.inp","r");
   if (!in) {
     fprintf(stderr,"Error: File \"solver.inp\" not found.\n");
-    return;
+    return(0);
   } else {
 	  char word[_MAX_STRING_SIZE_];
     fscanf(in,"%s",word);
@@ -178,14 +178,14 @@ int main()
           if (!dim_global) {
             fprintf(stderr,"Error in ReadInputs(): dim_global not allocated.\n");
             fprintf(stderr,"Please specify ndims before dimensions.\n"         );
-            return;
+            return(0);
           } else for (i=0; i<ndims; i++) fscanf(in,"%d",&dim_global[i]);
         } else if (!strcmp(word, "iproc")) {
           int i;
           if (!iproc) {
             fprintf(stderr,"Error in ReadInputs(): iproc not allocated.\n");
             fprintf(stderr,"Please specify ndims before iproc.\n"         );
-            return;
+            return(0);
           } else for (i=0; i<ndims; i++) fscanf(in,"%d",&iproc[i]);
         } else if (!strcmp(word, "output_mode")) {
           fscanf(in,"%s",output_mode);
@@ -196,7 +196,7 @@ int main()
       }
     } else {
   	  fprintf(stderr,"Error: Illegal format in file \"solver.inp\".\n");
-      return;
+      return(0);
     }
     fclose(in);
 
@@ -215,7 +215,7 @@ int main()
 
   if (strcmp(output_mode,"parallel")) {
     printf("Error: output_mode is not \"parallel\". Why are you using this code?\n");
-    return;
+    return(0);
   }
 
   FILE *inps[N_IORanks];
@@ -316,14 +316,14 @@ int main()
       bytes = fwrite(Xg,sizeof(double),size,out);
       if (bytes != size) {
         printf("Error: unable to write grid to %s.\n",out_filename);
-        return;
+        return(0);
       }
       size = nvars;
       for (i=0; i<ndims; i++) size *= dim_global[i];
       bytes = fwrite(Ug,sizeof(double),size,out);
       if (bytes != size) {
         printf("Error: unable to write solution to %s.\n",out_filename);
-        return;
+        return(0);
       }
       fclose(out);
 
@@ -414,14 +414,14 @@ int main()
     bytes = fwrite(Xg,sizeof(double),size,out);
     if (bytes != size) {
       printf("Error: unable to write grid to %s.\n",out_filename);
-      return;
+      return(0);
     }
     size = nvars;
     for (i=0; i<ndims; i++) size *= dim_global[i];
     bytes = fwrite(Ug,sizeof(double),size,out);
     if (bytes != size) {
       printf("Error: unable to write solution to %s.\n",out_filename);
-      return;
+      return(0);
     }
     fclose(out);
 
