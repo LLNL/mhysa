@@ -1,3 +1,8 @@
+/*! @file WENOInitialize.c
+    @brief Initializes the WENO-type schemes
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +14,21 @@ int WENOFifthOrderCalculateWeights    (double*,double*,double*,int,void*,void*);
 int WENOFifthOrderCalculateWeightsChar(double*,double*,double*,int,void*,void*);
 int WENOFifthOrderInitializeWeights   (int,void*,void*);
 
-int WENOInitialize(void *s,void *m, char *scheme,char *type)
+/*!
+  This function initializes the WENO-type methods.
+  + Sets the parameters to default values.
+  + Reads in the parameters from optional input file "weno.inp", if available.
+  + If a compact-type scheme is specified (i.e. CRWENO5), allocates the arrays
+    to store the tridiagonal system.
+  + Allocates memory for and initializes the nonlinear weights used by WENO-type
+    schemes.
+*/
+int WENOInitialize(
+                    void *s,      /*!< Solver object of type #HyPar */
+                    void *m,      /*!< MPI object of type #MPIVariables */
+                    char *scheme, /*!< Name of scheme */
+                    char *type    /*!< Type of interpolation */
+                  )
 {
   HyPar           *solver = (HyPar*) s;
   MPIVariables    *mpi    = (MPIVariables*) m;

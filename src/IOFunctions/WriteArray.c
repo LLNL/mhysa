@@ -61,7 +61,7 @@ int WriteArray(
   problems for which the entire global domain will not fit on one 
   node. This approach is also not very scalable.
   + Supports binary and ASCII formats (specified through
-    #HyPar::output_format).
+    #HyPar::op_file_format).
 
   \sa WriteBinary(), WriteText(), WriteTecplot2D(), WriteTecplot3D()
 */ 

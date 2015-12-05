@@ -1,20 +1,19 @@
+/*! @file WENOCleanup.c
+    @brief Cleans up allocations specific to WENO-type methods
+    @author Debojyoti Ghosh
+*/
+
 #include <stdlib.h>
 #include <interpolation.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-int WENOCleanup(void *s)
+/*!
+    Cleans up all allocations related to the WENO-type methods.
+*/
+int WENOCleanup(void *s /*!< WENO object of type #WENOParameters */ )
 {
   WENOParameters  *weno   = (WENOParameters*) s;
-
-  /* hard coding these parameters for now */
-  /* modify to read from an input file later */
-  weno->mapped      = 1;
-  weno->borges      = 0;
-  weno->yc          = 0;
-  weno->no_limiting = 0;
-  weno->eps         = 1e-6;
-  weno->p           = 2.0;
 
   if (weno->A) free(weno->A);
   if (weno->B) free(weno->B);

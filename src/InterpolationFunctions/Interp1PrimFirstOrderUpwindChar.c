@@ -33,7 +33,7 @@
     \f}
     where \f$x\f$ is the spatial coordinate along the dimension of the interpolation. This function computes the 1st order upwind numerical approximation \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as:
     \f{equation}{
-      \hat{\alpha}^k_{j+1/2} = \left\{\begin{array}{cc} {\alpha}^k_{j-1} & {\rm upw} > 0 \\ {\alpha}^k_j & {\rm upw} \le 0 \end{array}\right..
+      \hat{\alpha}^k_{j+1/2} = \left\{\begin{array}{cc} {\alpha}^k_{j} & {\rm upw} > 0 \\ {\alpha}^k_{j+1} & {\rm upw} \le 0 \end{array}\right..
     \f}
     where
     \f{equation}{

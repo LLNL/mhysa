@@ -1,3 +1,8 @@
+/*! @file WENOFifthOrderCalculateWeights.c
+    @brief Functions to compute the nonlinear weights for WENO-type schemes
+    @author Debojyoti Ghosh
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <basic.h>
@@ -7,11 +12,11 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-/* 
-  Fifth order WENO weights calculation for uniform grid
-*/
-
 #undef  _MINIMUM_GHOSTS_
+/*! \def _MINIMUM_GHOSTS_
+ * Minimum number of ghost points required for this interpolation 
+ * method.
+*/
 #define _MINIMUM_GHOSTS_ 3
 
 static int WENOFifthOrderCalculateWeightsJS(double*,double*,double*,int,void*,void*);
@@ -24,7 +29,17 @@ static int WENOFifthOrderCalculateWeightsCharM (double*,double*,double*,int,void
 static int WENOFifthOrderCalculateWeightsCharZ (double*,double*,double*,int,void*,void*);
 static int WENOFifthOrderCalculateWeightsCharYC(double*,double*,double*,int,void*,void*);
 
-int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*! Compute the nonlinear weights for 5th order WENO-type schemes. This function is a wrapper that
+    calls the appropriate function, depending on the type of WENO weights.
+*/
+int WENOFifthOrderCalculateWeights(
+                                    double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                    double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                    double  *x,  /*!< Grid coordinates */
+                                    int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                    void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                    void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                  )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -36,7 +51,17 @@ int WENOFifthOrderCalculateWeights(double *fC,double *uC,double *x,int dir,void 
   else                    return(WENOFifthOrderCalculateWeightsJS (fC,uC,x,dir,solver,mpi));
 }
 
-int WENOFifthOrderCalculateWeightsChar(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*! Compute the nonlinear weights for 5th order WENO-type schemes. This function is a wrapper that
+    calls the appropriate function, depending on the type of WENO weights.
+*/
+int WENOFifthOrderCalculateWeightsChar(
+                                        double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                        double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                        double  *x,  /*!< Grid coordinates */
+                                        int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                        void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                        void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                      )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -48,7 +73,40 @@ int WENOFifthOrderCalculateWeightsChar(double *fC,double *uC,double *x,int dir,v
   else                    return(WENOFifthOrderCalculateWeightsCharJS (fC,uC,x,dir,solver,mpi));
 }
 
-int WENOFifthOrderCalculateWeightsJS(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*!
+  Computes the nonlinear weights for the 5th order component-wise WENO-type schemes using the original formulation 
+  of Jiang & Shu:
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = \frac {c_k} {\left(\beta_k+\epsilon\right)^p},\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(f_{j-2}-2f_{j-1}+f_j\right)^2 + \frac{1}{4}\left(f_{j-2}-4f_{j-1}+3f_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(f_{j-1}-2f_j+f_{j+1}\right)^2 + \frac{1}{4}\left(f_{j-1}-f_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(f_j-2f_{j+1}+f_{j+2}\right)^2 + \frac{1}{4}\left(3f_j-4f_{j+1}+f_{j+2}\right)^2
+  \f}
+
+  \b Notes:
+  + This function computes the weights for the entire grid (for interpolation along a given spatial dimension \a dir ).
+    Thus, it loops over all grid lines along \a dir.
+  + The weights are computed for all components, for both the left- and right-biased interpolations, and for both the 
+    flux function \f${\bf f}\left({\bf u}\right)\f$ and the solution \f$\bf u\f$. Thus, this approach of computing and
+    storing the weights is quite memory-intensive.
+  + The variable \a offset denotes the offset in the complete array from where the weights for interpolation along the 
+    current interpolation dimension (\a dir ) are stored.
+
+ \b Reference:
+ + Jiang, Shu, Efficient Implementation of Weighted ENO Schemes, J. Comput. Phys., 1996. http://dx.doi.org/10.1006/jcph.1996.0130
+*/
+int WENOFifthOrderCalculateWeightsJS(
+                                      double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                      double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                      double  *x,  /*!< Grid coordinates */
+                                      int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                      void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                      void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                    )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -168,7 +226,41 @@ int WENOFifthOrderCalculateWeightsJS(double *fC,double *uC,double *x,int dir,voi
   return(0);
 }
 
-int WENOFifthOrderCalculateWeightsM(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*!
+  Computes the nonlinear weights for the 5th order component-wise WENO-type schemes using the mapped formulation of Henrick, Aslam & Powers:
+  \f{eqnarray}{
+    \omega_k &=& \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = \frac {\tilde{\omega}_k \left( c_k + c_k^2 - 3c_k\tilde{\omega}_k + \tilde{\omega}_k^2\right)} {c_k^2 + \tilde{\omega}_k\left(1-2c_k\right)}, \\
+    \tilde{\omega}_k &=& \frac {\tilde{a}_k} {\sum_{j=1}^3 \tilde{a}_j },\ \tilde{a}_k = \frac {c_k} {\left(\beta_k+\epsilon\right)^p},\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(f_{j-2}-2f_{j-1}+f_j\right)^2 + \frac{1}{4}\left(f_{j-2}-4f_{j-1}+3f_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(f_{j-1}-2f_j+f_{j+1}\right)^2 + \frac{1}{4}\left(f_{j-1}-f_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(f_j-2f_{j+1}+f_{j+2}\right)^2 + \frac{1}{4}\left(3f_j-4f_{j+1}+f_{j+2}\right)^2
+  \f}
+
+  \b Notes:
+  + This function computes the weights for the entire grid (for interpolation along a given spatial dimension \a dir ).
+    Thus, it loops over all grid lines along \a dir.
+  + The weights are computed for all components, for both the left- and right-biased interpolations, and for both the 
+    flux function \f${\bf f}\left({\bf u}\right)\f$ and the solution \f$\bf u\f$. Thus, this approach of computing and
+    storing the weights is quite memory-intensive.
+  + The variable \a offset denotes the offset in the complete array from where the weights for interpolation along the 
+    current interpolation dimension (\a dir ) are stored.
+
+ \b Reference:
+ + Henrick, Aslam, Powers, Mapped weighted essentially non-oscillatory schemes: Achieving optimal order near critical 
+   points, J. Comput. Phys., 2005. http://dx.doi.org/10.1016/j.jcp.2005.01.023
+*/
+int WENOFifthOrderCalculateWeightsM(
+                                      double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                      double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                      double  *x,  /*!< Grid coordinates */
+                                      int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                      void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                      void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                   )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -288,7 +380,43 @@ int WENOFifthOrderCalculateWeightsM(double *fC,double *uC,double *x,int dir,void
   return(0);
 }
 
-int WENOFifthOrderCalculateWeightsZ(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*!
+  Computes the nonlinear weights for the 5th order component-wise WENO-type schemes using the WENO-Z formulation:
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = c_k \left( 1 + \frac{\tau_5}{\beta_k+\epsilon} \right)^p,\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(f_{j-2}-2f_{j-1}+f_j\right)^2 + \frac{1}{4}\left(f_{j-2}-4f_{j-1}+3f_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(f_{j-1}-2f_j+f_{j+1}\right)^2 + \frac{1}{4}\left(f_{j-1}-f_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(f_j-2f_{j+1}+f_{j+2}\right)^2 + \frac{1}{4}\left(3f_j-4f_{j+1}+f_{j+2}\right)^2,
+  \f}
+  and \f$\tau_5 = \left|\beta_1 - \beta_3 \right|\f$.
+
+  \b Notes:
+  + This function computes the weights for the entire grid (for interpolation along a given spatial dimension \a dir ).
+    Thus, it loops over all grid lines along \a dir.
+  + The weights are computed for all components, for both the left- and right-biased interpolations, and for both the 
+    flux function \f${\bf f}\left({\bf u}\right)\f$ and the solution \f$\bf u\f$. Thus, this approach of computing and
+    storing the weights is quite memory-intensive.
+  + The variable \a offset denotes the offset in the complete array from where the weights for interpolation along the 
+    current interpolation dimension (\a dir ) are stored.
+
+ \b Reference:
+    + Borges, et. al., An improved weighted essentially non-oscillatory scheme for hyperbolic conservation laws, 
+      J. Comput. Phys., 2008. http://dx.doi.org/10.1016/j.jcp.2007.11.038
+    + Castro, M., Costa, B., Don, W. S., High order weighted essentially non-oscillatory WENO-Z schemes for hyperbolic 
+      conservation laws, J. Comput. Phys., 2011. http://dx.doi.org/10.1016/j.jcp.2010.11.028
+*/
+int WENOFifthOrderCalculateWeightsZ(
+                                      double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                      double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                      double  *x,  /*!< Grid coordinates */
+                                      int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                      void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                      void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                   )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -408,7 +536,43 @@ int WENOFifthOrderCalculateWeightsZ(double *fC,double *uC,double *x,int dir,void
   return(0);
 }
 
-int WENOFifthOrderCalculateWeightsYC(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*!
+  Computes the nonlinear weights for the 5th order component-wise WENO-type schemes using the ESWENO formulation of 
+  Yamaleev & Carpenter. Note that only the formulation for the nonlinear weights is adopted and implemented here, not
+  the ESWENO scheme as a whole.
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = c_k \left( 1 + \frac{\tau_5}{\beta_k+\epsilon} \right)^p,\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(f_{j-2}-2f_{j-1}+f_j\right)^2 + \frac{1}{4}\left(f_{j-2}-4f_{j-1}+3f_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(f_{j-1}-2f_j+f_{j+1}\right)^2 + \frac{1}{4}\left(f_{j-1}-f_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(f_j-2f_{j+1}+f_{j+2}\right)^2 + \frac{1}{4}\left(3f_j-4f_{j+1}+f_{j+2}\right)^2,
+  \f}
+  and \f$\tau_5 = \left( f_{j-2}-4f_{j-1}+6f_j-4f_{j+1}+f_{j+2} \right)^2\f$.
+
+  \b Notes:
+  + This function computes the weights for the entire grid (for interpolation along a given spatial dimension \a dir ).
+    Thus, it loops over all grid lines along \a dir.
+  + The weights are computed for all components, for both the left- and right-biased interpolations, and for both the 
+    flux function \f${\bf f}\left({\bf u}\right)\f$ and the solution \f$\bf u\f$. Thus, this approach of computing and
+    storing the weights is quite memory-intensive.
+  + The variable \a offset denotes the offset in the complete array from where the weights for interpolation along the 
+    current interpolation dimension (\a dir ) are stored.
+
+  \b Reference:
+     + Yamaleev, Carpenter, A systematic methodology for constructing high-order energy stable WENO schemes, 
+       J. Comput. Phys., 2009. http://dx.doi.org/10.1016/j.jcp.2009.03.002
+*/
+int WENOFifthOrderCalculateWeightsYC(
+                                      double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                      double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                      double  *x,  /*!< Grid coordinates */
+                                      int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                      void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                      void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                    )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -528,7 +692,45 @@ int WENOFifthOrderCalculateWeightsYC(double *fC,double *uC,double *x,int dir,voi
   return(0);
 }
 
-int WENOFifthOrderCalculateWeightsCharJS(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*!
+  Computes the nonlinear weights for the 5th order characteristic-based WENO-type schemes using the original formulation 
+  of Jiang & Shu:
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = \frac {c_k} {\left(\beta_k+\epsilon\right)^p},\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(\alpha_{j-2}-2\alpha_{j-1}+\alpha_j\right)^2 + \frac{1}{4}\left(\alpha_{j-2}-4\alpha_{j-1}+3\alpha_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(\alpha_{j-1}-2\alpha_j+\alpha_{j+1}\right)^2 + \frac{1}{4}\left(\alpha_{j-1}-\alpha_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(\alpha_j-2\alpha_{j+1}+\alpha_{j+2}\right)^2 + \frac{1}{4}\left(3\alpha_j-4\alpha_{j+1}+\alpha_{j+2}\right)^2
+  \f}
+  where \f$\alpha\f$ is the characteristic flux or the solution.
+
+  \b Notes:
+  + This function computes the weights for the entire grid (for interpolation along a given spatial dimension \a dir ).
+    Thus, it loops over all grid lines along \a dir.
+  + The weights are computed for all components, for both the left- and right-biased interpolations, and for both the 
+    flux function \f${\bf f}\left({\bf u}\right)\f$ and the solution \f$\bf u\f$. Thus, this approach of computing and
+    storing the weights is quite memory-intensive.
+  + The variable \a offset denotes the offset in the complete array from where the weights for interpolation along the 
+    current interpolation dimension (\a dir ) are stored.
+  + This function requires functions to compute the average state and the left eigenvectors for the characteristic
+    decomposition. These are provided by the physical model through
+      - #HyPar::GetLeftEigenvectors() 
+      - #HyPar::AveragingFunction() 
+
+ \b Reference:
+ + Jiang, Shu, Efficient Implementation of Weighted ENO Schemes, J. Comput. Phys., 1996. http://dx.doi.org/10.1006/jcph.1996.0130
+*/
+int WENOFifthOrderCalculateWeightsCharJS(
+                                          double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                          double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                          double  *x,  /*!< Grid coordinates */
+                                          int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                          void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                          void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                        )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -659,7 +861,46 @@ int WENOFifthOrderCalculateWeightsCharJS(double *fC,double *uC,double *x,int dir
   return(0);
 }
 
-int WENOFifthOrderCalculateWeightsCharM(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*!
+  Computes the nonlinear weights for the 5th order characteristic-based WENO-type schemes using the mapped formulation of Henrick, Aslam & Powers:
+  \f{eqnarray}{
+    \omega_k &=& \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = \frac {\tilde{\omega}_k \left( c_k + c_k^2 - 3c_k\tilde{\omega}_k + \tilde{\omega}_k^2\right)} {c_k^2 + \tilde{\omega}_k\left(1-2c_k\right)}, \\
+    \tilde{\omega}_k &=& \frac {\tilde{a}_k} {\sum_{j=1}^3 \tilde{a}_j },\ \tilde{a}_k = \frac {c_k} {\left(\beta_k+\epsilon\right)^p},\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(\alpha_{j-2}-2\alpha_{j-1}+\alpha_j\right)^2 + \frac{1}{4}\left(\alpha_{j-2}-4\alpha_{j-1}+3\alpha_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(\alpha_{j-1}-2\alpha_j+\alpha_{j+1}\right)^2 + \frac{1}{4}\left(\alpha_{j-1}-\alpha_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(\alpha_j-2\alpha_{j+1}+\alpha_{j+2}\right)^2 + \frac{1}{4}\left(3\alpha_j-4\alpha_{j+1}+\alpha_{j+2}\right)^2
+  \f}
+  where \f$\alpha\f$ is the characteristic flux or the solution.
+
+  \b Notes:
+  + This function computes the weights for the entire grid (for interpolation along a given spatial dimension \a dir ).
+    Thus, it loops over all grid lines along \a dir.
+  + The weights are computed for all components, for both the left- and right-biased interpolations, and for both the 
+    flux function \f${\bf f}\left({\bf u}\right)\f$ and the solution \f$\bf u\f$. Thus, this approach of computing and
+    storing the weights is quite memory-intensive.
+  + The variable \a offset denotes the offset in the complete array from where the weights for interpolation along the 
+    current interpolation dimension (\a dir ) are stored.
+  + This function requires functions to compute the average state and the left eigenvectors for the characteristic
+    decomposition. These are provided by the physical model through
+      - #HyPar::GetLeftEigenvectors() 
+      - #HyPar::AveragingFunction() 
+
+ \b Reference:
+ + Henrick, Aslam, Powers, Mapped weighted essentially non-oscillatory schemes: Achieving optimal order near critical 
+   points, J. Comput. Phys., 2005. http://dx.doi.org/10.1016/j.jcp.2005.01.023
+*/
+int WENOFifthOrderCalculateWeightsCharM(
+                                          double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                          double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                          double  *x,  /*!< Grid coordinates */
+                                          int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                          void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                          void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                       )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -790,7 +1031,47 @@ int WENOFifthOrderCalculateWeightsCharM(double *fC,double *uC,double *x,int dir,
   return(0);
 }
 
-int WENOFifthOrderCalculateWeightsCharZ(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*!
+  Computes the nonlinear weights for the 5th order characteristic-based WENO-type schemes using the WENO-Z formulation:
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = c_k \left( 1 + \frac{\tau_5}{\beta_k+\epsilon} \right)^p,\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(\alpha_{j-2}-2\alpha_{j-1}+\alpha_j\right)^2 + \frac{1}{4}\left(\alpha_{j-2}-4\alpha_{j-1}+3\alpha_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(\alpha_{j-1}-2\alpha_j+\alpha_{j+1}\right)^2 + \frac{1}{4}\left(\alpha_{j-1}-\alpha_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(\alpha_j-2\alpha_{j+1}+\alpha_{j+2}\right)^2 + \frac{1}{4}\left(3\alpha_j-4\alpha_{j+1}+\alpha_{j+2}\right)^2
+  \f}
+  and \f$\tau_5 = \left|\beta_1 - \beta_3 \right|\f$, and \f$\alpha\f$ is the characteristic flux or the solution.
+
+  \b Notes:
+  + This function computes the weights for the entire grid (for interpolation along a given spatial dimension \a dir ).
+    Thus, it loops over all grid lines along \a dir.
+  + The weights are computed for all components, for both the left- and right-biased interpolations, and for both the 
+    flux function \f${\bf f}\left({\bf u}\right)\f$ and the solution \f$\bf u\f$. Thus, this approach of computing and
+    storing the weights is quite memory-intensive.
+  + The variable \a offset denotes the offset in the complete array from where the weights for interpolation along the 
+    current interpolation dimension (\a dir ) are stored.
+  + This function requires functions to compute the average state and the left eigenvectors for the characteristic
+    decomposition. These are provided by the physical model through
+      - #HyPar::GetLeftEigenvectors() 
+      - #HyPar::AveragingFunction() 
+
+ \b Reference:
+    + Borges, et. al., An improved weighted essentially non-oscillatory scheme for hyperbolic conservation laws, 
+      J. Comput. Phys., 2008. http://dx.doi.org/10.1016/j.jcp.2007.11.038
+    + Castro, M., Costa, B., Don, W. S., High order weighted essentially non-oscillatory WENO-Z schemes for hyperbolic 
+      conservation laws, J. Comput. Phys., 2011. http://dx.doi.org/10.1016/j.jcp.2010.11.028
+*/
+int WENOFifthOrderCalculateWeightsCharZ(
+                                          double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                          double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                          double  *x,  /*!< Grid coordinates */
+                                          int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                          void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                          void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                       )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
@@ -921,7 +1202,47 @@ int WENOFifthOrderCalculateWeightsCharZ(double *fC,double *uC,double *x,int dir,
   return(0);
 }
 
-int WENOFifthOrderCalculateWeightsCharYC(double *fC,double *uC,double *x,int dir,void *s,void *m)
+/*!
+  Computes the nonlinear weights for the 5th order characteristic-based WENO-type schemes using the ESWENO formulation of 
+  Yamaleev & Carpenter. Note that only the formulation for the nonlinear weights is adopted and implemented here, not
+  the ESWENO scheme as a whole.
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = c_k \left( 1 + \frac{\tau_5}{\beta_k+\epsilon} \right)^p,\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(\alpha_{j-2}-2\alpha_{j-1}+\alpha_j\right)^2 + \frac{1}{4}\left(\alpha_{j-2}-4\alpha_{j-1}+3\alpha_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(\alpha_{j-1}-2\alpha_j+\alpha_{j+1}\right)^2 + \frac{1}{4}\left(\alpha_{j-1}-\alpha_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(\alpha_j-2\alpha_{j+1}+\alpha_{j+2}\right)^2 + \frac{1}{4}\left(3\alpha_j-4\alpha_{j+1}+\alpha_{j+2}\right)^2
+  \f}
+  and \f$\tau_5 = \left( \alpha_{j-2}-4\alpha_{j-1}+6\alpha_j-4\alpha_{j+1}+\alpha_{j+2} \right)^2\f$ and \f$\alpha\f$ is the characteristic flux or the solution.
+
+  \b Notes:
+  + This function computes the weights for the entire grid (for interpolation along a given spatial dimension \a dir ).
+    Thus, it loops over all grid lines along \a dir.
+  + The weights are computed for all components, for both the left- and right-biased interpolations, and for both the 
+    flux function \f${\bf f}\left({\bf u}\right)\f$ and the solution \f$\bf u\f$. Thus, this approach of computing and
+    storing the weights is quite memory-intensive.
+  + The variable \a offset denotes the offset in the complete array from where the weights for interpolation along the 
+    current interpolation dimension (\a dir ) are stored.
+  + This function requires functions to compute the average state and the left eigenvectors for the characteristic
+    decomposition. These are provided by the physical model through
+      - #HyPar::GetLeftEigenvectors() 
+      - #HyPar::AveragingFunction() 
+
+  \b Reference:
+     + Yamaleev, Carpenter, A systematic methodology for constructing high-order energy stable WENO schemes, 
+       J. Comput. Phys., 2009. http://dx.doi.org/10.1016/j.jcp.2009.03.002
+*/
+int WENOFifthOrderCalculateWeightsCharYC(
+                                          double  *fC, /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                          double  *uC, /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                          double  *x,  /*!< Grid coordinates */
+                                          int     dir, /*!< Spatial dimension along which to interpolation */ 
+                                          void    *s,  /*!< Object of type #HyPar containing solver-related variables */
+                                          void    *m   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                        )
 {
   HyPar           *solver = (HyPar*)          s;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;

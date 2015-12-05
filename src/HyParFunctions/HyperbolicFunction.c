@@ -23,7 +23,7 @@ static int DefaultUpwinding      (double*,double*,double*,double*,double*,double
     \f}
     where \f$d\f$ denotes the spatial dimension, \f$D\f$ denotes the total number of spatial dimensions, the hat denotes 
     the discretized quantity, and \f$j\f$ is the grid coordinate along dimension \f$d\f$.
-    The approximation to the flux function \f${\bf f}_d\f$ at the interfaces \f$j\pm1/2\f$, denoted by \hat{\bf f}_{d,j\pm1/2},
+    The approximation to the flux function \f${\bf f}_d\f$ at the interfaces \f$j\pm1/2\f$, denoted by \hat{\bf f}_{d,j\pm 1/2},
     are computed using the function ReconstructHyperbolic().
 */
 int HyperbolicFunction(

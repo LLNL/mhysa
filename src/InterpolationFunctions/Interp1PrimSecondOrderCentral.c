@@ -33,7 +33,7 @@
     where \f$x\f$ is the spatial coordinate along the dimension of the interpolation. This function computes the 2nd order central numerical approximation 
     \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as:
     \f{equation}{
-      \hat{\bf f}_{j+1/2} = \frac{1}{2}\left( {\bf f}_{j-1} + {\bf f}_j \right).
+      \hat{\bf f}_{j+1/2} = \frac{1}{2}\left( {\bf f}_{j} + {\bf f}_{j+1} \right).
     \f}
 
     \b Implementation \b Notes:

@@ -42,9 +42,9 @@ int NavierStokes2DJacobian(
 }
 
 /*! Function to compute the Jacobian of the fast flux (representing the acoustic waves) 
-    of the 2D Navier-Stokes equations, given the solution at a grid point (see #_NavierStokes2DSetStiffFlux_, 
-    #_NavierStokes2DSetStiffJac_). The Jacobian is square matrix of size nvar=4, and is returned as 
-    a 1D array (double) of 16 elements in row-major format.
+    of the 2D Navier-Stokes equations, given the solution at a grid point. The Jacobian 
+    is square matrix of size nvar=4, and is returned as a 1D array (double) of 16 elements 
+    in row-major format.
 */
 int NavierStokes2DStiffJacobian(
                           double  *Jac, /*!< Jacobian matrix: 1D array of size nvar^2 = 16 */

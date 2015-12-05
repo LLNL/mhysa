@@ -1,9 +1,22 @@
+/*! @file MUSCLInitialize.c
+    @brief Initialize the 3rd order MUSCL scheme
+    @author Debojyoti Ghosh
+*/
+
 #include <stdlib.h>
 #include <interpolation.h>
 #include <mpivars.h>
 #include <hypar.h>
 
-int MUSCLInitialize(void *s,void *m)
+/*!
+    Initialize the 3rd order MUSCL scheme. The current implementation
+    just needs to initialize the value of the parameter \f$\epsilon\f$,
+    which is hard-coded to \f$10^{-3}\f$.
+*/
+int MUSCLInitialize(
+                      void *s,  /*!< Solver object of type #HyPar */
+                      void *m   /*!< MPI object of type #MPIVariables */
+                   )
 {
   MUSCLParameters  *muscl   = (MUSCLParameters*) s;
   /* hard coding these parameters for now */

@@ -3,7 +3,7 @@
     @author Debojyoti Ghosh
 */
 
-/*! \def BandedMatix
+/*! \def BandedMatrix
     \brief Structure of variables defining a banded block matrix
  * This structure contains all the variables for defining a banded block matrix.
 */

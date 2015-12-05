@@ -198,79 +198,31 @@ int WENOCleanup(void*);
 /*! Optimal value for the third fifth-order CRWENO weight */
 #define   _CRWENO_OPTIMAL_WEIGHT_3_ 0.3
 
-/*! \def _WENOWeights_
- * Macro to calculate the fifth-order WENO weights
- * \n
- * Arguments:-\n
- *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
- *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
- *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
- *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
- *\n
- * **References**:\n
- *  + http://dx.doi.org/10.1006/jcph.1996.0130\n
- *  + http://dx.doi.org/10.1016/j.jcp.2005.01.023\n
- *  + http://dx.doi.org/10.1016/j.jcp.2007.11.038\n
- *  + http://dx.doi.org/10.1016/j.jcp.2009.03.002\n
- *  + http://dx.doi.org/10.1007/s10915-014-9818-0\n
- *  
- */
-#define _WENOWeights_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno) \
-  { \
-    /* calculate smoothness indicators */\
-    double b1, b2, b3; \
-    b1 = thirteen_by_twelve*(m3-2*m2+m1)*(m3-2*m2+m1) \
-         + one_fourth*(m3-4*m2+3*m1)*(m3-4*m2+3*m1);  \
-    b2 = thirteen_by_twelve*(m2-2*m1+p1)*(m2-2*m1+p1) \
-         + one_fourth*(m2-p1)*(m2-p1);                \
-    b3 = thirteen_by_twelve*(m1-2*p1+p2)*(m1-2*p1+p2) \
-         + one_fourth*(3*m1-4*p1+p2)*(3*m1-4*p1+p2);  \
-    /* calculate the tau parameter for the WENO-Z and WENO-YC weights */\
-    double tau; \
-    if      (weno->borges) tau = absolute(b3 - b1);  \
-    else if (weno->yc)     tau = (m3-4*m2+6*m1-4*p1+p2)*(m3-4*m2+6*m1-4*p1+p2);  \
-    else                   tau = 0;  \
-    /* calculate the WENO weights */\
-    double a1, a2, a3;  \
-    if (weno->borges || weno->yc) { \
-      a1 = c1 * (1.0 + (tau/(b1+weno->eps)) * (tau/(b1+weno->eps)) );  \
-      a2 = c2 * (1.0 + (tau/(b2+weno->eps)) * (tau/(b2+weno->eps)) );  \
-      a3 = c3 * (1.0 + (tau/(b3+weno->eps)) * (tau/(b3+weno->eps)) );  \
-    } else {  \
-      a1 = c1 / ( (b1+weno->eps) + (b1+weno->eps) );  \
-      a2 = c2 / ( (b2+weno->eps) + (b2+weno->eps) );  \
-      a3 = c3 / ( (b3+weno->eps) + (b3+weno->eps) );  \
-    } \
-    double a_sum_inv; \
-    a_sum_inv = 1.0 / (a1 + a2 + a3); \
-    w1 = a1 * a_sum_inv;  \
-    w2 = a2 * a_sum_inv;  \
-    w3 = a3 * a_sum_inv;  \
-    /* apply mapping if required */\
-    if (weno->mapped) { \
-      a1 = w1 * (c1 + c1*c1 - 3*c1*w1 + w1*w1) / (c1*c1 + w1*(1.0-2.0*c1)); \
-      a2 = w2 * (c2 + c2*c2 - 3*c2*w2 + w2*w2) / (c2*c2 + w2*(1.0-2.0*c2)); \
-      a3 = w3 * (c3 + c3*c3 - 3*c3*w3 + w3*w3) / (c3*c3 + w3*(1.0-2.0*c3)); \
-      a_sum_inv = 1.0 / (a1 + a2 + a3); \
-      w1 = a1 * a_sum_inv;  \
-      w2 = a2 * a_sum_inv;  \
-      w3 = a3 * a_sum_inv;  \
-    } \
-  }
-
 /*! \def _WENOWeights_v_JS_
- * Compute the WENO weights according the the Jiang & Shu formulation.
- * \n
- * Arguments:-\n
- *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
- *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
- *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
- *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
- *  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
- *\n
- * **Reference**:\n
- *  + Jiang, Shu, J. Comput. Phys., 1996. http://dx.doi.org/10.1006/jcph.1996.0130\n
- */
+ * Compute the WENO weights according the the Jiang & Shu formulation:
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = \frac {c_k} {\left(\beta_k+\epsilon\right)^p},\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(f_{j-2}-2f_{j-1}+f_j\right)^2 + \frac{1}{4}\left(f_{j-2}-4f_{j-1}+3f_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(f_{j-1}-2f_j+f_{j+1}\right)^2 + \frac{1}{4}\left(f_{j-1}-f_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(f_j-2f_{j+1}+f_{j+2}\right)^2 + \frac{1}{4}\left(3f_j-4f_{j+1}+f_{j+2}\right)^2
+  \f}
+
+  \b Notes:
+  + This macro computes the weights for one variable along one grid line. 
+  
+  \b Arguments:
+  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.
+  + \a c1, \a c2,\a c3 are optimal coefficients.
+  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface j+1/2: j-2,j-1,j,j+1,j+2
+  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.
+
+  \b Reference:
+  + Jiang, Shu, J. Comput. Phys., 1996. http://dx.doi.org/10.1006/jcph.1996.0130
+*/
 #define _WENOWeights_v_JS_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
     int idx; \
@@ -294,17 +246,31 @@ int WENOCleanup(void*);
   }
 
 /*! \def _WENOWeights_v_M_
- * Compute the WENO weights according the the Mapped-WENO formulation.
- * \n
- * Arguments:-\n
- *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
- *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
- *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
- *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
- *  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
- *\n
- * **Reference**:\n
- *  + Henrick, Aslam, Powers, J. Comput. Phys., 2005. http://dx.doi.org/10.1016/j.jcp.2005.01.023\n
+  Compute the WENO weights according the the Mapped-WENO formulation:
+  \f{eqnarray}{
+    \omega_k &=& \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = \frac {\tilde{\omega}_k \left( c_k + c_k^2 - 3c_k\tilde{\omega}_k + \tilde{\omega}_k^2\right)} {c_k^2 + \tilde{\omega}_k\left(1-2c_k\right)}, \\
+    \tilde{\omega}_k &=& \frac {\tilde{a}_k} {\sum_{j=1}^3 \tilde{a}_j },\ \tilde{a}_k = \frac {c_k} {\left(\beta_k+\epsilon\right)^p},\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(f_{j-2}-2f_{j-1}+f_j\right)^2 + \frac{1}{4}\left(f_{j-2}-4f_{j-1}+3f_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(f_{j-1}-2f_j+f_{j+1}\right)^2 + \frac{1}{4}\left(f_{j-1}-f_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(f_j-2f_{j+1}+f_{j+2}\right)^2 + \frac{1}{4}\left(3f_j-4f_{j+1}+f_{j+2}\right)^2
+  \f}
+
+  \b Notes:
+  + This macro computes the weights for one variable along one grid line. 
+  
+  \b Arguments:-\n
+  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.
+  + \a c1, \a c2,\a c3 are optimal coefficients.
+  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface j+1/2: j-2,j-1,j,j+1,j+2
+  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.
+  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.
+ 
+  \b Reference:
+     + Henrick, Aslam, Powers, J. Comput. Phys., 2005. http://dx.doi.org/10.1016/j.jcp.2005.01.023
  */
 #define _WENOWeights_v_M_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
@@ -325,7 +291,6 @@ int WENOCleanup(void*);
       w1[idx] = a1 * a_sum_inv; \
       w2[idx] = a2 * a_sum_inv; \
       w3[idx] = a3 * a_sum_inv; \
-      /* apply mapping if required */\
       a1 = w1[idx] * (c1 + c1*c1 - 3*c1*w1[idx] + w1[idx]*w1[idx]) / (c1*c1 + w1[idx]*(1.0-2.0*c1)); \
       a2 = w2[idx] * (c2 + c2*c2 - 3*c2*w2[idx] + w2[idx]*w2[idx]) / (c2*c2 + w2[idx]*(1.0-2.0*c2)); \
       a3 = w3[idx] * (c3 + c3*c3 - 3*c3*w3[idx] + w3[idx]*w3[idx]) / (c3*c3 + w3[idx]*(1.0-2.0*c3)); \
@@ -337,17 +302,34 @@ int WENOCleanup(void*);
   }
 
 /*! \def _WENOWeights_v_Z_
- * Compute the WENO weights according the the WENO-Z formulation.
- * \n
- * Arguments:-\n
- *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
- *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
- *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
- *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
- *  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
- *\n
- * **Reference**:\n
- *  + Borges, et. al., J. Comput. Phys., 2008. http://dx.doi.org/10.1016/j.jcp.2007.11.038\n
+  Compute the WENO weights according the the WENO-Z formulation:
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = c_k \left( 1 + \frac{\tau_5}{\beta_k+\epsilon} \right)^p,\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(f_{j-2}-2f_{j-1}+f_j\right)^2 + \frac{1}{4}\left(f_{j-2}-4f_{j-1}+3f_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(f_{j-1}-2f_j+f_{j+1}\right)^2 + \frac{1}{4}\left(f_{j-1}-f_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(f_j-2f_{j+1}+f_{j+2}\right)^2 + \frac{1}{4}\left(3f_j-4f_{j+1}+f_{j+2}\right)^2,
+  \f}
+  and \f$\tau_5 = \left|\beta_1 - \beta_3 \right|\f$.
+ 
+  \b Notes:
+  + This macro computes the weights for one variable along one grid line. 
+  
+  \b Arguments:
+  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
+  + \a c1, \a c2,\a c3 are optimal coefficients.
+  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface j+1/2: j-2,j-1,j,j+1,j+2
+  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.
+  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.
+
+ \b Reference:
+    + Borges, et. al., An improved weighted essentially non-oscillatory scheme for hyperbolic conservation laws, 
+      J. Comput. Phys., 2008. http://dx.doi.org/10.1016/j.jcp.2007.11.038
+    + Castro, M., Costa, B., Don, W. S., High order weighted essentially non-oscillatory WENO-Z schemes for hyperbolic 
+      conservation laws, J. Comput. Phys., 2011. http://dx.doi.org/10.1016/j.jcp.2010.11.028
  */
 #define _WENOWeights_v_Z_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \
@@ -373,17 +355,34 @@ int WENOCleanup(void*);
   }
 
 /*! \def _WENOWeights_v_YC_
- * Compute the WENO weights according the the ESWENO formulation.
- * \n
- * Arguments:-\n
- *  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
- *  + \a c1, \a c2,\a c3 are optimal coefficients.\n
- *  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface i-1/2: i-3,i-2,i-1,i,i+1\n
- *  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
- *  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
- *\n
- * **Reference**:\n
- *  + Yamaleev, Carpenter, J. Comput. Phys., 2009. http://dx.doi.org/10.1016/j.jcp.2009.03.002\n
+  Compute the WENO weights according the the ESWENO formulation of Yamaleev & Carpenter. 
+  Note that only the formulation for the nonlinear weights is adopted and implemented here, 
+  not the ESWENO scheme as a whole.
+  \f{equation}{
+    \omega_k = \frac {a_k} {\sum_{j=1}^3 a_j },\ a_k = c_k \left( 1 + \frac{\tau_5}{\beta_k+\epsilon} \right)^p,\ k = 1,2,3,
+  \f}
+  where \f$c_k\f$ are the optimal weights, \f$p\f$ is hardcoded to \f$2\f$, and \f$\epsilon\f$ is an input parameter 
+  (#WENOParameters::eps) (typically \f$10^{-6}\f$). The smoothness indicators \f$\beta_k\f$ are given by:
+  \f{eqnarray}{
+    \beta_1 &=& \frac{13}{12} \left(f_{j-2}-2f_{j-1}+f_j\right)^2 + \frac{1}{4}\left(f_{j-2}-4f_{j-1}+3f_j\right)^2 \\
+    \beta_2 &=& \frac{13}{12} \left(f_{j-1}-2f_j+f_{j+1}\right)^2 + \frac{1}{4}\left(f_{j-1}-f_{j+1}\right)^2 \\
+    \beta_3 &=& \frac{13}{12} \left(f_j-2f_{j+1}+f_{j+2}\right)^2 + \frac{1}{4}\left(3f_j-4f_{j+1}+f_{j+2}\right)^2,
+  \f}
+  and \f$\tau_5 = \left( f_{j-2}-4f_{j-1}+6f_j-4f_{j+1}+f_{j+2} \right)^2\f$.
+
+  \b Notes:
+  + This macro computes the weights for one variable along one grid line. 
+  
+  \b Arguments:
+  + \a w1, \a w2,\a w3 are the nonlinear WENO weights.\n
+  + \a c1, \a c2,\a c3 are optimal coefficients.\n
+  + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface j+1/2: j-2,j-1,j,j+1,j+2\n
+  + \a weno is an object of type #WENOParameters containing parameters for the WENO method.\n
+  + \a N is the number of interfaces along the grid line on which this WENO-type reconstruction is happening.\n
+
+  \b Reference:
+     + Yamaleev, Carpenter, A systematic methodology for constructing high-order energy stable WENO schemes, 
+       J. Comput. Phys., 2009. http://dx.doi.org/10.1016/j.jcp.2009.03.002
  */
 #define _WENOWeights_v_YC_(w1,w2,w3,c1,c2,c3,m3,m2,m1,p1,p2,weno,N) \
   { \

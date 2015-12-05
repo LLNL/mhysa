@@ -39,7 +39,7 @@
 /* some BC types unique to the shallow water system */
 /*! Slip boundary condition (specific to shallow water equations) \sa #BCSWSlipWallU */
 #define _SW_SLIP_WALL_                  "shallow-water-slip-wall"
-/*! Viscous wall boundary condition (specific to shallow water equations) \sa #BCSWNoslipWallU */
+/*! Viscous wall boundary condition (specific to shallow water equations) (not implemented yet) */
 #define _SW_NOSLIP_WALL_                "shallow-water-noslip-wall"
 
 /*! \def DomainBoundary
@@ -70,7 +70,7 @@ typedef struct domain_boundaries {
 
   /*! Pointer to the specific boundary condition function for the solution vector U */
   int (*BCFunctionU) (void*,void*,int,int,int*,int,double*,double);
-  /*! Pointer to the boundary condition function for the vector \Delta U (needed for implicit time-integration */
+  /*! Pointer to the boundary condition function for the vector \f$\delta U\f$ (needed for implicit time-integration */
   int (*BCFunctionDU)(void*,void*,int,int,int*,int,double*,double*,double);
 
   double *DirichletValue;   /*!< Specified value for steady Dirichlet BC */
@@ -122,7 +122,6 @@ int BCNoFluxU                       (void*,void*,int,int,int*,int,double*,double
 /*! Slip (inviscid) wall boundary conditions for the solution vector U */
 int BCSWSlipWallU                   (void*,void*,int,int,int*,int,double*,double);    
 
-/* Boundary condition implementations for the (\Delta U) */
 /*! Periodic boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
 int BCPeriodicDU                    (void*,void*,int,int,int*,int,double*,double*,double);    
 /*! extrapolate boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
