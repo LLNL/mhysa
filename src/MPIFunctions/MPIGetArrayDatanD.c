@@ -1,11 +1,36 @@
+/*! @file MPIGetArrayDatanD.c
+    @brief Send a part of a local array to another MPI rank
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 
-int MPIGetArrayDatanD(double *xbuf,double *x,int *source,int *dest,int *limits,
-                      int *dim,int ghosts,int ndims,int nvars,void *m)
+/*!
+  This function lets one rank get a portion of a local n-dimensional array on another rank. The n-dimensional
+  array must be stored in the memory as a 1D array as described in the documentation of MPIExchangeBoundariesnD().
+  The \a source rank sends to the \a dest rank a logically rectangular n-dimensional portion of its local copy of
+  an array \a x. The extent of this logically rectangular portion is defined by \a limits.
+  + \a limits is an array of size 2x the number of spatial dimensions, with elements as: 
+    [ is[0], ie[0], is[1], ie[1], ..., is[ndims-1], ie[ndims-1] ], where is[n] is the starting index along 
+    spatial dimension n, and ie[n] is the end index (+1) along spatial dimension n.
+*/
+int MPIGetArrayDatanD(
+                        double  *xbuf,    /*!< preallocated memory on destination rank to hold the received data */
+                        double  *x,       /*!< local array of which a part is needed */
+                        int     *source,  /*!< MPI rank of the source */
+                        int     *dest,    /*!< MPI rank of the destination */
+                        int     *limits,  /*!< Integer array (of size 2*ndims) with the start and end indices 
+                                               along each spatial dimension of the desired portion of the array */
+                        int     *dim,     /*!< Integer array whose elements are the local size of x in each spatial dimension */
+                        int     ghosts,   /*!< Number of ghost points */
+                        int     ndims,    /*!< Number of spatial dimensions */
+                        int     nvars,    /*!< Number of variables (vector components) */
+                        void    *m        /*!< MPI object of type #MPIVariables */
+                     )
 {
   MPIVariables *mpi  = (MPIVariables*) m;
   int          d;

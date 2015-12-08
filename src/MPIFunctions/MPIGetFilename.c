@@ -1,3 +1,8 @@
+/*! @file MPIGetFilename.c
+    @brief Get filename indexed by MPI rank
+    @author Debojyoti Ghosh
+*/
+
 #ifndef serial
 #include <mpi.h>
 #endif
@@ -7,7 +12,16 @@
 
 static void GetStringFromInteger(int,char*,int);
 
-void MPIGetFilename(char *root,void *c,char *filename)
+/*! 
+    Get a string representing a filename indexed by the MPI rank: 
+    \a filename = \a root.index, where \a index is the string
+    corresponding to the MPI rank.
+*/
+void MPIGetFilename(
+                      char  *root,      /*!< filename root */
+                      void  *c,         /*!< MPI communicator */
+                      char  *filename   /*!< filename */
+                   )
 {
   char  tail[_MAX_STRING_SIZE_]="";
   int   rank;
@@ -28,7 +42,15 @@ void MPIGetFilename(char *root,void *c,char *filename)
   return;
 }
 
-void GetStringFromInteger(int a,char *A,int width)
+/*!
+  Get a string corresponding to an integer, i.e. 41 gives "00041" if
+  \a width is 5, or "41" if \a width is 2, or "1" if \a width is 1.
+*/
+void GetStringFromInteger(
+                            int   a,    /*!< the integer to convert to a string */
+                            char  *A,   /*!< the string */
+                            int   width /*!< desired width of the string */
+                         )
 {
   int i;
   for (i=0; i<width; i++) {

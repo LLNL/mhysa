@@ -1,8 +1,41 @@
+/*! @file MPICommunicators.c
+    @brief Functions to create and destroy MPI subcommunicators
+    @author Debojyoti Ghosh
+*/
+
 #include <stdlib.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 
-int MPICreateCommunicators(int ndims,void *m)
+/*!
+  Create subcommunicators from MPI_WORLD, where each subcommunicator contains
+  MPI ranks along a spatial dimension. Consider a two-dimensional problem, 
+  partitioned on 21 MPI ranks as follows:
+  @image html mpi_ranks.png
+  @image latex mpi_ranks.eps width=0.9\textwidth
+
+  This function will create 10 subcommunicators with the following ranks:
+  + 0,1,2,3,4,5,6
+  + 7,8,9,10,11,12,13
+  + 14,15,16,17,18,19,20
+  + 0,7,14
+  + 1,8,15
+  + 2,9,16
+  + 3,10,17
+  + 4,11,18
+  + 5,12,19
+  + 6,13,20
+
+  These subcommunicators are useful for parallel computations along 
+  grid lines. For example, a compact finite-difference scheme solves
+  implicit systems along grid lines in every spatial dimension. Thus,
+  the subcommunicator may be passed on to the parallel systems solver
+  instead of MPI_WORLD.
+*/
+int MPICreateCommunicators(
+                            int   ndims,  /*!< Number of spatial dimensions */
+                            void  *m      /*!< MPI object of type #MPIVariables */
+                          )
 {
   MPIVariables *mpi = (MPIVariables*) m;
 #ifdef serial
@@ -36,7 +69,13 @@ int MPICreateCommunicators(int ndims,void *m)
   return(0);
 }
 
-int MPIFreeCommunicators(int ndims,void *m)
+/*!
+  Free the subcommunicators created in MPICreateCommunicators().
+*/
+int MPIFreeCommunicators(
+                          int   ndims,  /*!< Number of spatial dimensions */
+                          void  *m      /*!< MPI object of type #MPIVariables */
+                        )
 {
 #ifndef serial
   MPIVariables *mpi = (MPIVariables*) m;

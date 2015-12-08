@@ -1,9 +1,38 @@
+/*! @file MPIExchangeBoundaries1D.c
+    @brief Exchange data and fill ghost points for a 1D array
+    @author Debojyoti Ghosh
+*/
+
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 
-int MPIExchangeBoundaries1D(void *m,double *x,int N,int ghosts,int dir,int ndims)
+/*!
+  Exchange the data across MPI ranks and fill in ghost points for a 1D array. In a multidimensional
+  simulation, a 1D array is an array of data along one of the spatial dimensions. For example, for a
+  2D problem on a Cartesian grid (with spatial dimensions x and y), the array of x-coordinates is
+  a 1D array along x, and the array of y-coordinates is a 1D array along y.
+
+  Consider a two-dimensional problem, partitioned on 21 MPI ranks as follows:
+  @image html mpi_ranks.png
+  @image latex mpi_ranks.eps width=0.9\textwidth
+  and consider rank 9. 
+  
+  If the argument \a dir is specified as 0, then
+  + Rank 9 will exchange data with ranks 8 and 10, and fill in its ghost points.
+
+  If \a dir is specified as 1, then
+  + Rank 9 will exchange data with ranks 2 and 16, and fill in its ghost points.
+*/
+int MPIExchangeBoundaries1D(
+                              void    *m,     /*!< MPI object of type MPIVariables */
+                              double  *x,     /*!< The 1D array for which to exchange data */
+                              int     N,      /*!< Size of the array */
+                              int     ghosts, /*!< Number of ghost points */
+                              int     dir,    /*!< Spatial dimension corresponding to the 1D array */
+                              int     ndims   /*!< Number of spatial dimensions in the simulation */
+                           )
 {
 #ifndef serial
   MPIVariables  *mpi = (MPIVariables*) m;

@@ -1,11 +1,33 @@
+/*! @file MPIGatherArraynD.c
+    @brief Gather an n-dimensional array in to a global array
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 
-int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int *dim_local,
-                     int ghosts,int nvars)
+/*!
+  Gathers the contents of an n-dimensional array, partitioned amongst the MPI ranks, in to a global
+  array on rank 0. See documentation of MPIExchangeBoundariesnD() for how the n-dimensional array is
+  stored in the memory.
+
+  Notes:
+  + The global array must have no ghost points.
+  + The global array must be allocated only on rank 0. On other ranks, it must be NULL.
+*/
+int MPIGatherArraynD(
+                      int     ndims,        /*!< Number of spatial dimensions */
+                      void    *m,           /*!< MPI object of type #MPIVariables */
+                      double  *xg,          /*!< Global array (preallocated) without ghost points */
+                      double  *x,           /*!< Local array */
+                      int     *dim_global,  /*!< Integer array with elements as global size along each spatial dimension */
+                      int     *dim_local,   /*!< Integer array with elements as local size along each spatial dimension */
+                      int     ghosts,       /*!< Number of ghost points */
+                      int     nvars         /*!< Number of variables (vector components) */
+                    )
 {
   MPIVariables *mpi = (MPIVariables*) m;
   int          d, size;
@@ -15,12 +37,12 @@ int MPIGatherArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int 
 
   /* xg should be non-null only on root */
   if (mpi->rank && xg) {
-    fprintf(stderr,"Error in MPIPartitionArraynD(): global array exists on non-root processors (rank %d).\n",
+    fprintf(stderr,"Error in MPIGatherArraynD(): global array exists on non-root processors (rank %d).\n",
             mpi->rank);
     return(1);
   }
   if ((!mpi->rank) && (!xg)) {
-    fprintf(stderr,"Error in MPIPartitionArraynD(): global array is not allocated on root processor.\n");
+    fprintf(stderr,"Error in MPIGatherArraynD(): global array is not allocated on root processor.\n");
     return(1);
   }
 

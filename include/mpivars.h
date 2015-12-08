@@ -69,7 +69,7 @@ int MPIFreeCommunicators    (int,void*);
 int MPICreateIOGroups       (void*);
 
 /*! Exchange boundary (ghost point) values for an essentially 1D array (like grid
- * coordinates */
+ * coordinates) */
 int MPIExchangeBoundaries1D (void*,double*,int,int,int,int);
 
 /*! Exchange boundary (ghost point) values for an n-dimensional array (like the 
