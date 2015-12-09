@@ -1,11 +1,33 @@
+/*! @file MPIPartitionArraynD.c
+    @brief Partition a global n-dimensional array
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 
-int MPIPartitionArraynD(int ndims,void *m,double *xg,double *x,int *dim_global,int *dim_local,
-                        int ghosts,int nvars)
+/*!
+  Partitions the contents of a global n-dimensional array on rank 0 (root) to local n-dimensional arrays
+  on all the MPI ranks. See documentation of MPIExchangeBoundariesnD() for how the n-dimensional array is
+  stored in the memory as a single-index array.
+
+  Notes:
+  + The global array must have no ghost points.
+  + The global array must be allocated only on rank 0. On other ranks, it must be NULL.
+*/
+int MPIPartitionArraynD(
+                          int     ndims,        /*!< Number of spatial dimensions */
+                          void    *m,           /*!< MPI object of type #MPIVariables */
+                          double  *xg,          /*!< Global array (preallocated) without ghost points */
+                          double  *x,           /*!< Local array */
+                          int     *dim_global,  /*!< Integer array with elements as global size along each spatial dimension */
+                          int     *dim_local,   /*!< Integer array with elements as local size along each spatial dimension */
+                          int     ghosts,       /*!< Number of ghost points */
+                          int     nvars         /*!< Number of variables (vector components) */
+                       )
 {
   MPIVariables *mpi = (MPIVariables*) m;
   _DECLARE_IERR_;

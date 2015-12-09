@@ -14,7 +14,7 @@
   are periodic, this function also exchanges data and fills in the ghost points for these 
   boundaries.
 
-  The n-dimensional array must be stored in the memory as a 1D array, with the following order of mapping:
+  The n-dimensional array must be stored in the memory as a single-index array, with the following order of mapping:
   + Number of variables (vector components)
   + Spatial dimension 0
   + Spatial dimension 1
@@ -26,14 +26,14 @@
   @image html layout.png
   @image latex layout.eps width=0.9\textwidth
 
-  The bold numbers in parentheses represent the 2D indices. The numbers below them are the indices of the 1D array
-  that correspond to that 2D location. Thus, elements 40,41,42, and 43 in the 1D array are the 1st, 2nd, 3rd, and 
+  The bold numbers in parentheses represent the 2D indices. The numbers below them are the indices of the array
+  that correspond to that 2D location. Thus, elements 40,41,42, and 43 in the array are the 1st, 2nd, 3rd, and 
   4th vector components at location (1,3).
 
   If \f${\bf i}\left[{\rm ndims}\right]\f$ is an integer array representing an n-dimensional index 
   (for example, \f$\left(5,4\right)\f$ in 2D, \f$\left(3,5,2\right)\f$ in 3D), and the number of vector 
   components is \a nvars, then:
-  + #_ArrayIndex1D_ computes the index \f$p\f$ in the 1D array corresponding to \f${\bf i}\f$. In the above example, 
+  + #_ArrayIndex1D_ computes the index \f$p\f$ in the array corresponding to \f${\bf i}\f$. In the above example, 
     \f${\bf i} = \left(1,3\right) \rightarrow p = 10\f$.
   + \a var[nvars*p+v] accesses the \a v-th component of the n-dimensional array \a var at location \f${\bf i}\f$.
     In the above example, to access the 3rd vector component at location \f$\left(1,3\right)\f$, we have \f$p=10\f$,

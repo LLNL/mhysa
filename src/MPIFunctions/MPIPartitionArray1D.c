@@ -1,11 +1,36 @@
+/*! @file MPIPartitionArray1D.c
+    @brief Partition an essentially 1D array
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 
-int MPIPartitionArray1D(void *m,double *xg,double *x,int istart,int iend,
-                        int N_local,int ghosts)
+/*!
+  Partitions the contents of a global 1D array on the root rank (rank 0) to local arrays 
+  on all the MPI ranks. See documentation of MPIExchangeBoundaries1D() on what a "1D 
+  array" is in the context of a multidimensional simulation. The 1D array must be the same 
+  along spatial dimensions normal to the one it represents.
+
+  Notes:
+  + The global array must not have ghost points.
+  + The global array must be preallocated on only rank 0. On other ranks, it must be NULL.
+  + Since this function deals with a 1D array, more than one rank may be receiving the same 
+    piece of data from rank 0 (i.e. if there are more than one MPI rank along the dimensions
+    normal to one corresponding to \a x ).
+*/
+int MPIPartitionArray1D(
+                          void    *m,       /*!< MPI object of type #MPIVariables */
+                          double  *xg,      /*!< Global 1D array (must be preallocated) without ghost points */
+                          double  *x,       /*!< Local 1D array to be gathered */
+                          int     istart,   /*!< Starting index (global) of this rank's portion of the array */
+                          int     iend,     /*!< Ending index (global) of this rank's portion of the array + 1 */
+                          int     N_local,  /*!< Local size of the array */
+                          int     ghosts    /*!< Number of ghost points */
+                        )
 {
   MPIVariables *mpi = (MPIVariables*) m;
   int          ierr = 0;

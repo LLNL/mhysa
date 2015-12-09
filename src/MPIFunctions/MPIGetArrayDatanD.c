@@ -11,7 +11,7 @@
 
 /*!
   This function lets one rank get a portion of a local n-dimensional array on another rank. The n-dimensional
-  array must be stored in the memory as a 1D array as described in the documentation of MPIExchangeBoundariesnD().
+  array must be stored in the memory as a single-index array as described in the documentation of MPIExchangeBoundariesnD().
   The \a source rank sends to the \a dest rank a logically rectangular n-dimensional portion of its local copy of
   an array \a x. The extent of this logically rectangular portion is defined by \a limits.
   + \a limits is an array of size 2x the number of spatial dimensions, with elements as: 

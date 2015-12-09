@@ -4,11 +4,12 @@
 */
 
 #include <mpivars.h>
+
 /*!
   Compute the global maximum over all MPI ranks in a given communicator for
   \a int datatype. 
   + If \a var is an array of size greater than 1, \a global will be an array
-    of the same size with each element as the maximum value of he that element 
+    of the same size with each element as the maximum value of that element 
     in \a var on all the MPI ranks in the given communicator.
 */
 int MPIMax_integer(

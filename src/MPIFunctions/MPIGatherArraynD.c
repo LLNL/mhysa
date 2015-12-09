@@ -12,7 +12,7 @@
 /*!
   Gathers the contents of an n-dimensional array, partitioned amongst the MPI ranks, in to a global
   array on rank 0. See documentation of MPIExchangeBoundariesnD() for how the n-dimensional array is
-  stored in the memory.
+  stored in the memory as a single-index array.
 
   Notes:
   + The global array must have no ghost points.
