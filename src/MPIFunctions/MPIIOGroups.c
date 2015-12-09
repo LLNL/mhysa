@@ -1,8 +1,40 @@
+/*! @file MPIIOGroups.c
+    @brief Create I/O groups of MPI ranks
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpivars.h>
 
-int MPICreateIOGroups(void *m)
+/*!
+  Create I/O groups of MPI ranks: A scalable approach to file I/O when
+  running simulations on a large number of processors (>10,000) is
+  partitioning all the MPI ranks into I/O group. Each group has a "leader"
+  that:
+  + Input - reads the local data of each member rank from the file and sends
+    it to that member.
+  + Output - gets the local data of each member rank and writes it to a file.
+
+  The number of I/O groups (and hence, the number of I/O ranks reading and 
+  writing to files) is specified through #MPIVariables::N_IORanks. Ideally,
+  this would correspond to the number of I/O nodes available for the 
+  total number of compute nodes being used on a HPC platform. 
+
+  Two extreme cases are:
+  + Number of I/O ranks is 1, i.e., just one rank (typically rank 0) is
+    responsible for reading and writing the local data of every rank.
+  + Number of I/O ranks is equal to the total number of MPI ranks, i.e.,
+    each MPI rank reads and writes from and to its own files.
+
+  Neither of the extreme cases are scalable.
+
+  Notes:
+  + If the total number of MPI ranks (#MPIVariables::nproc) is not an integer
+    multiple of the specified number of I/O groups (#MPIVariables::N_IORanks),
+    then only 1 rank is used.
+*/
+int MPICreateIOGroups(void *m /*!< MPI object of type #MPIVariables*/)
 {
   MPIVariables *mpi = (MPIVariables*) m;
 
