@@ -21,7 +21,15 @@
     memory, instead the non-zero are written to file as soon as they are 
     computed. The filenames for the matrices are "Mat_*Function_nnnnn.dat", 
     where "nnnnn" is a time-dependent index. 
-    \n\n
+    + The format (ASCII text) of the file is as follows:\n
+      \a n \n
+      \a i \a j \a val \n
+      \a i \a j \a val \n
+      ...\n
+      \a i \a j \a val \n
+      where \a n is the size of the matrix, followed by all the non-zero 
+      elements (each line contains the indices \a i,\a j and the value \a val 
+      of one non-zero element).
     + This function is called after #HyPar::file_op_iter iterations (i.e.
       the same frequency at which solution files are written).
     + If a splitting for the hyperbolic flux is defined, then the Jacobians
