@@ -14,14 +14,50 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscComputePreconMatImpl"
 /*!
-  Function to compute and assemble the preconditioning matrix. It is an approximation to
-  the actual Jacobian of the right-hand-side \a f(y) for the implicit
-  time integration of the ODE \a dy/dt = \a f(y). This can then be used with
-  a suitable preconditioner in PETSc. See 
-  http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/PC/index.html
-  for more information on PETSc preconditioners.\n\n
-  The approximation is constructed by spatially discretizing the flux Jacobian with the
-  first order upwind scheme.
+  Compute and assemble the preconditioning matrix for the implicit time integration
+  of the governing equations: The ODE, obtained after discretizing the governing PDE in space,
+  is expressed as follows:
+  \f{equation}{
+    \frac {d{\bf U}}{dt} = {\bf F}\left({\bf U}\right) 
+    \Rightarrow \frac {d{\bf U}}{dt} - {\bf F}\left({\bf U}\right) = 0, 
+  \f}
+  where \f${\bf F}\f$ is the spatially discretized right-hand-side, and \f${\bf U}\f$ 
+  represents the entire solution vector.
+
+  The Jacobian is thus given by:
+  \f{equation}{
+    {\bf J} = \left[\alpha{\bf I} - \frac {\partial {\bf F}} {\partial {\bf U}} \right]
+  \f}
+  where \f$\alpha\f$ is the shift coefficient (#PETScContext::shift) of the time integration method.
+  
+  Currently, this function is implemented for the case where the implicitly-treated \f${\bf F}\f$
+  is the spatially discretized hyperbolic term, i.e.,
+  \f{equation}{
+    {\bf F}\left({\bf U}\right) = \mathcal{D}\left\{{\bf f}\left({\bf u}\right)\right\} \approx \nabla \cdot {\bf f}\left({\bf u}\right),
+  \f}
+  with the governing PDE as
+  \f{equation}{
+    \frac {\partial {\bf u}} {\partial t} + \nabla \cdot {\bf f}\left({\bf u}\right) + \cdots\ \left({\rm parabolic\ term}\right) = \cdots\ \left({\rm source\ term}\right),
+  \f}
+  and \f$\mathcal{D}\f$ representing the spatial discretization method. Thus, the Jacobian can be written as
+  follows:
+  \f{equation}{
+    {\bf J} = \left[\alpha{\bf I} - \mathcal{D}\left\{\frac {\partial {\bf f}} {\partial {\bf u}}\right\} \right]
+  \f}
+  The preconditioning matrix is usually a close approximation of the actual Jacobian matrix, where the actual
+  Jacobian may be too expensive to evaluate and assemble. In this function, the preconditioning matrix is 
+  the following approximation of the actual Jacobian:
+  \f{equation}{
+    {\bf J}_p = \left[\alpha{\bf I} - \mathcal{D}^{\left(1\right)}\left\{\frac {\partial {\bf f}} {\partial {\bf u}}\right\} \right] \approx {\bf J},
+  \f}
+  where \f$\mathcal{D}^{\left(1\right)}\f$ represents a 1st order upwind discretization operator. The matrix \f${\bf J}_p\f$
+  is provided to the preconditioner. Note that #HyPar::JFunction is defined by the specific physics being solved, and computes 
+  \f$\partial {\bf f}/ \partial {\bf u}\f$ at a grid point.
+
+  + See http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/PC/index.html for more information on PETSc preconditioners.
+  + All functions and variables whose names start with Vec, Mat, PC, KSP, SNES, and TS are defined by PETSc. Refer to
+    the PETSc documentation (http://www.mcs.anl.gov/petsc/petsc-current/docs/). Usually, googling with the function
+    or variable name yields the specific doc page dealing with that function/variable.
 */
 int PetscComputePreconMatImpl(
                               Mat Pmat,   /*!< Preconditioning matrix to construct */
