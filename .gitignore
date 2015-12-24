@@ -13,3 +13,5 @@ depcomp
 install-sh
 missing
 compile
+doc/html/
+doc/latex/
