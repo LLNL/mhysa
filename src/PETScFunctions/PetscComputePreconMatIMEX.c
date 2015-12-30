@@ -25,6 +25,10 @@
   is stiff and integrated in time implicitly, and \f${\bf U}\f$ represents the entire
   solution vector.
 
+    Note that \f${\bf G}\left({\bf U}\right)\f$ represents all terms that the user has indicated to be
+    integrated in time implicitly (#PETScContext::flag_hyperbolic_f, #PETScContext::flag_hyperbolic_df,
+    #PETScContext::flag_hyperbolic, #PETScContext::flag_parabolic, and #PETScContext::flag_source).
+
   The Jacobian of the implicit part is thus given by:
   \f{equation}{
     {\bf J} = \left[\alpha{\bf I} - \frac {\partial {\bf G}} {\partial {\bf U}} \right]

@@ -1,3 +1,8 @@
+/*! @file PetscIFunctionIMEX.c
+    @brief Compute the implicitly-treated part of the right-hand-side for IMEX time integration.
+    @author Debojyoti Ghosh
+*/
+
 #ifdef with_petsc
 
 #include <stdlib.h>
@@ -10,7 +15,47 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscIFunctionIMEX"
 
-PetscErrorCode PetscIFunctionIMEX(TS ts, PetscReal t, Vec Y, Vec Ydot, Vec F, void *ctxt)
+/*!
+  Compute the implicitly-treated part of the right-hand-side for the implicit-explicit (IMEX) time integration
+  of the governing equations: The ODE, obtained after discretizing the governing PDE in space,
+  is expressed as follows (for the purpose of IMEX time integration):
+  \f{eqnarray}{
+    \frac {d{\bf U}}{dt} &=& {\bf F}\left({\bf U}\right) + {\bf G}\left({\bf U}\right), \\
+    \Rightarrow \dot{\bf U} - {\bf G}\left({\bf U}\right) &=& {\bf F}\left({\bf U}\right), 
+  \f}
+  where \f${\bf F}\f$ is non-stiff and integrated in time explicitly, and \f${\bf G}\f$
+  is stiff and integrated in time implicitly, and \f${\bf U}\f$ represents the entire
+  solution vector (state vector).
+
+    Note that \f${\bf G}\left({\bf U}\right)\f$ represents all terms that the user has indicated to be
+    integrated in time implicitly (#PETScContext::flag_hyperbolic_f, #PETScContext::flag_hyperbolic_df,
+    #PETScContext::flag_hyperbolic, #PETScContext::flag_parabolic, and #PETScContext::flag_source).
+
+  This function computes the left-hand-side of the above equation:
+  \f{equation}{
+    \mathcal{G}\left(\dot{\bf U},{\bf U},t\right) = \dot{\bf U} - {\bf G}\left({\bf U}\right)
+  \f}
+  given \f$\dot{\bf U}\f$ and \f${\bf U}\f$.
+
+  \b Notes:
+  + \a Y and \a Ydot in the code are \f${\bf U}\f$ and \f$\dot{\bf U}\f$, respectively. PETsc denotes
+    the state vector with \f${\bf Y}\f$ in its time integrators.
+  + It is assumed that the reader is familiar with PETSc's implementation of IMEX time integrators, for
+    example, TSARKIMEX (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX.html).
+  + See http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html for documentation on
+    PETSc's time integrators.
+  + All functions and variables whose names start with Vec, Mat, PC, KSP, SNES, and TS are defined by PETSc. Refer to
+    the PETSc documentation (http://www.mcs.anl.gov/petsc/petsc-current/docs/). Usually, googling with the function
+    or variable name yields the specific doc page dealing with that function/variable.
+*/
+PetscErrorCode PetscIFunctionIMEX(
+                                    TS        ts,     /*!< The time integration object */
+                                    PetscReal t,      /*!< Current solution time */
+                                    Vec       Y,      /*!< State vector (input) */
+                                    Vec       Ydot,   /*!< Time derivative of the state vector (input) */
+                                    Vec       F,      /*!< The computed function vector */
+                                    void      *ctxt   /*!< Object of type PETScContext */
+                                 )
 {
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;

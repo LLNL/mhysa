@@ -15,14 +15,39 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscIJacobian"
 /*! 
-    Compute the Jacobian of the left-hand-side \a dy/dt - \a f(y) for the implicit
-    time integration of the ODE \a dy/dt = \a f(y).\n\n
-    Matrix-free representation of the Jacobian: This function just saves the shift and the 
-    time-step size required for the evaluation of the Jacobian. The action of the Jacobian
-    are defined through #PetscJacobianFunction_JFNK (nonlinear problemts) and 
-    #PetscJacobianFunction_Linear (linear problems).\n\n
-    The Jacobian matrix is defined as the PETSc type MatShell 
-    (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Mat/MATSHELL.html).
+    Compute the Jacobian for implicit time integration of the governing equations: 
+    The ODE, obtained after discretizing the governing PDE in space, is expressed as follows:
+    \f{equation}{
+      \frac {d{\bf U}}{dt} = {\bf F}\left({\bf U}\right) 
+      \Rightarrow \dot{\bf U} - {\bf F}\left({\bf U}\right) = 0, 
+    \f}
+    where \f${\bf F}\f$ is the spatially discretized right-hand-side, and \f${\bf U}\f$ 
+    represents the entire solution vector. The Jacobian is thus given by:
+    \f{equation}{
+      {\bf J} = \left[\alpha{\bf I} - \frac {\partial {\bf F}} {\partial {\bf U}} \right]
+    \f}
+    where \f$\alpha\f$ is the shift coefficient (#PETScContext::shift) of the time integration method.
+
+    \b Matrix-free \b representation: The Jacobian is computed using a matrix-free approach, where the 
+    entire Jacobian is never assembled, computed, or stored. Instead, the action of the Jacobian on
+    a vector is defined through functions (PetscJacobianFunction_JFNK() for nonlinear systems, and
+    PetscJacobianFunction_Linear() for linear systems). This approach works well with iterative 
+    solvers. Thus, this function just does the following:
+    + Saves the #PETScContext::shift (\f$\alpha\f$) and #PETScContext::waqt (current simulation time)
+      to the application context (so that PetscJacobianFunction_JFNK() or PetscJacobianFunction_Linear() 
+      can access these values).
+    + If a preconditioner is being used, calls the function to compute the preconditioning matrix.
+
+    \b Notes:
+    + The Jacobian is defined as the PETSc type MatShell 
+      (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Mat/MATSHELL.html)
+    + \a Y and \a Ydot in the code are \f${\bf U}\f$ and \f$\dot{\bf U}\f$, respectively. PETsc denotes
+      the state vector with \f${\bf Y}\f$ in its time integrators.
+    + See http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html for documentation on
+      PETSc's time integrators.
+    + All functions and variables whose names start with Vec, Mat, PC, KSP, SNES, and TS are defined by PETSc. Refer to
+      the PETSc documentation (http://www.mcs.anl.gov/petsc/petsc-current/docs/). Usually, googling with the function
+      or variable name yields the specific doc page dealing with that function/variable.
 */
 PetscErrorCode PetscIJacobian(
                                TS ts,        /*!< Time stepping object (see PETSc TS)*/
@@ -52,14 +77,43 @@ PetscErrorCode PetscIJacobian(
 #undef __FUNCT__
 #define __FUNCT__ "PetscJacobianFunction_JFNK"
 /*! 
-    This function defines the action of the Jacobian (for implicit
-    time-integration) on a vector for a nonlinear problem. It is evaluated 
-    by computing the directional derivative (Jacobian-free Newton-Krylov method)
+    Computes the action of the Jacobian on a vector: See documentation for PetscIJacobian()
+    for the definition of the Jacobian. This function computes its action on a vector
+    for a nonlinear system by taking the directional derivative, as follows:
+    \f{equation}{
+      {\bf f} = {\bf J}\left({\bf U}_0\right){\bf y} = \frac {\partial \mathcal{F}\left({\bf U}\right)} {\partial {\bf U}}\left({\bf U}_0\right) {\bf y} \approx \frac{1}{\epsilon} \left[ \mathcal{F}\left({\bf U}_0+\epsilon{\bf y}\right)-\mathcal{F}\left({\bf U}_0\right) \right]
+    \f}
+    In the context of the implicit time integration of the ODE given by
+    \f{equation}{
+      \frac {d {\bf U}} {dt} = {\bf F}\left({\bf U}\right) \Rightarrow \frac {d {\bf U}} {dt} - {\bf F}\left({\bf U}\right) = 0,
+    \f}
+    we have that
+    \f{equation}{
+      \mathcal{F}\left({\bf U}\right) \equiv \dot{\bf U} - {\bf F}\left({\bf U}\right)
+      \Rightarrow {\bf J}\left({\bf U}\right) = \left[\alpha{\bf I} - \frac {\partial {\bf F}\left({\bf U}\right)} {\partial {\bf U}} \right].
+    \f}
+    where \f$\alpha\f$ (#PETScContext::shift) is the shift variable specific to the time integration method.
+    So this function computes
+    \f{equation}{
+      {\bf f} = \alpha {\bf y} - \frac{1}{\epsilon} \left[ {\bf F}\left({\bf U}_0+\epsilon{\bf y}\right)-{\bf F}\left({\bf U}_0\right) \right]
+    \f}
+    In the code, \f${\bf y}\f$ is \a Y, \f$\bf f\f$ is \a F, and \f${\bf U}_0\f$ is \a #HyPar::uref (the reference solution at which the 
+    nonlinear Jacobian is computed). See papers on Jacobian-free Newton-Krylov (JFNK) methods to understand how \f$\epsilon\f$ is computed.
+
+    \b Notes:
+    + For a nonlinear spatial discretization, the right-hand-side \b must be computed without the nonlinearity
+      (i.e. with a previously computed or "frozen" discretization operator). This ensures that the Jacobian being
+      computed is consistent.
+    + See http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html for documentation on
+      PETSc's time integrators.
+    + All functions and variables whose names start with Vec, Mat, PC, KSP, SNES, and TS are defined by PETSc. Refer to
+      the PETSc documentation (http://www.mcs.anl.gov/petsc/petsc-current/docs/). Usually, googling with the function
+      or variable name yields the specific doc page dealing with that function/variable.
 */
 PetscErrorCode PetscJacobianFunction_JFNK(
                                            Mat Jacobian, /*!< Jacobian matrix */
                                            Vec Y,        /*!< Input vector */
-                                           Vec F         /*!< Output vector (Jacobian times input vector */
+                                           Vec F         /*!< Output vector (Jacobian times input vector) */
                                          )
 {
   PETScContext    *context = NULL;
@@ -128,8 +182,51 @@ PetscErrorCode PetscJacobianFunction_JFNK(
 #undef __FUNCT__
 #define __FUNCT__ "PetscJacobianFunction_Linear"
 /*! 
-    This function defines the action of the Jacobian (for implicit
-    time-integration) on a vector for a linear problem. 
+    Computes the action of the Jacobian on a vector: See documentation for PetscIJacobian()
+    for the definition of the Jacobian. This function computes its action on a vector
+    for a linear system by taking the directional derivative, as follows:
+    \f{equation}{
+      {\bf f} = {\bf J}{\bf y} = \frac {\partial \mathcal{F}\left({\bf U}\right)} {\partial {\bf U}} {\bf y} = \left[ \mathcal{F}\left({\bf U}_0+{\bf y}\right)-\mathcal{F}\left({\bf U}_0\right) \right],
+    \f}
+    where \f$\mathcal{F}\f$ is linear, and thus \f${\bf J}\f$ is a constant (\f$\mathcal{F}\left({\bf y}\right) = {\bf J}{\bf y}\f$). 
+    In the context of the implicit time integration of a linear 
+    ODE given by
+    \f{equation}{
+      \frac {d {\bf U}} {dt} = {\bf F}\left({\bf U}\right) \Rightarrow \frac {d {\bf U}} {dt} - {\bf F}\left({\bf U}\right) = 0,
+    \f}
+    we have that
+    \f{equation}{
+      \mathcal{F}\left({\bf U}\right) \equiv \dot{\bf U} - {\bf F}\left({\bf U}\right)
+      \Rightarrow {\bf J}\left({\bf U}\right) = \left[\alpha{\bf I} - \frac {\partial {\bf F}\left({\bf U}\right)} {\partial {\bf U}} \right].
+    \f}
+    where \f$\alpha\f$ (#PETScContext::shift) is the shift variable specific to the time integration method.
+    So this function computes
+    \f{equation}{
+      {\bf f} = \alpha {\bf y} - \left[ {\bf F}\left({\bf U}_0+{\bf y}\right)-{\bf F}\left({\bf U}_0\right) \right]
+    \f}
+    In the code, \f${\bf y}\f$ is \a Y, \f$\bf f\f$ is \a F, and \f${\bf U}_0\f$ is \a #HyPar::uref (the reference solution at which the 
+    nonlinear Jacobian is computed).
+
+    Since \f$\mathcal{F}\f$ is linear, 
+    \f{equation}{
+      {\bf J}{\bf y} = \left[ \mathcal{F}\left({\bf U}_0+{\bf y}\right)-\mathcal{F}\left({\bf U}_0\right) \right] 
+                     = \mathcal{F}\left({\bf y}\right).
+    \f}
+    However, the Jacobian is not computed as \f$\mathcal{F}\left({\bf y}\right)\f$ because of the following reason:
+    this function is used by the equation solver within the implicit time integrator in PETSc, and \f${\bf y}\f$ 
+    represents the change in the solution, i.e. \f$\Delta {\bf U}\f$, and not the solution \f$\bf U\f$. Thus, 
+    evaluating \f$\mathcal{F}\left({\bf y}\right)\f$ using #HyPar::HyperbolicFunction, #HyPar::ParabolicFunction,
+    and #HyPar::SourceFunction is incorrect since these functions expect \f$\bf U\f$ as the input.
+
+    \b Notes:
+    + For a nonlinear spatial discretization, the right-hand-side \b must be computed without the nonlinearity
+      (i.e. with a previously computed or "frozen" discretization operator). This ensures that the Jacobian being
+      computed is consistent, and is truly linear.
+    + See http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html for documentation on
+      PETSc's time integrators.
+    + All functions and variables whose names start with Vec, Mat, PC, KSP, SNES, and TS are defined by PETSc. Refer to
+      the PETSc documentation (http://www.mcs.anl.gov/petsc/petsc-current/docs/). Usually, googling with the function
+      or variable name yields the specific doc page dealing with that function/variable.
 */
 PetscErrorCode PetscJacobianFunction_Linear(
                                              Mat Jacobian, /*!< Jacobian matrix */

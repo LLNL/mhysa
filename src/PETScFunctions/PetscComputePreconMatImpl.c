@@ -29,17 +29,8 @@
     {\bf J} = \left[\alpha{\bf I} - \frac {\partial {\bf F}} {\partial {\bf U}} \right]
   \f}
   where \f$\alpha\f$ is the shift coefficient (#PETScContext::shift) of the time integration method.
-  
-  Currently, this function is implemented for the case where the implicitly-treated \f${\bf F}\f$
-  is the spatially discretized hyperbolic term, i.e.,
-  \f{equation}{
-    {\bf F}\left({\bf U}\right) = \mathcal{D}\left\{{\bf f}\left({\bf u}\right)\right\} \approx \nabla \cdot {\bf f}\left({\bf u}\right),
-  \f}
-  with the governing PDE as
-  \f{equation}{
-    \frac {\partial {\bf u}} {\partial t} + \nabla \cdot {\bf f}\left({\bf u}\right) + \cdots\ \left({\rm parabolic\ term}\right) = \cdots\ \left({\rm source\ term}\right),
-  \f}
-  and \f$\mathcal{D}\f$ representing the spatial discretization method. Thus, the Jacobian can be written as
+
+  \f$\mathcal{D}\f$ represents the spatial discretization method. Thus, the Jacobian can be written as
   follows:
   \f{equation}{
     {\bf J} = \left[\alpha{\bf I} - \mathcal{D}\left\{\frac {\partial {\bf f}} {\partial {\bf u}}\right\} \right]
@@ -53,6 +44,17 @@
   where \f$\mathcal{D}^{\left(1\right)}\f$ represents a 1st order upwind discretization operator. The matrix \f${\bf J}_p\f$
   is provided to the preconditioner. Note that #HyPar::JFunction is defined by the specific physics being solved, and computes 
   \f$\partial {\bf f}/ \partial {\bf u}\f$ at a grid point.
+
+  \b Note: Currently, this function is implemented only for the case where the implicitly-treated \f${\bf F}\f$
+  is the spatially discretized hyperbolic term, i.e.,
+  \f{equation}{
+    {\bf F}\left({\bf U}\right) = \mathcal{D}\left\{{\bf f}\left({\bf u}\right)\right\} \approx \nabla \cdot {\bf f}\left({\bf u}\right).
+  \f}
+  If the governing PDE has a parabolic and/or source term in addition to the hyperbolic term, i.e.,
+  \f{equation}{
+    \frac {\partial {\bf u}} {\partial t} + \nabla \cdot {\bf f}\left({\bf u}\right) + \cdots\ \left({\rm parabolic\ term}\right) = \cdots\ \left({\rm source\ term}\right),
+  \f}
+  this function computes the approximation of the Jacobian of only the hyperbolic term. 
 
   + See http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/PC/index.html for more information on PETSc preconditioners.
   + All functions and variables whose names start with Vec, Mat, PC, KSP, SNES, and TS are defined by PETSc. Refer to
