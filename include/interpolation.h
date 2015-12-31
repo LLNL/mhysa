@@ -262,7 +262,7 @@ int WENOCleanup(void*);
   \b Notes:
   + This macro computes the weights for one variable along one grid line. 
   
-  \b Arguments:-\n
+  \b Arguments:-
   + \a w1, \a w2,\a w3 are the nonlinear WENO weights.
   + \a c1, \a c2,\a c3 are optimal coefficients.
   + \a m3, \a m2,\a m1,\a p1,\a p2 are the function values at stencil points corresponding to the interface j+1/2: j-2,j-1,j,j+1,j+2

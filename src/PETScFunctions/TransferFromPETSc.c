@@ -1,3 +1,8 @@
+/*! @file TransferFromPETSc.c
+    @brief Copy from PETSc vector to HyPar array
+    @author Debojyoti Ghosh
+*/
+
 #ifdef with_petsc
 
 #include <stdlib.h>
@@ -9,7 +14,16 @@
 #undef __FUNCT__
 #define __FUNCT__ "TransferVecFromPETSc"
 
-int TransferVecFromPETSc(double *u,Vec Y,void *ctxt) 
+/*! Copy data from a PETSc vector (used by PETSc time integrators, and with no 
+    ghost points) to a HyPar::u array (with ghost points).
+
+    \sa TransferVecToPETSc()
+*/
+int TransferVecFromPETSc(
+                          double  *u,   /*!< HyPar::u array (with ghost points) */
+                          Vec     Y,    /*!< PETSc vector */
+                          void    *ctxt /*!< Object of type #PETScContext */
+                        ) 
 {
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;

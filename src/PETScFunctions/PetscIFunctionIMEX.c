@@ -37,6 +37,8 @@
   \f}
   given \f$\dot{\bf U}\f$ and \f${\bf U}\f$.
 
+  \sa PetscRHSFunctionIMEX()
+
   \b Notes:
   + \a Y and \a Ydot in the code are \f${\bf U}\f$ and \f$\dot{\bf U}\f$, respectively. PETsc denotes
     the state vector with \f${\bf Y}\f$ in its time integrators.

@@ -33,6 +33,12 @@
     http://dx.doi.org/10.2514/6.2015-2889
   + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm 
     for Atmospheric Flows, Submitted
+
+  Reference for the partitioning of the flux into its stiff (acoustic) and non-stiff (convective)
+  components:
+  + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
+    with Characteristic-Based Flux Partitioning, Submitted
+
 */
 #include <basic.h>
 

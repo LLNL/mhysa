@@ -1,13 +1,48 @@
+/*! @file fppowersystem1bus.h
+    @brief Fokker-Planck Model for 1-Bus Power System
+    @author Debojyoti Ghosh
+
+    Fokker-Planck Model for 1-Bus Power System
+
+    \f{equation}{
+      \frac {\partial p} {\partial t} 
+      + \frac {\partial} {\partial x} \left[\mu\left(x,y\right)p\right]
+      + \frac {\partial} {\partial y} \left[\nu\left(x,y\right)p\right]
+      = D_{yx} \frac {\partial^2 p} {\partial y \partial x}
+      + D_{yy} \frac {\partial^2 p} {\partial y^2}
+    \f}
+    where 
+    \f{eqnarray}{
+      \mu\left(x,y\right) &=& \omega_B\left(y-\omega_S\right) \\
+      \nu\left(x,y\right) &=& \frac{\omega_S}{2H}\left[\left<P_m\right> - P_{\rm max} \sin\left(x\right) - D\left(y-\omega_S\right)\right] \\
+      D_{yx} &=& \frac {\sigma^2\omega_S^2} {4H^2} \lambda^2 \omega_B \\
+      D_{yy} &=& \frac {\sigma^2 \omega_S^2} {4H^2} \lambda \left( 1 - \lambda \frac {D \omega_S} {2H} \right)
+    \f}
+    
+    Symbol                  | Name
+    ----------------------- | ------------------------------------------------------------------------------
+    \f$p\f$                 | probability
+    \f$x\f$                 | angle between axis of generator and the magnetic field (\f$\theta\f$ in paper)
+    \f$y\f$                 | generator angular speed (\f$\omega\f$ in paper)
+    \f$t\f$                 | time
+    \f$\omega_B\f$          | base speed
+    \f$\omega_S\f$          | synchronization speed
+    \f$H\f$                 | generator inertia
+    \f$D\f$                 | damping factor
+    \f$\left<P_m\right>\f$  | average power input
+    \f$P_{\rm max}\f$       | maximum power
+    \f$\sigma\f$            | square root of variance
+    \f$\lambda\f$           | correlation time 
+
+    Reference:
+    + Wang, P., Barajas-Solano, D. A., Constantinescu, E. M., Abhyankar, S., 
+      Ghosh, D., Smith, B. F., Huang, Z., Tartakovsky, A. M., "Probabilistic 
+      Density Function Method for Stochastic ODEs of Power Systems with Uncertain 
+      Power Input", SIAM/ASA Journal on Uncertainty Quantification, 3 (1), 2015, 
+      pp. 873-896, http://dx.doi.org/10.1137/130940050.
+*/
+
 /*
-
-  Fokker-Planck Model for a 1-Bus Power System
-
-Reference: 
-+ Wang P., Tartakovsky A.M., Abhyankar S., Smith B.F.,
-  Huang Z., "Probabilistic Density Function Method for
-  Stochastic ODEs of Power Systems with Uncertain 
-  Power Input", Preprint
-
   dp    d[mu(x,y)p]    d[nu(x,y)p]        d^2 p        d^2 p
   -- +  ----------- +  ----------- = D_yx ----- + D_yy -----
   dt        dx             dy             dy dx        dy^2
@@ -27,19 +62,6 @@ Reference:
              sigma^2 omegaS^2                      D omegaS
   D_yy    =  ---------------- lambda ( 1 - lambda ---------- )
                   4 H^2                              2 H
-                  
-  Physical Parameters:
-
-    omegaB  : base speed
-    omegaS  : synchronization speed
-    H       : generator intertia
-    D       : damping factor
-    Pm_avg  : average power input
-    Pmax    : EV/X where E is internal voltage, 
-                         V is bus voltage,
-                         X is total system reactance
-    sigma   : square root of variance
-    lambda  : correlation time
 
 */
 

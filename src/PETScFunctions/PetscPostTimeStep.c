@@ -1,3 +1,8 @@
+/*! @file PetscPostTimeStep.c
+    @brief Post-time-step function
+    @author Debojyoti Ghosh
+*/
+
 #ifdef with_petsc
 
 #include <stdio.h>
@@ -9,7 +14,8 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscPostTimeStep"
 
-PetscErrorCode PetscPostTimeStep(TS ts)
+/*! Function called after every time step */
+PetscErrorCode PetscPostTimeStep(TS ts /*!< Time integrator object */)
 {
   PETScContext    *context  = NULL;
   HyPar           *solver   = NULL;

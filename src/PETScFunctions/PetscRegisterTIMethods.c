@@ -1,3 +1,8 @@
+/*! @file PetscRegisterTIMethods.c
+    @brief Register a custom time-integration method
+    @author Debojyoti Ghosh
+*/
+
 #ifdef with_petsc
 
 #include <stdio.h>
@@ -8,7 +13,39 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscRegisterTIMethods"
 
-int PetscRegisterTIMethods(int rank)
+/*!
+  This function allows the registering of custom multi-stage time integration 
+  methods and using it with PETSc. More than one method may be provided, each 
+  with a unique name (the name \b must \b not conflict with the names of existing 
+  methods in PETSc). The methods should be provided in a file \a "time_method.inp", 
+  and the following must be provided:
+  + Name
+  + Class (i.e. RK or ARK)
+  + Number of stages
+  + Theoretical order
+  + Butcher tableaux
+
+  The method can then be used by invoking it by its name. For example, if a 
+  custom ARKIMEX method \a "foo" is provided through \a "time_method.inp", it can be
+  used by specifying \a "-ts_type arkimex -ts_arkimex_type foo" in the command
+  line or \a ".petscrc" file.
+
+  See \a /Examples/PETScInputs for examples of the input files required to 
+  provide a time integration method.
+
+  Currently supported classes of time integrators for which custom methods
+  can be provided:
+  + RK (Runge-Kutta): See TSRKRegister 
+    (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSRKRegister.html)
+  + ARK (Additive Runge-Kutta): See TSARKIMEXRegister 
+    (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSRKRegister.html)
+
+  To do:
+  + Add support for TSGLEE when it gets merged to PETSc's master.
+*/
+int PetscRegisterTIMethods(
+                            int rank /*!< MPI rank */
+                          )
 {
   PetscErrorCode ierr;
   int            ierr2;
@@ -235,7 +272,7 @@ int PetscRegisterTIMethods(int rank)
         } else {
           if (!rank) {
             fprintf(stderr,"Warning in PetscRegisterTIMethods(): Failed to register method ");
-            fprintf(stderr,"(A or At not defined).\n");
+            fprintf(stderr,"(A not defined).\n");
           }
         }
       } else {

@@ -1,3 +1,8 @@
+/*! @file SecondDerivativeFourthOrder.c
+    @brief 4th order discretization of the second derivative
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
@@ -6,14 +11,35 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-/* 
-  Fourth order central differencing
-*/
-
 #undef  _MINIMUM_GHOSTS_
+/*! \def _MINIMUM_GHOSTS_
+ * Minimum number of ghost points required.
+*/
 #define _MINIMUM_GHOSTS_ 2
 
-int SecondDerivativeFourthOrderCentral(double *D2f,double *f,int dir,void *s,void *m)
+/*! Computes the fourth-order finite-difference approximation to the second derivative (\b Note: not divided by the grid spacing):
+    \f{equation}{
+      \left(\partial^2 f\right)_i = -\frac{1}{12}f_{i-2} + \frac{4}{3}f_{i-1} - \frac{15}{6}f_i + \frac{4}{3}f_{i+1} - \frac{1}{12}f_{i+2}
+    \f}
+    where \f$i\f$ is the grid index along the spatial dimension of the derivative.
+
+    \b Notes:
+    + The second derivative is computed at the grid points or the cell centers.
+    + Though the array D2f includes ghost points, the second derivative is \b not computed at these 
+      locations. Thus, array elements corresponding to the ghost points contain undefined values.
+    + \a D2f and \a f are 1D arrays containing the function and its computed derivatives on a multi-
+      dimensional grid. The derivative along the specified dimension \b dir is computed by looping
+      through all grid lines along \b dir.
+*/
+int SecondDerivativeFourthOrderCentral(
+                                        double  *D2f, /*!< Array to hold the computed second derivative (with ghost points)
+                                                           (same size and layout as f) */
+                                        double  *f,   /*!< Array containing the grid point function values whose first
+                                                           derivative is to be computed (with ghost points) */
+                                        int     dir,  /*!< The spatial dimension along which the derivative is computed */
+                                        void    *s,   /*!< Solver object of type #HyPar */
+                                        void    *m    /*!< MPI object of type #MPIVariables */
+                                      )
 {
   HyPar         *solver = (HyPar*) s;
   int           i, v;

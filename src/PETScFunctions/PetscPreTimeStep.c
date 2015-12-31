@@ -1,3 +1,8 @@
+/*! @file PetscPreTimeStep.c
+    @brief Pre-time-step function
+    @author Debojyoti Ghosh
+*/
+
 #ifdef with_petsc
 
 #include <stdio.h>
@@ -14,7 +19,8 @@
 int PetscComputeRHSOperators(TS,double,void*);
 #endif
 
-PetscErrorCode PetscPreTimeStep(TS ts)
+/*! Function called before a time step */
+PetscErrorCode PetscPreTimeStep(TS ts /*!< Time integration object */)
 {
   PETScContext    *context  = NULL;
   HyPar           *solver   = NULL;

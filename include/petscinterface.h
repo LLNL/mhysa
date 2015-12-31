@@ -66,94 +66,33 @@ typedef struct _petsccontext_ {
 } PETScContext;
 
 /* Copy Functions */
-/*! Function to copy the solution \a u in #HyPar to a Vec variable in PETSc 
-    (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Vec/Vec.html) */
 int TransferVecToPETSc    (double*,Vec,void*);
-/*! Function to copy the solution \a u in #HyPar from a Vec variable in PETSc 
-    (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Vec/Vec.html) */
 int TransferVecFromPETSc  (double*,Vec,void*);
-/*! Function to copy a matrix to a Mat variable in PETSc 
-    (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Mat/Mat.html) */
 int TransferMatToPETSc    (void*,Mat,void*);
 
-/*! Function to register custom time-integration RK/ARKIMEX method, given the Butcher tableau. 
-    \a Examples/PETScInputs has examples of input files needed to register a custom method. See
-    \a Examples/README for more details. */
 int PetscRegisterTIMethods (int);
 
 /* Right and left -hand side functions */
-/*! Compute the right-hand-side \a f(y) for explicit time integration of the ODE \a dy/dt = \a f(y).\n 
-    See: http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSSetRHSFunction.html 
-*/
 PetscErrorCode PetscRHSFunctionExpl (TS,PetscReal,Vec,Vec,void*);
-/*! Compute the right-hand-side \a f(y) for implicit time integration of the ODE \a dy/dt = \a f(y).\n 
-    See: http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSSetRHSFunction.html 
-*/
 PetscErrorCode PetscRHSFunctionImpl (TS,PetscReal,Vec,Vec,void*);
-/*! Compute the right-hand-side \a f(y) for implicit-explicit time integration of the ODE \a dy/dt - \a g(y) = \a f(y).\n 
-    See: http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSSetRHSFunction.html 
-*/
 PetscErrorCode PetscRHSFunctionIMEX (TS,PetscReal,Vec,Vec,void*);
-/*! Compute the left-hand-side \a dy/dt - \a g(y) for implicit-explicit time integration of the ODE \a dy/dt - \a g(y) = \a f(y).\n 
-    See: http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSSetIFunction.html 
-*/
 PetscErrorCode PetscIFunctionIMEX   (TS,PetscReal,Vec,Vec,Vec,void*);
 
-/*! Compute the Jacobian of the left-hand-side \a dy/dt - \a g(y) for the implicit-explicit time integration
-    of the ODE \a dy/dt - \a g(y) = \a f(y), using the Jacobian-free Newtown-Krylov method. 
-    \n\n**Note** that for the Jacobian-free Newton-Krylov approach, the Jacobian matrix is
-    defined as the PETSc type MatShell (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Mat/MATSHELL.html).
-    This function just saves the shift and the current time. The action of the Jacobian matrix is defined through 
-    #PetscJacobianFunctionIMEX_JFNK for nonlinear problems and #PetscJacobianFunctionIMEX_Linear for linear problems.\n\n
-    See: http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSSetIJacobian.html
-*/
 PetscErrorCode PetscIJacobianIMEX(TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
-/*! Function that defines the action of the Jacobian matrix on the input vector for a nonlinear problem
-    using the Jacobian-free Newtown-Krylov approach.
-    The Jacobian of the left-hand-side \a dy/dt - \a g(y) is computed for the implicit time-integration
-    of the ODE \a dy/dt - \a g(y) = \a f(y).
-*/
 PetscErrorCode PetscJacobianFunctionIMEX_JFNK       (Mat,Vec,Vec);             
-/*! Function that defines the action of the Jacobian matrix on the input vector for a linear problem.
-    The Jacobian of the left-hand-side \a dy/dt - \a g(y) is computed for the implicit time-integration
-    of the ODE \a dy/dt - \a g(y) = \a f(y).
-*/
 PetscErrorCode PetscJacobianFunctionIMEX_Linear     (Mat,Vec,Vec);
 
-/*! Compute the Jacobian of the left-hand-side \a dy/dt - \a f(y) for the implicit time integration
-    of the ODE \a dy/dt = \a f(y), using the Jacobian-free Newtown-Krylov method. 
-    \n\n**Note** that for the Jacobian-free Newton-Krylov approach, the Jacobian matrix is
-    defined as the PETSc type MatShell (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Mat/MATSHELL.html).
-    This function just saves the shift and the current time. The action of the Jacobian matrix is defined through 
-    #PetscJacobianFunction_JFNK for nonlinear problems and #PetscJacobianFunction_Linear for linear problems.\n\n
-    See: http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSSetIJacobian.html
-*/
 PetscErrorCode PetscIJacobian(TS,PetscReal,Vec,Vec,PetscReal,Mat,Mat,void*);
-/*! Function that defines the action of the Jacobian matrix on the input vector for a nonlinear problem
-    using the Jacobian-free Newtown-Krylov approach.
-    The Jacobian of the left-hand-side \a dy/dt - \a f(y) is computed for the implicit time-integration
-    of the ODE \a dy/dt = \a f(y).
-*/
 PetscErrorCode PetscJacobianFunction_JFNK  (Mat,Vec,Vec);             
-/*! Function that defines the action of the Jacobian matrix on the input vector for a linear problem.
-    The Jacobian of the left-hand-side \a dy/dt - \a f(y) is computed for the implicit time-integration
-    of the ODE \a dy/dt = \a f(y).
-*/
 PetscErrorCode PetscJacobianFunction_Linear(Mat,Vec,Vec);
 
-/*! Function to compute the preconditioning matrix */
 int PetscComputePreconMatIMEX(Mat,Vec,void*);
-/*! Function to compute the preconditioning matrix */
 int PetscComputePreconMatImpl(Mat,Vec,void*);
 
 
 /* Other functions */
-/*! Function called at the beginning of each stage computation in multi-stage time-integration methods. */
 PetscErrorCode PetscPreStage        (TS,PetscReal);
-/*! Function called at the end of each stage computation in multi-stage time-integration methods. */
 PetscErrorCode PetscPostStage       (TS,PetscReal,PetscInt,Vec*);
-/*! Function called at the beginning of each time step. */
 PetscErrorCode PetscPreTimeStep     (TS);
-/*! Function called at the end of each time step. */
 PetscErrorCode PetscPostTimeStep    (TS);
 

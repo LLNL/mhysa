@@ -37,10 +37,12 @@ copied to any folder to run a case with PETSc time-integration.
 arkimex_rk3cn2.inp
   This is an example of the input file required to register a 
   custom ARKIMEX time-integration method.
+  **Copy and rename it to "time_method.inp" to use it**
 
 rk_ssprk3.inp
   This is an example of the input file required to register a 
   custom RK time-integration method.
+  **Copy and rename it to "time_method.inp" to use it**
 
 -------------------------------
     MATLAB SCRIPTS

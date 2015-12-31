@@ -14,11 +14,18 @@
     e = \frac {p} {\gamma-1} + \frac{1}{2} \rho u^2
   \f}
 
-  For the treatment of gravitational source terms, refer to:\n
-  + Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme
-    for the Gas Dynamics Equations Under Gravitational Fields",
-    Journal of Scientific Computing, 54, 2013, pp. 645-662.
-    http://dx.doi.org/10.1007/s10915-012-9585-8
+  Reference for the governing equations:
+  + Laney, C. B., Computational Gasdynamics, Cambridge University Press, 1998
+
+  For the partitioning of the flux into its stiff (acoustic) and non-stiff (convective)
+  components, refer to:
+  + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
+    with Characteristic-Based Flux Partitioning, Submitted
+
+  For the treatment of gravitational source terms, refer to:
+  + Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme for the Gas Dynamics 
+    Equations Under Gravitational Fields", Journal of Scientific Computing, 54, 2013, 
+    pp. 645-662. http://dx.doi.org/10.1007/s10915-012-9585-8
 */
 /*
   d   [ rho   ]   d   [   rho*u    ]\n

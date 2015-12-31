@@ -1,3 +1,8 @@
+/*! @file PetscRHSFunctionImpl.c
+    @brief Compute the right-hand-side for implicit time-integration
+    @author Debojyoti Ghosh
+*/
+
 #ifdef with_petsc
 
 #include <stdlib.h>
@@ -10,7 +15,32 @@
 #undef __FUNCT__
 #define __FUNCT__ "PetscRHSFunctionImpl"
 
-PetscErrorCode PetscRHSFunctionImpl(TS ts, PetscReal t, Vec Y, Vec F, void *ctxt)
+/*!
+  Compute the right-hand-side (RHS) for the implicit time integration of the 
+  governing equations: The spatially discretized ODE can be expressed as
+  \f{equation}{
+    \frac {d{\bf U}} {dt} = {\bf F}\left({\bf U}\right).
+  \f}
+  This function computes \f${\bf F}\left({\bf U}\right)\f$, given \f${\bf U}\f$.
+
+  \sa TSSetRHSFunction (http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSSetRHSFunction.html)
+
+  Note:
+  + This function is essentially identical to PetscRHSFunctionExpl().
+  + \f${\bf U}\f$ is \a Y in the code.
+  + See http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html for documentation on
+    PETSc's time integrators.
+  + All functions and variables whose names start with Vec, Mat, PC, KSP, SNES, and TS are defined by PETSc. Refer to
+    the PETSc documentation (http://www.mcs.anl.gov/petsc/petsc-current/docs/). Usually, googling with the function
+    or variable name yields the specific doc page dealing with that function/variable.
+*/
+PetscErrorCode PetscRHSFunctionImpl(
+                                      TS        ts,   /*!< Time integration object */
+                                      PetscReal t,    /*!< Current simulation time */
+                                      Vec       Y,    /*!< State vector (input) */
+                                      Vec       F,    /*!< The computed right-hand-side vector */
+                                      void      *ctxt /*!< Object of type #PETScContext */
+                                   )
 {
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;

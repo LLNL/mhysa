@@ -1,3 +1,8 @@
+/*! @file TransferToPETSc.c
+    @brief Copy from a HyPar array to a PETSc vector.
+    @author Debojyoti Ghosh
+*/
+
 #ifdef with_petsc
 
 #include <stdlib.h>
@@ -10,7 +15,16 @@
 #undef __FUNCT__
 #define __FUNCT__ "TransferVecToPETSc"
 
-int TransferVecToPETSc(double *u,Vec Y,void *ctxt) 
+/*! Copy data to a PETSc vector (used by PETSc time integrators, and with no 
+    ghost points) from a HyPar::u array (with ghost points).
+
+    \sa TransferVecFromPETSc()
+*/
+int TransferVecToPETSc(
+                        double  *u,   /*!< HyPar::u array (with ghost points) */
+                        Vec     Y,    /*!< PETSc vector */
+                        void    *ctxt /*!< Object of type #PETScContext */
+                      )
 {
   PETScContext    *context = (PETScContext*) ctxt;
   HyPar           *solver  = (HyPar*)        context->solver;
@@ -29,7 +43,14 @@ int TransferVecToPETSc(double *u,Vec Y,void *ctxt)
   PetscFunctionReturn(0);
 }
 
-int TransferMatToPETSc(void *J,Mat A,void *ctxt)
+/*!
+  Copy a matrix of type #BandedMatrix to a PETSc matrix.
+*/
+int TransferMatToPETSc(
+                        void *J,    /*!< Matrix of type #BandedMatrix */
+                        Mat   A,    /*!< PETSc matrix */
+                        void *ctxt  /*!< Object of type #PETScContext */
+                      )
 {
   BandedMatrix    *M = (BandedMatrix*) J;
   PetscErrorCode  ierr     = 0;
