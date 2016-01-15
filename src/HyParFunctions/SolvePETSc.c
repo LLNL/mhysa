@@ -119,13 +119,13 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
       /* nonlinear problem */
       context.flag_is_linear = 0;
       context.jfnk_eps = 1e-7;
-      ierr = PetscOptionsGetReal(NULL,"-jfnk_epsilon",&context.jfnk_eps,NULL); CHKERRQ(ierr);
+      ierr = PetscOptionsGetReal(NULL,NULL,"-jfnk_epsilon",&context.jfnk_eps,NULL); CHKERRQ(ierr);
       ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunctionIMEX_JFNK); CHKERRQ(ierr);
     }
     ierr = MatSetUp(A); CHKERRQ(ierr);
 
     context.flag_use_precon = 0;
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-with_pc",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-with_pc",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
 
     if (context.flag_use_precon) {
       /* check if flux Jacobian of the physical model is defined */
@@ -166,42 +166,42 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
 
       flag = PETSC_FALSE; 
-      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_f_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-hyperbolic_f_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
       if (flag == PETSC_TRUE) context.flag_hyperbolic_f = _EXPLICIT_; 
       flag = PETSC_FALSE; 
-      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_f_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-hyperbolic_f_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
       if (flag == PETSC_TRUE) context.flag_hyperbolic_f = _IMPLICIT_; 
 
       flag = PETSC_FALSE; 
-      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_df_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-hyperbolic_df_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
       if (flag == PETSC_TRUE) context.flag_hyperbolic_df = _EXPLICIT_; 
       flag = PETSC_FALSE; 
-      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_df_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-hyperbolic_df_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
       if (flag == PETSC_TRUE) context.flag_hyperbolic_df = _IMPLICIT_; 
 
     } else {
 
       flag = PETSC_FALSE; 
-      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-hyperbolic_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
       if (flag == PETSC_TRUE) context.flag_hyperbolic = _EXPLICIT_; 
       flag = PETSC_FALSE; 
-      ierr = PetscOptionsGetBool(PETSC_NULL,"-hyperbolic_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+      ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-hyperbolic_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
       if (flag == PETSC_TRUE) context.flag_hyperbolic = _IMPLICIT_; 
 
     }
 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-parabolic_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_parabolic = _EXPLICIT_; 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-parabolic_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-parabolic_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_parabolic = _IMPLICIT_; 
 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-source_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-source_explicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_source = _EXPLICIT_; 
     flag = PETSC_FALSE; 
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-source_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-source_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_source = _IMPLICIT_; 
 
     /* print out a summary of the treatment of each term */
@@ -253,13 +253,13 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
       /* nonlinear problem */
       context.flag_is_linear = 0;
       context.jfnk_eps = 1e-7;
-      ierr = PetscOptionsGetReal(NULL,"-jfnk_epsilon",&context.jfnk_eps,NULL); CHKERRQ(ierr);
+      ierr = PetscOptionsGetReal(NULL,NULL,"-jfnk_epsilon",&context.jfnk_eps,NULL); CHKERRQ(ierr);
       ierr = MatShellSetOperation(A,MATOP_MULT,(void (*)(void))PetscJacobianFunction_JFNK); CHKERRQ(ierr);
     }
     ierr = MatSetUp(A); CHKERRQ(ierr);
 
     context.flag_use_precon = 0;
-    ierr = PetscOptionsGetBool(PETSC_NULL,"-with_pc",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
+    ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-with_pc",(PetscBool*)(&context.flag_use_precon),PETSC_NULL); CHKERRQ(ierr);
 
     /* 
        Since we are using a MatShell to represent the action of the Jacobian on a vector (Jacobian-free approach),

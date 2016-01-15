@@ -67,7 +67,7 @@ int main(int argc,char **argv)
   if (!mpi.rank) printf("Compiled with PETSc time integration.\n");
 
   use_petscts = PETSC_FALSE; /* default value */
-  ierr = PetscOptionsGetBool(PETSC_NULL,"-use-petscts" ,&use_petscts ,PETSC_NULL); CHKERRQ(ierr);
+  ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-use-petscts" ,&use_petscts ,PETSC_NULL); CHKERRQ(ierr);
   solver.use_petscTS  = use_petscts;
 #endif
 
