@@ -1,3 +1,10 @@
+** WARNING: In its present form, this is a computationally huge problem
+** (~ 1.8 billion grid points). Be careful on where you run this case!
+** On a smaller machine, reduce the grid sizes before attempting to run
+** it (but that may not resolve the physics of the problem).
+** In general, do not run this problem unless you are specifically
+** working on this.
+
 4D FOKKER-PLANCK MODEL FOR A 3-BUS POWER SYSTEM
 (Equilibrium case)
 
