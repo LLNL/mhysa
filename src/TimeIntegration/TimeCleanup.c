@@ -1,3 +1,8 @@
+/*! @file TimeCleanup.c
+    @brief Clean up time integration
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +10,10 @@
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimeCleanup(void *ts)
+/*!
+  Clean up all allocations related to time integration 
+*/
+int TimeCleanup(void *ts /*!< Object of type #TimeIntegration*/)
 {
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           TS->solver;

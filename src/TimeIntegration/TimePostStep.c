@@ -1,3 +1,8 @@
+/*! @file TimePostStep.c
+    @brief Post-time-step function
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -7,7 +12,16 @@
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimePostStep(void *ts)
+/*!
+  Post-time-step function: this function is called at the end of 
+  each time step.
+  + It updates the current simulation time.
+  + It calls functions to print information and to write 
+    transient solution to file.
+  + It will also call any physics-specific post-time-step function,
+    if defined.
+*/
+int TimePostStep(void *ts /*!< Object of type #TimeIntegration */)
 {
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           TS->solver;

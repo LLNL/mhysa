@@ -1,10 +1,21 @@
+/*! @file TimePreStep.c
+    @brief Pre-time-step function
+    @author Debojyoti Ghosh
+*/
+
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimePreStep(void *ts)
+/*! 
+  Pre-time-step function: This function is called before each time
+  step. Some notable things this does are:
+  + Computes CFL and diffusion numbers.
+  + Call the physics-specific pre-time-step function, if defined.
+*/
+int TimePreStep(void *ts /*!< Object of type #TimeIntegration */ )
 {
   TimeIntegration *TS      = (TimeIntegration*) ts;
   HyPar           *solver  = (HyPar*)           TS->solver;

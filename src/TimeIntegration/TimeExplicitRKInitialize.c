@@ -1,3 +1,8 @@
+/*! @file TimeExplicitRKInitialize.c
+    @brief Initialize explicit Runge-Kutta time integrators
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +10,16 @@
 #include <arrayfunctions.h>
 #include <timeintegration.h>
 
-int TimeExplicitRKInitialize(char *class,char *type,void *s,void *m)
+/*! Initialize the explicit Runge-Kutta time integrator: Depending on the specific
+    explicit Runge-Kutta (ERK) method chosen, this function allocates memory for the
+    Butcher tableaux and sets their coefficients. 
+*/
+int TimeExplicitRKInitialize(
+                              char *class,  /*!< Name of time integrator class; must match #_RK_ */
+                              char *type,   /*!< Type of explicit Runge-Kutta method */
+                              void *s,      /*!< Object of type #ExplicitRKParameters */
+                              void *m       /*!< Unused argument */
+                            )
 {
   ExplicitRKParameters *params = (ExplicitRKParameters*) s;
 

@@ -1,10 +1,31 @@
+/*! @file TimeForwardEuler.c
+    @brief Forward Euler method
+    @author Debojyoti Ghosh
+*/
+
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimeForwardEuler(void *ts)
+/*!
+  Advance the ODE given by
+  \f{equation}{
+    \frac{d{\bf u}}{dt} = {\bf F} \left({\bf u}\right)
+  \f}
+  by one time step of size #HyPar::dt using the forward Euler method
+  given by
+  \f{equation}{
+    {\bf u}^{n+1} = {\bf u}^n + \Delta t {\bf F}\left( {\bf u}^n \right)
+  \f}
+  where the superscript represents the time level, \f$\Delta t\f$ is the
+  time step size #HyPar::dt, and \f${\bf F}\left({\bf u}\right)\f$ is 
+  computed by #TimeIntegration::RHSFunction.
+*/
+int TimeForwardEuler(
+                      void *ts /*!< Time integrator object of type #TimeIntegration */
+                    )
 {
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           TS->solver;

@@ -1,3 +1,8 @@
+/*! @file TimeGLMGEE.c
+    @brief General Linear Methods with Global Error Estimators
+    @author Debojyoti Ghosh
+*/
+
 #include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -5,7 +10,23 @@
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimeGLMGEE(void *ts)
+/*!
+  Advance the ODE given by
+  \f{equation}{
+    \frac{d{\bf u}}{dt} = {\bf F} \left({\bf u}\right)
+  \f}
+  by one time step of size #HyPar::dt using the forward Euler method
+  given by
+  \f{equation}{
+  \f}
+  where the superscript represents the time level, \f$\Delta t\f$ is the
+  time step size #HyPar::dt, and \f${\bf F}\left({\bf u}\right)\f$ is 
+  computed by #TimeIntegration::RHSFunction.
+
+  References:
+  + Emil's GLEE paper
+*/
+int TimeGLMGEE(void *ts /*!< Object of type #TimeIntegration */)
 {
   TimeIntegration   *TS     = (TimeIntegration*) ts;
   HyPar             *solver = (HyPar*)           TS->solver;

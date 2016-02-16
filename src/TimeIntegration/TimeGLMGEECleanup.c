@@ -1,8 +1,17 @@
+/*! @file TimeGLMGEECleanup.c
+    @brief Clean up the #_GLM_GEE_ time integrator
+    @author Debojyoti Ghosh
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <timeintegration.h>
 
-int TimeGLMGEECleanup(void *s)
+/*! Clean up allocations for the GLM-GEE (#_GLM_GEE_) time integration
+    method: This function frees the arrays used to store the Butcher
+    tableaux 
+*/
+int TimeGLMGEECleanup(void *s /*!< Object of type #GLMGEEParameters*/)
 {
   GLMGEEParameters *params = (GLMGEEParameters*) s;
   if (params->A_yyt ) free(params->A_yyt);

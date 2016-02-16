@@ -1,3 +1,8 @@
+/*! @file TimePrintStep.c
+    @brief Print to screen
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -5,7 +10,11 @@
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimePrintStep(void *ts)
+/*!
+  Print information to screen (also calls any physics-specific 
+  printing function, if defined).
+*/
+int TimePrintStep(void *ts /*!< Object of type #TimeIntegration */)
 {
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           TS->solver;

@@ -1,3 +1,8 @@
+/*! @file TimeInitialize.c
+    @brief Initialize time integration
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +14,19 @@
 
 int TimeRHSFunctionExplicit(double*,double*,void*,void*,double);
 
-int TimeInitialize(void *s,void *m,void *ts)
+/*!
+  Initialize time integration: This function initializes all that is required 
+  for time integration. 
+  + It sets the number of iterations, time step size, simulation time, etc.
+  + It allocates solution, right-hand-side, and stage solution arrays needed
+    by specific time integration methods.
+  + It calls the method-specific initialization functions.
+*/
+int TimeInitialize(
+                    void *s,  /*!< Solver object of type #HyPar */
+                    void *m,  /*!< MPI object of type #MPIVariables */
+                    void *ts  /*!< Time integration object of type #TimeIntegration */
+                  )
 {
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           s;

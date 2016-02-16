@@ -1,3 +1,8 @@
+/*! @file TimeError.c
+    @brief Compute time integration error
+    @author Debojyoti Ghosh
+*/
+
 #include <math.h>
 #include <string.h>
 #include <arrayfunctions.h>
@@ -5,7 +10,27 @@
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimeError(void *s,void *m,double *uex)
+/*!
+  Computes the time integration error in the solution: If the time 
+  integration method chosen has a mechanism to compute the error 
+  in the numerical integration, it is computed in this function. In
+  addition, if an exact solution is available (see function argument
+  \a uex, the error of the computed solution (stored in #HyPar::u) 
+  with respect to this exact solution is also computed. These errors
+  are written to a text file whose name depends on the time integration
+  method being used.
+
+  Time integration method with error estimation currently implemented:
+  + #_GLM_GEE_ (General Linear Methods with Global Error Estimation) 
+    (see TimeGLMGEE(), TimeGLMGEEInitialize() )
+*/
+int TimeError(
+                void    *s,   /*!< Solver object of type #HyPar */
+                void    *m,   /*!< MPI object of type #MPIVariables */
+                double  *uex  /*!< Exact solution (stored with the same 
+                                   array layout as #HyPar::u (may be 
+                                   NULL) */
+             )
 {
   HyPar               *solver = (HyPar*)           s;
   MPIVariables        *mpi    = (MPIVariables*)    m;

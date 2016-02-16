@@ -1,3 +1,8 @@
+/*! @file TimeGLMGEEInitialize.c
+    @brief Initialize the #_GLM_GEE_ time integrator
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +12,20 @@
 #include <mpivars.h>
 #include <timeintegration.h>
 
-int TimeGLMGEEInitialize(char *class,char *type,void *s,void *m)
+/*!
+  Initialize the GLM-GEE (#_GLM_GEE_) time integation method: This function
+  allocates the arrays to store the Butcher tableaux, and sets their 
+  coefficients, as well as other parameters for the GLM-GEE methods.
+
+  Reference:
+  + Emil's GLEE paper
+*/
+int TimeGLMGEEInitialize(
+                          char *class, /*!< Class of time integration method; must match #_GLM_GEE_ */
+                          char *type,  /*!< Name of the #_GLM_GEE_ method to use */
+                          void *s,     /*!< Object of type #GLMGEEParameters */
+                          void *m      /*!< MPI object of type #MPIVariables */
+                        )
 {
   GLMGEEParameters *params = (GLMGEEParameters*) s;
   MPIVariables     *mpi    = (MPIVariables*) m;

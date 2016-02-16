@@ -1,10 +1,33 @@
+/*! @file TimeRK.c
+    @brief Explicit Runge-Kutta method
+    @author Debojyoti Ghosh
+*/
+
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 #include <timeintegration.h>
 
-int TimeRK(void *ts)
+/*!
+  Advance the ODE given by
+  \f{equation}{
+    \frac{d{\bf u}}{dt} = {\bf F} \left({\bf u}\right)
+  \f}
+  by one time step of size #HyPar::dt using the forward Euler method
+  given by
+  \f{align}{
+    {\bf U}^{\left(i\right)} &= {\bf u}_n + \Delta t \sum_{j=1}^{i-1} a_{ij} {\bf F}\left({\bf U}^{\left(j\right)}\right), \\
+    {\bf u}_{n+1} &= {\bf u}_n + \Delta t \sum_{i=1}^s b_{i} {\bf F}\left({\bf U}^{\left(i\right)}\right),
+  \f}
+  where the subscript represents the time level, the superscripts represent the stages, \f$\Delta t\f$ is the
+  time step size #HyPar::dt, and \f${\bf F}\left({\bf u}\right)\f$ is computed by #TimeIntegration::RHSFunction.
+  The Butcher tableaux coefficients are \f$a_{ij}\f$ (#ExplicitRKParameters::A) and \f$b_i\f$ 
+  (#ExplicitRKParameters::b).
+
+  Note: In the code #TimeIntegration::Udot is equivalent to \f${\bf F}\left({\bf u}\right)\f$.
+*/
+int TimeRK(void *ts /*!< Object of type #TimeIntegration */)
 {
   TimeIntegration       *TS     = (TimeIntegration*) ts;
   HyPar                 *solver = (HyPar*)           TS->solver;
