@@ -1,3 +1,8 @@
+/*! @file tridiagLUInit.c
+    @brief Initialize the tridiagLU solver
+    @author Debojyoti Ghosh
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <tridiagLU.h>
@@ -5,12 +10,36 @@
 #include <mpi.h>
 #endif
 
-/*  
-  Initialize the tridiagLU solver:
-  set default values for the parameters
-  or read them from a file
+/*!
+Initialize the tridiagLU solver by setting the various parameters in
+#TridiagLU to their default values. If the file \a lusolver.inp is 
+available, read it and set the parameters.
+
+The file \b lusolver.inp must be in the following format:\n
+
+        begin
+            <keyword>   <value>
+            <keyword>   <value>
+            <keyword>   <value>
+            ...
+            <keyword>   <value>
+        end
+
+where the list of keywords are:\n
+    Keyword name       | Type         | Variable                      | Default value
+    ------------------ | ------------ | ----------------------------- | ------------------------
+    evaluate_norm      | int          | #TridiagLU::evaluate_norm     | 1
+    maxiter            | int          | #TridiagLU::maxiter           | 10
+    atol               | double       | #TridiagLU::atol              | 1e-12
+    rtol               | double       | #TridiagLU::rtol              | 1e-10
+    verbose            | int          | #TridiagLU::verbose           | 0
+    reducedsolvetype   | char[]       | #TridiagLU::reducedsolvetype  | #_TRIDIAG_JACOBI_
+
 */
-int tridiagLUInit(void *r,void *c) 
+int tridiagLUInit(
+                    void *r,  /*!< Object of type TridiagLU */
+                    void *c   /*!< MPI communicator */
+                 ) 
 {
   TridiagLU *t = (TridiagLU*) r;
   int       rank,ierr;

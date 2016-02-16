@@ -1,3 +1,8 @@
+/*! @file blocktridiagLU.c
+    @brief Solve block tridiagonal systems using the LU decomposition method
+    @author Debojyoti Ghosh
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
@@ -8,8 +13,109 @@
 #include <tridiagLU.h>
 #include <matops.h>
 
-int blocktridiagLU(double *a,double *b,double *c,double *x,
-                   int n,int ns,int bs,void *r,void *m)
+/*!
+  Solve block tridiagonal (non-periodic) systems of equations using parallel LU decomposition: 
+  This function can solve multiple independent systems with one call. The systems need not share 
+  the same left- or right-hand-sides. The iterative substructuring method is used in this
+  function that can be briefly described through the following 4 stages:
+  + Stage 1: Parallel elimination of the tridiagonal blocks on each processor comprising all 
+    points of the subdomain except the 1st point (unless its the 1st global point, i.e., a 
+    physical boundary)
+  + Stage 2: Elimination of the 1st row on each processor (except the 1st processor) using the 
+    last row of the previous processor.
+  + Stage 3: Solution of the reduced tridiagonal system that represents the coupling of the
+    system across the processors, using blocktridiagIterJacobi() in this implementation.
+  + Stage 4: Backward-solve to obtain the final solution
+
+  Specific details of the method implemented here are available in:
+  + Ghosh, D., Constantinescu, E. M., Brown, J., "Scalable Nonlinear Compact Schemes", 
+    Technical Memorandum, ANL/MCS-TM-340, Argonne National Laboratory, April 2014,
+    (http://www.mcs.anl.gov/publication/scalable-nonlinear-compact-schemes)
+    (also available at http://debog.github.io/Files/2014_Ghosh_Consta_Brown_MCSTR340.pdf).
+  + Ghosh, D., Constantinescu, E. M., Brown, J., Efficient Implementation of Nonlinear 
+    Compact Schemes on Massively Parallel Platforms, SIAM Journal on Scientific Computing, 
+    37 (3), 2015, C354–C383 (http://dx.doi.org/10.1137/140989261).
+
+  More references on this class of parallel tridiagonal solvers:
+  + E. Polizzi and A. H. Sameh, "A parallel hybrid banded system solver: The SPIKE algorithm",
+    Parallel Comput., 32 (2006), pp. 177–194.
+  + E. Polizzi and A. H. Sameh, "SPIKE: A parallel environment for solving banded linear systems",
+    Comput. & Fluids, 36 (2007), pp. 113–120.
+
+  Array layout: The arguments \a a, \a b, and \a c are local 1D arrays (containing
+  this processor's part of the subdiagonal, diagonal, and superdiagonal)
+  of size (\a n X \a ns X \a bs^2), and \a x is a local 1D array (containing this
+  processor's part of the right-hand-side, and will contain the solution on exit) 
+  of size (\a n X \a ns X \a bs), where \a n is the local size of the system, \a ns is
+  the number of independent systems to solve, and \a bs is the block size. The ordering
+  of the elements in these arrays is as follows:
+  + Each block is stored in the row-major format.
+  + Blocks of the same row for each of the independent systems are stored adjacent to each 
+    other.
+
+  For example, consider the following systems:
+  \f{equation}{
+    \left[\begin{array}{ccccc}
+      B_0^k & C_0^k &               &       &       \\
+      A_1^k & B_1^k & C_1^k         &       &       \\
+            & A_2^k & B_2^k & C_2^k &       &       \\
+            &       & A_3^k & B_3^k & C_3^k &       \\
+            &       &       & A_4^k & B_4^k & C_4^k \\
+    \end{array}\right]
+    \left[\begin{array}{c} X_0^k \\ X_1^k \\ X_2^k \\ X_3^k \\ X_4^k \end{array}\right]
+    =
+    \left[\begin{array}{c} R_0^k \\ R_1^k \\ R_2^k \\ R_3^k \\ R_4^k \end{array}\right];
+    \ \ k= 1,\cdots,ns
+  \f}
+  where \f$A\f$, \f$B\f$, and \f$C\f$ are matrices of size \a bs = 2 (say), and let
+  \f$ ns = 3\f$. In the equation above, we have
+  \f{equation}{
+    B_i^k = \left[\begin{array}{cc} b_{00,i}^k & b_{01,i}^k \\ b_{10,i}^k & b_{11,i}^k \end{array}\right],
+    X_i^k = \left[\begin{array}{c} x_{0,i}^k \\ x_{1,i}^k \end{array} \right],
+    R_i^k = \left[\begin{array}{c} r_{0,i}^k \\ r_{1,i}^k \end{array} \right]
+  \f}
+  Note that in the code, \f$X\f$ and \f$R\f$ are the same array \a x.
+  
+  Then, the array \a b must be a 1D array with the following layout of elements:\n
+  [\n
+  b_{00,0}^0, b_{01,0}^0, b_{10,0}^0, b_{11,0}^0, b_{00,0}^1, b_{01,0}^1, b_{10,0}^1, b_{11,0}^1,
+  b_{00,0}^2, b_{01,0}^2, b_{10,0}^2, b_{11,0}^2, \n
+  b_{00,1}^0, b_{01,1}^0, b_{10,1}^0, b_{11,1}^0, b_{00,1}^1, b_{01,1}^1, b_{10,1}^1, b_{11,1}^1, 
+  b_{00,1}^2, b_{01,1}^2, b_{10,1}^2, b_{11,1}^2, \n
+  ..., \n
+  b_{00,n-1}^0, b_{01,n-1}^0, b_{10,n-1}^0, b_{11,n-1}^0, b_{00,n-1}^1, b_{01,n-1}^1, b_{10,n-1}^1, b_{11,n-1}^1, 
+  b_{00,n-1}^2, b_{01,n-1}^2, b_{10,n-1}^2, b_{11,n-1}^2\n
+  ]\n
+  The arrays \a a and \a c are stored similarly. 
+  
+  The array corresponding to a vector (the solution and the right-hand-side \a x) must be a 1D array with the following 
+  layout of elements:\n
+  [\n
+  x_{0,0}^0, x_{1,0}^0, x_{0,0}^1, x_{1,0}^1,x_{0,0}^2, x_{1,0}^2,\n
+  x_{0,1}^0, x_{1,1}^0, x_{0,1}^1, x_{1,1}^1,x_{0,1}^2, x_{1,1}^2,\n
+  ..., \n
+  x_{0,n-1}^0, x_{1,n-1}^0, x_{0,n-1}^1, x_{1,n-1}^1,x_{0,n-1}^2, x_{1,n-1}^2\n
+  ]\n
+
+
+  Notes:
+  + This function does *not* preserve the sub-diagonal, diagonal, super-diagonal elements
+    and the right-hand-sides. 
+  + The input array \a x contains the right-hand-side on entering the function, and the 
+    solution on exiting it.
+*/
+int blocktridiagLU(
+                    double  *a, /*!< Array containing the sub-diagonal elements */
+                    double  *b, /*!< Array containing the diagonal elements */
+                    double  *c, /*!< Array containing the super-diagonal elements */
+                    double  *x, /*!< Right-hand side; will contain the solution on exit */
+                    int     n,  /*!< Local size of the system on this processor (*not*
+                                     multiplied by the block size) */
+                    int     ns, /*!< Number of systems to solve */
+                    int     bs, /*!< Block size */
+                    void    *r, /*!< Object of type #TridiagLU (contains wall times at exit) */
+                    void    *m  /*!< MPI communicator */
+                  )
 {
   TridiagLU       *params = (TridiagLU*) r;
   int             d,i,j,istart,iend,size;

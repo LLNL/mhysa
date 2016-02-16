@@ -1,3 +1,8 @@
+/*! @file tridiagLU.c
+    @brief Solve tridiagonal systems of equation using parallel LU decomposition
+    @author Debojyoti Ghosh
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
@@ -7,8 +12,84 @@
 #endif
 #include <tridiagLU.h>
 
-int tridiagLU(double *a,double *b,double *c,double *x,
-              int n,int ns,void *r,void *m)
+/*!
+  Solve tridiagonal (non-periodic) systems of equations using parallel LU decomposition: 
+  This function can solve multiple independent systems with one call. The systems need not share 
+  the same left- or right-hand-sides. The iterative substructuring method is used in this
+  function that can be briefly described through the following 4 stages:
+  + Stage 1: Parallel elimination of the tridiagonal blocks on each processor comprising all 
+    points of the subdomain except the 1st point (unless its the 1st global point, i.e., a 
+    physical boundary)
+  + Stage 2: Elimination of the 1st row on each processor (except the 1st processor) using the 
+    last row of the previous processor.
+  + Stage 3: Solution of the reduced tridiagonal system that represents the coupling of the
+    system across the processors, using blocktridiagIterJacobi() in this implementation.
+  + Stage 4: Backward-solve to obtain the final solution
+
+  Specific details of the method implemented here are available in:
+  + Ghosh, D., Constantinescu, E. M., Brown, J., "Scalable Nonlinear Compact Schemes", 
+    Technical Memorandum, ANL/MCS-TM-340, Argonne National Laboratory, April 2014,
+    (http://www.mcs.anl.gov/publication/scalable-nonlinear-compact-schemes)
+    (also available at http://debog.github.io/Files/2014_Ghosh_Consta_Brown_MCSTR340.pdf).
+  + Ghosh, D., Constantinescu, E. M., Brown, J., Efficient Implementation of Nonlinear 
+    Compact Schemes on Massively Parallel Platforms, SIAM Journal on Scientific Computing, 
+    37 (3), 2015, C354–C383 (http://dx.doi.org/10.1137/140989261).
+
+  More references on this class of parallel tridiagonal solvers:
+  + E. Polizzi and A. H. Sameh, "A parallel hybrid banded system solver: The SPIKE algorithm",
+    Parallel Comput., 32 (2006), pp. 177–194.
+  + E. Polizzi and A. H. Sameh, "SPIKE: A parallel environment for solving banded linear systems",
+    Comput. & Fluids, 36 (2007), pp. 113–120.
+
+  Array layout: The arguments \a a, \a b, \a c, and \a x are local 1D arrays (containing
+  this processor's part of the subdiagonal, diagonal, superdiagonal, and right-hand-side)
+  of size (\a n X \a ns), where \a n is the local size of the system, and \a ns is
+  the number of independent systems to solve. The ordering of the elements in these arrays 
+  is as follows:
+  + Elements of the same row for each of the independent systems are stored adjacent to each 
+    other.
+
+  For example, consider the following systems:
+  \f{equation}{
+    \left[\begin{array}{ccccc}
+      b_0^k & c_0^k &               &       &       \\
+      a_1^k & b_1^k & c_1^k         &       &       \\
+            & a_2^k & b_2^k & c_2^k &       &       \\
+            &       & a_3^k & b_3^k & c_3^k &       \\
+            &       &       & a_4^k & b_4^k & c_4^k \\
+    \end{array}\right]
+    \left[\begin{array}{c} x_0^k \\ x_1^k \\ x_2^k \\ x_3^k \\ x_4^k \end{array}\right]
+    =
+    \left[\begin{array}{c} r_0^k \\ r_1^k \\ r_2^k \\ r_3^k \\ r_4^k \end{array}\right];
+    \ \ k= 1,\cdots,ns
+  \f}
+  and let \f$ ns = 3\f$. Note that in the code, \f$x\f$ and \f$r\f$ are the same array \a x.
+  
+  Then, the array \a b must be a 1D array with the following layout of elements:\n
+  [\n
+  b_0^0, b_0^1, b_0^2, (diagonal element of the first row in each system) \n
+  b_1^0, b_1^1, b_1^2, (diagonal element of the second row in each system) \n
+  ..., \n
+  b_{n-1}^0, b_{n-1}^1, b_{n-1}^2 (diagonal element of the last row in each system) \n
+  ]\n
+  The arrays \a a, \a c, and \a x are stored similarly. 
+  
+  Notes:
+  + This function does *not* preserve the sub-diagonal, diagonal, super-diagonal elements
+    and the right-hand-sides. 
+  + The input array \a x contains the right-hand-side on entering the function, and the 
+    solution on exiting it.
+*/
+int tridiagLU(
+                double  *a, /*!< Array containing the sub-diagonal elements */
+                double  *b, /*!< Array containing the diagonal elements */
+                double  *c, /*!< Array containing the super-diagonal elements */
+                double  *x, /*!< Right-hand side; will contain the solution on exit */
+                int     n,  /*!< Local size of the system on this processor */
+                int     ns, /*!< Number of systems to solve */
+                void    *r, /*!< Object of type #TridiagLU */
+                void    *m  /*!< MPI communicator */
+             )
 {
   TridiagLU       *params = (TridiagLU*) r;
   int             d,i,istart,iend;

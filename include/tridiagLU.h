@@ -1,3 +1,8 @@
+/*! @file tridiagLU.h
+    @brief Header file for TridiagLU
+    @author Debojyoti Ghosh
+*/
+
 /* 
 
   Parallel direct solver for tridiagonal systems 
@@ -62,35 +67,43 @@
 
 */
 
-/* definitions */
+/*! Jacobi method \sa tridiagIterJacobi(), blocktridiagIterJacobi() */
 #define _TRIDIAG_JACOBI_  "jacobi"
+/*! "Gather-and-solve" method \sa tridiagLUGS */
 #define _TRIDIAG_GS_      "gather-and-solve"
 
-/* Data structure containing the stage runtimes */
+/*! \def TridiagLU
+    \brief Structure of variables used by TridiagLU
+
+    This structure contains all the variables used by
+    TridiagLU.
+*/
 typedef struct _tridiagLU_ {
 
   /* Parameters for tridiagLU() */
-  char reducedsolvetype[50]; /* solver to use for the reduced system */
-                             /* gather-and-solve direct solver       */
-                             /* or iterative jabobi solver           */
 
-  /* Parameters for the iterative tridiagonal solver    */
-  int     evaluate_norm;  /* calculate norm at each iteration?*/
-  int     maxiter;        /* maximum number of iterations     */
-  double  atol,rtol;      /* absolute and relative tolerace   */
-  int     exititer;       /* number of iterations it ran for  */
-  double  exitnorm;       /* error norm at exit               */
-  int     verbose;        /* print iterations and norms       */
+  /*! Choice of solver for solving the reduced system. May be #_TRIDIAG_JACOBI_
+      or #_TRIDIAG_GS_.
+  */
+  char reducedsolvetype[50]; 
 
-  /* Runtimes for the 4 stages of tridiagLU() */
-  double  total_time;
-  double  stage1_time;
-  double  stage2_time;
-  double  stage3_time;
-  double  stage4_time;
+  int     evaluate_norm;  /*!< calculate norm at each iteration? (relevant only for iterative solvers) */
+  int     maxiter;        /*!< maximum number of iterations (relevant only for iterative solvers)      */
+  double  atol,           /*!< absolute tolerance (relevant only for iterative solvers)                */
+          rtol;           /*!< relative tolerace (relevant only for iterative solvers)                 */
+  int     exititer;       /*!< number of iterations it ran for (relevant only for iterative solvers)   */
+  double  exitnorm;       /*!< error norm at exit (relevant only for iterative solvers)                */
+  int     verbose;        /*!< print iterations and norms (relevant only for iterative solvers)        */
+
+  double  total_time;     /*!< Total wall time in seconds */
+  double  stage1_time;    /*!< Wall time (in seconds) for stage 1 of tridiagLU() or blocktridiagLU() */
+  double  stage2_time;    /*!< Wall time (in seconds) for stage 2 of tridiagLU() or blocktridiagLU() */
+  double  stage3_time;    /*!< Wall time (in seconds) for stage 3 of tridiagLU() or blocktridiagLU() */
+  double  stage4_time;    /*!< Wall time (in seconds) for stage 4 of tridiagLU() or blocktridiagLU() */
 
 #ifdef with_scalapack
-  int blacs_ctxt;
+  int blacs_ctxt;         /*!< Context variable for ScaLAPACK (relevant if compiled with ScaLAPACK
+                               support (-Dwith_scalapack) \sa tridiagScaLPK */
 #endif
 
 } TridiagLU;
