@@ -18,7 +18,8 @@
   coefficients, as well as other parameters for the GLM-GEE methods.
 
   Reference:
-  + Emil's GLEE paper
+  + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 
+    2015 (http://arxiv.org/abs/1503.05166).
 */
 int TimeGLMGEEInitialize(
                           char *class, /*!< Class of time integration method; must match #_GLM_GEE_ */

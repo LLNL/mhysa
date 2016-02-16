@@ -15,16 +15,33 @@
   \f{equation}{
     \frac{d{\bf u}}{dt} = {\bf F} \left({\bf u}\right)
   \f}
-  by one time step of size #HyPar::dt using the forward Euler method
-  given by
-  \f{equation}{
+  by one time step of size #HyPar::dt using the \f$s\f$-stage General Linear Method with
+  Global Error Estimation (GLM-GEE), given by
+  \f{align}{
+    {\bf U}^{\left(i\right)} &= c_{i0}{\bf u}_n + \sum_{j=1}^{r-1} c_{ij} \tilde{\bf u}_n^j 
+                               + \Delta t \sum_{j=1}^{i-1} a_{ij} {\bf F}\left({\bf U}^{\left(j\right)}\right), i=1,\cdots,s\\
+    {\bf u}_{n+1} &= d_{00} {\bf u}_n + \sum_{j=1}^{r-1} d_{0j} \tilde{\bf u}_n^j 
+                      + \Delta t \sum_{j=1}^s b_{0j} {\bf F}\left({\bf U}^{\left(j\right)}\right), \\
+    \tilde{\bf u}_{n+1}^i &= d_{i0} {\bf u}_n + \sum_{j=1}^{r-1} d_{ij} \tilde{\bf u}_n^j 
+                      + \Delta t \sum_{j=1}^s b_{ij} {\bf F}\left({\bf U}^{\left(j\right)}\right), i=1,\cdots,r-1
   \f}
-  where the superscript represents the time level, \f$\Delta t\f$ is the
-  time step size #HyPar::dt, and \f${\bf F}\left({\bf u}\right)\f$ is 
-  computed by #TimeIntegration::RHSFunction.
+  where the superscripts in parentheses represent stages, the subscripts represent the time level, the 
+  superscripts without parentheses represent auxiliary solutions, \f$\Delta t\f$ is the
+  time step size #HyPar::dt, \f$\tilde{\bf u}^i, i=1,\cdots,r-1\f$ are the auxiliary solutions,
+  and \f${\bf F}\left({\bf u}\right)\f$ is computed by #TimeIntegration::RHSFunction. The coefficients 
+  defining this methods are:
+  + \f$a_{ij}, i=1,\cdots,s, j=1,\cdots,s\f$ (#GLMGEEParameters::A)
+  + \f$b_{ij}, i=0,\cdots,r-1, j=1,\cdots,s\f$ (#GLMGEEParameters::B)
+  + \f$c_{ij}, i=1,\cdots,s, j=0,\cdots,r-1\f$ (#GLMGEEParameters::C)
+  + \f$d_{ij}, i=0,\cdots,r-1, j=0,\cdots,r-1\f$ (#GLMGEEParameters::D)
+  
+  where \f$s\f$ is the number of stages (#GLMGEEParameters::nstages) and \f$r\f$ is the number of auxiliary solutions
+  propagated with the solution (#GLMGEEParameters::r).
+
+  Note: In the code #TimeIntegration::Udot is equivalent to \f${\bf F}\left({\bf u}\right)\f$.
 
   References:
-  + Emil's GLEE paper
+  + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
 */
 int TimeGLMGEE(void *ts /*!< Object of type #TimeIntegration */)
 {

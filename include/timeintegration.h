@@ -6,11 +6,11 @@
 #include <basic.h>
 
 /* definitions */
-/*! Forward Euler time integration */
+/*! Forward Euler time integration \sa TimeForwardEuler() */
 #define _FORWARD_EULER_ "euler"
-/*! Runge-Kutta time integration method */
+/*! Runge-Kutta time integration method \sa TimeRK() */
 #define _RK_            "rk"
-/*! General Linear Methods with Global Error Estimators */
+/*! General Linear Methods with Global Error Estimators \sa TimeGLMGEE() */
 #define _GLM_GEE_       "glm-gee"
 
 /*! \def TimeIntegration
@@ -69,29 +69,61 @@ typedef struct time_integration_variables {
 } TimeIntegration;
 
 /* Explicit Runge-Kutta Methods */
-#define _RK_1FE_        "1fe"     /*!< Forward Euler                        */
-#define _RK_22_         "22"      /*!< 2 stage, 2nd order                   */
-#define _RK_33_         "33"      /*!< 3 stage, 3rd order                   */
-#define _RK_44_         "44"      /*!< 4 stage, 4th order                   */
-#define _RK_SSP3_       "ssprk3"  /*!< 3 stage, 3rd order SSP               */
-#define _RK_TVD3_       "tvdrk3"  /*!< Same as ssprk3                       */
+/*!
+  Forward Euler, written as a Runge Kutta method (1 stage, 1st order)
+
+  \f$\begin{array}{c|c} 0 & 0 \\ \hline & 1 \end{array}\f$
+
+  \sa TimeExplicitRKInitialize()
+*/
+#define _RK_1FE_        "1fe"     
+/*!
+  2-stage, 2nd order Runge Kutta method, often known as "RK2a"
+
+  \f$\begin{array}{c|cc} 0 & & \\ 1 & 1 & \\ \hline & \frac{1}{2} & \frac{1}{2}\end{array}\f$
+
+  \sa TimeExplicitRKInitialize()
+*/
+#define _RK_22_         "22"      
+/*!
+  3-stage, 3rd order Runge Kutta method
+
+  \f$\begin{array}{c|ccc} 0 & & & \\ \frac{2}{3} & \frac{2}{3} & & \\ \frac{2}{3} & \frac{5}{12} & \frac{1}{4} & \\ \hline & \frac{1}{4} & -\frac{1}{4} & 1\end{array}\f$
+
+  \sa TimeExplicitRKInitialize()
+*/
+#define _RK_33_         "33"
+/*!
+  The classical 4-stage, 4th order Runge Kutta method
+
+  \f$ \begin{array}{c|cccc} 0 & & & & \\ \frac{1}{2} & \frac{1}{2} & & & \\ \frac{1}{2} & & \frac{1}{2} & & \\ 1 & & & 1 & \\ \hline & \frac{1}{6} & \frac{1}{3} & \frac{1}{3} & \frac{1}{6} \end{array} \f$
+
+  \sa TimeExplicitRKInitialize()
+*/
+#define _RK_44_         "44"      
+/*!
+  Strong-Stability-Preserving (SSP) 3-stage, 3rd order Runge Kutta method
+
+  \f$ \begin{array}{c|ccc} 0 & & & \\ 1 & 1 & & \\ \frac{1}{2} & \frac{1}{4} & \frac{1}{4} & \\ \hline & \frac{1}{6} & \frac{1}{6} & \frac{2}{3} \end{array}\f$
+
+  \sa TimeExplicitRKInitialize()
+
+  Reference:
+  + Gottlieb, S., Ketcheson, D. I., and Shu, C.-W., High Order Strong Stability 
+    Preserving Time Discretizations, J. Sci. Comput., 38 (3), 2009, pp. 251-289,
+    http://dx.doi.org/10.1007/s10915-008-9239-z.
+*/
+#define _RK_SSP3_       "ssprk3"  
+#define _RK_TVD3_       "tvdrk3"  /*!< Same as #_RK_SSP3_                   */
 /*! \def ExplicitRKParameters
     \brief Structure containing the parameters for an explicit Runge-Kutta method
 */
 /*! \brief Structure containing the parameters for an explicit Runge-Kutta method
 
     Contains the parameters defining an explicit Runge Kutta time integration 
-    method, expressed as follows:
-    \f{align}{
-      {\bf U}^{\left(i\right)} &= {\bf u}_n + \delta t \sum_{j=1}^{i-1} A_{ij} \dot{\bf U}^{\left(j\right)}\ {\rm (Stage\ values)},\\
-      {\bf u}_{n+1} &= {\bf u}_n + \delta t \sum_{i=1}^{n} b_i \dot{\bf U}^{\left(i\right)}\ {\rm (Step\ completion)},
-    \f}
-    where \f${\bf u}_n\f$ is the current solution, \f${\bf u}_{n+1}\f$ is the solution
-    at the next time step, \f${\bf U}\f$ are the stage solutions, \f$\dot{\bf U}\f$ are 
-    the stage right-hand-sides, and \f$A_{ij}\f$ and \f$b_i\f$ are the stage computation and 
-    step completion coefficients in the Butcher tableau form.\n\n
-    For explanation about the Butcher tableaux, see:
-    + Butcher, J., Numerical Methods for Ordinary Differential Equations, Wiley, 2003.
+    method.
+
+    \sa TimeRK()
 */
 typedef struct _explicit_rungekutta_time_integration_ {
   int nstages; /*!< number of stages */
@@ -106,25 +138,86 @@ int TimeExplicitRKInitialize(char*,char*,void*,void*);
 int TimeExplicitRKCleanup   (void*);
 
 /* General Linear Methods with Global Error Estimate */
-#define _GLM_GEE_YYT_     "yyt" /*!< \f$y-\tilde{y}\f$ form */
-#define _GLM_GEE_YEPS_    "yeps" /*!< \f$y-\epsilon\f$ form */
-#define _GLM_GEE_23_      "23"  /*!< A 3-stage, 2nd order method */
-#define _GLM_GEE_24_      "24"  /*!< A 4-stage, 2nd order method */
-#define _GLM_GEE_25I_     "25i" /*!< A 5-stage, 2nd order method, with good imaginary stability */
-#define _GLM_GEE_35_      "35"  /*!< A 5-stage, 3rd order method */
-#define _GLM_GEE_EXRK2A_  "exrk2a"  /*!< RK-2a with an error estimator */
-#define _GLM_GEE_RK32G1_  "rk32g1"  /*!< A 3rd order method */
-#define _GLM_GEE_RK285EX_ "rk285ex" /*!< A 2nd order RK method with an error estimator */
+/*! \f$y-\tilde{y}\f$ form 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_YYT_     "yyt" 
+/*! \f$y-\epsilon\f$ form 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_YEPS_    "yeps" 
+/*! A 3-stage, 2nd order method 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_23_      "23"  
+/*! A 4-stage, 2nd order method 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_24_      "24"  
+/*! A 5-stage, 2nd order method, with good imaginary stability 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_25I_     "25i" 
+/*! A 5-stage, 3rd order method 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_35_      "35"  
+/*! RK-2a with an error estimator 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_EXRK2A_  "exrk2a"  
+/*! A 3rd order method 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_RK32G1_  "rk32g1"  
+/*! A 2nd order RK method with an error estimator 
+
+    \sa TimeGLMGEEInitialize()
+
+    Reference:
+    + Constantinescu, E. M., "Estimating Global Errors in Time Stepping.", Submitted, 2015 (http://arxiv.org/abs/1503.05166).
+*/
+#define _GLM_GEE_RK285EX_ "rk285ex" 
 /*! \def GLMGEEParameters
     \brief Structure containing the parameters for the General Linear Methods with Global Error Estimators (GLM-GEE)
 */
 /*! \brief Structure containing the parameters for the General Linear Methods with Global Error Estimators (GLM-GEE)
 
-    Contains the parameters defining a general linear time-integration method with global error estimators.
-    \n\n
-    See:
-    + Constantinescu, E.M., "Estimating Global Errors in Time Stepping", SIAM Journal on Numerical Analysis,
-      (In press).
+    Contains the parameters defining a General Linear time-integration method with global error estimators.
+
+    \sa TimeGLMGEE()
 */
 typedef struct _glm_gee_time_integration_ {
   int nstages, /*!< Number of stages */
