@@ -6,19 +6,84 @@
 
 /*! @mainpage
 
-* HyPar - Hyperbolic-Parabolic Partial Differential Equations Solver: 
-* A finite-difference algorithm to solve hyperbolic-parabolic equations 
-* (with source term). The hyperbolic terms are discretized using a conservative 
-* finite-difference scheme (eg: 1st order UPWIND, 3rd order MUSCL, 5th order WENO, 
-* 5th order CRWENO). The parabolic terms are discretized either using a conservative 
-* or a non-conservative scheme. Time integration is carried out using the PETSc TS 
-* library. If compiled without PETSc, the first order Euler and some higher order 
-* multi-stage Runge-Kutta schemes are available. Examples of physical models include 
-* the linear advection-diffusion-reaction, Euler and Navier-Stokes equations, 
-* Fokker-Planck equations for power systems, etc. The code can be compiled in serial 
-* as well as in parallel (MPI). For more details, see README.
+  @author Debojyoti Ghosh [\b Email: (first name) (dot) (last name) (at) gmail (dot) com, \b Website: http://debog.github.io/]
 
-*  @author Debojyoti Ghosh
+  HyPar: Hyperbolic-Parabolic (with Source) Partial Differential Equations Solver
+  -------------------------------------------------------------------------------
+
+  HyPar is a finite-difference algorithm to solve hyperbolic-parabolic partial differential
+  equations (with source terms) on Cartesian grids. It is a unified framework that can handle 
+  systems of PDEs with arbitrary number of spatial dimensions and solution components. It 
+  provides the spatial discretization and time integration functions, functions to read and 
+  write solutions from/to files, as well as functions required to solve the system on parallel 
+  (MPI) platforms. The physical models define the physics-specific functions such as the exact 
+  forms of the hyperbolic flux, parabolic flux, source terms, upwinding functions, etc.
+
+  + It is written entirely in C and uses the MPICH library. It also uses OpenMP threads 
+    but this is a work-in-progress.
+  + An option to compile it with PETSc (http://www.mcs.anl.gov/petsc/) is available, where 
+    it can use PETSc's time integration module TS ().
+
+  HyPar has been developed to be scalable, and apart from the usual functionalities to
+  solve a system of PDEs on distributed architectures, it provides scalable file I/O
+  functions. It has been tested on several platforms, including DOE Leadership-class
+  supercomputers, with up to ~0.5 million MPI ranks.
+
+  Download
+  --------
+  The code is available at: https://bitbucket.org/deboghosh/hypar
+
+  It can be cloned using git as follows:
+  + git clone git@bitbucket.org:deboghosh/hypar.git (if you have a Bitbucket account)
+  + git clone https://bitbucket.org/deboghosh/hypar.git (if you don't have a Bitbucket account)
+
+  Bitbucket also allows downloading the package as a tarball, see 
+  https://bitbucket.org/deboghosh/hypar/downloads.
+
+  Documentation
+  -------------
+  To generate a local copy of this documentation, run "doxygen Doxyfile" in $(root_dir). The folder $(root_dir)/doc
+  should contain the generated documentation in HTML and PDF formats.
+
+  Compiling
+  ---------
+
+  To compile HyPar, follow these steps in the root directory:
+  
+        autoreconf -i
+        [CFLAGS="..."] ./configure [options]
+        make
+        make install
+
+  CFLAGS should include all the compiler flags.
+
+  The configure options can include options such as BLAS/LAPACK location, MPI directory, etc. Type "./configure --help"
+  to see a full list. The options specific to HyPar are:
+  + --with-mpi-dir: Specify path where mpicc is installed.
+  + --enable-omp: Enable OpenMP threads.
+  + --enable-scalapack: Enable ScaLAPACK (this will make available a tridiagonal solver using ScaLAPACK).
+  + --with-blas-dir: Specify path where BLAS is installed (relevant only if --enable-scalapack is specified).
+  + --with-lapack-dir: Specify path where LAPACK is installed (relevant only if --enable-scalapack is specified).
+  + --with-scalapack-dir: Specify path where ScaLAPACK is installed (relevant only if --enable-scalapack is specified).
+  + --with-fortran-lib: Specify path where FORTRAN libraries are installed (for ScaLAPACK) (relevant only if --enable-scalapack 
+    is specified).
+
+  \b Compiling \b with \b PETSc:
+  Install PETSc and make sure the environment variables \b PETSC_DIR and \b PETSC_ARCH are defined. Please PETSc's
+  installation instructions for this. Once these environment variables are present, HyPar will use them to compile
+  itself with PETSc functionalities.
+
+  Notes
+  -----
+  + This package has been tested using the GNU and IBM C compilers. The configuration script is designed to look for these 
+    compilers only.
+  + Feel free to contact me about anything regarding this (doubts/difficulties/suggestions), and use and modify the code
+    in any way.
+
+  Running
+  -------
+  + It's best to start with some examples. See the section on examples.
+  + To run more cases, see the section in input files for a complete description of input files required.
 */
 
 #include <stdio.h>
