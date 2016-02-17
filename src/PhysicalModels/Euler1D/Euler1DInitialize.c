@@ -41,6 +41,27 @@ int    Euler1DPreStep           (double*,void*,void*,double);
 /*! Function to initialize the 1D inviscid Euler equations (#Euler1D) module: 
     Sets the default parameters, read in and set physics-related parameters, 
     and set the physics-related function pointers in #HyPar.
+
+    This file reads the file "physics.inp" that must have the following format:
+
+        begin
+            <keyword>   <value>
+            <keyword>   <value>
+            <keyword>   <value>
+            ...
+            <keyword>   <value>
+        end
+
+    where the list of keywords are:
+
+    Keyword name       | Type         | Variable                      | Default value
+    ------------------ | ------------ | ----------------------------- | ------------------------
+    gamma              | double       | #Euler1D::gamma               | 1.4
+    gravity            | double       | #Euler1D::grav                | 0.0
+    grav_type          | int          | #Euler1D::grav_type           | 0
+    upwinding          | char[]       | #Euler1D::upw_choice          | "roe" (#_ROE_)
+
+    \b Note: "physics.inp" is \b optional; if absent, default values will be used.
 */
 int Euler1DInitialize(
                       void *s, /*!< Solver object of type #HyPar */

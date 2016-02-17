@@ -50,6 +50,42 @@ int    NavierStokes2DPostStage         (double*,void*,void*,double);
 /*! Initialize the 2D Navier-Stokes (#NavierStokes2D) module:
     Sets the default parameters, read in and set physics-related parameters,
     and set the physics-related function pointers in #HyPar.
+
+    This file reads the file "physics.inp" that must have the following format:
+
+        begin
+            <keyword>   <value>
+            <keyword>   <value>
+            <keyword>   <value>
+            ...
+            <keyword>   <value>
+        end
+
+    where the list of keywords are:
+
+    Keyword name       | Type         | Variable                                        | Default value
+    ------------------ | ------------ | ----------------------------------------------- | ------------------------
+    gamma              | double       | #NavierStokes2D::gamma                          | 1.4
+    Pr                 | double       | #NavierStokes2D::Pr                             | 0.72
+    Re                 | double       | #NavierStokes2D::Re                             | -1  
+    Minf               | double       | #NavierStokes2D::Minf                           | 1.0 
+    gravity            | double,double| #NavierStokes2D::grav_x,#NavierStokes2D::grav_y | 0.0,0.0
+    rho_ref            | double       | #NavierStokes2D::rho0                           | 1.0
+    p_ref              | double       | #NavierStokes2D::p0                             | 1.0
+    HB                 | int          | #NavierStokes2D::HB                             | 1
+    R                  | double       | #NavierStokes2D::R                              | 1.0
+    upwinding          | char[]       | #NavierStokes2D::upw_choice                     | "roe" (#_ROE_)
+
+    + If "HB" (#NavierStokes2D::HB) is specified as 3, it should be followed by the the 
+      Brunt-Vaisala frequency (#NavierStokes2D::N_bv), i.e.
+
+        begin
+            ...
+            HB      3 0.01
+            ...
+        end
+
+    \b Note: "physics.inp" is \b optional; if absent, default values will be used.
 */
 int NavierStokes2DInitialize(
                               void *s, /*!< Solver object of type #HyPar */
