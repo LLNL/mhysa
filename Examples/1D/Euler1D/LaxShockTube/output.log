@@ -1,0 +1,66 @@
+HyPar - Parallel (MPI) version with 2 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 1
+	No. of variables                           : 3
+	Domain size                                : 201 
+	Processes along each dimension             : 2 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 80
+	Restart iteration                          : 0
+	Time integration scheme                    : rk (44)
+	Spatial discretization scheme (hyperbolic) : weno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 2
+	Time Step                                  : 1.000000E-03
+	Check for conservation                     : yes
+	Screen output iterations                   : 10
+	File output iterations                     : 9999
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : text
+	Overwrite solution file                    : no
+	Physical model                             : euler1d
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  4.7499999999999998E-01
+ 1:  1.5550000000000000E-01
+ 2:  5.1848875000000110E+00
+Reading boundary conditions from "boundary.inp".
+  Boundary                    extrapolate:  Along dimension  0 and face +1
+  Boundary                    extrapolate:  Along dimension  0 and face -1
+2 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "euler1d"
+Reading physical model inputs from file "physics.inp".
+Setting up time integration.
+Solving in time (from 0 to 80 iterations)
+Writing solution file op_00000.dat.
+Iteration:      10  Time: 1.000E-02  Max CFL: 9.579E-01  Max Diff. No.: -1.000E+00  Norm: 1.4973E-01  Conservation loss: 8.5651E-16
+Iteration:      20  Time: 2.000E-02  Max CFL: 9.526E-01  Max Diff. No.: -1.000E+00  Norm: 1.5211E-01  Conservation loss: 1.7148E-15
+Iteration:      30  Time: 3.000E-02  Max CFL: 9.500E-01  Max Diff. No.: -1.000E+00  Norm: 1.5129E-01  Conservation loss: 1.3727E-15
+Iteration:      40  Time: 4.000E-02  Max CFL: 9.492E-01  Max Diff. No.: -1.000E+00  Norm: 1.5139E-01  Conservation loss: 1.7166E-15
+Iteration:      50  Time: 5.000E-02  Max CFL: 9.485E-01  Max Diff. No.: -1.000E+00  Norm: 1.5220E-01  Conservation loss: 1.7139E-15
+Iteration:      60  Time: 6.000E-02  Max CFL: 9.480E-01  Max Diff. No.: -1.000E+00  Norm: 1.5340E-01  Conservation loss: 1.5467E-15
+Iteration:      70  Time: 7.000E-02  Max CFL: 9.476E-01  Max Diff. No.: -1.000E+00  Norm: 1.5473E-01  Conservation loss: 1.8884E-15
+Iteration:      80  Time: 8.000E-02  Max CFL: 9.472E-01  Max Diff. No.: -1.000E+00  Norm: 1.5596E-01  Conservation loss: 2.0603E-15
+Writing solution file op_00001.dat.
+Completed time integration (Final time: 0.080000).
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	1.1102230246251565E-16
+	8.3266726846886741E-17
+	2.0556166428686216E-15
+Solver runtime (in seconds): 1.1952400000000001E-01
+Total  runtime (in seconds): 1.2100000000000000E-01
+Deallocating arrays.
+Finished.
