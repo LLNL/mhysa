@@ -6,6 +6,7 @@
 \subpage sod_shock_tube  \n
 \subpage lax_shock_tube \n
 \subpage shu_osher \n
+\subpage sod_shock_tube_wgrav
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
@@ -468,3 +469,64 @@ Expected screen output:
 \include 1D/Euler1D/ShuOsherProblem/output.log
 
 
+\page sod_shock_tube_wgrav 1D Euler Equations - Sod Shock Tube with Gravitational Force
+
+Description: 
+-------------------
+
+Location: \b hypar/Examples/1D/Euler1D/SodShockTubeWithGravity 
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Euler equations (euler1d.h)
+
+References: 
+  + Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme
+    for the Gas Dynamics Equations Under Gravitational Fields",
+    Journal of Scientific Computing, 54, 2013, pp. 645-662.
+
+Domain: \f$0 \le x \le 1.0\f$, \a "slip-wall" (#_SLIP_WALL_) 
+        boundary conditions (wall velocity is zero), with 
+        \b uniform \b gravitational \b force \f$g=1\f$.
+
+Initial Solution:
+  + \f$ 0 \le x < 0.5\f$: \f$\rho = 1, u = 0, p = 1\f$
+  + \f$ 0.5 \le x \le 1\f$: \f$\rho = 0.125, u = 0, p = 0.1\f$
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): Characteristic-based 5th order CRWENO (Interp1PrimFifthOrderCRWENOChar())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+--------------------
+\b solver.inp:
+\include 1D/Euler1D/SodShockTubeWithGravity/solver.inp
+
+\b boundary.inp
+\include 1D/Euler1D/SodShockTubeWithGravity/boundary.inp
+
+\b physics.inp
+\include 1D/Euler1D/SodShockTubeWithGravity/physics.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory:
+\include 1D/Euler1D/SodShockTubeWithGravity/aux/init.c
+
+Output:
+-------
+After running the code, there should be two solution output
+files \b op_00000.dat and \b op_00001.dat; the first one is
+the initial solution, and the latter is the final solution.
+Both these files are ASCII text (#HyPar::op_file_format is
+set to \a text in \b solver.inp).
+
+Final solution at t=0.2: The following figure is obtained 
+by plotting \a op_00001.dat. Note that the output is in
+terms of the conserved variables, so they have to converted
+to the primitive variables (density, velocity, and pressure).
+@image html Solution_1DSodShockTubeWithGravity.png
+
+Expected screen output:
+\include 1D/Euler1D/SodShockTubeWithGravity/output.log
