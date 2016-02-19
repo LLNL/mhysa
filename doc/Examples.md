@@ -1,6 +1,101 @@
 
-\subpage linear_adv_disc
-\subpage sod_shock_tube
+\subpage linear_adv_sine \n
+\subpage linear_adv_disc \n
+\subpage sod_shock_tube  \n
+
+\page linear_adv_sine 1D Linear Advection - Sine Wave
+
+Location: \b hypar/Examples/1D/LinearAdvection/SineWave
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Linear Advection Equation (linearadr.h)
+
+References:
+  + Ghosh, D., Baeder, J. D., "Compact Reconstruction Schemes with 
+    Weighted ENO Limiting for Hyperbolic Conservation Laws", 
+    SIAM Journal on Scientific Computing, 34 (3), 2012, A1678–A1706
+
+Domain: \f$0 \le x < 1\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions
+
+Initial solution: \f$u\left(x,0\right) = \sin\left(2\pi x\right)\f$
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 1D/LinearAdvection/SineWave/solver.inp
+
+\b boundary.inp
+\include 1D/LinearAdvection/SineWave/boundary.inp
+
+\b physics.inp
+\include 1D/LinearAdvection/SineWave/physics.inp
+
+\b lusolver.inp (optional)
+\include 1D/LinearAdvection/SineWave/lusolver.inp
+
+\b weno.inp (optional)
+\include 1D/LinearAdvection/SineWave/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory. \b Note: if the
+final time is an integer multiple of the time period,
+the file \b initial.inp can also be used as the exact
+solution \b exact.inp (i.e. create a sym link called 
+\a exact.inp pointing to \a initial.inp, or just copy
+\a initial.inp to \a exact.inp).
+\include 1D/LinearAdvection/SineWave/aux/init.c
+
+Output:
+-------
+After running the code, there should be two 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=1\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. All the files are ASCII 
+text (#HyPar::op_file_format is set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second column 
+is x-coordinate, and the third column is the solution.
+
+Solutions at t=0,0.5,1: The following figure is obtained 
+by plotting \a op_00000.dat (initial), \a op_00005.dat (t=0.5),
+and \a op_00010.dat (final). 
+@image html Solution_1DLinearAdvSine.png
+
+Since the exact solution is available at the final time 
+(\a exact.inp is a copy of \a initial.inp), the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 1D/LinearAdvection/SineWave/errors.dat
+The numbers are: number of grid points (#HyPar::dim_global), 
+number of processors (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include 1D/LinearAdvection/SineWave/conservation.dat
+The numbers are: number of grid points (#HyPar::dim_global),
+number of processors (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError).
+
+Expected screen output:
+\include 1D/LinearAdvection/SineWave/output.log
+
 
 \page linear_adv_disc 1D Linear Advection - Discontinuous Waves
 
