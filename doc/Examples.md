@@ -8,6 +8,8 @@
 \subpage shu_osher \n
 \subpage sod_shock_tube_wgrav
 
+\subpage sw_dambreak \n
+
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
 Location: \b hypar/Examples/1D/LinearAdvection/SineWave
@@ -306,6 +308,9 @@ files \b op_00000.dat and \b op_00001.dat; the first one is
 the initial solution, and the latter is the final solution.
 Both these files are ASCII text (#HyPar::op_file_format is
 set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second 
+column is x-coordinate, and the remaining columns are the 
+solution components.
 
 Final solution at t=0.2: The following figure is obtained 
 by plotting \a op_00001.dat. Note that the output is in
@@ -373,6 +378,9 @@ there should be two solution output files \b op_00000.dat and
 \b op_00001.dat; the first one is the initial solution, and the 
 latter is the final solution. Both these files are ASCII text 
 (#HyPar::op_file_format is set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second 
+column is x-coordinate, and the remaining columns are the 
+solution components.
 
 Final solution at t=0.08: The following figure is obtained 
 by plotting \a op_00001.dat. Note that the output is in
@@ -448,6 +456,9 @@ there should be two solution output files \b op_00000.dat and
 \b op_00001.dat; the first one is the initial solution, and the 
 latter is the final solution. Both these files are ASCII text 
 (#HyPar::op_file_format is set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second 
+column is x-coordinate, and the remaining columns are the 
+solution components.
 
 Final solution at t=1.8: The following figure is obtained 
 by plotting \a op_00001.dat. Note that the output is in
@@ -521,6 +532,9 @@ files \b op_00000.dat and \b op_00001.dat; the first one is
 the initial solution, and the latter is the final solution.
 Both these files are ASCII text (#HyPar::op_file_format is
 set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second 
+column is x-coordinate, and the remaining columns are the 
+solution components.
 
 Final solution at t=0.2: The following figure is obtained 
 by plotting \a op_00001.dat. Note that the output is in
@@ -530,3 +544,86 @@ to the primitive variables (density, velocity, and pressure).
 
 Expected screen output:
 \include 1D/Euler1D/SodShockTubeWithGravity/output.log
+
+\page sw_dambreak 1D Shallow Water Equations - Dam Breaking over Rectangular Bump
+
+Location: \b hypar/Examples/1D/ShallowWater1D/DamBreakingRectangularBump
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Shallow Water Equations (shallowwater1d.h)
+
+References:
+  + Xing, Y., Shu, C.-W., "High order finite difference WENO
+    schemes with the exact conservation property for the shallow
+    water equations", Journal of Computational Physics, 208, 2005,
+    pp. 206-227 (section 4.4).
+
+Domain: \f$ 0 \le x \le 1500\f$, \a "extrapolate" (#_EXTRAPOLATE_)
+        boundary conditions
+
+Initial solution:
+\f{equation}{
+  h\left(x\right) = \left\{\begin{array}{lc} 20 - b\left(x\right) & x <= 750 \\ 15 - b\left(x\right) & {\rm otherwise}\end{array}\right., u\left(x\right) = 0
+\f}
+where \f$b\left(x\right) = \left\{\begin{array}{lc} 8 & \left|x-750.0\right| \le 1500/8 \\  0 & {\rm  otherwise} \end{array}\right.\f$ is the bottom topography.
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+Note: in addition to the usual input files that HyPar needs, this
+physical model needs the following input file(s):
++ \b topography.inp : file containing the bottom topography (same
+  format as \b initial.inp).
+
+\b solver.inp
+\include 1D/ShallowWater1D/DamBreakingRectangularBump/solver.inp
+
+\b boundary.inp
+\include 1D/ShallowWater1D/DamBreakingRectangularBump/boundary.inp
+
+\b physics.inp
+\include 1D/ShallowWater1D/DamBreakingRectangularBump/physics.inp
+
+\b weno.inp (optional)
+\include 1D/ShallowWater1D/DamBreakingRectangularBump/weno.inp
+
+To generate \b initial.inp and \b topography.inp, compile and run the 
+following code in the run directory.
+\include 1D/ShallowWater1D/DamBreakingRectangularBump/aux/init.c
+
+Output:
+-------
+After running the code, there should be 5 solution output files
+\b op_00000.dat, ..., \b op_00004.dat; the first one is the solution 
+at \f$t=0\f$ and the final one is the solution at \f$t=60\f$. Since
+#HyPar::op_overwrite is set to \a no in \b solver.inp, separate files 
+are written for solutions at each output time. All the files are ASCII
+text (#HyPar::op_file_format is set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second column 
+is x-coordinate, and the third and fourth columns are the two 
+solution components.
+
+In addition to the usual output files, the shallow water physics 
+module writes out the following files:
++ \b topography_00000.dat, ..., \b topography_00001.dat: These files
+  share the same format as the solution output files \b op_*.dat 
+  and contains the topography \f$b\left(x\right)\f$.
+
+
+Solutions at t=0,15,30,45,60: The following figure is obtained 
+by plotting \a op_00000.dat (initial), \a op_00005.dat (t=0.5),
+and \a op_00010.dat (final). \b Note: the figure plots 
+\f$h\left(x\right)+b\left(x\right)\f$, i.e., it adds the third
+column in \b op_*.dat and the third column in \b topography_*.dat.
+@image html Solution_1DSWDamBreak.png
+
+Expected screen output:
+\include 1D/ShallowWater1D/DamBreakingRectangularBump/output.log
+
