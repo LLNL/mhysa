@@ -1,8 +1,11 @@
 
 \subpage linear_adv_sine \n
 \subpage linear_adv_disc \n
-\subpage linear_diff_sine \n
+\subpage linear_diff_sine 
+
 \subpage sod_shock_tube  \n
+\subpage lax_shock_tube \n
+\subpage shu_osher \n
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
@@ -311,3 +314,157 @@ to the primitive variables (density, velocity, and pressure).
 
 Expected screen output:
 \include 1D/Euler1D/SodShockTube/output.log
+
+\page lax_shock_tube 1D Euler Equations - Lax Shock Tube
+
+Description: 
+-------------------
+
+Location: \b hypar/Examples/1D/Euler1D/LaxShockTube 
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Euler equations (euler1d.h)
+
+References: 
+  + P.D. Lax, "Weak solutions of nonlinear hyperbolic
+    equations and their numerical computation," Comm.
+    Pure App. Math., 7, 159 (1954).
+  + C. B. Laney, "Computational Gasdynamics", Cambridge 
+    University Press, 1998.
+
+Domain: \f$0 \le x \le 1.0\f$, \a "extrapolate" (#_EXTRAPOLATE_) 
+        boundary conditions
+
+Initial Solution:
+  + \f$ 0 \le x < 0.5\f$: \f$\rho = 0.445, \rho u = 0.311, e = 8.928\f$
+  + \f$ 0.5 \le x \le 1\f$: \f$\rho = 0.5, \rho u = 0, e = 1.4275\f$
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): Characteristic-based 5th order WENO (Interp1PrimFifthOrderWENOChar())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+--------------------
+\b solver.inp:
+\include 1D/Euler1D/LaxShockTube/solver.inp
+
+\b boundary.inp
+\include 1D/Euler1D/LaxShockTube/boundary.inp
+
+\b physics.inp
+\include 1D/Euler1D/LaxShockTube/physics.inp
+
+\b weno.inp (optional)
+\include 1D/Euler1D/LaxShockTube/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory:
+\include 1D/Euler1D/LaxShockTube/aux/init.c
+
+Output:
+-------
+Note that \b iproc = 2 in \b solver.inp, so run this with
+2 MPI ranks (or change \b iproc to 1). After running the code, 
+there should be two solution output files \b op_00000.dat and 
+\b op_00001.dat; the first one is the initial solution, and the 
+latter is the final solution. Both these files are ASCII text 
+(#HyPar::op_file_format is set to \a text in \b solver.inp).
+
+Final solution at t=0.08: The following figure is obtained 
+by plotting \a op_00001.dat. Note that the output is in
+terms of the conserved variables, so they have to converted
+to the primitive variables (density, velocity, and pressure).
+@image html Solution_1DLaxShockTube.png
+
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include 1D/Euler1D/LaxShockTube/conservation.dat
+The numbers are: number of grid points (#HyPar::dim_global),
+number of processors (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError) for 
+each component.
+
+Expected screen output:
+\include 1D/Euler1D/LaxShockTube/output.log
+
+
+\page shu_osher 1D Euler Equations - Shu-Osher Problem
+
+Description: 
+------------
+
+Location: \b hypar/Examples/1D/Euler1D/ShuOsherProblem 
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Euler equations (euler1d.h)
+
+References: 
+  + C.-W. Shu and S. Osher, "Efficient implementation of
+    essentially non-oscillatory schemes ,II," J. Comput.
+    Phys., 83 (1989), pp. 32–78
+
+Domain: \f$-5 \le x \le 5\f$, \a "extrapolate" (#_EXTRAPOLATE_) 
+        boundary conditions
+
+Initial Solution:
+  + \f$ -5 \le x < -4\f$: \f$\rho = 27/7, u = 4\sqrt{35}/7, p = 31/3\f$
+  + \f$ -4 \le x \le 5\f$: \f$\rho = 1 + 0.2\sin\left(5x\right), u = 0, p = 1\f$
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): Characteristic-based 5th order WENO (Interp1PrimFifthOrderWENOChar())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+--------------------
+\b solver.inp:
+\include 1D/Euler1D/ShuOsherProblem/solver.inp
+
+\b boundary.inp
+\include 1D/Euler1D/ShuOsherProblem/boundary.inp
+
+\b physics.inp
+\include 1D/Euler1D/ShuOsherProblem/physics.inp
+
+\b weno.inp (optional)
+\include 1D/Euler1D/ShuOsherProblem/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory:
+\include 1D/Euler1D/ShuOsherProblem/aux/init.c
+
+Output:
+-------
+After running the code, 
+there should be two solution output files \b op_00000.dat and 
+\b op_00001.dat; the first one is the initial solution, and the 
+latter is the final solution. Both these files are ASCII text 
+(#HyPar::op_file_format is set to \a text in \b solver.inp).
+
+Final solution at t=1.8: The following figure is obtained 
+by plotting \a op_00001.dat. Note that the output is in
+terms of the conserved variables, so they have to converted
+to the primitive variables (density, velocity, and pressure).
+@image html Solution_1DShuOsherProblem.png
+
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include 1D/Euler1D/ShuOsherProblem/conservation.dat
+The numbers are: number of grid points (#HyPar::dim_global),
+number of processors (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError) for 
+each component.
+
+Expected screen output:
+\include 1D/Euler1D/ShuOsherProblem/output.log
+
+
