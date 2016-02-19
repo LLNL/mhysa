@@ -10,7 +10,7 @@ begin
   hyp_space_scheme  weno5
   hyp_interp_type   characteristic
   dt                0.1
-  screen_op_iter    1
+  screen_op_iter    10
   file_op_iter      150
   op_file_format    text
   op_overwrite      no

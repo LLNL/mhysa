@@ -1,0 +1,125 @@
+HyPar - Parallel (MPI) version with 1 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 1
+	No. of variables                           : 2
+	Domain size                                : 500 
+	Processes along each dimension             : 1 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 600
+	Restart iteration                          : 0
+	Time integration scheme                    : rk (44)
+	Spatial discretization scheme (hyperbolic) : weno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 2
+	Time Step                                  : 1.000000E-01
+	Check for conservation                     : no
+	Screen output iterations                   : 10
+	File output iterations                     : 150
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : text
+	Overwrite solution file                    : no
+	Physical model                             : shallow-water-1d
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  2.3265000000000000E+04
+ 1:  0.0000000000000000E+00
+Reading boundary conditions from "boundary.inp".
+  Boundary                    extrapolate:  Along dimension  0 and face +1
+  Boundary                    extrapolate:  Along dimension  0 and face -1
+2 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "shallow-water-1d"
+Reading physical model inputs from file "physics.inp".
+Reading array from ASCII file topography.inp (Serial mode).
+Setting up time integration.
+Solving in time (from 0 to 600 iterations)
+Writing solution file topography_00000.dat.
+Writing solution file op_00000.dat.
+Iteration:      10  Time: 1.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.8767E-01  
+Iteration:      20  Time: 2.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.6943E-01  
+Iteration:      30  Time: 3.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.5614E-01  
+Iteration:      40  Time: 4.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.5099E-01  
+Iteration:      50  Time: 5.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.4637E-01  
+Iteration:      60  Time: 6.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.4496E-01  
+Iteration:      70  Time: 7.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.4145E-01  
+Iteration:      80  Time: 8.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3927E-01  
+Iteration:      90  Time: 9.000E+00  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3909E-01  
+Iteration:     100  Time: 1.000E+01  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3585E-01  
+Iteration:     110  Time: 1.100E+01  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3584E-01  
+Iteration:     120  Time: 1.200E+01  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3365E-01  
+Iteration:     130  Time: 1.300E+01  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3520E-01  
+Iteration:     140  Time: 1.400E+01  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3251E-01  
+Iteration:     150  Time: 1.500E+01  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3272E-01  
+Writing solution file topography_00001.dat.
+Writing solution file op_00001.dat.
+Iteration:     160  Time: 1.600E+01  Max CFL: 4.670E-01  Max Diff. No.: -1.000E+00  Norm: 2.3269E-01  
+Iteration:     170  Time: 1.700E+01  Max CFL: 4.672E-01  Max Diff. No.: -1.000E+00  Norm: 2.3119E-01  
+Iteration:     180  Time: 1.800E+01  Max CFL: 4.697E-01  Max Diff. No.: -1.000E+00  Norm: 2.8565E-01  
+Iteration:     190  Time: 1.900E+01  Max CFL: 4.912E-01  Max Diff. No.: -1.000E+00  Norm: 3.4897E-01  
+Iteration:     200  Time: 2.000E+01  Max CFL: 4.877E-01  Max Diff. No.: -1.000E+00  Norm: 3.5270E-01  
+Iteration:     210  Time: 2.100E+01  Max CFL: 4.869E-01  Max Diff. No.: -1.000E+00  Norm: 3.3387E-01  
+Iteration:     220  Time: 2.200E+01  Max CFL: 4.865E-01  Max Diff. No.: -1.000E+00  Norm: 3.2480E-01  
+Iteration:     230  Time: 2.300E+01  Max CFL: 4.864E-01  Max Diff. No.: -1.000E+00  Norm: 3.1428E-01  
+Iteration:     240  Time: 2.400E+01  Max CFL: 4.864E-01  Max Diff. No.: -1.000E+00  Norm: 3.1298E-01  
+Iteration:     250  Time: 2.500E+01  Max CFL: 4.880E-01  Max Diff. No.: -1.000E+00  Norm: 3.0976E-01  
+Iteration:     260  Time: 2.600E+01  Max CFL: 4.896E-01  Max Diff. No.: -1.000E+00  Norm: 3.0888E-01  
+Iteration:     270  Time: 2.700E+01  Max CFL: 4.910E-01  Max Diff. No.: -1.000E+00  Norm: 3.1105E-01  
+Iteration:     280  Time: 2.800E+01  Max CFL: 4.920E-01  Max Diff. No.: -1.000E+00  Norm: 3.1016E-01  
+Iteration:     290  Time: 2.900E+01  Max CFL: 4.924E-01  Max Diff. No.: -1.000E+00  Norm: 3.1487E-01  
+Iteration:     300  Time: 3.000E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1195E-01  
+Writing solution file topography_00002.dat.
+Writing solution file op_00002.dat.
+Iteration:     310  Time: 3.100E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1660E-01  
+Iteration:     320  Time: 3.200E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1377E-01  
+Iteration:     330  Time: 3.300E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1739E-01  
+Iteration:     340  Time: 3.400E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1420E-01  
+Iteration:     350  Time: 3.500E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1569E-01  
+Iteration:     360  Time: 3.600E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1452E-01  
+Iteration:     370  Time: 3.700E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1501E-01  
+Iteration:     380  Time: 3.800E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1525E-01  
+Iteration:     390  Time: 3.900E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1294E-01  
+Iteration:     400  Time: 4.000E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1506E-01  
+Iteration:     410  Time: 4.100E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1230E-01  
+Iteration:     420  Time: 4.200E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1563E-01  
+Iteration:     430  Time: 4.300E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1105E-01  
+Iteration:     440  Time: 4.400E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1483E-01  
+Iteration:     450  Time: 4.500E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1141E-01  
+Writing solution file topography_00003.dat.
+Writing solution file op_00003.dat.
+Iteration:     460  Time: 4.600E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1506E-01  
+Iteration:     470  Time: 4.700E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1180E-01  
+Iteration:     480  Time: 4.800E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1361E-01  
+Iteration:     490  Time: 4.900E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1265E-01  
+Iteration:     500  Time: 5.000E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1337E-01  
+Iteration:     510  Time: 5.100E+01  Max CFL: 4.925E-01  Max Diff. No.: -1.000E+00  Norm: 3.1364E-01  
+Iteration:     520  Time: 5.200E+01  Max CFL: 4.926E-01  Max Diff. No.: -1.000E+00  Norm: 3.1146E-01  
+Iteration:     530  Time: 5.300E+01  Max CFL: 4.936E-01  Max Diff. No.: -1.000E+00  Norm: 3.1376E-01  
+Iteration:     540  Time: 5.400E+01  Max CFL: 4.945E-01  Max Diff. No.: -1.000E+00  Norm: 3.1108E-01  
+Iteration:     550  Time: 5.500E+01  Max CFL: 4.953E-01  Max Diff. No.: -1.000E+00  Norm: 3.1451E-01  
+Iteration:     560  Time: 5.600E+01  Max CFL: 4.959E-01  Max Diff. No.: -1.000E+00  Norm: 3.0995E-01  
+Iteration:     570  Time: 5.700E+01  Max CFL: 4.963E-01  Max Diff. No.: -1.000E+00  Norm: 3.1380E-01  
+Iteration:     580  Time: 5.800E+01  Max CFL: 4.965E-01  Max Diff. No.: -1.000E+00  Norm: 3.1011E-01  
+Iteration:     590  Time: 5.900E+01  Max CFL: 4.965E-01  Max Diff. No.: -1.000E+00  Norm: 3.1317E-01  
+Iteration:     600  Time: 6.000E+01  Max CFL: 4.965E-01  Max Diff. No.: -1.000E+00  Norm: 1.8102E-01  
+Writing solution file topography_00004.dat.
+Writing solution file op_00004.dat.
+Completed time integration (Final time: 60.000000).
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+Solver runtime (in seconds): 3.0251869999999998E+00
+Total  runtime (in seconds): 3.0272160000000001E+00
+Deallocating arrays.
+Finished.
