@@ -1,6 +1,7 @@
 
 \subpage linear_adv_sine \n
 \subpage linear_adv_disc \n
+\subpage linear_diff_sine \n
 \subpage sod_shock_tube  \n
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
@@ -174,6 +175,78 @@ column is the solution.
 
 Expected screen output:
 \include 1D/LinearAdvection/DiscontinuousWaves/output.log
+
+\page linear_diff_sine 1D Linear Diffusion - Sine Wave
+
+Location: \b hypar/Examples/1D/LinearDiffusion/SineWave
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Linear Diffusion Equation (linearadr.h)
+
+Domain: \f$0 \le x < 1\f$, \a "periodic" (#_PERIODIC_) 
+        boundary conditions
+
+Initial solution: \f$u\left(x,0\right) = \sin\left(2\pi x\right)\f$
+
+Numerical Method:
+  + Spatial discretization (parabolic): 2nd order (Interp2PrimSecondOrder()),
+                                        conservative (ParabolicFunctionCons1Stage())
+  + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 1D/LinearDiffusion/SineWave/solver.inp
+
+\b boundary.inp
+\include 1D/LinearDiffusion/SineWave/boundary.inp
+
+\b physics.inp
+\include 1D/LinearDiffusion/SineWave/physics.inp
+
+To generate \b initial.inp (initial solution) and 
+\b exact.inp (exact solution), compile and run the 
+following code in the run directory. 
+\include 1D/LinearDiffusion/SineWave/aux/exact.c
+
+Output:
+-------
+After running the code, there should be two 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=1\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. All the files are ASCII 
+text (#HyPar::op_file_format is set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second column 
+is x-coordinate, and the third column is the solution.
+
+Solutions at t=0,2,4,6,8,10: The following figure is obtained 
+by plotting \a op_00000.dat (t=0, initial), \a op_00002.dat (t=2),
+\a op_00004.dat (t=4), \a op_00006.dat (t=6), \a op_00008.dat 
+(t=8) and \a op_00010.dat (t=10, final). 
+@image html Solution_1DLinearDiffSine.png
+
+Since the exact solution is available at the final time 
+(\a exact.inp is a copy of \a initial.inp), the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 1D/LinearDiffusion/SineWave/errors.dat
+The numbers are: number of grid points (#HyPar::dim_global), 
+number of processors (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Expected screen output:
+\include 1D/LinearDiffusion/SineWave/output.log
+
 
 
 \page sod_shock_tube 1D Euler Equations - Sod Shock Tube
