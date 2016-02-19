@@ -1,0 +1,78 @@
+HyPar - Parallel (MPI) version with 1 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 1
+	No. of variables                           : 3
+	Domain size                                : 201 
+	Processes along each dimension             : 1 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 200
+	Restart iteration                          : 0
+	Time integration scheme                    : rk (44)
+	Spatial discretization scheme (hyperbolic) : crweno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 2
+	Time Step                                  : 1.000000E-03
+	Check for conservation                     : no
+	Screen output iterations                   : 10
+	File output iterations                     : 9999
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : text
+	Overwrite solution file                    : no
+	Physical model                             : euler1d
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  5.6312499999999899E-01
+ 1:  0.0000000000000000E+00
+ 2:  1.3762499999999946E+00
+Reading boundary conditions from "boundary.inp".
+  Boundary                      slip-wall:  Along dimension  0 and face +1
+  Boundary                      slip-wall:  Along dimension  0 and face -1
+2 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "euler1d"
+Reading physical model inputs from file "physics.inp".
+Setting up time integration.
+Solving in time (from 0 to 200 iterations)
+Writing solution file op_00000.dat.
+Iteration:      10  Time: 1.000E-02  Max CFL: 4.200E-01  Max Diff. No.: -1.000E+00  Norm: 1.7519E-02  
+Iteration:      20  Time: 2.000E-02  Max CFL: 4.316E-01  Max Diff. No.: -1.000E+00  Norm: 1.4521E-02  
+Iteration:      30  Time: 3.000E-02  Max CFL: 4.311E-01  Max Diff. No.: -1.000E+00  Norm: 1.4968E-02  
+Iteration:      40  Time: 4.000E-02  Max CFL: 4.299E-01  Max Diff. No.: -1.000E+00  Norm: 1.3338E-02  
+Iteration:      50  Time: 5.000E-02  Max CFL: 4.287E-01  Max Diff. No.: -1.000E+00  Norm: 1.3206E-02  
+Iteration:      60  Time: 6.000E-02  Max CFL: 4.270E-01  Max Diff. No.: -1.000E+00  Norm: 1.3436E-02  
+Iteration:      70  Time: 7.000E-02  Max CFL: 4.250E-01  Max Diff. No.: -1.000E+00  Norm: 1.2109E-02  
+Iteration:      80  Time: 8.000E-02  Max CFL: 4.229E-01  Max Diff. No.: -1.000E+00  Norm: 1.3268E-02  
+Iteration:      90  Time: 9.000E-02  Max CFL: 4.207E-01  Max Diff. No.: -1.000E+00  Norm: 1.2785E-02  
+Iteration:     100  Time: 1.000E-01  Max CFL: 4.188E-01  Max Diff. No.: -1.000E+00  Norm: 1.1673E-02  
+Iteration:     110  Time: 1.100E-01  Max CFL: 4.168E-01  Max Diff. No.: -1.000E+00  Norm: 1.2438E-02  
+Iteration:     120  Time: 1.200E-01  Max CFL: 4.148E-01  Max Diff. No.: -1.000E+00  Norm: 1.2803E-02  
+Iteration:     130  Time: 1.300E-01  Max CFL: 4.129E-01  Max Diff. No.: -1.000E+00  Norm: 1.1765E-02  
+Iteration:     140  Time: 1.400E-01  Max CFL: 4.107E-01  Max Diff. No.: -1.000E+00  Norm: 1.1088E-02  
+Iteration:     150  Time: 1.500E-01  Max CFL: 4.089E-01  Max Diff. No.: -1.000E+00  Norm: 1.1785E-02  
+Iteration:     160  Time: 1.600E-01  Max CFL: 4.068E-01  Max Diff. No.: -1.000E+00  Norm: 1.2485E-02  
+Iteration:     170  Time: 1.700E-01  Max CFL: 4.048E-01  Max Diff. No.: -1.000E+00  Norm: 1.1903E-02  
+Iteration:     180  Time: 1.800E-01  Max CFL: 4.028E-01  Max Diff. No.: -1.000E+00  Norm: 1.1215E-02  
+Iteration:     190  Time: 1.900E-01  Max CFL: 4.012E-01  Max Diff. No.: -1.000E+00  Norm: 1.0635E-02  
+Iteration:     200  Time: 2.000E-01  Max CFL: 4.029E-01  Max Diff. No.: -1.000E+00  Norm: 1.0358E-02  
+Writing solution file op_00001.dat.
+Completed time integration (Final time: 0.200000).
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+Solver runtime (in seconds): 1.2377659999999999E+00
+Total  runtime (in seconds): 1.2389300000000001E+00
+Deallocating arrays.
+Finished.

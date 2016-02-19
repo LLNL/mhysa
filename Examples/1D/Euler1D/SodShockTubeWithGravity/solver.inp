@@ -10,7 +10,7 @@ begin
   hyp_space_scheme  crweno5
   hyp_interp_type   characteristic
   dt                0.001
-  screen_op_iter    1
+  screen_op_iter    10
   file_op_iter      9999
   op_file_format    text
   op_overwrite      no
