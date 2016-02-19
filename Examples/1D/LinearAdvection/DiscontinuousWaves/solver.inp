@@ -13,6 +13,6 @@ begin
   file_op_iter      99999
   ip_file_type      ascii
   op_file_format    text
-  op_overwrite      yes
+  op_overwrite      no
   model             linear-advection-diffusion-reaction
 end
