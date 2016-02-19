@@ -35,7 +35,7 @@ int main(){
 	printf("Grid:\t\t\t%d\n",NI);
 
 	int i;
-	double dx = 1.0 / ((double)(NI-1));
+	double dx = 10.0 / ((double)(NI-1));
 
 	double *x, *rho,*rhou,*e;
 	x    = (double*) calloc (NI, sizeof(double));
@@ -44,16 +44,16 @@ int main(){
 	e    = (double*) calloc (NI, sizeof(double));
 
 	for (i = 0; i < NI; i++){
-		x[i] = i*dx;
+		x[i] = -5.0 + i*dx;
     double RHO,U,P;
-    if (x[i] < 0.5) {
-      RHO = 1.0;
-      U   = 0.0;
-      P   = 1.0;
+    if (x[i] < -4.0) {
+      RHO = 27.0/7.0;
+      U   = 4.0*sqrt(35.0)/9.0;
+      P   = 31.0/3.0;
     } else {
-      RHO = 0.125;
+      RHO = 1.0+0.2*sin(5*x[i]);
       U   = 0;
-      P   = 0.1;
+      P   = 1;
     }
     rho[i]  = RHO;
     rhou[i] = RHO*U;
