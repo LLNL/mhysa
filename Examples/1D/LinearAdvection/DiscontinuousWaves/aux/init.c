@@ -1,5 +1,3 @@
-#include <fstream>
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,31 +13,28 @@ int main(){
 	int NI,ndims;
   char ip_file_type[50];
   strcpy(ip_file_type,"ascii");
-  std::ifstream in;
-  std::cout << "Reading file \"solver.inp\"...\n";
-  in.open("solver.inp");
-  if (!in) {
-    std::cout << "Error: Input file \"solver.inp\" not found. Default values will be used.\n";
-  } else {
+  FILE *in;
+  printf("Reading file \"solver.inp\"...\n");
+  in = fopen("solver.inp","r");
+  if (!in) printf("Error: Input file \"solver.inp\" not found. Default values will be used.\n");
+  else {
     char word[500];
-    in >> word;
+    fscanf(in,"%s",word);
     if (!strcmp(word, "begin")){
       while (strcmp(word, "end")){
-        in >> word;
-        if (!strcmp(word, "ndims"))             in >> ndims;
-        else if (!strcmp(word, "size"))         in >> NI;
-        else if (!strcmp(word, "ip_file_type")) in >> ip_file_type;
+        fscanf(in,"%s",word);
+        if (!strcmp(word, "ndims"))             fscanf(in,"%d",&ndims);
+        else if (!strcmp(word, "size"))         fscanf(in,"%d",&NI);
+        else if (!strcmp(word, "ip_file_type")) fscanf(in,"%s",ip_file_type);
       }
-    }else{ 
-      std::cout << "Error: Illegal format in solver.inp. Crash and burn!\n";
-    }
+    } else printf("Error: Illegal format in solver.inp. Crash and burn!\n");
   }
-  in.close();
+  fclose(in);
   if (ndims != 1) {
-    std::cout << "ndims is not 1 in solver.inp. this code is to generate 1D initial conditions\n";
+    printf("ndims is not 1 in solver.inp. this code is to generate 1D initial conditions\n");
     return(0);
   }
-	std::cout << "Grid:\t\t\t" << NI << "\n";
+	printf("Grid:\t\t\t%d\n",NI);
 
 	int i;
 	double dx = 2.0 / ((double)NI);
