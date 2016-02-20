@@ -13,6 +13,8 @@
 \subpage linear_adv_gauss \n
 \subpage linear_diff_sine2d
 
+\subpage euler2d_riemann4 \n
+
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
 Location: \b hypar/Examples/1D/LinearAdvection/SineWave
@@ -821,3 +823,83 @@ Expected screen output:
 \include 2D/LinearDiffusion/SineWave/output.log
 
 
+\page euler2d_riemann4 2D Euler Equations - Riemann Problem Case 4
+
+Location: \b hypar/Examples/2D/NavierStokes2D/Riemann2DCase4
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h - By default,
+                     #NavierStokes2D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 2D Euler
+                     equations are solved.)
+
+Reference:
+  + P. Lax and X.-D. Liu, "Solution of two-dimensional Riemann
+    problems of gas dynamics by positive schemes," SIAM J Sci 
+    Comp 19 (1998), 319–340.
+
+Domain: \f$-0.5 \le x,y \le 0.5\f$, \a "extrapolate" (#_EXTRAPOLATE_)
+        boundary conditions.
+
+Initial solution: see \b Case \b 4 in the reference.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 2D/NavierStokes2D/Riemann2DCase4/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/Riemann2DCase4/boundary.inp
+
+\b physics.inp
+\include 2D/NavierStokes2D/Riemann2DCase4/physics.inp
+
+\b weno.inp (optional)
+\include 2D/NavierStokes2D/Riemann2DCase4/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory.
+\include 2D/NavierStokes2D/Riemann2DCase4/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2
+
+in \b solver.inp (i.e., 4 processors along \a x, and 2
+processors along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be two 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=0.25\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a tecplot2d in \b solver.inp, and
+thus, all the files are in a format that Tecplot (http://www.tecplot.com/)
+or other visualization software supporting the Tecplot format 
+(e.g. VisIt - https://wci.llnl.gov/simulation/computer-codes/visit/)
+can read. In these files, the first two lines are the Tecplot headers, 
+after which the data is written out as: the first two columns are grid indices, 
+the next two columns are x and y coordinates, and the remaining columns are the 
+solution components.  #HyPar::op_file_format can be set to \a text to get the solution
+files in plain text format (which can be read in and visualized in
+MATLAB for example).
+
+The following plot shows the density contours at the final time t=0.25, 
+obtained from plotting \b op_00010.dat:
+@image html Solution_2DNavStokRiemann4.png
+
+Expected screen output:
+\include 2D/NavierStokes2D/Riemann2DCase4/output.log
