@@ -11,6 +11,7 @@
 \subpage sw_dambreak
 
 \subpage linear_adv_gauss \n
+\subpage linear_diff_sine2d
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
@@ -659,7 +660,7 @@ Input files required:
 \b boundary.inp
 \include 2D/LinearAdvection/GaussianPulse/boundary.inp
 
-\b physics.inp
+\b physics.inp (specifies \f$a_x\f$ and \f$a_y\f$)
 \include 2D/LinearAdvection/GaussianPulse/physics.inp
 
 \b lusolver.inp (optional)
@@ -732,5 +733,91 @@ and conservation error (#HyPar::ConservationError).
 
 Expected screen output:
 \include 2D/LinearAdvection/GaussianPulse/output.log
+
+
+\page linear_diff_sine2d 2D Linear Diffusion - Sine Wave
+
+Location: \b hypar/Examples/2D/LinearDiffusion/SineWave
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Linear Diffusion Equation (linearadr.h)
+
+Domain: \f$0 \le x,y < 1\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions on all boundaries.
+
+Initial solution: \f$u\left(x,y,0\right) = u_0\left(x,y\right)= \sin\left(2\pi x\right)\sin\left(2\pi y\right)\f$\n
+Exact solution: \f$u\left(x,y,t\right) = \exp\left[-\pi^2 \left(4\nu_x + 4\nu_y\right) t\right] u0\left(x,y\right)\f$.
+
+Numerical Method:
+ + Spatial discretization (parabolic): 2nd order (Interp2PrimSecondOrder()), 
+                                       conservative (ParabolicFunctionCons1Stage())
+ + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 2D/LinearDiffusion/SineWave/solver.inp
+
+\b boundary.inp
+\include 2D/LinearDiffusion/SineWave/boundary.inp
+
+\b physics.inp (specifies \f$\nu_x\f$ and \f$\nu_y\f$)
+\include 2D/LinearDiffusion/SineWave/physics.inp
+
+To generate \b initial.inp (initial solution) and 
+\b exact.inp (exact solution), compile and run the 
+following code in the run directory. 
+\include 2D/LinearDiffusion/SineWave/aux/exact.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2
+
+in \b solver.inp (i.e., 2 processors along \a x, and 2
+processors along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be two 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=12\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a tecplot2d in \b solver.inp, and
+thus, all the files are in a format that Tecplot (http://www.tecplot.com/)
+or other visualization software supporting the Tecplot format 
+(e.g. VisIt - https://wci.llnl.gov/simulation/computer-codes/visit/)
+can read. In these files, the first two lines are the Tecplot headers, 
+after which the data is written out as: the first two columns are grid indices, 
+the next two columns are x and y coordinates, and the final column is the 
+solution.  #HyPar::op_file_format can be set to \a text to get the solution
+files in plain text format (which can be read in and visualized in
+MATLAB for example).
+
+The following animation was generated from the solution files:
+@image html Solution_2DLinearDiffSine.gif
+
+Since the exact solution is available at the final time 
+(\a exact.inp is a copy of \a initial.inp), the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 2D/LinearDiffusion/SineWave/errors.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global), 
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Expected screen output:
+\include 2D/LinearDiffusion/SineWave/output.log
 
 
