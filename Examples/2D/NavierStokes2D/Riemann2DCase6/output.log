@@ -1,0 +1,100 @@
+HyPar - Parallel (MPI) version with 4 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 2
+	No. of variables                           : 4
+	Domain size                                : 201 201 
+	Processes along each dimension             : 2 2 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 300
+	Restart iteration                          : 0
+	Time integration scheme                    : rk (ssprk3)
+	Spatial discretization scheme (hyperbolic) : muscl3
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 2
+	Time Step                                  : 1.000000E-03
+	Check for conservation                     : no
+	Screen output iterations                   : 10
+	File output iterations                     : 30
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : tecplot2d
+	Overwrite solution file                    : no
+	Physical model                             : navierstokes2d
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  1.7675250000000300E+00
+ 1:  -1.8560624999983255E-01
+ 2:  -1.2876250000008585E-01
+ 3:  3.2431195312496186E+00
+Reading boundary conditions from "boundary.inp".
+  Boundary                    extrapolate:  Along dimension  0 and face +1
+  Boundary                    extrapolate:  Along dimension  0 and face -1
+  Boundary                    extrapolate:  Along dimension  1 and face +1
+  Boundary                    extrapolate:  Along dimension  1 and face -1
+4 boundary condition(s) read.
+Initializing solvers.
+Initializing physics. Model = "navierstokes2d"
+Reading physical model inputs from file "physics.inp".
+Setting up time integration.
+Solving in time (from 0 to 300 iterations)
+Writing solution file op_00000.dat.
+Iteration:      10  Time: 1.000E-02  Max CFL: 3.888E-01  Max Diff. No.: -1.000E+00  Norm: 2.3871E-02  
+Iteration:      20  Time: 2.000E-02  Max CFL: 3.912E-01  Max Diff. No.: -1.000E+00  Norm: 2.1054E-02  
+Iteration:      30  Time: 3.000E-02  Max CFL: 3.915E-01  Max Diff. No.: -1.000E+00  Norm: 1.9601E-02  
+Writing solution file op_00001.dat.
+Iteration:      40  Time: 4.000E-02  Max CFL: 3.916E-01  Max Diff. No.: -1.000E+00  Norm: 1.8580E-02  
+Iteration:      50  Time: 5.000E-02  Max CFL: 3.921E-01  Max Diff. No.: -1.000E+00  Norm: 1.7784E-02  
+Iteration:      60  Time: 6.000E-02  Max CFL: 3.922E-01  Max Diff. No.: -1.000E+00  Norm: 1.7163E-02  
+Writing solution file op_00002.dat.
+Iteration:      70  Time: 7.000E-02  Max CFL: 3.922E-01  Max Diff. No.: -1.000E+00  Norm: 1.6663E-02  
+Iteration:      80  Time: 8.000E-02  Max CFL: 3.920E-01  Max Diff. No.: -1.000E+00  Norm: 1.6223E-02  
+Iteration:      90  Time: 9.000E-02  Max CFL: 3.919E-01  Max Diff. No.: -1.000E+00  Norm: 1.5853E-02  
+Writing solution file op_00003.dat.
+Iteration:     100  Time: 1.000E-01  Max CFL: 3.919E-01  Max Diff. No.: -1.000E+00  Norm: 1.5505E-02  
+Iteration:     110  Time: 1.100E-01  Max CFL: 3.917E-01  Max Diff. No.: -1.000E+00  Norm: 1.5197E-02  
+Iteration:     120  Time: 1.200E-01  Max CFL: 3.917E-01  Max Diff. No.: -1.000E+00  Norm: 1.4904E-02  
+Writing solution file op_00004.dat.
+Iteration:     130  Time: 1.300E-01  Max CFL: 3.916E-01  Max Diff. No.: -1.000E+00  Norm: 1.4633E-02  
+Iteration:     140  Time: 1.400E-01  Max CFL: 3.915E-01  Max Diff. No.: -1.000E+00  Norm: 1.4375E-02  
+Iteration:     150  Time: 1.500E-01  Max CFL: 3.915E-01  Max Diff. No.: -1.000E+00  Norm: 1.4129E-02  
+Writing solution file op_00005.dat.
+Iteration:     160  Time: 1.600E-01  Max CFL: 3.915E-01  Max Diff. No.: -1.000E+00  Norm: 1.3895E-02  
+Iteration:     170  Time: 1.700E-01  Max CFL: 3.914E-01  Max Diff. No.: -1.000E+00  Norm: 1.3668E-02  
+Iteration:     180  Time: 1.800E-01  Max CFL: 3.914E-01  Max Diff. No.: -1.000E+00  Norm: 1.3451E-02  
+Writing solution file op_00006.dat.
+Iteration:     190  Time: 1.900E-01  Max CFL: 3.914E-01  Max Diff. No.: -1.000E+00  Norm: 1.3238E-02  
+Iteration:     200  Time: 2.000E-01  Max CFL: 3.913E-01  Max Diff. No.: -1.000E+00  Norm: 1.3033E-02  
+Iteration:     210  Time: 2.100E-01  Max CFL: 3.913E-01  Max Diff. No.: -1.000E+00  Norm: 1.2832E-02  
+Writing solution file op_00007.dat.
+Iteration:     220  Time: 2.200E-01  Max CFL: 3.912E-01  Max Diff. No.: -1.000E+00  Norm: 1.2636E-02  
+Iteration:     230  Time: 2.300E-01  Max CFL: 3.912E-01  Max Diff. No.: -1.000E+00  Norm: 1.2442E-02  
+Iteration:     240  Time: 2.400E-01  Max CFL: 3.912E-01  Max Diff. No.: -1.000E+00  Norm: 1.2252E-02  
+Writing solution file op_00008.dat.
+Iteration:     250  Time: 2.500E-01  Max CFL: 3.912E-01  Max Diff. No.: -1.000E+00  Norm: 1.2057E-02  
+Iteration:     260  Time: 2.600E-01  Max CFL: 3.911E-01  Max Diff. No.: -1.000E+00  Norm: 1.1863E-02  
+Iteration:     270  Time: 2.700E-01  Max CFL: 3.908E-01  Max Diff. No.: -1.000E+00  Norm: 1.1678E-02  
+Writing solution file op_00009.dat.
+Iteration:     280  Time: 2.800E-01  Max CFL: 3.898E-01  Max Diff. No.: -1.000E+00  Norm: 1.1485E-02  
+Iteration:     290  Time: 2.900E-01  Max CFL: 3.898E-01  Max Diff. No.: -1.000E+00  Norm: 1.1293E-02  
+Iteration:     300  Time: 3.000E-01  Max CFL: 3.900E-01  Max Diff. No.: -1.000E+00  Norm: 1.1095E-02  
+Writing solution file op_00010.dat.
+Completed time integration (Final time: 0.300000).
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+Solver runtime (in seconds): 4.7562420000000003E+01
+Total  runtime (in seconds): 4.7617989999999999E+01
+Deallocating arrays.
+Finished.
