@@ -2,7 +2,7 @@ begin
   ndims             2
   nvars             4
   size              65 65
-  iproc             1 1
+  iproc             2 2
   ghost             3
   n_iter            100
   time_scheme       rk
@@ -14,5 +14,5 @@ begin
   file_op_iter      10
   op_file_format    tecplot2d
   op_overwrite      no
-  model             euler2d
+  model             navierstokes2d
 end
