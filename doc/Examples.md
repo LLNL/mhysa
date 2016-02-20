@@ -8,7 +8,9 @@
 \subpage shu_osher \n
 \subpage sod_shock_tube_wgrav
 
-\subpage sw_dambreak \n
+\subpage sw_dambreak
+
+\subpage linear_adv_gauss \n
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
@@ -626,4 +628,109 @@ column in \b op_*.dat and the third column in \b topography_*.dat.
 
 Expected screen output:
 \include 1D/ShallowWater1D/DamBreakingRectangularBump/output.log
+
+
+\page linear_adv_gauss 2D Linear Advection - Gaussian Pulse
+
+Location: \b hypar/Examples/2D/LinearAdvection/GaussianPulse
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Linear Advection Equation (linearadr.h)
+
+Domain: \f$-6 \le x < 6, -3 \le y < 3\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions on all boundaries.
+
+Initial solution: \f$u\left(x,y,0\right) = u_0\left(x,y\right)= \exp\left[-\left(\frac{x^2}{2}+\frac{y^2}{2}\right)\right]\f$\n
+Exact solution: \f$u\left(x,y,t\right) = u_0\left(x-a_xt,y-a_yt\right)\f$.
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 2D/LinearAdvection/GaussianPulse/solver.inp
+
+\b boundary.inp
+\include 2D/LinearAdvection/GaussianPulse/boundary.inp
+
+\b physics.inp
+\include 2D/LinearAdvection/GaussianPulse/physics.inp
+
+\b lusolver.inp (optional)
+\include 2D/LinearAdvection/GaussianPulse/lusolver.inp
+
+\b weno.inp (optional)
+\include 2D/LinearAdvection/GaussianPulse/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory. \b Note: if the
+final time is an integer multiple of the time period,
+the file \b initial.inp can also be used as the exact
+solution \b exact.inp (i.e. create a sym link called 
+\a exact.inp pointing to \a initial.inp, or just copy
+\a initial.inp to \a exact.inp).
+\include 2D/LinearAdvection/GaussianPulse/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      4 2
+
+in \b solver.inp (i.e., 4 processors along \a x, and 2
+processors along \a y). Thus, this example should be run
+with 8 MPI ranks (or change \b iproc).
+
+After running the code, there should be two 21 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00020.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=12\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a tecplot2d in \b solver.inp, and
+thus, all the files are in a format that Tecplot (http://www.tecplot.com/)
+or other visualization software supporting the Tecplot format 
+(e.g. VisIt - https://wci.llnl.gov/simulation/computer-codes/visit/)
+can read. In these files, the first two lines are the Tecplot headers, 
+after which the data is written out as: the first two columns are grid indices, 
+the next two columns are x and y coordinates, and the final column is the 
+solution.  #HyPar::op_file_format can be set to \a text to get the solution
+files in plain text format (which can be read in and visualized in
+MATLAB for example).
+
+The following animation was generated from the solution files:
+@image html Solution_2DLinearAdvGauss.gif
+
+Since the exact solution is available at the final time 
+(\a exact.inp is a copy of \a initial.inp), the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 2D/LinearAdvection/GaussianPulse/errors.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global), 
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include 2D/LinearAdvection/GaussianPulse/conservation.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global),
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError).
+
+Expected screen output:
+\include 2D/LinearAdvection/GaussianPulse/output.log
+
 
