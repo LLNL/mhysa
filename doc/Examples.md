@@ -15,6 +15,7 @@
 
 \subpage euler2d_riemann4 \n
 \subpage euler2d_riemann6 \n
+\subpage euler2d_radexp \n
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
@@ -945,9 +946,6 @@ Input files required:
 \b physics.inp
 \include 2D/NavierStokes2D/Riemann2DCase6/physics.inp
 
-\b weno.inp (optional)
-\include 2D/NavierStokes2D/Riemann2DCase6/weno.inp
-
 To generate \b initial.inp, compile and run the 
 following code in the run directory.
 \include 2D/NavierStokes2D/Riemann2DCase6/aux/init.c
@@ -986,3 +984,82 @@ obtained from plotting \b op_00010.dat:
 
 Expected screen output:
 \include 2D/NavierStokes2D/Riemann2DCase6/output.log
+
+
+\page euler2d_radexp 2D Euler Equations - Radial Expansion Wave
+
+Location: \b hypar/Examples/2D/NavierStokes2D/RadialExpansionWave
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h - By default,
+                     #NavierStokes2D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 2D Euler
+                     equations are solved.)
+
+Reference: http://www.as.dlr.de/hiocfd/case_c1.5.html
+
+Domain: \f$-0.4 \le x,y \le 0.4\f$, \a "extrapolate" (#_EXTRAPOLATE_)
+        boundary conditions (supersonic outflow).
+
+Initial solution: see reference above.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): Characteristic-based 3rd order WENO (Interp1PrimFifthOrderWENOChar())
+ + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 2D/NavierStokes2D/RadialExpansionWave/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/RadialExpansionWave/boundary.inp
+
+\b physics.inp
+\include 2D/NavierStokes2D/RadialExpansionWave/physics.inp
+
+\b weno.inp (optional)
+\include 2D/NavierStokes2D/RadialExpansionWave/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory.
+\include 2D/NavierStokes2D/RadialExpansionWave/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2
+
+in \b solver.inp (i.e., 4 processors along \a x, and 2
+processors along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be two 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=1\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a tecplot2d in \b solver.inp, and
+thus, all the files are in a format that Tecplot (http://www.tecplot.com/)
+or other visualization software supporting the Tecplot format 
+(e.g. VisIt - https://wci.llnl.gov/simulation/computer-codes/visit/)
+can read. In these files, the first two lines are the Tecplot headers, 
+after which the data is written out as: the first two columns are grid indices, 
+the next two columns are x and y coordinates, and the remaining columns are the 
+solution components.  #HyPar::op_file_format can be set to \a text to get the solution
+files in plain text format (which can be read in and visualized in
+MATLAB for example).
+
+The following plot shows the density contours at the final time t=1, 
+obtained from plotting \b op_00010.dat:
+@image html Solution_2DNavStokRadialExpansion.png
+
+Expected screen output:
+\include 2D/NavierStokes2D/RadialExpansionWave/output.log
