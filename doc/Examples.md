@@ -903,6 +903,15 @@ The following plot shows the density contours at the final time t=0.25,
 obtained from plotting \b op_00010.dat:
 @image html Solution_2DNavStokRiemann4.png
 
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include 2D/NavierStokes2D/Riemann2DCase4/conservation.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global),
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError) for each component.
+
 Expected screen output:
 \include 2D/NavierStokes2D/Riemann2DCase4/output.log
 
