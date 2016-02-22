@@ -9,6 +9,7 @@ begin
   time_scheme_type    ssprk3
   hyp_space_scheme    weno5
   hyp_interp_type     characteristic
+  conservation_check  yes
   dt                  0.001
   screen_op_iter      5
   file_op_iter        25
