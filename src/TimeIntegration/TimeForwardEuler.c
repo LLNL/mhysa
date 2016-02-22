@@ -42,6 +42,8 @@ int TimeForwardEuler(
   /* Evaluate right-hand side and update solution */
   IERR TS->RHSFunction(TS->rhs,solver->u,solver,mpi,TS->waqt);   CHECKERR(ierr);
   _ArrayAXPY_(TS->rhs,solver->dt,solver->u,size*solver->nvars);
+  _ArrayScaleCopy1D_(solver->StageBoundaryIntegral,solver->dt,
+                     solver->StepBoundaryIntegral,2*solver->ndims*solver->nvars);
 
   if (solver->PostStage) 
     { IERR solver->PostStage(solver->u,solver,mpi,TS->waqt);     CHECKERR(ierr); }
