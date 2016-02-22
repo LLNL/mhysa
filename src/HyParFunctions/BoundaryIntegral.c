@@ -39,7 +39,8 @@ int BoundaryIntegral(
   }
 
   /* add across process to calculate global boundary integral 
-   * (internal (MPI) boundaries must cancel out                 */
+   * (internal (MPI) boundaries must cancel out)
+   */
   IERR MPISum_double(global_integral,local_integral,nvars,&mpi->world); CHECKERR(ierr);
 
   /* add to the total boundary integral */
