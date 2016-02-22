@@ -24,7 +24,9 @@ int BoundaryIntegral(
 
   int ndims   = solver->ndims;
   int nvars   = solver->nvars;
-  int d,v;
+  int *dim    = solver->dim_local;
+  int ghosts  = solver->ghosts;
+  int d,v,k;
 
   double *local_integral  = (double*) calloc (nvars,sizeof(double));
   double *global_integral = (double*) calloc (nvars,sizeof(double));
@@ -33,8 +35,14 @@ int BoundaryIntegral(
   _ArraySetValue_(local_integral,nvars,0.0);
   for (d=0; d<ndims; d++) {
     for (v=0; v<nvars; v++) {
-      local_integral[v] += (solver->StepBoundaryIntegral[(2*d+0)*nvars+v]);
-      local_integral[v] += (solver->StepBoundaryIntegral[(2*d+1)*nvars+v]);
+      double dxinv[ndims], dS = 1.0; 
+      for (k=0; k<ndims; k++) { 
+        /* uniform grid assumed */
+        _GetCoordinate_(k,dim[k]/2,dim,ghosts,solver->dxinv,dxinv[k]); 
+      }
+      for (k=0; k<ndims; k++) if (k!=d) dS *= (1.0/dxinv[k]);
+      local_integral[v] += (solver->StepBoundaryIntegral[(2*d+0)*nvars+v])*dS;
+      local_integral[v] += (solver->StepBoundaryIntegral[(2*d+1)*nvars+v])*dS;
     }
   }
 
