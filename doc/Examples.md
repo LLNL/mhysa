@@ -16,7 +16,9 @@
 \subpage euler2d_riemann4 \n
 \subpage euler2d_riemann6 \n
 \subpage euler2d_radexp \n
-\subpage euler2d_vortex \n
+\subpage euler2d_vortex
+
+\subpage euler2d_igwave \n
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
@@ -232,7 +234,7 @@ Output:
 After running the code, there should be two 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
-is the solution at \f$t=1\f$. Since #HyPar::op_overwrite is
+is the solution at \f$t=10\f$. Since #HyPar::op_overwrite is
 set to \a no in \b solver.inp, separate files are written
 for solutions at each output time. All the files are ASCII 
 text (#HyPar::op_file_format is set to \a text in \b solver.inp).
@@ -791,7 +793,7 @@ with 4 MPI ranks (or change \b iproc).
 After running the code, there should be two 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
-is the solution at \f$t=12\f$. Since #HyPar::op_overwrite is
+is the solution at \f$t=10\f$. Since #HyPar::op_overwrite is
 set to \a no in \b solver.inp, separate files are written
 for solutions at each output time. 
   
@@ -878,7 +880,7 @@ Note that \b iproc is set to
 
       2 2
 
-in \b solver.inp (i.e., 4 processors along \a x, and 2
+in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
@@ -966,14 +968,14 @@ Note that \b iproc is set to
 
       2 2
 
-in \b solver.inp (i.e., 4 processors along \a x, and 2
+in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
 After running the code, there should be two 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
-is the solution at \f$t=0.25\f$. Since #HyPar::op_overwrite is
+is the solution at \f$t=0.3\f$. Since #HyPar::op_overwrite is
 set to \a no in \b solver.inp, separate files are written
 for solutions at each output time. 
   
@@ -1045,7 +1047,7 @@ Note that \b iproc is set to
 
       2 2
 
-in \b solver.inp (i.e., 4 processors along \a x, and 2
+in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
@@ -1139,14 +1141,14 @@ Note that \b iproc is set to
 
       2 2
 
-in \b solver.inp (i.e., 4 processors along \a x, and 2
+in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
 After running the code, there should be two 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
-is the solution at \f$t=1\f$. Since #HyPar::op_overwrite is
+is the solution at \f$t=20\f$. Since #HyPar::op_overwrite is
 set to \a no in \b solver.inp, separate files are written
 for solutions at each output time. 
   
@@ -1189,3 +1191,88 @@ and conservation error (#HyPar::ConservationError) of each component.
 
 Expected screen output:
 \include 2D/NavierStokes2D/InviscidVortexConvection/output.log
+
+
+\page euler2d_igwave 2D Euler Equations (with gravitational force) - Inertia-Gravity Waves
+
+Location: \b hypar/Examples/2D/NavierStokes2D/InertiaGravityWave
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h - By default,
+                     #NavierStokes2D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 2D Euler
+                     equations are solved.)
+
+Reference:
+  + W. C. Skamarock and J. B. Klemp, "Efficiency and accuracy of 
+    the Klemp-Wilhelmson timesplitting technique", Monthly Weather 
+    Review, 122 (1994), pp. 2623–2630.
+  + Giraldo, F.X., Restelli, M., "A study of spectral element and
+    discontinuous Galerkin methods for the Navier–Stokes equations
+    in nonhydrostatic mesoscale atmospheric modeling: Equation sets
+    and test cases", J. Comput. Phys., 227, 2008, 3849--3877, 
+    (Section 3.1).
+
+Domain: \f$0 \le x \le 300,000\,m, 0 \le y \le 10,000\,m\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions along \f$x\f$, "slip-wall" (#_SLIP_WALL_) boundary conditions along \f$y\f$.
+
+Initial solution: See references above.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 2D/NavierStokes2D/InertiaGravityWave/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/InertiaGravityWave/boundary.inp
+
+\b physics.inp
+\include 2D/NavierStokes2D/InertiaGravityWave/physics.inp
+
+\b weno.inp (optional)
+\include 2D/NavierStokes2D/InertiaGravityWave/weno.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 2D/NavierStokes2D/InertiaGravityWave/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      4 1
+
+in \b solver.inp (i.e., 4 processors along \a x, and 1
+processor along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be two 26 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00025.dat; 
+the first one is the solution at \f$t=0s\f$ and the final one
+is the solution at \f$t=3000s\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The following code is used to read in the binary
+solution, and write out tecplot2d/text solution files with
+the primitive variables (compile and run it in the run directory):
+\include 2D/NavierStokes2D/InertiaGravityWave/aux/PostProcess.c
+
+The following plot shows the potential temperature perturbation
+contours at the final time t=3000:
+@image html Solution_2DNavStokIGWave.png
+The following MATLAB script was used to generate the plot above:
+\include 2D/NavierStokes2D/InertiaGravityWave/PlotSolution.m
+
+Expected screen output:
+\include 2D/NavierStokes2D/InertiaGravityWave/output.log
