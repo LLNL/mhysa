@@ -8,7 +8,7 @@
  * This structure contains all the variables for defining a banded block matrix.
 */
 
-/*! \brief Structure for definined a banded block matrix
+/*! \brief Structure for defining a banded block matrix
  *
  * This structure contains all the variables for defining a banded block matrix.
 */
