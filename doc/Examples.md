@@ -1248,11 +1248,11 @@ Output:
 -------
 Note that \b iproc is set to 
 
-      4 1
+      12 1
 
-in \b solver.inp (i.e., 4 processors along \a x, and 1
+in \b solver.inp (i.e., 12 processors along \a x, and 1
 processor along \a y). Thus, this example should be run
-with 4 MPI ranks (or change \b iproc).
+with 12 MPI ranks (or change \b iproc).
 
 After running the code, there should be two 26 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00025.dat; 
@@ -1263,15 +1263,27 @@ for solutions at each output time.
   
 #HyPar::op_file_format is set to \a binary in \b solver.inp, and
 thus, all the files are written out in the binary format, see 
-WriteBinary(). The following code is used to read in the binary
-solution, and write out tecplot2d/text solution files with
-the primitive variables (compile and run it in the run directory):
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following code
+converts these variables to the primitive variables of interest
+to atmospheric flows \f$\left(\rho, u, v, p, \theta\right)\f$.
+It also writes out the hydrostatically balanced quantities 
+\f$\left(\rho_0,\pi_0, \theta_0\right)\f$ for this case that
+can be used to compute and plot the temperature and density
+perturbations. These variables are then written to either
+a tecplot2d or text file.
+(compile and run it in the run directory):
 \include 2D/NavierStokes2D/InertiaGravityWave/aux/PostProcess.c
 
 The following plot shows the potential temperature perturbation
-contours at the final time t=3000:
+contours at the final time t=3000. It was plotted using VisIt
+(https://wci.llnl.gov/simulation/computer-codes/visit/) with 
+tecplot2d format chosen in the above postprocessing code.
 @image html Solution_2DNavStokIGWave.png
-The following MATLAB script was used to generate the plot above:
+
+If the postprocessing code above was used to write out files in 
+text format, the following MATLAB script can be used to generate 
+plots and visualize the solution:
 \include 2D/NavierStokes2D/InertiaGravityWave/PlotSolution.m
 
 Expected screen output:
