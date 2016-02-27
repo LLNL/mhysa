@@ -458,6 +458,84 @@ int NavierStokes2DUpwindRusanov(
       int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
       int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
       int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
+      double udiff[_MODEL_NVARS_],uavg[_MODEL_NVARS_];
+
+      /* Modified Rusanov's upwinding scheme */
+
+      udiff[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] - uL[_MODEL_NVARS_*p+0]);
+      udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
+      udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
+      udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
+
+      _NavierStokes2DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
+
+      double c, vel[_MODEL_NDIMS_], rho,E,P;
+      _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*pL),rho,vel[0],vel[1],E,P,param);
+      c = sqrt(param->gamma*P/rho);
+      double alphaL = c + absolute(vel[dir]), betaL = absolute(vel[dir]);
+      _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*pR),rho,vel[0],vel[1],E,P,param);
+      c = sqrt(param->gamma*P/rho);
+      double alphaR = c + absolute(vel[dir]), betaR = absolute(vel[dir]);
+      _NavierStokes2DGetFlowVar_(uavg,rho,vel[0],vel[1],E,P,param);
+      c = sqrt(param->gamma*P/rho);
+      double alphaavg = c + absolute(vel[dir]), betaavg = absolute(vel[dir]);
+
+      double kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
+      double alpha  = kappa*max3(alphaL,alphaR,alphaavg);
+
+      fI[_MODEL_NVARS_*p+0] = 0.5*(fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0])-alpha*udiff[0];
+      fI[_MODEL_NVARS_*p+1] = 0.5*(fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1])-alpha*udiff[1];
+      fI[_MODEL_NVARS_*p+2] = 0.5*(fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2])-alpha*udiff[2];
+      fI[_MODEL_NVARS_*p+3] = 0.5*(fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3])-alpha*udiff[3];
+    }
+    _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds_outer,index_outer,done);
+  }
+
+  return(0);
+}
+
+/*! Modified Rusanov's upwinding scheme: NavierStokes2DUpwindRusanov() modified as described in the
+    following paper (for consistent characteristic-based splitting):
+    + Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of Atmospheric Flows with 
+      Characteristic-Based Flux Partitioning", Submitted (http://arxiv.org/abs/1510.05751).
+
+*/
+int NavierStokes2DUpwindRusanovModified(
+                                          double  *fI, /*!< Computed upwind interface flux */
+                                          double  *fL, /*!< Left-biased reconstructed interface flux */
+                                          double  *fR, /*!< Right-biased reconstructed interface flux */
+                                          double  *uL, /*!< Left-biased reconstructed interface solution */
+                                          double  *uR, /*!< Right-biased reconstructed interface solution */
+                                          double  *u,  /*!< Cell-centered solution */
+                                          int     dir, /*!< Spatial dimension (x or y) */
+                                          void    *s,  /*!< Solver object of type #HyPar */
+                                          double  t    /*!< Current solution time */
+                                        )
+{
+  HyPar           *solver = (HyPar*)          s;
+  NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
+  int             done;
+
+  int *dim  = solver->dim_local;
+
+  int bounds_outer[2], bounds_inter[2];
+  bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
+  bounds_inter[0] = dim[0]; bounds_inter[1] = dim[1]; bounds_inter[dir]++;
+  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], 
+                L[_MODEL_NVARS_*_MODEL_NVARS_], DL[_MODEL_NVARS_*_MODEL_NVARS_], 
+                modA[_MODEL_NVARS_*_MODEL_NVARS_];
+
+  done = 0; int index_outer[2] = {0,0}; int index_inter[2];
+  while (!done) {
+    index_inter[0] = index_outer[0]; index_inter[1] = index_outer[1];
+    for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
+      int p; _ArrayIndex1D2_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
+      int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
+      int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
+      int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
+      int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
       double udiff[_MODEL_NVARS_],uavg[_MODEL_NVARS_],udiss[_MODEL_NVARS_];
 
       /* Modified Rusanov's upwinding scheme */
@@ -764,21 +842,21 @@ int NavierStokes2DUpwinddFLLF(
   return(0);
 }
 
-/*! The Rusanov upwinding scheme (#NavierStokes2DUpwindRusanov) for the partitioned hyperbolic flux that comprises
+/*! The modified Rusanov upwinding scheme (NavierStokes2DUpwindRusanovModified()) for the partitioned hyperbolic flux that comprises
     of the acoustic waves only (see #NavierStokes2DStiffFlux, #_NavierStokes2DSetStiffFlux_). Thus, only the 
     characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
 */
-int NavierStokes2DUpwinddFRusanov(
-                                  double  *fI, /*!< Computed upwind interface flux */
-                                  double  *fL, /*!< Left-biased reconstructed interface flux */
-                                  double  *fR, /*!< Right-biased reconstructed interface flux */
-                                  double  *uL, /*!< Left-biased reconstructed interface solution */
-                                  double  *uR, /*!< Right-biased reconstructed interface solution */
-                                  double  *u,  /*!< Cell-centered solution */
-                                  int     dir, /*!< Spatial dimension (x or y) */
-                                  void    *s,  /*!< Solver object of type #HyPar */
-                                  double  t    /*!< Current solution time */
-                                 )
+int NavierStokes2DUpwinddFRusanovModified(
+                                            double  *fI, /*!< Computed upwind interface flux */
+                                            double  *fL, /*!< Left-biased reconstructed interface flux */
+                                            double  *fR, /*!< Right-biased reconstructed interface flux */
+                                            double  *uL, /*!< Left-biased reconstructed interface solution */
+                                            double  *uR, /*!< Right-biased reconstructed interface solution */
+                                            double  *u,  /*!< Cell-centered solution */
+                                            int     dir, /*!< Spatial dimension (x or y) */
+                                            void    *s,  /*!< Solver object of type #HyPar */
+                                            double  t    /*!< Current solution time */
+                                         )
 {
   HyPar           *solver = (HyPar*)          s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
@@ -1124,21 +1202,21 @@ int NavierStokes2DUpwindFdFLLF(
   return(0);
 }
 
-/*! The Rusanov upwinding scheme (#NavierStokes2DUpwindRusanov) for the partitioned hyperbolic flux that comprises
+/*! The modified Rusanov upwinding scheme (NavierStokes2DUpwindRusanovModified()) for the partitioned hyperbolic flux that comprises
     of the entropy waves only (see #NavierStokes2DNonStiffFlux, #_NavierStokes2DSetNonStiffFlux_). Thus, only the 
     characteristic fields / eigen-modes corresponding to \f$u\f$ are used.
 */
-int NavierStokes2DUpwindFdFRusanov(
-                                  double  *fI, /*!< Computed upwind interface flux */
-                                  double  *fL, /*!< Left-biased reconstructed interface flux */
-                                  double  *fR, /*!< Right-biased reconstructed interface flux */
-                                  double  *uL, /*!< Left-biased reconstructed interface solution */
-                                  double  *uR, /*!< Right-biased reconstructed interface solution */
-                                  double  *u,  /*!< Cell-centered solution */
-                                  int     dir, /*!< Spatial dimension (x or y) */
-                                  void    *s,  /*!< Solver object of type #HyPar */
-                                  double  t    /*!< Current solution time */
-                                 )
+int NavierStokes2DUpwindFdFRusanovModified(
+                                            double  *fI, /*!< Computed upwind interface flux */
+                                            double  *fL, /*!< Left-biased reconstructed interface flux */
+                                            double  *fR, /*!< Right-biased reconstructed interface flux */
+                                            double  *uL, /*!< Left-biased reconstructed interface solution */
+                                            double  *uR, /*!< Right-biased reconstructed interface solution */
+                                            double  *u,  /*!< Cell-centered solution */
+                                            int     dir, /*!< Spatial dimension (x or y) */
+                                            void    *s,  /*!< Solver object of type #HyPar */
+                                            double  t    /*!< Current solution time */
+                                          )
 {
   HyPar           *solver = (HyPar*)          s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
