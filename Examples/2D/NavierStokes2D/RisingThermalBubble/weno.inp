@@ -1,7 +1,7 @@
 begin
-  mapped        1
+  mapped        0
   borges        0
-  yc            0
+  yc            1
   no_limiting   0
   epsilon       0.000001
   p             2.0
