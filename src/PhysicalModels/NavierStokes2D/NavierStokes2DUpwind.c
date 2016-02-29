@@ -438,16 +438,11 @@ int NavierStokes2DUpwindRusanov(
 {
   HyPar           *solver = (HyPar*)          s;
   NavierStokes2D  *param  = (NavierStokes2D*) solver->physics;
-  int             done;
-
-  int *dim  = solver->dim_local;
+  int             *dim    = solver->dim_local, done;
 
   int bounds_outer[2], bounds_inter[2];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
   bounds_inter[0] = dim[0]; bounds_inter[1] = dim[1]; bounds_inter[dir]++;
-  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], 
-                L[_MODEL_NVARS_*_MODEL_NVARS_], DL[_MODEL_NVARS_*_MODEL_NVARS_], 
-                modA[_MODEL_NVARS_*_MODEL_NVARS_];
 
   done = 0; int index_outer[2] = {0,0}; int index_inter[2];
   while (!done) {
@@ -468,8 +463,6 @@ int NavierStokes2DUpwindRusanov(
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
 
       _NavierStokes2DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
-      _NavierStokes2DLeftEigenvectors_  (uavg,L,param,dir);
-      _NavierStokes2DRightEigenvectors_ (uavg,R,param,dir);
 
       double c, vel[_MODEL_NDIMS_], rho,E,P;
       _NavierStokes2DGetFlowVar_((u+_MODEL_NVARS_*pL),rho,vel[0],vel[1],E,P,param);
