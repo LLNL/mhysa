@@ -42,6 +42,10 @@ int    NavierStokes2DUpwindFdFRF       (double*,double*,double*,double*,double*,
 int    NavierStokes2DUpwindFdFLLF      (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes2DUpwindFdFRusanov  (double*,double*,double*,double*,double*,double*,int,void*,double);
 
+int    NavierStokes2DUpwindRusanovModified   (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwinddFRusanovModified (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes2DUpwindFdFRusanovModified(double*,double*,double*,double*,double*,double*,int,void*,double);
+
 int    NavierStokes2DGravityField      (void*,void*);
 int    NavierStokes2DModifiedSolution  (double*,double*,int,void*,void*,double);
 int    NavierStokes2DPreStep           (double*,void*,void*,double);
@@ -210,40 +214,35 @@ int NavierStokes2DInitialize(
   }
 
   /* initializing physical model-specific functions */
-  solver->PreStep     = NavierStokes2DPreStep;
-  solver->ComputeCFL  = NavierStokes2DComputeCFL;
-  solver->FFunction   = NavierStokes2DFlux;
-  solver->SFunction   = NavierStokes2DSource;
-  solver->UFunction   = NavierStokes2DModifiedSolution;
-  if      (!strcmp(physics->upw_choice,_ROE_    )) solver->Upwind = NavierStokes2DUpwindRoe;
-  else if (!strcmp(physics->upw_choice,_RF_     )) solver->Upwind = NavierStokes2DUpwindRF;
-  else if (!strcmp(physics->upw_choice,_LLF_    )) solver->Upwind = NavierStokes2DUpwindLLF;
-  else if (!strcmp(physics->upw_choice,_SWFS_   )) solver->Upwind = NavierStokes2DUpwindSWFS;
-  else if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->Upwind = NavierStokes2DUpwindRusanov;
-  else {
-    if (!mpi->rank) {
-      fprintf(stderr,"Error in NavierStokes2DInitialize(): %s is not a valid upwinding scheme. ",
-              physics->upw_choice);
-      fprintf(stderr,"Choices are %s, %s, %s, %s, and %s.\n",_ROE_,_RF_,_LLF_,_SWFS_,_RUSANOV_);
-    }
-    return(1);
-  }
+  solver->PreStep               = NavierStokes2DPreStep;
+  solver->ComputeCFL            = NavierStokes2DComputeCFL;
+  solver->FFunction             = NavierStokes2DFlux;
+  solver->SFunction             = NavierStokes2DSource;
+  solver->UFunction             = NavierStokes2DModifiedSolution;
+  solver->AveragingFunction     = NavierStokes2DRoeAverage;
+  solver->GetLeftEigenvectors   = NavierStokes2DLeftEigenvectors;
+  solver->GetRightEigenvectors  = NavierStokes2DRightEigenvectors;
+
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     solver->FdFFunction = NavierStokes2DNonStiffFlux;
     solver->dFFunction  = NavierStokes2DStiffFlux;
     solver->JFunction   = NavierStokes2DStiffJacobian;
     if      (!strcmp(physics->upw_choice,_ROE_)) {
+      solver->Upwind    = NavierStokes2DUpwindRoe;
       solver->UpwinddF  = NavierStokes2DUpwinddFRoe;
       solver->UpwindFdF = NavierStokes2DUpwindFdFRoe;
     } else if (!strcmp(physics->upw_choice,_RF_)) {
+      solver->Upwind    = NavierStokes2DUpwindRF;
       solver->UpwinddF  = NavierStokes2DUpwinddFRF;
       solver->UpwindFdF = NavierStokes2DUpwindFdFRF;
     } else if (!strcmp(physics->upw_choice,_LLF_)) {
+      solver->Upwind    = NavierStokes2DUpwindLLF;
       solver->UpwinddF  = NavierStokes2DUpwinddFLLF;
       solver->UpwindFdF = NavierStokes2DUpwindFdFLLF;
     } else if (!strcmp(physics->upw_choice,_RUSANOV_)) {
-      solver->UpwinddF  = NavierStokes2DUpwinddFRusanov;
-      solver->UpwindFdF = NavierStokes2DUpwindFdFRusanov;
+      solver->Upwind    = NavierStokes2DUpwindRusanovModified;
+      solver->UpwinddF  = NavierStokes2DUpwinddFRusanovModified;
+      solver->UpwindFdF = NavierStokes2DUpwindFdFRusanovModified;
     } else {
       if (!mpi->rank) {
         fprintf(stderr,"Error in NavierStokes2DInitialize(): %s is not a valid upwinding scheme ",
@@ -253,10 +252,22 @@ int NavierStokes2DInitialize(
       }
       return(1);
     }
-  } else solver->JFunction      = NavierStokes2DJacobian;
-  solver->AveragingFunction     = NavierStokes2DRoeAverage;
-  solver->GetLeftEigenvectors   = NavierStokes2DLeftEigenvectors;
-  solver->GetRightEigenvectors  = NavierStokes2DRightEigenvectors;
+  } else {
+    solver->JFunction      = NavierStokes2DJacobian;
+    if      (!strcmp(physics->upw_choice,_ROE_    )) solver->Upwind = NavierStokes2DUpwindRoe;
+    else if (!strcmp(physics->upw_choice,_RF_     )) solver->Upwind = NavierStokes2DUpwindRF;
+    else if (!strcmp(physics->upw_choice,_LLF_    )) solver->Upwind = NavierStokes2DUpwindLLF;
+    else if (!strcmp(physics->upw_choice,_SWFS_   )) solver->Upwind = NavierStokes2DUpwindSWFS;
+    else if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->Upwind = NavierStokes2DUpwindRusanov;
+    else {
+      if (!mpi->rank) {
+        fprintf(stderr,"Error in NavierStokes2DInitialize(): %s is not a valid upwinding scheme. ",
+                physics->upw_choice);
+        fprintf(stderr,"Choices are %s, %s, %s, %s, and %s.\n",_ROE_,_RF_,_LLF_,_SWFS_,_RUSANOV_);
+      }
+      return(1);
+    }
+  }
 
   /* set the value of gamma in all the boundary objects */
   int n;
