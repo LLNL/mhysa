@@ -15,7 +15,7 @@ begin
   par_space_scheme    4
   dt                  0.5
   conservation_check  no
-  screen_op_iter      10
+  screen_op_iter      40
   file_op_iter        240
   input_mode          serial
   ip_file_type        binary
