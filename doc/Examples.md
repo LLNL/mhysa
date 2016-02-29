@@ -1239,6 +1239,9 @@ Input files required:
 
 \b weno.inp (optional)
 \include 2D/NavierStokes2D/InertiaGravityWave/weno.inp
+\b Note: \a no_limiting is set to 1, i.e., since this is a 
+smooth problem, WENO limiting is turned off, and the spatial
+discretization uses a 5th order polynomial.
 
 To generate \b initial.inp (initial solution), compile 
 and run the following code in the run directory.
