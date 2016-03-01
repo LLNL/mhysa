@@ -16,7 +16,7 @@ int main()
   double Re_inf, M_inf;
 
   inputs = fopen("solver.inp","r");
-  if (!in) {
+  if (!inputs) {
     fprintf(stderr,"Error: File \"solver.inp\" not found.\n");
     return(1);
   } else {
@@ -36,7 +36,7 @@ int main()
   }
 
   inputs = fopen("physics.inp","r");
-  if (!in) {
+  if (!inputs) {
     fprintf(stderr,"Error: File \"physics.inp\" not found.\n");
     return(1);
   } else {
