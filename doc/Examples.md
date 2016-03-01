@@ -19,6 +19,9 @@
 \subpage euler2d_vortex
 
 \subpage euler2d_igwave \n
+\subpage euler2d_rtb
+
+\subpage navstok2d_flatplate
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
@@ -73,7 +76,7 @@ solution \b exact.inp (i.e. create a sym link called
 
 Output:
 -------
-After running the code, there should be two 11 output
+After running the code, there should be 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=1\f$. Since #HyPar::op_overwrite is
@@ -231,7 +234,7 @@ following code in the run directory.
 
 Output:
 -------
-After running the code, there should be two 11 output
+After running the code, there should be 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=10\f$. Since #HyPar::op_overwrite is
@@ -695,7 +698,7 @@ in \b solver.inp (i.e., 4 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 8 MPI ranks (or change \b iproc).
 
-After running the code, there should be two 21 output
+After running the code, there should be 21 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00020.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=12\f$. Since #HyPar::op_overwrite is
@@ -790,7 +793,7 @@ in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
-After running the code, there should be two 11 output
+After running the code, there should be 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=10\f$. Since #HyPar::op_overwrite is
@@ -884,7 +887,7 @@ in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
-After running the code, there should be two 11 output
+After running the code, there should be 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=0.25\f$. Since #HyPar::op_overwrite is
@@ -972,7 +975,7 @@ in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
-After running the code, there should be two 11 output
+After running the code, there should be 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=0.3\f$. Since #HyPar::op_overwrite is
@@ -1051,7 +1054,7 @@ in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
-After running the code, there should be two 11 output
+After running the code, there should be 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=1\f$. Since #HyPar::op_overwrite is
@@ -1145,7 +1148,7 @@ in \b solver.inp (i.e., 2 processors along \a x, and 2
 processors along \a y). Thus, this example should be run
 with 4 MPI ranks (or change \b iproc).
 
-After running the code, there should be two 11 output
+After running the code, there should be 11 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=20\f$. Since #HyPar::op_overwrite is
@@ -1257,7 +1260,7 @@ in \b solver.inp (i.e., 12 processors along \a x, and 1
 processor along \a y). Thus, this example should be run
 with 12 MPI ranks (or change \b iproc).
 
-After running the code, there should be two 26 output
+After running the code, there should be 26 output
 files \b op_00000.dat, \b op_00001.dat, ... \b op_00025.dat; 
 the first one is the solution at \f$t=0s\f$ and the final one
 is the solution at \f$t=3000s\f$. Since #HyPar::op_overwrite is
@@ -1291,3 +1294,219 @@ plots and visualize the solution:
 
 Expected screen output:
 \include 2D/NavierStokes2D/InertiaGravityWave/output.log
+
+
+
+\page euler2d_rtb 2D Euler Equations (with gravitational force) - Rising Thermal Bubble
+
+Location: \b hypar/Examples/2D/NavierStokes2D/RisingThermalBubble
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h - By default,
+                     #NavierStokes2D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 2D Euler
+                     equations are solved.)
+
+Reference:
+  + Giraldo, F.X., Restelli, M., "A study of spectral element and
+    discontinuous Galerkin methods for the Navier–Stokes equations
+    in nonhydrostatic mesoscale atmospheric modeling: Equation sets
+    and test cases", J. Comput. Phys., 227, 2008, 3849--3877, 
+    (Section 3.2).
+
+Domain: \f$0 \le x,y \le 1000\,m\f$, 
+        "slip-wall" (#_SLIP_WALL_) boundary conditions on all sides.
+
+Initial solution: See references above.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 2D/NavierStokes2D/RisingThermalBubble/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/RisingThermalBubble/boundary.inp
+
+\b physics.inp
+\include 2D/NavierStokes2D/RisingThermalBubble/physics.inp
+
+\b weno.inp (optional)
+\include 2D/NavierStokes2D/RisingThermalBubble/weno.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 2D/NavierStokes2D/RisingThermalBubble/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      4 3
+
+in \b solver.inp (i.e., 4 processors along \a x, and 3
+processor along \a y). Thus, this example should be run
+with 12 MPI ranks (or change \b iproc).
+
+After running the code, there should be 41 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00040.dat; 
+the first one is the solution at \f$t=0s\f$ and the final one
+is the solution at \f$t=700s\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following code
+converts these variables to the primitive variables of interest
+to atmospheric flows \f$\left(\rho, u, v, p, \theta\right)\f$.
+It also writes out the hydrostatically balanced quantities 
+\f$\left(\rho_0,\pi_0, \theta_0\right)\f$ for this case that
+can be used to compute and plot the temperature and density
+perturbations. These variables are then written to either
+a tecplot2d or text file.
+(compile and run it in the run directory):
+\include 2D/NavierStokes2D/RisingThermalBubble/aux/PostProcess.c
+
+The following plot shows the potential temperature perturbation
+contours at the final time t=700s. It was plotted using VisIt
+(https://wci.llnl.gov/simulation/computer-codes/visit/) with 
+tecplot2d format chosen in the above postprocessing code.
+@image html Solution_2DNavStokRTB.png
+
+The following animation was created using all the transient files:
+@image html Solution_2DNavStokRTB.gif
+
+If the postprocessing code above was used to write out files in 
+text format, the following MATLAB script can be used to generate 
+plots and visualize the solution:
+\include 2D/NavierStokes2D/RisingThermalBubble/PlotSolution.m
+
+Expected screen output:
+\include 2D/NavierStokes2D/RisingThermalBubble/output.log
+
+
+\page navstok2d_flatplate 2D Navier-Stokes Equations -  Laminar Flow over Flat Plate
+
+Location: \b hypar/Examples/2D/NavierStokes2D/FlatPlateLaminar/UniformGrid
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h)
+
+Reference: 
++ Hirsch, "Numerical Computation of Internal & External Flows",
+  Volume 1 (Fundamentals of Computational Fluid Dynamics), 2nd 
+  Edition, Elsevier, Section 12.3.2 (page 618-625).
+
+Domain: \f$-0.25 \le x \le 1\f$, \f$0 \le y \le 0.25\f$
+
+Boundary conditions:
++ Symmetry BC on \f$y=0, -0.25 \le x < 0\f$ (imposed through "slip-wall" 
+  #_SLIP_WALL_ with 0 wall velocity).
++ No-slip wall BC on \f$y=0, 0 \le x \le 1\f$ (#_NOSLIP_WALL_ with 0
+  wall velocity).
++ Subsonic outflow on \f$y=0.25\f$ (#_SUBSONIC_OUTFLOW_) with pressure
+  \f$p=1/\gamma\f$.
++ Subsonic inflow on \f$x=0\f$ (#_SUBSONIC_INFLOW_) with density \f$\rho=1\f$,
+  and velocity \f$(u,v) = (0.3,0)\f$.
++ Subsonic outflow on \f$x=1\f$ (#_SUBSONIC_OUTFLOW_) with pressure
+  \f$p=1/\gamma\f$.
+
+Initial solution: Uniform flow with \f$\rho=1, u=0.3, v=0, p=1/\gamma\f$.
+
+Other parameters:
+  + \f$\gamma = 1.4\f$ (#NavierStokes2D::gamma)
+  + \f$Re = \frac {\rho u L } {\mu} = 100,000\f$ (Reynolds number) (#NavierStokes2D::Re), 
+    where \f$L=1\f$ is the plate length .
+  + \f$Pr = 0.72\f$ (Prandtl number) (#NavierStokes2D::Pr)
+  + \f$M_\infty = 0.3\f$ (freestream Mach number) (#NavierStokes2D::Minf)
+
+\b Note: Pressure is taken as \f$1/\gamma\f$ in the above so that the freestream 
+speed of sound is 1.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (ParabolicFunctionNC2Stage())
+ + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
+
+This is a steady state problem - the solution converges to a steady laminar flow over a 
+flat plate, and the residuals decrease with time. The skin friction coefficient is given by
+\f{equation}{
+  c_f = \frac {0.664} {\sqrt{Re_x}}, Re_x = \frac {\rho u x} {\mu}
+\f}
+(Blasius solution).
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 2D/NavierStokes2D/FlatPlateLaminar/UniformGrid/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/FlatPlateLaminar/UniformGrid/boundary.inp
+
+\b physics.inp
+\include 2D/NavierStokes2D/FlatPlateLaminar/UniformGrid/physics.inp
+
+\b weno.inp (optional)
+\include 2D/NavierStokes2D/FlatPlateLaminar/UniformGrid/weno.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 2D/NavierStokes2D/FlatPlateLaminar/UniformGrid/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 4
+
+in \b solver.inp (i.e., 2 processors along \a x, and 4
+processor along \a y). Thus, this example should be run
+with 8 MPI ranks (or change \b iproc).
+
+After running the code, there should be one output file
+\b op.dat, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
+  
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b hypar/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file (works only for 2D and 3D).
++ \b hypar/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+The following plot was obtained by converting the binary file to the 
+Tecplot format, and using VisIt to plot it (it shows the density 
+and velocity):
+@image html Solution_2DNavStokFlatPlate.png
+The following plot shows a magnified view of the boundary layer:
+@image html Solution_2DNavStokFlatPlateMagnified.png
+
+The following file computes the skin friction as a function of the 
+Reynolds number and writes to to a text file \b SkinFriction.dat with 4 
+columns: Reynolds number, computed skin friction coefficient, exact skin 
+friction coefficient (\f$0.664/\sqrt{Re_x}\f$), and normal velocity gradient 
+on the plate surface (\f$\left.\partial u/\partial y\right|_{y=0}\f$). 
+Compile and run it in the run directory.
+\include 2D/NavierStokes2D/FlatPlateLaminar/UniformGrid/aux/SkinFriction.c
+The following figure showing the exact and computed skin friction coefficients
+was obtained by plotting \b SkinFriction.dat:
+@image html Solution_2DNavStokFlatPlateSkinFriction.png
+
+Expected screen output:
+\include 2D/NavierStokes2D/FlatPlateLaminar/UniformGrid/output.log
