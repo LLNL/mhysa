@@ -1,0 +1,259 @@
+HyPar - Parallel (MPI) version with 4 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 2
+	No. of variables                           : 3
+	Domain size                                : 150 120 
+	Processes along each dimension             : 2 2 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 2000
+	Restart iteration                          : 0
+	Time integration scheme                    : rk (44)
+	Spatial discretization scheme (hyperbolic) : weno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : components
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 2
+	Time Step                                  : 1.800000E+02
+	Check for conservation                     : yes
+	Screen output iterations                   : 20
+	File output iterations                     : 20
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : text
+	Overwrite solution file                    : no
+	Physical model                             : shallow-water-2d
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  5.3243697478991552E+16
+ 1:  5.2823596148641619E+17
+ 2:  -5.9375000000000000E+00
+Reading boundary conditions from "boundary.inp".
+  Boundary                       periodic:  Along dimension  0 and face +1
+  Boundary                       periodic:  Along dimension  0 and face -1
+  Boundary        shallow-water-slip-wall:  Along dimension  1 and face +1
+  Boundary        shallow-water-slip-wall:  Along dimension  1 and face -1
+4 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "shallow-water-2d"
+Reading physical model inputs from file "physics.inp".
+Setting up time integration.
+Solving in time (from 0 to 2000 iterations)
+Writing solution file op_00000.dat.
+Iteration:      20  Time: 3.600E+03  Max CFL: 8.283E-01  Max Diff. No.: -1.000E+00  Norm: 4.4377E+02  Conservation loss: 1.5678E+13
+Writing solution file op_00001.dat.
+Iteration:      40  Time: 7.200E+03  Max CFL: 8.317E-01  Max Diff. No.: -1.000E+00  Norm: 3.9860E+02  Conservation loss: 3.1416E+13
+Writing solution file op_00002.dat.
+Iteration:      60  Time: 1.080E+04  Max CFL: 8.309E-01  Max Diff. No.: -1.000E+00  Norm: 3.3905E+02  Conservation loss: 4.7255E+13
+Writing solution file op_00003.dat.
+Iteration:      80  Time: 1.440E+04  Max CFL: 8.313E-01  Max Diff. No.: -1.000E+00  Norm: 3.0518E+02  Conservation loss: 6.3217E+13
+Writing solution file op_00004.dat.
+Iteration:     100  Time: 1.800E+04  Max CFL: 8.289E-01  Max Diff. No.: -1.000E+00  Norm: 2.4485E+02  Conservation loss: 7.9308E+13
+Writing solution file op_00005.dat.
+Iteration:     120  Time: 2.160E+04  Max CFL: 8.247E-01  Max Diff. No.: -1.000E+00  Norm: 3.8857E+02  Conservation loss: 9.5503E+13
+Writing solution file op_00006.dat.
+Iteration:     140  Time: 2.520E+04  Max CFL: 8.258E-01  Max Diff. No.: -1.000E+00  Norm: 4.4309E+02  Conservation loss: 1.1174E+14
+Writing solution file op_00007.dat.
+Iteration:     160  Time: 2.880E+04  Max CFL: 8.270E-01  Max Diff. No.: -1.000E+00  Norm: 4.9726E+02  Conservation loss: 1.2797E+14
+Writing solution file op_00008.dat.
+Iteration:     180  Time: 3.240E+04  Max CFL: 8.291E-01  Max Diff. No.: -1.000E+00  Norm: 5.0514E+02  Conservation loss: 1.4414E+14
+Writing solution file op_00009.dat.
+Iteration:     200  Time: 3.600E+04  Max CFL: 8.401E-01  Max Diff. No.: -1.000E+00  Norm: 5.2483E+02  Conservation loss: 1.6016E+14
+Writing solution file op_00010.dat.
+Iteration:     220  Time: 3.960E+04  Max CFL: 8.306E-01  Max Diff. No.: -1.000E+00  Norm: 4.9425E+02  Conservation loss: 1.7616E+14
+Writing solution file op_00011.dat.
+Iteration:     240  Time: 4.320E+04  Max CFL: 8.215E-01  Max Diff. No.: -1.000E+00  Norm: 4.6916E+02  Conservation loss: 1.9223E+14
+Writing solution file op_00012.dat.
+Iteration:     260  Time: 4.680E+04  Max CFL: 8.213E-01  Max Diff. No.: -1.000E+00  Norm: 3.7173E+02  Conservation loss: 2.0834E+14
+Writing solution file op_00013.dat.
+Iteration:     280  Time: 5.040E+04  Max CFL: 8.184E-01  Max Diff. No.: -1.000E+00  Norm: 5.0904E+02  Conservation loss: 2.2445E+14
+Writing solution file op_00014.dat.
+Iteration:     300  Time: 5.400E+04  Max CFL: 8.127E-01  Max Diff. No.: -1.000E+00  Norm: 5.4971E+02  Conservation loss: 2.4052E+14
+Writing solution file op_00015.dat.
+Iteration:     320  Time: 5.760E+04  Max CFL: 8.025E-01  Max Diff. No.: -1.000E+00  Norm: 6.0587E+02  Conservation loss: 2.5651E+14
+Writing solution file op_00016.dat.
+Iteration:     340  Time: 6.120E+04  Max CFL: 8.302E-01  Max Diff. No.: -1.000E+00  Norm: 6.5132E+02  Conservation loss: 2.7238E+14
+Writing solution file op_00017.dat.
+Iteration:     360  Time: 6.480E+04  Max CFL: 8.288E-01  Max Diff. No.: -1.000E+00  Norm: 6.9250E+02  Conservation loss: 2.8810E+14
+Writing solution file op_00018.dat.
+Iteration:     380  Time: 6.840E+04  Max CFL: 8.277E-01  Max Diff. No.: -1.000E+00  Norm: 6.7591E+02  Conservation loss: 3.0377E+14
+Writing solution file op_00019.dat.
+Iteration:     400  Time: 7.200E+04  Max CFL: 8.465E-01  Max Diff. No.: -1.000E+00  Norm: 6.5968E+02  Conservation loss: 3.1944E+14
+Writing solution file op_00020.dat.
+Iteration:     420  Time: 7.560E+04  Max CFL: 8.571E-01  Max Diff. No.: -1.000E+00  Norm: 6.3826E+02  Conservation loss: 3.3523E+14
+Writing solution file op_00021.dat.
+Iteration:     440  Time: 7.920E+04  Max CFL: 8.574E-01  Max Diff. No.: -1.000E+00  Norm: 6.2022E+02  Conservation loss: 3.5126E+14
+Writing solution file op_00022.dat.
+Iteration:     460  Time: 8.280E+04  Max CFL: 8.574E-01  Max Diff. No.: -1.000E+00  Norm: 6.7470E+02  Conservation loss: 3.6753E+14
+Writing solution file op_00023.dat.
+Iteration:     480  Time: 8.640E+04  Max CFL: 8.560E-01  Max Diff. No.: -1.000E+00  Norm: 7.0703E+02  Conservation loss: 3.8395E+14
+Writing solution file op_00024.dat.
+Iteration:     500  Time: 9.000E+04  Max CFL: 8.465E-01  Max Diff. No.: -1.000E+00  Norm: 7.3248E+02  Conservation loss: 4.0034E+14
+Writing solution file op_00025.dat.
+Iteration:     520  Time: 9.360E+04  Max CFL: 8.318E-01  Max Diff. No.: -1.000E+00  Norm: 7.6668E+02  Conservation loss: 4.1655E+14
+Writing solution file op_00026.dat.
+Iteration:     540  Time: 9.720E+04  Max CFL: 8.480E-01  Max Diff. No.: -1.000E+00  Norm: 7.9167E+02  Conservation loss: 4.3260E+14
+Writing solution file op_00027.dat.
+Iteration:     560  Time: 1.008E+05  Max CFL: 8.412E-01  Max Diff. No.: -1.000E+00  Norm: 7.8038E+02  Conservation loss: 4.4859E+14
+Writing solution file op_00028.dat.
+Iteration:     580  Time: 1.044E+05  Max CFL: 8.438E-01  Max Diff. No.: -1.000E+00  Norm: 7.5727E+02  Conservation loss: 4.6459E+14
+Writing solution file op_00029.dat.
+Iteration:     600  Time: 1.080E+05  Max CFL: 8.545E-01  Max Diff. No.: -1.000E+00  Norm: 7.2991E+02  Conservation loss: 4.8061E+14
+Writing solution file op_00030.dat.
+Iteration:     620  Time: 1.116E+05  Max CFL: 8.559E-01  Max Diff. No.: -1.000E+00  Norm: 8.1845E+02  Conservation loss: 4.9669E+14
+Writing solution file op_00031.dat.
+Iteration:     640  Time: 1.152E+05  Max CFL: 8.547E-01  Max Diff. No.: -1.000E+00  Norm: 8.9818E+02  Conservation loss: 5.1283E+14
+Writing solution file op_00032.dat.
+Iteration:     660  Time: 1.188E+05  Max CFL: 8.472E-01  Max Diff. No.: -1.000E+00  Norm: 9.2536E+02  Conservation loss: 5.2900E+14
+Writing solution file op_00033.dat.
+Iteration:     680  Time: 1.224E+05  Max CFL: 8.337E-01  Max Diff. No.: -1.000E+00  Norm: 9.3209E+02  Conservation loss: 5.4510E+14
+Writing solution file op_00034.dat.
+Iteration:     700  Time: 1.260E+05  Max CFL: 8.180E-01  Max Diff. No.: -1.000E+00  Norm: 9.3946E+02  Conservation loss: 5.6103E+14
+Writing solution file op_00035.dat.
+Iteration:     720  Time: 1.296E+05  Max CFL: 8.961E-01  Max Diff. No.: -1.000E+00  Norm: 9.5910E+02  Conservation loss: 5.7679E+14
+Writing solution file op_00036.dat.
+Iteration:     740  Time: 1.332E+05  Max CFL: 9.198E-01  Max Diff. No.: -1.000E+00  Norm: 9.1544E+02  Conservation loss: 5.9244E+14
+Writing solution file op_00037.dat.
+Iteration:     760  Time: 1.368E+05  Max CFL: 9.233E-01  Max Diff. No.: -1.000E+00  Norm: 9.2664E+02  Conservation loss: 6.0814E+14
+Writing solution file op_00038.dat.
+Iteration:     780  Time: 1.404E+05  Max CFL: 9.109E-01  Max Diff. No.: -1.000E+00  Norm: 8.1109E+02  Conservation loss: 6.2407E+14
+Writing solution file op_00039.dat.
+Iteration:     800  Time: 1.440E+05  Max CFL: 9.114E-01  Max Diff. No.: -1.000E+00  Norm: 8.7863E+02  Conservation loss: 6.4024E+14
+Writing solution file op_00040.dat.
+Iteration:     820  Time: 1.476E+05  Max CFL: 9.080E-01  Max Diff. No.: -1.000E+00  Norm: 9.1852E+02  Conservation loss: 6.5657E+14
+Writing solution file op_00041.dat.
+Iteration:     840  Time: 1.512E+05  Max CFL: 8.830E-01  Max Diff. No.: -1.000E+00  Norm: 9.3299E+02  Conservation loss: 6.7294E+14
+Writing solution file op_00042.dat.
+Iteration:     860  Time: 1.548E+05  Max CFL: 8.670E-01  Max Diff. No.: -1.000E+00  Norm: 9.7294E+02  Conservation loss: 6.8921E+14
+Writing solution file op_00043.dat.
+Iteration:     880  Time: 1.584E+05  Max CFL: 8.543E-01  Max Diff. No.: -1.000E+00  Norm: 1.0055E+03  Conservation loss: 7.0535E+14
+Writing solution file op_00044.dat.
+Iteration:     900  Time: 1.620E+05  Max CFL: 9.014E-01  Max Diff. No.: -1.000E+00  Norm: 9.9412E+02  Conservation loss: 7.2134E+14
+Writing solution file op_00045.dat.
+Iteration:     920  Time: 1.656E+05  Max CFL: 9.026E-01  Max Diff. No.: -1.000E+00  Norm: 9.9431E+02  Conservation loss: 7.3723E+14
+Writing solution file op_00046.dat.
+Iteration:     940  Time: 1.692E+05  Max CFL: 8.907E-01  Max Diff. No.: -1.000E+00  Norm: 9.8222E+02  Conservation loss: 7.5317E+14
+Writing solution file op_00047.dat.
+Iteration:     960  Time: 1.728E+05  Max CFL: 8.859E-01  Max Diff. No.: -1.000E+00  Norm: 8.9608E+02  Conservation loss: 7.6921E+14
+Writing solution file op_00048.dat.
+Iteration:     980  Time: 1.764E+05  Max CFL: 8.831E-01  Max Diff. No.: -1.000E+00  Norm: 9.9049E+02  Conservation loss: 7.8532E+14
+Writing solution file op_00049.dat.
+Iteration:    1000  Time: 1.800E+05  Max CFL: 8.782E-01  Max Diff. No.: -1.000E+00  Norm: 1.0100E+03  Conservation loss: 8.0144E+14
+Writing solution file op_00050.dat.
+Iteration:    1020  Time: 1.836E+05  Max CFL: 8.531E-01  Max Diff. No.: -1.000E+00  Norm: 1.0175E+03  Conservation loss: 8.1747E+14
+Writing solution file op_00051.dat.
+Iteration:    1040  Time: 1.872E+05  Max CFL: 8.405E-01  Max Diff. No.: -1.000E+00  Norm: 1.0173E+03  Conservation loss: 8.3339E+14
+Writing solution file op_00052.dat.
+Iteration:    1060  Time: 1.908E+05  Max CFL: 8.370E-01  Max Diff. No.: -1.000E+00  Norm: 1.0216E+03  Conservation loss: 8.4918E+14
+Writing solution file op_00053.dat.
+Iteration:    1080  Time: 1.944E+05  Max CFL: 8.579E-01  Max Diff. No.: -1.000E+00  Norm: 9.9908E+02  Conservation loss: 8.6485E+14
+Writing solution file op_00054.dat.
+Iteration:    1100  Time: 1.980E+05  Max CFL: 8.750E-01  Max Diff. No.: -1.000E+00  Norm: 9.6644E+02  Conservation loss: 8.8047E+14
+Writing solution file op_00055.dat.
+Iteration:    1120  Time: 2.016E+05  Max CFL: 8.804E-01  Max Diff. No.: -1.000E+00  Norm: 9.6455E+02  Conservation loss: 8.9625E+14
+Writing solution file op_00056.dat.
+Iteration:    1140  Time: 2.052E+05  Max CFL: 8.750E-01  Max Diff. No.: -1.000E+00  Norm: 9.8838E+02  Conservation loss: 9.1226E+14
+Writing solution file op_00057.dat.
+Iteration:    1160  Time: 2.088E+05  Max CFL: 8.623E-01  Max Diff. No.: -1.000E+00  Norm: 9.4180E+02  Conservation loss: 9.2850E+14
+Writing solution file op_00058.dat.
+Iteration:    1180  Time: 2.124E+05  Max CFL: 8.385E-01  Max Diff. No.: -1.000E+00  Norm: 9.5401E+02  Conservation loss: 9.4480E+14
+Writing solution file op_00059.dat.
+Iteration:    1200  Time: 2.160E+05  Max CFL: 8.109E-01  Max Diff. No.: -1.000E+00  Norm: 9.2255E+02  Conservation loss: 9.6099E+14
+Writing solution file op_00060.dat.
+Iteration:    1220  Time: 2.196E+05  Max CFL: 8.013E-01  Max Diff. No.: -1.000E+00  Norm: 9.4781E+02  Conservation loss: 9.7707E+14
+Writing solution file op_00061.dat.
+Iteration:    1240  Time: 2.232E+05  Max CFL: 8.562E-01  Max Diff. No.: -1.000E+00  Norm: 9.7646E+02  Conservation loss: 9.9307E+14
+Writing solution file op_00062.dat.
+Iteration:    1260  Time: 2.268E+05  Max CFL: 8.798E-01  Max Diff. No.: -1.000E+00  Norm: 9.3879E+02  Conservation loss: 1.0090E+15
+Writing solution file op_00063.dat.
+Iteration:    1280  Time: 2.304E+05  Max CFL: 8.796E-01  Max Diff. No.: -1.000E+00  Norm: 9.0876E+02  Conservation loss: 1.0248E+15
+Writing solution file op_00064.dat.
+Iteration:    1300  Time: 2.340E+05  Max CFL: 8.863E-01  Max Diff. No.: -1.000E+00  Norm: 8.5053E+02  Conservation loss: 1.0407E+15
+Writing solution file op_00065.dat.
+Iteration:    1320  Time: 2.376E+05  Max CFL: 8.834E-01  Max Diff. No.: -1.000E+00  Norm: 9.3103E+02  Conservation loss: 1.0567E+15
+Writing solution file op_00066.dat.
+Iteration:    1340  Time: 2.412E+05  Max CFL: 8.660E-01  Max Diff. No.: -1.000E+00  Norm: 9.3307E+02  Conservation loss: 1.0728E+15
+Writing solution file op_00067.dat.
+Iteration:    1360  Time: 2.448E+05  Max CFL: 8.314E-01  Max Diff. No.: -1.000E+00  Norm: 9.6442E+02  Conservation loss: 1.0889E+15
+Writing solution file op_00068.dat.
+Iteration:    1380  Time: 2.484E+05  Max CFL: 8.170E-01  Max Diff. No.: -1.000E+00  Norm: 9.4764E+02  Conservation loss: 1.1048E+15
+Writing solution file op_00069.dat.
+Iteration:    1400  Time: 2.520E+05  Max CFL: 8.060E-01  Max Diff. No.: -1.000E+00  Norm: 9.6308E+02  Conservation loss: 1.1207E+15
+Writing solution file op_00070.dat.
+Iteration:    1420  Time: 2.556E+05  Max CFL: 8.301E-01  Max Diff. No.: -1.000E+00  Norm: 9.3390E+02  Conservation loss: 1.1364E+15
+Writing solution file op_00071.dat.
+Iteration:    1440  Time: 2.592E+05  Max CFL: 8.514E-01  Max Diff. No.: -1.000E+00  Norm: 9.1990E+02  Conservation loss: 1.1520E+15
+Writing solution file op_00072.dat.
+Iteration:    1460  Time: 2.628E+05  Max CFL: 8.420E-01  Max Diff. No.: -1.000E+00  Norm: 9.0714E+02  Conservation loss: 1.1677E+15
+Writing solution file op_00073.dat.
+Iteration:    1480  Time: 2.664E+05  Max CFL: 8.506E-01  Max Diff. No.: -1.000E+00  Norm: 8.1822E+02  Conservation loss: 1.1836E+15
+Writing solution file op_00074.dat.
+Iteration:    1500  Time: 2.700E+05  Max CFL: 8.397E-01  Max Diff. No.: -1.000E+00  Norm: 8.9556E+02  Conservation loss: 1.1997E+15
+Writing solution file op_00075.dat.
+Iteration:    1520  Time: 2.736E+05  Max CFL: 8.379E-01  Max Diff. No.: -1.000E+00  Norm: 8.9757E+02  Conservation loss: 1.2159E+15
+Writing solution file op_00076.dat.
+Iteration:    1540  Time: 2.772E+05  Max CFL: 8.407E-01  Max Diff. No.: -1.000E+00  Norm: 8.8750E+02  Conservation loss: 1.2321E+15
+Writing solution file op_00077.dat.
+Iteration:    1560  Time: 2.808E+05  Max CFL: 8.313E-01  Max Diff. No.: -1.000E+00  Norm: 8.8765E+02  Conservation loss: 1.2483E+15
+Writing solution file op_00078.dat.
+Iteration:    1580  Time: 2.844E+05  Max CFL: 8.238E-01  Max Diff. No.: -1.000E+00  Norm: 8.9689E+02  Conservation loss: 1.2642E+15
+Writing solution file op_00079.dat.
+Iteration:    1600  Time: 2.880E+05  Max CFL: 8.199E-01  Max Diff. No.: -1.000E+00  Norm: 9.0169E+02  Conservation loss: 1.2801E+15
+Writing solution file op_00080.dat.
+Iteration:    1620  Time: 2.916E+05  Max CFL: 8.320E-01  Max Diff. No.: -1.000E+00  Norm: 9.0500E+02  Conservation loss: 1.2960E+15
+Writing solution file op_00081.dat.
+Iteration:    1640  Time: 2.952E+05  Max CFL: 8.350E-01  Max Diff. No.: -1.000E+00  Norm: 9.0170E+02  Conservation loss: 1.3119E+15
+Writing solution file op_00082.dat.
+Iteration:    1660  Time: 2.988E+05  Max CFL: 8.239E-01  Max Diff. No.: -1.000E+00  Norm: 9.0937E+02  Conservation loss: 1.3279E+15
+Writing solution file op_00083.dat.
+Iteration:    1680  Time: 3.024E+05  Max CFL: 8.194E-01  Max Diff. No.: -1.000E+00  Norm: 8.8423E+02  Conservation loss: 1.3439E+15
+Writing solution file op_00084.dat.
+Iteration:    1700  Time: 3.060E+05  Max CFL: 8.006E-01  Max Diff. No.: -1.000E+00  Norm: 8.7109E+02  Conservation loss: 1.3599E+15
+Writing solution file op_00085.dat.
+Iteration:    1720  Time: 3.096E+05  Max CFL: 7.987E-01  Max Diff. No.: -1.000E+00  Norm: 8.6286E+02  Conservation loss: 1.3759E+15
+Writing solution file op_00086.dat.
+Iteration:    1740  Time: 3.132E+05  Max CFL: 7.940E-01  Max Diff. No.: -1.000E+00  Norm: 8.6409E+02  Conservation loss: 1.3918E+15
+Writing solution file op_00087.dat.
+Iteration:    1760  Time: 3.168E+05  Max CFL: 7.944E-01  Max Diff. No.: -1.000E+00  Norm: 8.6235E+02  Conservation loss: 1.4075E+15
+Writing solution file op_00088.dat.
+Iteration:    1780  Time: 3.204E+05  Max CFL: 8.094E-01  Max Diff. No.: -1.000E+00  Norm: 8.5935E+02  Conservation loss: 1.4232E+15
+Writing solution file op_00089.dat.
+Iteration:    1800  Time: 3.240E+05  Max CFL: 8.275E-01  Max Diff. No.: -1.000E+00  Norm: 8.5785E+02  Conservation loss: 1.4389E+15
+Writing solution file op_00090.dat.
+Iteration:    1820  Time: 3.276E+05  Max CFL: 8.406E-01  Max Diff. No.: -1.000E+00  Norm: 7.7429E+02  Conservation loss: 1.4547E+15
+Writing solution file op_00091.dat.
+Iteration:    1840  Time: 3.312E+05  Max CFL: 8.289E-01  Max Diff. No.: -1.000E+00  Norm: 8.6605E+02  Conservation loss: 1.4706E+15
+Writing solution file op_00092.dat.
+Iteration:    1860  Time: 3.348E+05  Max CFL: 8.122E-01  Max Diff. No.: -1.000E+00  Norm: 8.4107E+02  Conservation loss: 1.4868E+15
+Writing solution file op_00093.dat.
+Iteration:    1880  Time: 3.384E+05  Max CFL: 7.908E-01  Max Diff. No.: -1.000E+00  Norm: 8.2938E+02  Conservation loss: 1.5029E+15
+Writing solution file op_00094.dat.
+Iteration:    1900  Time: 3.420E+05  Max CFL: 7.941E-01  Max Diff. No.: -1.000E+00  Norm: 8.1713E+02  Conservation loss: 1.5190E+15
+Writing solution file op_00095.dat.
+Iteration:    1920  Time: 3.456E+05  Max CFL: 7.927E-01  Max Diff. No.: -1.000E+00  Norm: 8.0634E+02  Conservation loss: 1.5350E+15
+Writing solution file op_00096.dat.
+Iteration:    1940  Time: 3.492E+05  Max CFL: 7.919E-01  Max Diff. No.: -1.000E+00  Norm: 7.9486E+02  Conservation loss: 1.5510E+15
+Writing solution file op_00097.dat.
+Iteration:    1960  Time: 3.528E+05  Max CFL: 7.989E-01  Max Diff. No.: -1.000E+00  Norm: 7.9769E+02  Conservation loss: 1.5669E+15
+Writing solution file op_00098.dat.
+Iteration:    1980  Time: 3.564E+05  Max CFL: 8.166E-01  Max Diff. No.: -1.000E+00  Norm: 8.0189E+02  Conservation loss: 1.5827E+15
+Writing solution file op_00099.dat.
+Iteration:    2000  Time: 3.600E+05  Max CFL: 8.043E-01  Max Diff. No.: -1.000E+00  Norm: 7.2451E+02  Conservation loss: 1.5985E+15
+Writing solution file op_00100.dat.
+Completed time integration (Final time: 360000.000000).
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	3.0050505050505077E-16
+	5.4521365427062857E-04
+	1.5985329391656518E+15
+Solver runtime (in seconds): 3.8254883100000001E+02
+Total  runtime (in seconds): 3.8260785800000002E+02
+Deallocating arrays.
+Finished.

@@ -14,7 +14,7 @@ jmax = max(data(:,2)) + 1;
 x = reshape(data(:,3),imax,jmax);
 y = reshape(data(:,4),imax,jmax);
 
-count = 1;
+count = 0;
 for i = fname_indices
     fname = strcat('op_',sprintf('%05d',i),'.dat');
     % read solution
@@ -26,11 +26,14 @@ for i = fname_indices
     % plot
     scrsz = get(0,'screensize');
     width = 0.9*scrsz(3);
-    figure(count);
-    set(count,'Position',[0 0 width 0.8*width]);
+    figure(1);
+    set(1,'Position',[0 0 width 0.8*width]);
     surf(x,y,h);
     view(100,60);
     colorbar;
+    
+    filename = ['fig_',sprintf('%05d',count),'.png'];
+    print(1,filename,'-dpng');
     
     count = count+1;
 end
