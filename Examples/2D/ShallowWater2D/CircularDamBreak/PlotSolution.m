@@ -29,9 +29,11 @@ v = reshape(data(:,7),imax,jmax)./h;
 
 % plot
 figure(1);
+set(1, 'Position', [100, 100, 1300, 500]);
+subplot(1,2,1);
 surf(xcoord,ycoord,h+b);
 colorbar;
-figure(2);
+subplot(1,2,2);
 contour(xcoord,ycoord,h+b,30);
 colorbar;
 % figure(3);

@@ -1,0 +1,94 @@
+HyPar - Parallel (MPI) version with 4 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 2
+	No. of variables                           : 3
+	Domain size                                : 101 101 
+	Processes along each dimension             : 2 2 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 23
+	Restart iteration                          : 0
+	Time integration scheme                    : rk (44)
+	Spatial discretization scheme (hyperbolic) : weno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : components
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 2
+	Time Step                                  : 3.000000E-02
+	Check for conservation                     : no
+	Screen output iterations                   : 1
+	File output iterations                     : 5
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : text
+	Overwrite solution file                    : no
+	Physical model                             : shallow-water-2d
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  5.9635000000000000E+03
+ 1:  0.0000000000000000E+00
+ 2:  0.0000000000000000E+00
+Reading boundary conditions from "boundary.inp".
+  Boundary                    extrapolate:  Along dimension  0 and face +1
+  Boundary                    extrapolate:  Along dimension  0 and face -1
+  Boundary                    extrapolate:  Along dimension  1 and face +1
+  Boundary                    extrapolate:  Along dimension  1 and face -1
+4 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "shallow-water-2d"
+Reading physical model inputs from file "physics.inp".
+Reading array from ASCII file topography.inp (Serial mode).
+Setting up time integration.
+Solving in time (from 0 to 23 iterations)
+Writing solution file topography_00000.dat.
+Writing solution file op_00000.dat.
+Iteration:       1  Time: 3.000E-02  Max CFL: 5.940E-01  Max Diff. No.: -1.000E+00  Norm: 2.1446E+00  
+Iteration:       2  Time: 6.000E-02  Max CFL: 6.389E-01  Max Diff. No.: -1.000E+00  Norm: 1.7198E+00  
+Iteration:       3  Time: 9.000E-02  Max CFL: 7.394E-01  Max Diff. No.: -1.000E+00  Norm: 1.5788E+00  
+Iteration:       4  Time: 1.200E-01  Max CFL: 7.938E-01  Max Diff. No.: -1.000E+00  Norm: 1.5427E+00  
+Iteration:       5  Time: 1.500E-01  Max CFL: 8.090E-01  Max Diff. No.: -1.000E+00  Norm: 1.5990E+00  
+Writing solution file topography_00001.dat.
+Writing solution file op_00001.dat.
+Iteration:       6  Time: 1.800E-01  Max CFL: 8.141E-01  Max Diff. No.: -1.000E+00  Norm: 1.5904E+00  
+Iteration:       7  Time: 2.100E-01  Max CFL: 8.198E-01  Max Diff. No.: -1.000E+00  Norm: 1.5987E+00  
+Iteration:       8  Time: 2.400E-01  Max CFL: 8.230E-01  Max Diff. No.: -1.000E+00  Norm: 1.5495E+00  
+Iteration:       9  Time: 2.700E-01  Max CFL: 8.136E-01  Max Diff. No.: -1.000E+00  Norm: 1.5005E+00  
+Iteration:      10  Time: 3.000E-01  Max CFL: 8.088E-01  Max Diff. No.: -1.000E+00  Norm: 1.4895E+00  
+Writing solution file topography_00002.dat.
+Writing solution file op_00002.dat.
+Iteration:      11  Time: 3.300E-01  Max CFL: 8.005E-01  Max Diff. No.: -1.000E+00  Norm: 1.4770E+00  
+Iteration:      12  Time: 3.600E-01  Max CFL: 7.994E-01  Max Diff. No.: -1.000E+00  Norm: 1.4448E+00  
+Iteration:      13  Time: 3.900E-01  Max CFL: 7.997E-01  Max Diff. No.: -1.000E+00  Norm: 1.4009E+00  
+Iteration:      14  Time: 4.200E-01  Max CFL: 7.996E-01  Max Diff. No.: -1.000E+00  Norm: 1.3804E+00  
+Iteration:      15  Time: 4.500E-01  Max CFL: 7.983E-01  Max Diff. No.: -1.000E+00  Norm: 1.3847E+00  
+Writing solution file topography_00003.dat.
+Writing solution file op_00003.dat.
+Iteration:      16  Time: 4.800E-01  Max CFL: 7.975E-01  Max Diff. No.: -1.000E+00  Norm: 1.3753E+00  
+Iteration:      17  Time: 5.100E-01  Max CFL: 7.996E-01  Max Diff. No.: -1.000E+00  Norm: 1.3552E+00  
+Iteration:      18  Time: 5.400E-01  Max CFL: 7.998E-01  Max Diff. No.: -1.000E+00  Norm: 1.3290E+00  
+Iteration:      19  Time: 5.700E-01  Max CFL: 7.992E-01  Max Diff. No.: -1.000E+00  Norm: 1.3346E+00  
+Iteration:      20  Time: 6.000E-01  Max CFL: 7.977E-01  Max Diff. No.: -1.000E+00  Norm: 1.3309E+00  
+Writing solution file topography_00004.dat.
+Writing solution file op_00004.dat.
+Iteration:      21  Time: 6.300E-01  Max CFL: 7.953E-01  Max Diff. No.: -1.000E+00  Norm: 1.3274E+00  
+Iteration:      22  Time: 6.600E-01  Max CFL: 7.926E-01  Max Diff. No.: -1.000E+00  Norm: 1.2948E+00  
+Iteration:      23  Time: 6.900E-01  Max CFL: 7.905E-01  Max Diff. No.: -1.000E+00  Norm: 1.3033E+00  
+Writing solution file topography_00005.dat.
+Writing solution file op_00005.dat.
+Completed time integration (Final time: 0.690000).
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+Solver runtime (in seconds): 2.5471050000000002E+00
+Total  runtime (in seconds): 2.5777280000000000E+00
+Deallocating arrays.
+Finished.

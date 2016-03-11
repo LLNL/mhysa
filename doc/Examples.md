@@ -23,6 +23,8 @@
 
 \subpage navstok2d_flatplate
 
+\subpage sw_circdambreak
+
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
 Location: \b hypar/Examples/1D/LinearAdvection/SineWave
@@ -625,7 +627,7 @@ solution components.
 
 In addition to the usual output files, the shallow water physics 
 module writes out the following files:
-+ \b topography_00000.dat, ..., \b topography_00001.dat: These files
++ \b topography_00000.dat, ..., \b topography_00004.dat: These files
   share the same format as the solution output files \b op_*.dat 
   and contains the topography \f$b\left(x\right)\f$.
 
@@ -1510,3 +1512,105 @@ was obtained by plotting \b SkinFriction.dat:
 
 Expected screen output:
 \include 2D/NavierStokes2D/FlatPlateLaminar/UniformGrid/output.log
+
+
+\page sw_circdambreak 2D Shallow Water Equations - Circular Dam Break
+
+Location: \b hypar/Examples/2D/ShallowWater2D/CircularDamBreak
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Shallow Water Equations (shallowwater2d.h)
+
+References:
+  + Delis, Katsaounis, "Numerical solution of the two-dimensional
+    shallow water equations by the application of relaxation methods", 
+    Applied Mathematical Modelling, 29 (2005), pp. 754-783 (Section 6.3).
+
+Domain: \f$0 \le x,y \le 50 \f$, \a "extrapolate" (#_EXTRAPOLATE_) boundary
+        conditions everywhere
+
+Initial solution:
+\f{equation}{
+  h\left(x,y\right) = \left\{\begin{array}{cc}10 & r \le 11.0\\1 & {\rm otherwise}\end{array}\right., u\left(x,y\right) = 0.
+\f}
+with the bottom topography as \f$b\left(x,y\right) = 0\f$, and 
+\f$r^2=\left(x-25\right)^2+\left(y-25\right)^2\f$.
+
+Numerical Method:
+  + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+  + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+Note: in addition to the usual input files that HyPar needs, this
+physical model needs the following input file(s):
++ \b topography.inp : file containing the bottom topography (same
+  format as \b initial.inp).
+
+However, this case has a constant (zero) bottom topography, and thus
+this file can be skipped.
+
+\b solver.inp
+\include 2D/ShallowWater2D/CircularDamBreak/solver.inp
+
+\b boundary.inp
+\include 2D/ShallowWater2D/CircularDamBreak/boundary.inp
+
+\b physics.inp
+\include 2D/ShallowWater2D/CircularDamBreak/physics.inp
+
+\b weno.inp (optional)
+\include 2D/ShallowWater2D/CircularDamBreak/weno.inp
+
+To generate \b initial.inp and \b topography.inp, compile and run the 
+following code in the run directory (note: topography.inp can be skipped
+since this case involves a uniform topography).
+\include 2D/ShallowWater2D/CircularDamBreak/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2
+
+in \b solver.inp (i.e., 2 processors along \a x, and 2
+processors along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be 6 solution output files
+\b op_00000.dat, ..., \b op_00005.dat; the first one is the solution 
+at \f$t=0\f$ and the final one is the solution at \f$t=0.69\f$. Since
+#HyPar::op_overwrite is set to \a no in \b solver.inp, separate files 
+are written for solutions at each output time. 
+
+#HyPar::op_file_format is set to \a tecplot2d in \b solver.inp, and
+thus, all the files are in a format that Tecplot (http://www.tecplot.com/)
+or other visualization software supporting the Tecplot format 
+(e.g. VisIt - https://wci.llnl.gov/simulation/computer-codes/visit/)
+can read. 
+In these files, the first two lines are the Tecplot headers, after which
+the data is written out as: the first two columns are grid indices, the 
+next two columns are the x and y coordinates, and the remaining columns 
+are the three solution components.
+#HyPar::op_file_format can be set to \a text to get the solution
+files in plain text format (which can be read in and visualized in
+MATLAB for example).
+
+In addition to the usual output files, the shallow water physics 
+module writes out the following files:
++ \b topography_00000.dat, ..., \b topography_00005.dat: These files
+  share the same format as the solution output files \b op_*.dat 
+  and contains the topography \f$b\left(x\right)\f$ (for this example,
+  they do not matter since the topography is flat).
+
+The following plot shows the final solution (water height):
+@image html Solution_2DShallowWater_CircDamBreak.png
+It was obtained by using the following MATLAB code to plot \b op_00005.dat:
+\include 2D/ShallowWater2D/CircularDamBreak/PlotSolution.m
+
+Expected screen output:
+\include 2D/ShallowWater2D/CircularDamBreak/output.log
