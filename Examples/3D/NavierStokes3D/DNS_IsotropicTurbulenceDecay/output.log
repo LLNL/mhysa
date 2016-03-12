@@ -1,0 +1,95 @@
+HyPar - Parallel (MPI) version with 4 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 3
+	No. of variables                           : 5
+	Domain size                                : 64 64 64 
+	Processes along each dimension             : 2 2 1 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 200
+	Restart iteration                          : 0
+	Time integration scheme                    : rk (44)
+	Spatial discretization scheme (hyperbolic) : crweno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : components
+	Spatial discretization type   (parabolic ) : nonconservative-2stage
+	Spatial discretization scheme (parabolic ) : 4
+	Time Step                                  : 2.500000E-02
+	Check for conservation                     : no
+	Screen output iterations                   : 10
+	File output iterations                     : 20
+	Initial solution file type                 : binary
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : binary
+	Overwrite solution file                    : no
+	Physical model                             : navierstokes3d
+Partitioning domain.
+Allocating data arrays.
+Reading array from binary file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  2.4805021344266444E+02
+ 1:  1.6653345369377348E-14
+ 2:  1.3655743202889425E-14
+ 3:  -5.9952043329758453E-15
+ 4:  4.7643358853329289E+02
+Reading boundary conditions from "boundary.inp".
+  Boundary                       periodic:  Along dimension  0 and face +1
+  Boundary                       periodic:  Along dimension  0 and face -1
+  Boundary                       periodic:  Along dimension  1 and face +1
+  Boundary                       periodic:  Along dimension  1 and face -1
+  Boundary                       periodic:  Along dimension  2 and face +1
+  Boundary                       periodic:  Along dimension  2 and face -1
+6 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "navierstokes3d"
+Reading physical model inputs from file "physics.inp".
+Setting up time integration.
+Solving in time (from 0 to 200 iterations)
+Writing solution file op_00000.bin.
+Iteration:      10  Time: 2.500E-01  Max CFL: 6.276E-01  Max Diff. No.: -1.000E+00  Norm: 2.6011E-02  
+Iteration:      20  Time: 5.000E-01  Max CFL: 6.087E-01  Max Diff. No.: -1.000E+00  Norm: 2.5551E-02  
+Writing solution file op_00001.bin.
+Iteration:      30  Time: 7.500E-01  Max CFL: 5.996E-01  Max Diff. No.: -1.000E+00  Norm: 2.6326E-02  
+Iteration:      40  Time: 1.000E+00  Max CFL: 5.768E-01  Max Diff. No.: -1.000E+00  Norm: 2.6866E-02  
+Writing solution file op_00002.bin.
+Iteration:      50  Time: 1.250E+00  Max CFL: 5.808E-01  Max Diff. No.: -1.000E+00  Norm: 2.7645E-02  
+Iteration:      60  Time: 1.500E+00  Max CFL: 6.082E-01  Max Diff. No.: -1.000E+00  Norm: 2.7552E-02  
+Writing solution file op_00003.bin.
+Iteration:      70  Time: 1.750E+00  Max CFL: 5.973E-01  Max Diff. No.: -1.000E+00  Norm: 2.7574E-02  
+Iteration:      80  Time: 2.000E+00  Max CFL: 5.832E-01  Max Diff. No.: -1.000E+00  Norm: 2.7398E-02  
+Writing solution file op_00004.bin.
+Iteration:      90  Time: 2.250E+00  Max CFL: 5.770E-01  Max Diff. No.: -1.000E+00  Norm: 2.6709E-02  
+Iteration:     100  Time: 2.500E+00  Max CFL: 5.607E-01  Max Diff. No.: -1.000E+00  Norm: 2.6009E-02  
+Writing solution file op_00005.bin.
+Iteration:     110  Time: 2.750E+00  Max CFL: 5.534E-01  Max Diff. No.: -1.000E+00  Norm: 2.5561E-02  
+Iteration:     120  Time: 3.000E+00  Max CFL: 5.698E-01  Max Diff. No.: -1.000E+00  Norm: 2.4610E-02  
+Writing solution file op_00006.bin.
+Iteration:     130  Time: 3.250E+00  Max CFL: 5.288E-01  Max Diff. No.: -1.000E+00  Norm: 2.4219E-02  
+Iteration:     140  Time: 3.500E+00  Max CFL: 5.503E-01  Max Diff. No.: -1.000E+00  Norm: 2.3388E-02  
+Writing solution file op_00007.bin.
+Iteration:     150  Time: 3.750E+00  Max CFL: 5.118E-01  Max Diff. No.: -1.000E+00  Norm: 2.2418E-02  
+Iteration:     160  Time: 4.000E+00  Max CFL: 5.156E-01  Max Diff. No.: -1.000E+00  Norm: 2.1473E-02  
+Writing solution file op_00008.bin.
+Iteration:     170  Time: 4.250E+00  Max CFL: 4.965E-01  Max Diff. No.: -1.000E+00  Norm: 2.1132E-02  
+Iteration:     180  Time: 4.500E+00  Max CFL: 4.892E-01  Max Diff. No.: -1.000E+00  Norm: 2.0662E-02  
+Writing solution file op_00009.bin.
+Iteration:     190  Time: 4.750E+00  Max CFL: 4.749E-01  Max Diff. No.: -1.000E+00  Norm: 1.9980E-02  
+Iteration:     200  Time: 5.000E+00  Max CFL: 4.787E-01  Max Diff. No.: -1.000E+00  Norm: 1.8848E-02  
+Writing solution file op_00010.bin.
+Completed time integration (Final time: 5.000000).
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+Solver runtime (in seconds): 1.4957965489999999E+03
+Total  runtime (in seconds): 1.4959968770000000E+03
+Deallocating arrays.
+Finished.

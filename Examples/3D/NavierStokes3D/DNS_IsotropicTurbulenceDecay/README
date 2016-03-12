@@ -35,7 +35,7 @@ final spectrum of the solution.
 
 ** Both these codes need the fftw3 library (http://www.fftw.org). 
 To compile:
-g++ -I/path/to/fftw3.h -L/path/to/libfftw3.a -lfftw3 fourier.C 
+gcc -I/path/to/fftw3.h -L/path/to/libfftw3.a -lfftw3 fourier.c
 
 The code aux/kineticenergy.c can be used to calculate the time 
 evolution of the kinetic energy.

@@ -26,6 +26,8 @@
 \subpage sw_circdambreak \n
 \subpage sw_latbelt
 
+\subpage ns3d_isoturb
+
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
 Location: \b hypar/Examples/1D/LinearAdvection/SineWave
@@ -1724,4 +1726,120 @@ Expected screen output:
 \include 2D/ShallowWater2D/LatitudeBeltFlow/output.log
 
 
+\page ns3d_isoturb 3D Navier-Stokes Equations - Isotropic Turbulence Decay
 
+Location: \b hypar/Examples/3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: \f$0 \le x,y < 2\pi\f$, "periodic" (#_PERIODIC_) boundaries 
+        everywhere.
+
+Initial solution: Isotropic turbulent flow - The initial solution is 
+specified in the Fourier space (with an energy
+distribution similar to that of turbulent flow), and then transformed
+to the physical space through an inverse transform.
+
+Other parameters:
+  + \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+  + \f$Re = \frac {\rho u L } {\mu} = 333.33\f$ (#NavierStokes3D::Re)
+  + \f$Pr = 0.72\f$ (Prandtl number) (#NavierStokes3D::Pr)
+  + \f$M_\infty = 0.3\f$ (turbulence fluctuation Mach number) (#NavierStokes3D::Minf)
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (ParabolicFunctionNC2Stage())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/solver.inp
+
+\b boundary.inp
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/boundary.inp
+
+\b physics.inp
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/physics.inp
+
+\b weno.inp (optional)
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/weno.inp
+
+\b lusolver.inp (optional)
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/lusolver.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\b Note: this code requires the \b FFTW library installed (http://www.fftw.org/).
+To compile:
+
+    gcc -I/path/to/fftw3.h -L/path/to/libfftw3.a -lfftw3 init.c
+
+(see the FFTW website on ways to install it).
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2 1
+
+in \b solver.inp (i.e., 2 processors along \a x, 2
+processors along \a y, and 1 processor along \a z). Thus, 
+this example should be run with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=5\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. All the files are binary
+(#HyPar::op_file_format is set to \a binary in \b solver.inp).
+
+To generate compute the energy spectrum from a given solution, compile 
+and run the following code in the run directory. This code wants to read 
+a file called \b op.bin, so make a symbolic link with that name pointing
+to the solution file whose energy spectrum is to be computed. (If #HyPar::op_overwrite
+is set to \a yes in \b solver.inp, then the solution file itself is called 
+\b op.bin). Also note that the solution must be in binary format
+(#HyPar::op_file_format must be \a binary in \b solver.inp). It will write out a 
+ASCII text file \b spectrum.dat with two columns: \f$k\f$ and \f$E\left(k\right)\f$.
+\b Note: this code requires the \b FFTW library installed (http://www.fftw.org/).
+To compile:
+
+    gcc -I/path/to/fftw3.h -L/path/to/libfftw3.a -lfftw3 fourier.c
+
+(see the FFTW website on ways to install it). 
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/aux/fourier.c
+
+The following figure shows the initial and final (t=5) energy spectra:
+@image html Solution_3DNavStok_IsoTurb_Spectrum.png
+
+The following file computes the kinetic energy as a function of time
+from the solution files. It writes out an ASCII text file \b energy.dat
+with two colums: time and kinetic energy.
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/aux/kineticenergy.c
+
+The following figure shows the kinetic energy decay:
+@image html Solution_3DNavStok_IsoTurb_Energy.png
+
+The code \b hypar/Extras/BinaryToTecplot.c can be used to convert the binary
+solution files to 3D Tecplot files that can be visualized in any software
+supporting the Tecplot format. Similarly, the code \b hypar/Extras/BinaryToText.c 
+can be used to convert the binary solution files to ASCII text files with the 
+following data layout: the first three columns are grid indices, the next three
+columns are x, y, and z coordinates, and the remaining columns are the solution
+components (\f$\rho, \rho u, \rho v, \rho w, e\f$).
+
+The following figure shows the density iso-surface colored by the internal energy
+(plotted in ParaView after converting the binary solution to a Tecplot file):
+@image html Solution_3DNavStok_IsoTurb.png
+
+Expected screen output:
+\include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/output.log

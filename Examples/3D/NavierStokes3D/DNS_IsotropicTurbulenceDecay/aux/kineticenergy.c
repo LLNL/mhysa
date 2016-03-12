@@ -50,7 +50,7 @@ int main()
   char filename[50], op_file_format[50];
 
   inputs = fopen("solver.inp","r");
-  if (!in) {
+  if (!inputs) {
     fprintf(stderr,"Error: File \"solver.inp\" not found.\n");
     return(1);
   } else {

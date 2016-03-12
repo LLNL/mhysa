@@ -249,7 +249,7 @@ void fourier_analysis(int N, double *uu, double *vv, double *ww)
 	}
 	printf("Total Energy: %1.16E\n",total_energy);
 	FILE *out;
-	out = fopen("spectrum_final.dat","w");
+	out = fopen("spectrum.dat","w");
 	for (i = 1; i < kkmax; i++) fprintf(out,"%1.16E\t%1.16E\n",freq[i],Eng[i]/total_energy);
 	fclose(out);
 	free(freq);
