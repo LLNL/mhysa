@@ -7,7 +7,7 @@ begin
   n_iter              120
   time_scheme         rk
   time_scheme_type    44
-  hyp_space_scheme    weno5
+  hyp_space_scheme    crweno5
   conservation_check  yes
   dt                  0.05
   screen_op_iter      1

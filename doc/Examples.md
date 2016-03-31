@@ -26,6 +26,8 @@
 \subpage sw_circdambreak \n
 \subpage sw_latbelt
 
+\subpage linear_adv_3dgauss
+
 \subpage ns3d_isoturb
 
 \page linear_adv_sine 1D Linear Advection - Sine Wave
@@ -1724,6 +1726,108 @@ is due to the non-zero source term - Coriolis force).
 
 Expected screen output:
 \include 2D/ShallowWater2D/LatitudeBeltFlow/output.log
+
+
+\page linear_adv_3dgauss 3D Linear Advection - Gaussian Pulse
+
+Location: \b hypar/Examples/3D/LinearAdvection/GaussianPulse
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 3D Linear Advection Equation (linearadr.h)
+
+Domain: \f$-3 \le x,y,z < 3\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions on all boundaries.
+
+Initial solution: \f$u\left(x,y,0\right) = u_0\left(x,y\right)= \exp\left[-\left(\frac{x^2}{2}+\frac{y^2}{2}+\frac{z^2}{2}\right)\right]\f$\n
+Exact solution: \f$u\left(x,y,t\right) = u_0\left(x-a_xt,y-a_yt,z-a_zt\right)\f$.
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 3D/LinearAdvection/GaussianPulse/solver.inp
+
+\b boundary.inp
+\include 3D/LinearAdvection/GaussianPulse/boundary.inp
+
+\b physics.inp (specifies \f$a_x\f$, \f$a_y\f$, and \f$a_z\f$)
+\include 3D/LinearAdvection/GaussianPulse/physics.inp
+
+\b lusolver.inp (optional)
+\include 3D/LinearAdvection/GaussianPulse/lusolver.inp
+
+\b weno.inp (optional)
+\include 3D/LinearAdvection/GaussianPulse/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory. \b Note: if the
+final time is an integer multiple of the time period,
+the file \b initial.inp can also be used as the exact
+solution \b exact.inp (i.e. create a sym link called 
+\a exact.inp pointing to \a initial.inp, or just copy
+\a initial.inp to \a exact.inp).
+\include 3D/LinearAdvection/GaussianPulse/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2 2
+
+in \b solver.inp (i.e., 2 processors along \a x, \a y, and \a z).
+Thus, this example should be run with 8 MPI ranks (or change \b iproc).
+
+After running the code, there should be 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=6\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+All the files are binary (#HyPar::op_file_format is set to \a binary in \b solver.inp).
+The code \b hypar/Extras/BinaryToTecplot.c can be used to convert the binary
+solution files to 3D Tecplot files that can be visualized in any software
+supporting the Tecplot format. Similarly, the code \b hypar/Extras/BinaryToText.c 
+can be used to convert the binary solution files to ASCII text files with the 
+following data layout: the first three columns are grid indices, the next three
+columns are x, y, and z coordinates, and the last column is the solution \a u.
+
+The following animation was generated from the solution files 
+(after converting to Tecplot format and plotting the iso-surface
+in VisIt):
+@image html Solution_3DLinearAdvGauss.gif
+
+Since the exact solution is available at the final time 
+(\a exact.inp is a copy of \a initial.inp), the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 3D/LinearAdvection/GaussianPulse/errors.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global), 
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include 3D/LinearAdvection/GaussianPulse/conservation.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global),
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError).
+
+Expected screen output:
+\include 3D/LinearAdvection/GaussianPulse/output.log
 
 
 \page ns3d_isoturb 3D Navier-Stokes Equations - Isotropic Turbulence Decay
