@@ -1,0 +1,8 @@
+begin
+  gamma     1.4
+  R         287.058
+  g         9.8
+  Omega     0.0
+  Pref      100000.0
+  Tref      300.0
+end
