@@ -5,6 +5,14 @@
 
   NOTE: make sure to make a subdirectory called "slices"
   before using it.
+
+  NOTE: the (n-1)D solution files (in binary format) are 
+  also named op.bin or op_xxxxx.bin so that the codes
+  hypar/Extras/BinaryToText.c and hypar/Extras/BinaryToTecplot.c
+  can be used to convert them to text/tecplot format.
+  (A copy of solver.inp needs to be made in the "slices" subdirectory
+  with "ndims" reduced by 1, and the appropriate component of "size" 
+  and "iproc" removed such that they have (n-1) components.)
 */
 
 #include <stdio.h>
