@@ -30,6 +30,8 @@
 
 \subpage ns3d_isoturb
 
+\subpage numa3d_bubble
+
 \page linear_adv_sine 1D Linear Advection - Sine Wave
 
 Location: \b hypar/Examples/1D/LinearAdvection/SineWave
@@ -1268,7 +1270,7 @@ processor along \a y). Thus, this example should be run
 with 12 MPI ranks (or change \b iproc).
 
 After running the code, there should be 26 output
-files \b op_00000.dat, \b op_00001.dat, ... \b op_00025.dat; 
+files \b op_00000.bin, \b op_00001.bin, ... \b op_00025.bin; 
 the first one is the solution at \f$t=0s\f$ and the final one
 is the solution at \f$t=3000s\f$. Since #HyPar::op_overwrite is
 set to \a no in \b solver.inp, separate files are written
@@ -1363,7 +1365,7 @@ processor along \a y). Thus, this example should be run
 with 12 MPI ranks (or change \b iproc).
 
 After running the code, there should be 41 output
-files \b op_00000.dat, \b op_00001.dat, ... \b op_00040.dat; 
+files \b op_00000.bin, \b op_00001.bin, ... \b op_00040.bin; 
 the first one is the solution at \f$t=0s\f$ and the final one
 is the solution at \f$t=700s\f$. Since #HyPar::op_overwrite is
 set to \a no in \b solver.inp, separate files are written
@@ -1485,7 +1487,7 @@ processor along \a y). Thus, this example should be run
 with 8 MPI ranks (or change \b iproc).
 
 After running the code, there should be one output file
-\b op.dat, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
+\b op.bin, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
   
 #HyPar::op_file_format is set to \a binary in \b solver.inp, and
 thus, all the files are written out in the binary format, see 
@@ -1785,7 +1787,7 @@ in \b solver.inp (i.e., 2 processors along \a x, \a y, and \a z).
 Thus, this example should be run with 8 MPI ranks (or change \b iproc).
 
 After running the code, there should be 11 output
-files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+files \b op_00000.bin, \b op_00001.bin, ... \b op_00010.bin; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=6\f$. Since #HyPar::op_overwrite is
 set to \a no in \b solver.inp, separate files are written
@@ -1840,7 +1842,7 @@ Location: \b hypar/Examples/3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
 
-Domain: \f$0 \le x,y < 2\pi\f$, "periodic" (#_PERIODIC_) boundaries 
+Domain: \f$0 \le x,y,z < 2\pi\f$, "periodic" (#_PERIODIC_) boundaries 
         everywhere.
 
 Initial solution: Isotropic turbulent flow - The initial solution is 
@@ -1899,7 +1901,7 @@ processors along \a y, and 1 processor along \a z). Thus,
 this example should be run with 4 MPI ranks (or change \b iproc).
 
 After running the code, there should be 11 output
-files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+files \b op_00000.bin, \b op_00001.bin, ... \b op_00010.bin; 
 the first one is the solution at \f$t=0\f$ and the final one
 is the solution at \f$t=5\f$. Since #HyPar::op_overwrite is
 set to \a no in \b solver.inp, separate files are written
@@ -1947,3 +1949,105 @@ The following figure shows the density iso-surface colored by the internal energ
 
 Expected screen output:
 \include 3D/NavierStokes3D/DNS_IsotropicTurbulenceDecay/output.log
+
+
+
+\page numa3d_bubble 3D NUMA (Nonhydrostatic Unified Model of the Atmosphere) Equations - Rising Thermal Bubble
+
+Location: \b hypar/Examples/3D/NUMA/RisingThermalBubble
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 3D NUMA (Nonhydrostatic Unified Model of the Atmosphere) Equations (numa3d.h)
+
+Domain: \f$0 \le x,y,z < 1000\,{\rm m}\f$, \a "numa-nfbc" (#_NO_FLUX_BC_) boundaries 
+        everywhere.
+
+Reference:
+  + Kelly, J. F., Giraldo, F. X., "Continuous and discontinuous Galerkin methods for a scalable
+  three-dimensional nonhydrostatic atmospheric model: Limited-area mode", J. Comput. Phys., 231,
+  2012, pp. 7988-8008 (see section 5.1.2).
+  + Giraldo, F. X., Kelly, J. F., Constantinescu, E. M., "Implicit-Explicit Formulations of a
+  Three-Dimensional Nonhydrostatic Unified Model of the Atmosphere (NUMA)", SIAM J. Sci. Comput., 
+  35 (5), 2013, pp. B1162-B1194 (see section 4.1).
+
+Initial solution: A warm bubble in cool ambient atmosphere.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#Numa3D::gamma)
+  + Universal gas constant \f$R = 287.058\f$ (#Numa3D::R)
+  + Gravitational force per unit mass \f$g = 9.8\f$ (#Numa3D::g)
+  + Angular speed of earth \f$\Omega = 0\f$ (#Numa3D::Omega)
+  + Reference pressure (at zero altitude) \f$P_{ref} = 100000\f$ (#Numa3D::Pref)
+  + Reference temperature (at zero altitude) \f$T_{ref} = 300\f$ (#Numa3D::Tref)
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 3D/NUMA/RisingThermalBubble/solver.inp
+
+\b boundary.inp
+\include 3D/NUMA/RisingThermalBubble/boundary.inp
+
+\b physics.inp
+\include 3D/NUMA/RisingThermalBubble/physics.inp
+
+\b weno.inp (optional)
+\include 3D/NUMA/RisingThermalBubble/weno.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 3D/NUMA/RisingThermalBubble/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2 2
+
+in \b solver.inp (i.e., 2 processors along \a x, 2
+processors along \a y, and 2 processor along \a z). Thus, 
+this example should be run with 8 MPI ranks (or change \b iproc).
+
+After running the code, there should be 41 output
+files \b op_00000.bin, \b op_00001.bin, ... \b op_00040.bin; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=200\,{\rm s}\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. All the files are binary
+(#HyPar::op_file_format is set to \a binary in \b solver.inp).
+
+The code \b hypar/Extras/BinaryToTecplot.c can be used to convert the binary
+solution files to 3D Tecplot files that can be visualized in any software
+supporting the Tecplot format. Similarly, the code \b hypar/Extras/BinaryToText.c 
+can be used to convert the binary solution files to ASCII text files with the 
+following data layout: the first three columns are grid indices, the next three
+columns are x, y, and z coordinates, and the remaining columns are the solution
+components (\f$\rho{'}, \rho u, \rho v, \rho w, \Theta{'}\f$).
+
+The following figure shows the density pertubation iso-surface for the initial
+and final solutions (plotted in VisIt):
+@image html Solution_3DNUMA_Bubble3D.png
+
+The code \b hypar/Extras/MidPlane.c can be used to extract a mid-slice along
+any of the dimensions (\b Note: make a subdirectory \a slices before using this).
+It will write out 2D slice solutions in binary format in the \a slices subdirectory
+with the same names as the original solution files. The codes \b hypar/Extras/BinaryToTecplot.c
+and \b hypar/Extras/BinaryToText.c can then be used to convert these to text or Tecplot
+formats for visualization. (\b Note: A copy of the original \a solver.inp is required in the \a slices subdirectory
+with \b ndims reduced by 1, and \b size and \b iproc with the appropriate component removed such that
+they have 2 components.)
+
+The following figure shows the density pertubation along a slice at \f$y=500\,{\rm m}\f$ 
+(plotted in VisIt):
+@image html Solution_3DNUMA_Bubble.gif
+
+Expected screen output:
+\include 3D/NUMA/RisingThermalBubble/output.log
