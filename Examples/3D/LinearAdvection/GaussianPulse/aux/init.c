@@ -36,7 +36,7 @@ int main()
 	printf("Grid:\t\t\t%d X %d X %d\n",NI,NJ,NK);
 
 	int i,j,k;
-	double dx = 6.0 / ((double)NI);
+	double dx = 12.0 / ((double)NI);
 	double dy = 6.0 / ((double)NJ);
 	double dz = 6.0 / ((double)NK);
 
@@ -49,10 +49,10 @@ int main()
 	for (i = 0; i < NI; i++){
   	for (j = 0; j < NJ; j++){
       for (k = 0; k < NK; k++) {
-	  	  x[i] = -3 + i*dx;
+	  	  x[i] = -6 + i*dx;
 	  	  y[j] = -3 + j*dy;
 	  	  z[k] = -3 + k*dz;
-        int p = i + NK*j + NI*NJ*k;
+        int p = i + NI*j + NI*NJ*k;
 		    u[p] = exp(-((x[i]*x[i]/2+y[j]*y[j]/2+z[k]*z[k]/2)));
       }
 	  }
