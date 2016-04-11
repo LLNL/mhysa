@@ -9,6 +9,9 @@ bin/
 build/
 config.h.in
 configure
+config.h
+config.log
+config.status
 depcomp
 install-sh
 missing
@@ -17,3 +20,5 @@ doc/html/
 doc/latex/
 doc/bib*
 doc/citelist*
+.deps
+stamp-h1
