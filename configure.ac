@@ -100,22 +100,26 @@ fi
 if test "x$PETSC_DIR" = "x"; then
   AC_MSG_NOTICE([Environment variable PETSC_DIR not set. Compiling without PETSc interface.])
 else
-  if test "x$PETSC_ARCH" = "x"; then
-    AC_MSG_NOTICE([Environment variable PETSC_ARCH not set. Compiling without PETSc interface.])
+  if [ ! -d "$PETSC_DIR" ]; then
+    AC_MSG_NOTICE([Environment variable PETSC_DIR set, but PETSc not found there. Compiling without PETSc interface.])
   else
-    AC_MSG_NOTICE([Compiling with PETSc interface.])
+    if test "x$PETSC_ARCH" = "x"; then
+      AC_MSG_NOTICE([Environment variable PETSC_ARCH not set. Compiling without PETSc interface.])
+    else
+      AC_MSG_NOTICE([Compiling with PETSc interface.])
 cat <<MFILE > petscmake$$
 PETSC_ARCH = ${PETSC_ARCH}
 PETSC_DIR  = ${PETSC_DIR}
 include ${PETSC_DIR}/lib/petsc/conf/variables
 include ${PETSC_DIR}/lib/petsc/conf/rules
 MFILE
-    PETSC_INC="`make -f petscmake$$ getincludedirs`"
-    PETSC_LIB="`make -f petscmake$$ getlinklibs`"
-    rm petscmake$$
-    CFLAGS="$CFLAGS -Dwith_petsc $PETSC_INC"
-    CXXFLAGS=$CFLAGS
-    LIBS="$LIBS $PETSC_LIB"
+      PETSC_INC="`make -f petscmake$$ getincludedirs`"
+      PETSC_LIB="`make -f petscmake$$ getlinklibs`"
+      rm petscmake$$
+      CFLAGS="$CFLAGS -Dwith_petsc $PETSC_INC"
+      CXXFLAGS=$CFLAGS
+      LIBS="$LIBS $PETSC_LIB"
+    fi
   fi
 fi
 
