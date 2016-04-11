@@ -100,7 +100,7 @@ fi
 if test "x$PETSC_DIR" = "x"; then
   AC_MSG_NOTICE([Environment variable PETSC_DIR not set. Compiling without PETSc interface.])
 else
-  if [ ! -d "$PETSC_DIR" ]; then
+  if test [ ! -d "$PETSC_DIR" ]; then
     AC_MSG_NOTICE([Environment variable PETSC_DIR set, but PETSc not found there. Compiling without PETSc interface.])
   else
     if test "x$PETSC_ARCH" = "x"; then
