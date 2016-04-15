@@ -1,4 +1,4 @@
-/*! @file NavierStokes4DInitialize.c
+/*! @file NavierStokes2DInitialize.c
     @author Debojyoti Ghosh
     @brief Initialization of the physics-related variables and function pointers for the 2D Navier-Stokes system
 */
