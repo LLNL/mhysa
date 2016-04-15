@@ -28,7 +28,7 @@
       7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
       http://dx.doi.org/10.2514/6.2015-2889
     + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
-      for Atmospheric Flows, Submitted
+      for Atmospheric Flows, AIAA Journal, http://dx.doi.org/10.2514/1.J054580.
 */
 int NavierStokes2DGravityField(
                                 void *s, /*!< Solver object of type #HyPar */

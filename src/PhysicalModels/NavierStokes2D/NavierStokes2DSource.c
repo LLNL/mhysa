@@ -19,7 +19,7 @@ static int NavierStokes2DSourceUpwind   (double*,double*,double*,double*,int,voi
       = 
       \left[\begin{array}{cccc} 0 & p_0 \varrho^{-1} & 0 &  p_0 u \varrho^{-1} \end{array}\right] \cdot \frac{\partial}{\partial x}\left[\begin{array}{c} 0 \\ \varphi \\ 0 \\ \varphi \end{array}\right]
       +
-      \left[\begin{array}{cccc} 0 & 0 & p_0 \varrho^{-1} &  p_0 u \varrho^{-1} \end{array}\right] \cdot \frac{\partial}{\partial y}\left[\begin{array}{c} 0 \\ 0 \\ \varphi \\  \varphi \end{array}\right]
+      \left[\begin{array}{cccc} 0 & 0 & p_0 \varrho^{-1} &  p_0 v \varrho^{-1} \end{array}\right] \cdot \frac{\partial}{\partial y}\left[\begin{array}{c} 0 \\ 0 \\ \varphi \\  \varphi \end{array}\right]
     \f}
     where \f$\varphi = \varphi\left(x,y\right)\f$ and \f$\varrho = \varrho\left(x,y\right)\f$ are computed in 
     NavierStokes2DGravityField(). The derivatives are computed in an exactly identical manner as the hyperbolic
@@ -31,7 +31,7 @@ static int NavierStokes2DSourceUpwind   (double*,double*,double*,double*,int,voi
       7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
       http://dx.doi.org/10.2514/6.2015-2889
     + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
-      for Atmospheric Flows, Submitted
+      for Atmospheric Flows, AIAA Journal, http://dx.doi.org/10.2514/1.J054580.
 */
 int NavierStokes2DSource(
                           double  *source,  /*!< Array to hold the computed source */

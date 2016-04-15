@@ -1,4 +1,4 @@
-/*! @file NavierStokes2DInitialize.c
+/*! @file NavierStokes4DInitialize.c
     @author Debojyoti Ghosh
     @brief Initialization of the physics-related variables and function pointers for the 2D Navier-Stokes system
 */
@@ -177,7 +177,6 @@ int NavierStokes2DInitialize(
     fclose(in);
   }
 
-#ifndef serial
   IERR MPIBroadcast_character (physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->gamma    ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->Pr       ,1                ,0,&mpi->world); CHECKERR(ierr);
@@ -190,7 +189,6 @@ int NavierStokes2DInitialize(
   IERR MPIBroadcast_double    (&physics->R        ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->N_bv     ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer   (&physics->HB       ,1                ,0,&mpi->world); CHECKERR(ierr);
-#endif
 
   /* Scaling the Reynolds number with the M_inf */
   physics->Re /= physics->Minf;
@@ -285,8 +283,10 @@ int NavierStokes2DInitialize(
   int d, size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
   physics->grav_field_f = (double*) calloc (size, sizeof(double));
   physics->grav_field_g = (double*) calloc (size, sizeof(double));
+  /* allocate arrays to hold the fast Jacobian for split form of the hyperbolic flux */
   physics->fast_jac     = (double*) calloc (2*size*_MODEL_NVARS_*_MODEL_NVARS_,sizeof(double));
   physics->solution     = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
+  /* initialize the gravity fields */
   IERR NavierStokes2DGravityField(solver,mpi); CHECKERR(ierr);
 
   return(0);
