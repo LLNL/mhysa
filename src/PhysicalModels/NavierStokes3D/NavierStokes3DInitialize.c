@@ -97,6 +97,7 @@ int NavierStokes3DInitialize(
   physics->C2     = 110.4;
   physics->grav_x = 0.0;
   physics->grav_y = 0.0;
+  physics->grav_z = 0.0;
   physics->rho0   = 1.0;
   physics->p0     = 1.0;
   physics->HB     = 1;
@@ -129,6 +130,7 @@ int NavierStokes3DInitialize(
           } else if (!strcmp(word,"gravity")) {
             ferr = fscanf(in,"%lf",&physics->grav_x);   if (ferr != 1) return(1);
             ferr = fscanf(in,"%lf",&physics->grav_y);   if (ferr != 1) return(1);
+            ferr = fscanf(in,"%lf",&physics->grav_z);   if (ferr != 1) return(1);
           } else if (!strcmp(word,"rho_ref")) {
             ferr = fscanf(in,"%lf",&physics->rho0);     if (ferr != 1) return(1);
           } else if (!strcmp(word,"p_ref")) {
