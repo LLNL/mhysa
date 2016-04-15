@@ -1,3 +1,7 @@
+/*! @file NavierStokes3DParabolicFunction.c
+    @author Debojyoti Ghosh
+    @brief Compute the viscous terms for the 3D Navier Stokes equations
+*/
 #include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
@@ -6,14 +10,45 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-/*
-  Refer: Computational Fluid Mechanics and Heat Transfer
-         by Tannehill, Anderson and Pletcher
-         Chapter 5, Section 5.1.7 for the non-dimensional
-         form of the NS equations.
+/*!
+    Compute the viscous terms in the 3D Navier Stokes equations: this function computes
+    the following:
+    \f{equation}{
+      \frac {\partial} {\partial x} \left[\begin{array}{c} 0 \\ \tau_{xx} \\ \tau_{yx} \\ \tau_{zx} \\ u \tau_{xx} + v \tau_{yx} + w \tau_{zx} - q_x \end{array}\right]
+      + \frac {\partial} {\partial y} \left[\begin{array}{c} 0 \\ \tau_{xy} \\ \tau_{yy} \\ \tau_{zy} \\ u \tau_{xy} + v \tau_{yy} + w \tau_{zy} - q_y \end{array}\right]
+      + \frac {\partial} {\partial z} \left[\begin{array}{c} 0 \\ \tau_{xz} \\ \tau_{yz} \\ \tau_{zz} \\ u \tau_{xz} + v \tau_{yz} + w \tau_{zz} - q_z \end{array}\right]
+    \f}
+    where 
+    \f{align}{
+      \tau_{xx} &= \frac{2}{3}\left(\frac{\mu}{Re}\right)\left(2\frac{\partial u}{\partial x} - \frac{\partial v}{\partial y} - \frac{\partial w}{\partial z}\right),\\
+      \tau_{xy} &= \left(\frac{\mu}{Re}\right)\left(\frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\right),\\
+      \tau_{xz} &= \left(\frac{\mu}{Re}\right)\left(\frac{\partial u}{\partial z} + \frac{\partial w}{\partial x}\right),\\
+      \tau_{yx} &= \left(\frac{\mu}{Re}\right)\left(\frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\right),\\
+      \tau_{yy} &= \frac{2}{3}\left(\frac{\mu}{Re}\right)\left(-\frac{\partial u}{\partial x} +2\frac{\partial v}{\partial y} - \frac{\partial w}{\partial z}\right),\\
+      \tau_{yz} &= \left(\frac{\mu}{Re}\right)\left(\frac{\partial w}{\partial y} + \frac{\partial v}{\partial z}\right),\\
+      \tau_{zx} &= \left(\frac{\mu}{Re}\right)\left(\frac{\partial u}{\partial z} + \frac{\partial w}{\partial x}\right),\\
+      \tau_{zy} &= \left(\frac{\mu}{Re}\right)\left(\frac{\partial v}{\partial z} + \frac{\partial w}{\partial y}\right),\\
+      \tau_{zz} &= \frac{2}{3}\left(\frac{\mu}{Re}\right)\left(-\frac{\partial u}{\partial x} - \frac{\partial v}{\partial y} + 2\frac{\partial v}{\partial y}\right),\\
+      q_x &= -\frac{mu}{\left(\gamma-1\right)Re Pr}\frac{\partial T}{\partial x}, \\
+      q_y &= -\frac{mu}{\left(\gamma-1\right)Re Pr}\frac{\partial T}{\partial y}, \\
+      q_z &= -\frac{mu}{\left(\gamma-1\right)Re Pr}\frac{\partial T}{\partial z}
+    \f}
+    and the temperature is \f$T = \gamma p/\rho\f$. \f$Re\f$ and \f$Pr\f$ are the Reynolds and Prandtl numbers, respectively. Note that this function
+    computes the entire parabolic term, and thus bypasses HyPar's parabolic function calculation interfaces. NavierStokes3DInitialize() assigns this
+    function to #HyPar::ParabolicFunction.
+    \n\n
+    Reference:
+    + Tannehill, Anderson and Pletcher, Computational Fluid Mechanics and Heat Transfer,
+      Chapter 5, Section 5.1.7 (However, the non-dimensional velocity and the Reynolds
+      number is based on speed of sound, instead of the freestream velocity).
 */
-
-int NavierStokes3DParabolicFunction(double *par,double *u,void *s,void *m,double t)
+int NavierStokes3DParabolicFunction(
+                                      double  *par, /*!< Array to hold the computed viscous terms */
+                                      double  *u,   /*!< Solution vector array */
+                                      void    *s,   /*!< Solver object of type #HyPar */
+                                      void    *m,   /*!< MPI object of type #MPIVariables */
+                                      double  t     /*!< Current simulation time */
+                                   )
 {
   HyPar           *solver   = (HyPar*) s;
   MPIVariables    *mpi      = (MPIVariables*) m;

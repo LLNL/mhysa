@@ -1,3 +1,7 @@
+/*! @file NavierStokes3DComputeCFL.c
+    @author Debojyoti Ghosh
+    @brief Compute the maximum CFL.
+*/
 #include <stdlib.h>
 #include <math.h>
 #include <basic.h>
@@ -6,7 +10,15 @@
 #include <physicalmodels/navierstokes3d.h>
 #include <hypar.h>
 
-double NavierStokes3DComputeCFL(void *s,void *m,double dt,double t)
+/*! Computes the maximum CFL number over the domain. Note that the CFL
+    is computed over the local domain on this processor only.
+*/
+double NavierStokes3DComputeCFL(
+                                void    *s, /*!< Solver object of type #HyPar */
+                                void    *m, /*!< MPI object of type #MPIVariables */
+                                double  dt, /*!< Time step size for which to compute the CFL */
+                                double  t   /*!< Time */
+                               )
 {
   HyPar             *solver = (HyPar*)   s;
   NavierStokes3D    *param  = (NavierStokes3D*) solver->physics;
