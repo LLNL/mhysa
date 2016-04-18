@@ -341,12 +341,12 @@ int NavierStokes3DUpwindRusanov(
   int             *dim    = solver->dim_local, done;
 
   int bounds_outer[_MODEL_NDIMS_], bounds_inter[_MODEL_NDIMS_];
-  bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[dir] = 1;
-  bounds_inter[0] = dim[0]; bounds_inter[1] = dim[1]; bounds_inter[dir]++;
+  bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[2] = dim[2]; bounds_outer[dir] = 1;
+  bounds_inter[0] = dim[0]; bounds_inter[1] = dim[1]; bounds_inter[2] = dim[2]; bounds_inter[dir]++;
 
-  done = 0; int index_outer[_MODEL_NDIMS_] = {0,0}; int index_inter[_MODEL_NDIMS_];
+  done = 0; int index_outer[_MODEL_NDIMS_] = {0,0,0}; int index_inter[_MODEL_NDIMS_];
   while (!done) {
-    index_inter[0] = index_outer[0]; index_inter[1] = index_outer[1];
+    index_inter[0] = index_outer[0]; index_inter[1] = index_outer[1]; index_inter[2] = index_outer[2];
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
       int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
@@ -363,7 +363,7 @@ int NavierStokes3DUpwindRusanov(
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
       udiff[4] = 0.5 * (uR[_MODEL_NVARS_*p+4] - uL[_MODEL_NVARS_*p+4]);
 
-      _NavierStokes3DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _NavierStokes3DRoeAverage_(uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
 
       double c, vel[_MODEL_NDIMS_], rho,E,P;
       _NavierStokes3DGetFlowVar_((u+_MODEL_NVARS_*pL),rho,vel[0],vel[1],vel[2],E,P,param);
