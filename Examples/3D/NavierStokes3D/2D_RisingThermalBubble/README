@@ -1,0 +1,38 @@
+3D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+2D Rising Thermal Bubble Problem (simulated using 
+the 3D model with zero gradients and periodic BCs
+along z):
+
++ Giraldo, F.X., Restelli, M., "A study of spectral element and 
+  discontinuous Galerkin methods for the Navier–Stokes equations 
+  in nonhydrostatic mesoscale atmospheric modeling: Equation sets 
+  and test cases", J. Comput. Phys., 227, 2008, 3849--3877
+  doi:10.1016/j.jcp.2007.12.009
+  (Section 3.2)
+
+Domain:
+
+  0 <= x,y <= 1000
+  "slip-walls" boundary conditions along x,y
+
+  0 <= z <= 100
+  "periodic" boundary conditions along z
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
++ initial.inp   -   Initial solution file (can be generated
+                    by compiling and running aux/init.c in
+                    the run directory).
+
+** See hypar/README for other (optional) input files
+
+Visualizing the solution in Tecplot or MATLAB:
+1)  Make sure op_file_format is set to binary in solver.inp.
+2)  Compile and run aux/PostProcess.c after the simulation is
+    over.
+3a) Choose text output and plot in MATLAB using PlotSolution.m
+*or*
+3b) Choose Tecplot output and plot in Tecplot. 
