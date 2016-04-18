@@ -47,7 +47,7 @@ int NavierStokes3DSource(
   MPIVariables    *mpi    = (MPIVariables*)   m;
   NavierStokes3D  *param  = (NavierStokes3D*) solver->physics;
 
-  if ((param->grav_x == 0.0) && (param->grav_y == 0.0))  
+  if ((param->grav_x == 0.0) && (param->grav_y == 0.0) && (param->grav_z == 0.0))  
     return(0); /* no gravitational forces */
 
   int     v, done, p, p1, p2, dir;
