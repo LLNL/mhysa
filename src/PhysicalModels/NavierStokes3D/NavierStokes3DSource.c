@@ -62,9 +62,13 @@ int NavierStokes3DSource(
   double  *dxinv  = solver->dxinv;
   double  RT      =  param->p0 / param->rho0;
   static int index[_MODEL_NDIMS_],index1[_MODEL_NDIMS_],index2[_MODEL_NDIMS_],dim_interface[_MODEL_NDIMS_];
+  static double grav[_MODEL_NDIMS_];
 
+  grav[_XDIR_] = param->grav_x; 
+  grav[_YDIR_] = param->grav_y; 
+  grav[_ZDIR_] = param->grav_z; 
   for (dir = 0; dir < _MODEL_NDIMS_; dir++) {
-    if (param->grav_x != 0.0) {
+    if (grav[dir] != 0.0) {
       /* set interface dimensions */
       _ArrayCopy1D_(dim,dim_interface,_MODEL_NDIMS_); dim_interface[dir]++;
       /* calculate the split source function exp(-phi/RT) */
@@ -98,6 +102,7 @@ int NavierStokes3DSource(
 
   return(0);
 }
+
 /*! Compute the source function in the well-balanced treatment of the source terms. The source
     function is:
     \f{equation}{
