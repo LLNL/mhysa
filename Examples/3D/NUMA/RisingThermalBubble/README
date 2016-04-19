@@ -1,0 +1,35 @@
+3D NON-HYDROSTATIC UNIFIED MODEL OF THE ATMOSPHERE (NUMA)
+
+Rising Thermal Bubble Problem: represents a warm bubble in cool
+ambient atmosphere that rises due to buoyancy. In this example,
+the gravitational force acts along the y-axis.
+
++ Kelly, J. F., Giraldo, F. X., "Continuous and discontinuous 
+  Galerkin methods for a scalable three-dimensional nonhydrostatic 
+  atmospheric model: Limited-area mode", J. Comput. Phys., 231, 2012, 
+  pp. 7988-8008 (see section 5.1.2).
++ Giraldo, F. X., Kelly, J. F., Constantinescu, E. M., "Implicit-Explicit 
+  Formulations of a Three-Dimensional Nonhydrostatic Unified Model of the 
+  Atmosphere (NUMA)", SIAM J. Sci. Comput., 35 (5), 2013, pp. B1162-B1194 
+  (see section 4.1).
+
+Domain:
+
+  0 <= x,y,z <= 1000
+  "slip-walls" boundary conditions at all boundaries
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
++ initial.inp   -   Initial solution file (can be generated
+                    by compiling and running aux/init.c in
+                    the run directory).
+
+** See hypar/README for other (optional) input files
+
+Visualization:
+- The binary solution files can be converted to Tecplot files using
+  hypar/Extras/BinaryToTecplot.c or to plain text files using
+  hypar/Extras/BinaryToText.c. The script PlotSolution.m can be used
+  to visualize the plain text file in MATLAB.
