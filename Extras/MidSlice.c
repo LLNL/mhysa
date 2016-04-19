@@ -1,7 +1,9 @@
 /*
-  This code extracts the midplane-slice of a specified 
-  dimension in a nD solution (binary format) and writes 
-  out a (n-1)D solution for that slice (in binary format).
+ * This code extracts a (n-1)-dimensional slice perpendicular
+ * to a specified dimension ("dimension being eliminated") at
+ * a specified (non-dimensional) position along this dimension
+ * from a n-dimensional solution (in binary format) and writes 
+ * it out to a binary file.
 
   NOTE: make sure to make a subdirectory called "slices"
   before using it.
@@ -127,7 +129,7 @@ int WriteBinary(int ndims, int nvars, int *dim, double *x, double *u, char *f)
   return(0);
 }
 
-int ExtractSlice(char *f, int slicedim)
+int ExtractSlice(char *f, int slicedim, double slicepos)
 {
   FILE *in;
   in = fopen(f,"rb");
@@ -160,6 +162,22 @@ int ExtractSlice(char *f, int slicedim)
   /* done reading */
   fclose(in);
 
+  /* find slice index and interpolation weights */
+  double *xcoord = x;
+  for (d=0; d<slicedim; d++) xcoord += dims[d];
+  double xlen = xcoord[dims[slicedim]-1]-xcoord[0];
+  printf("Length of domain along dimension being eliminated: %lf\n",xlen);
+  double slice_x = xcoord[0] + slicepos*xlen;
+  printf("Slice position along dimension being eliminated: %lf\n",slice_x);
+  int slice_index = -1;
+  for (d=0; d<dims[slicedim]; d++) {
+    if (xcoord[d] <= slice_x) slice_index = d;
+  }
+  printf("Grid indices (along dimension being eliminated) between which the slice lies: %d, %d\n",slice_index,slice_index+1);
+  printf("Spatial coordinates corresponding to these grid indices: %lf, %lf\n", xcoord[slice_index],xcoord[slice_index+1]);
+  double alpha = (xcoord[slice_index+1]-slice_x)/(xcoord[slice_index+1]-xcoord[slice_index]);
+  printf("Interpolation weights corresponding to these grid indices: %lf, %lf\n", alpha, 1-alpha);
+
   /* extract slice */
   int sdims[ndims-1], dd=0;
   sdims[0] = sdims[1] = 0;
@@ -190,11 +208,16 @@ int ExtractSlice(char *f, int slicedim)
 
   int index[ndims], done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
-    int p;
-    _ArrayIndex1D_(ndims,dims,index,0,p);
-    if (index[slicedim] == dims[slicedim]/2) {
+    if (index[slicedim] == slice_index) {
+
+      int p1, p2, d;
+      int index2[ndims];
+      for (d=0; d<ndims; d++) index2[d] = index[d]; index2[slicedim]++;
+      _ArrayIndex1D_(ndims,dims,index ,0,p1);
+      _ArrayIndex1D_(ndims,dims,index2,0,p2);
+
       int index_slice[ndims-1], pslice;
-      int d, dd = 0;
+      int dd = 0;
       for (d=0; d<ndims; d++) {
         if (d != slicedim) {
           index_slice[dd] = index[d];
@@ -202,8 +225,11 @@ int ExtractSlice(char *f, int slicedim)
         }
       }
       _ArrayIndex1D_((ndims-1),sdims,index_slice,0,pslice);
+
       int v;
-      for (v = 0; v < nvars; v++) SU[pslice*nvars+v] = U[p*nvars+v];
+      for (v = 0; v < nvars; v++) {
+        SU[pslice*nvars+v] = alpha*U[p1*nvars+v] + (1-alpha)*alpha*U[p2*nvars+v];
+      }
     }
     _ArrayIncrementIndex_(ndims,dims,index,done);
   }
@@ -255,14 +281,17 @@ int main()
   }
 
   int slicedim;
-  printf("Enter dimension along which to extract slice: ");
+  double slicepos;
+  printf("Enter dimension to eliminate: ");
   scanf("%d",&slicedim);
+  printf("Enter nondimensional position along %d-dimension to extract the (n-1)-dimensional slice at ([0,1]): ",slicedim);
+  scanf("%lf",&slicepos);
 
   if (!strcmp(overwrite,"no")) {
 
     strcpy(filename,"op_00000.bin");
     while(1) {
-      int flag = ExtractSlice(filename,slicedim);
+      int flag = ExtractSlice(filename,slicedim,slicepos);
       if (flag) { 
         printf("No more files found. Exiting.\n");
         break;
@@ -271,7 +300,7 @@ int main()
     }
   } else if (!strcmp(overwrite,"yes")) {
     strcpy(filename,"op.bin");
-    int flag = ExtractSlice(filename,slicedim);
+    int flag = ExtractSlice(filename,slicedim,slicepos);
     if (flag) printf("File not found. Exiting.\n");
   }
 
