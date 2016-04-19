@@ -1,3 +1,11 @@
+/*
+  This code generates the initial solution for the rising 
+  thermal bubble case for the 3D Navier-Stokes equations.
+
+  Note: this code allocates the global domain, so be careful
+  when using it for a large number of grid points.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
