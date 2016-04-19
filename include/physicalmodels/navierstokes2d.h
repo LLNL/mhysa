@@ -32,7 +32,7 @@
     7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
     http://dx.doi.org/10.2514/6.2015-2889
   + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
-    for Atmospheric Flows, AIAA Journal, http://dx.doi.org/10.2514/1.J054580
+    for Atmospheric Flows, AIAA Journal, 54 (4), 2016, pp. 1370-1385, http://dx.doi.org/10.2514/1.J054580
 
   Reference for the partitioning of the flux into its stiff (acoustic) and non-stiff (convective)
   components:

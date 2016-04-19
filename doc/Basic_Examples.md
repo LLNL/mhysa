@@ -1,3 +1,9 @@
+Basic Examples
+==============
+
+The following are some basic examples that are simulated using HyPar. They 
+all use explicit time integration, and \b do \b not require HyPar to be compiled
+with PETSc.
 
 \subpage linear_adv_sine \n
 \subpage linear_adv_disc \n

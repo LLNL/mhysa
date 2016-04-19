@@ -176,11 +176,9 @@ int NavierStokes3DInitialize(
 
   /* check that a well-balanced upwinding scheme is being used for cases with gravity */
   if (   ((physics->grav_x != 0.0) || (physics->grav_y != 0.0) || (physics->grav_z != 0.0) )
-      && (strcmp(physics->upw_choice,_LLF_    )) 
-      && (strcmp(physics->upw_choice,_RUSANOV_)) 
-      && (strcmp(physics->upw_choice,_ROE_    ))              ) {
+      && (strcmp(physics->upw_choice,_RUSANOV_)) ) {
     if (!mpi->rank) {
-      fprintf(stderr,"Error in NavierStokes3DInitialize: %s, %s or %s upwinding is needed for flows ",_LLF_,_ROE_,_RUSANOV_);
+      fprintf(stderr,"Error in NavierStokes3DInitialize: %s upwinding is needed for flows ",_RUSANOV_);
       fprintf(stderr,"with gravitational forces.\n");
     }
     return(1);
