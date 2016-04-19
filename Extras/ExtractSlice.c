@@ -4,6 +4,9 @@
  * a specified (non-dimensional) position along this dimension
  * from a n-dimensional solution (in binary format) and writes 
  * it out to a binary file.
+ 
+  NOTE: if the specified position does not coincide with a grid
+  point, a linear interpolation is used.
 
   NOTE: make sure to make a subdirectory called "slices"
   before using it.
