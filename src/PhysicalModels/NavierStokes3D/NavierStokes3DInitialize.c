@@ -164,6 +164,7 @@ int NavierStokes3DInitialize(
   IERR MPIBroadcast_double    (&physics->Minf     ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->grav_x   ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->grav_y   ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->grav_z   ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->rho0     ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->p0       ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->R        ,1                ,0,&mpi->world); CHECKERR(ierr);
