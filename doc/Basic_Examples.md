@@ -34,7 +34,8 @@ with PETSc.
 
 \subpage linear_adv_3dgauss
 
-\subpage ns3d_isoturb
+\subpage ns3d_isoturb \n
+\subpage ns3d_bubble
 
 \subpage numa3d_bubble
 
@@ -1958,6 +1959,118 @@ Expected screen output:
 
 
 
+\page ns3d_bubble 3D Navier-Stokes Equations - Rising Thermal Bubble
+
+Location: \b hypar/Examples/3D/NavierStokes3D/RisingThermalBubble
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: \f$0 \le x,y,z < 1000\,{\rm m}\f$, \a "slip-wall" (#_SLIP_WALL_) boundaries 
+        everywhere, with zero wall velocity.
+
+Reference:
+  + Kelly, J. F., Giraldo, F. X., "Continuous and discontinuous Galerkin methods for a scalable
+  three-dimensional nonhydrostatic atmospheric model: Limited-area mode", J. Comput. Phys., 231,
+  2012, pp. 7988-8008 (see section 5.1.2).
+  + Giraldo, F. X., Kelly, J. F., Constantinescu, E. M., "Implicit-Explicit Formulations of a
+  Three-Dimensional Nonhydrostatic Unified Model of the Atmosphere (NUMA)", SIAM J. Sci. Comput., 
+  35 (5), 2013, pp. B1162-B1194 (see section 4.1).
+
+Initial solution: A warm bubble in cool ambient atmosphere. Note that in this example, the
+gravitational forces and rising of the bubble is along the \a y-axis.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+  + Universal gas constant \f$R = 287.058\f$ (#NavierStokes3D::R)
+  + Gravitational force per unit mass \f$g = 9.8\f$ along \a y-axis (#NavierStokes3D::grav_y)
+  + Reference density (at zero altitude) \f$\rho_{ref} = 1.1612055171196529\f$ (#NavierStokes3D::rho0)
+  + Reference pressure (at zero altitude) \f$P_{ref} = 100000\f$ (#NavierStokes3D::p0)
+  + Hydrostatic balance type 2 (#NavierStokes3D::HB)
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: SSP RK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 3D/NavierStokes3D/RisingThermalBubble/solver.inp
+
+\b boundary.inp
+\include 3D/NavierStokes3D/RisingThermalBubble/boundary.inp
+
+\b physics.inp
+\include 3D/NavierStokes3D/RisingThermalBubble/physics.inp
+
+\b weno.inp (optional)
+\include 3D/NavierStokes3D/RisingThermalBubble/weno.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 3D/NavierStokes3D/RisingThermalBubble/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      4 4 4
+
+in \b solver.inp (i.e., 4 processors along \a x, 4
+processors along \a y, and 4 processor along \a z). Thus, 
+this example should be run with 64 MPI ranks (or change \b iproc).
+
+After running the code, there should be 11 output
+files \b op_00000.bin, \b op_00001.bin, ... \b op_00010.bin; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=200\,{\rm s}\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. All the files are binary
+(#HyPar::op_file_format is set to \a binary in \b solver.inp).
+
+The following code (<B>Examples/3D/NavierStokes3D/RisingThermalBubble/aux/PostProcess.c</B>)
+can be used to convert the binary solution file (with conserved variables 
+\f$\rho,\rho u,\rho v,\rho w,e\f$) to Tecplot or plain text files with the primitive
+and reference variables \f$\rho,u,v,w,P,\theta,\rho_0,P_0,\pi,\theta_0\f$ where the
+subscript \f$0\f$ indicates the hydrostatic mean value.
+\include 3D/NavierStokes3D/RisingThermalBubble/aux/PostProcess.c
+
+The following figure shows the density pertubation iso-surface for the initial
+and final solutions (plotted in VisIt):
+@image html Solution_3DNavStok_Bubble3D.png
+
+The file \b Extras/ExtractSlice.c can be used to extract a slice perpendicular to any dimension
+at a specified location along that dimension. The extract slice is written out in the same
+binary format as the original solutions files (with the same names op_xxxxx.bin) in a 
+subdirectory called \b slices (\b Note: make the subdirectory called \a slices before running
+this code). The following code (<B>Examples/3D/NavierStokes3D/RisingThermalBubble/aux/PostProcessSlice.c</B>)
+can then be used (in the \b slices subdirectory) to convert the binary slice solution file (with conserved variables 
+\f$\rho,\rho u,\rho v,\rho w,e\f$) to Tecplot or plain text files with the primitive
+and reference variables \f$\rho,u,v,w,P,\theta,\rho_0,P_0,\pi,\theta_0\f$.
+\b Note that it needs the relevant \b solver.inp and \b physics.inp that can be created
+as follows:
++ Copy the original solver.inp and physics.inp to the slices subdirectory.
++ In solver.inp, set \b ndims as \b 2, and remove the component of \b size and \b iproc 
+  corresponding to the dimension being eliminated while extracting the slices (in this case,
+  it is \a z or the 3rd component).
++ In physics.inp, remove the component of \b gravity corresponding to the dimension perpendicular
+  to the slice.
+
+\include 3D/NavierStokes3D/RisingThermalBubble/aux/PostProcessSlice.c
+
+The following figure shows the potential temperature \f$\theta\f$ along a slice at \f$z=500\,{\rm m}\f$ 
+(plotted in VisIt):
+@image html Solution_3DNavStok_Bubble.gif
+
+Expected screen output:
+\include 3D/NavierStokes3D/RisingThermalBubble/output.log
+
+
+
 \page numa3d_bubble 3D NUMA (Nonhydrostatic Unified Model of the Atmosphere) Equations - Rising Thermal Bubble
 
 Location: \b hypar/Examples/3D/NUMA/RisingThermalBubble
@@ -2042,8 +2155,8 @@ The following figure shows the density pertubation iso-surface for the initial
 and final solutions (plotted in VisIt):
 @image html Solution_3DNUMA_Bubble3D.png
 
-The code \b hypar/Extras/MidPlane.c can be used to extract a mid-slice along
-any of the dimensions (\b Note: make a subdirectory \a slices before using this).
+The code \b hypar/Extras/ExtractSlice.c can be used to extract a slice along at a specified location
+along any of the dimensions (\b Note: make a subdirectory \a slices before using this).
 It will write out 2D slice solutions in binary format in the \a slices subdirectory
 with the same names as the original solution files. The codes \b hypar/Extras/BinaryToTecplot.c
 and \b hypar/Extras/BinaryToText.c can then be used to convert these to text or Tecplot
