@@ -1,5 +1,16 @@
-Basic Examples
-==============
+Examples
+========
+
+\subpage basic_examples :
+Some basic examples that are simulated using HyPar. They 
+all use explicit time integration, and \b do \b not require HyPar to be compiled
+with PETSc. Most of them can be run on one or a small number of processors.
+
+\subpage petsc_examples : 
+Some examples that use implicit or semi-implicit (IMEX) time
+integration methods implemented in PETSc. To run them, HyPar needs to be compiled \b with \b PETSc.
+
+\page basic_examples Basic Examples
 
 The following are some basic examples that are simulated using HyPar. They 
 all use explicit time integration, and \b do \b not require HyPar to be compiled
@@ -2170,3 +2181,19 @@ The following figure shows the density pertubation along a slice at \f$y=500\,{\
 
 Expected screen output:
 \include 3D/NUMA/RisingThermalBubble/output.log
+
+
+
+\page petsc_examples PETSc Examples
+
+The following are some examples that use implicit or semi-implicit (IMEX) time
+integration. To run them, HyPar needs to be compiled \b with \b PETSc.
+\b Note that familiarity with using PETSc (https://www.mcs.anl.gov/petsc/) is assumed.
+In general, any example or simulation can use PETSc time-integrators (assuming
+HyPar is compiled with PETSc) by specifying the PETSc inputs through a 
+<B>.petscrc</B> file. The file 
++ <B>hypar/Examples/PETScInputs/.petscrc_Example</B> 
+
+is an example of a .petscrc file (with explanatory comments).
+
+
