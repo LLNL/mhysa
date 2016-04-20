@@ -16,7 +16,9 @@
 
 /* Function declarations */
 static int WriteArraySerial   (int,int,int*,int*,int,double*,double*,void*,void*,char*);
+#ifndef serial
 static int WriteArrayParallel (int,int,int*,int*,int,double*,double*,void*,void*,char*);
+#endif
 
 /*! Write out a vector field, stored as an array, to file: wrapper function that calls 
     the appropriate function depending on output mode (#HyPar::output_mode). The 
@@ -43,13 +45,17 @@ int WriteArray(
   /* if WriteOutput() is NULL, then return */
   if (!solver->WriteOutput) return(0);
 
+#ifndef serial
   if (!strcmp(solver->output_mode,"serial")) {
+#endif
     IERR WriteArraySerial(ndims,nvars,dim_global,dim_local,ghosts,x,u,
                           solver,mpi,fname_root); CHECKERR(ierr);
+#ifndef serial
   } else {
     IERR WriteArrayParallel(ndims,nvars,dim_global,dim_local,ghosts,x,u,
                             solver,mpi,fname_root); CHECKERR(ierr);
   }
+#endif
   
   return(0);
 }
@@ -184,6 +190,7 @@ int WriteArraySerial(
     ranks participating in file I/O (#MPIVariables::N_IORanks) should be set to the number of I/O nodes 
     available on a HPC platform, given the number of compute nodes the simulation is running on.
 */
+#ifndef serial
 int WriteArrayParallel(
                         int     ndims,        /*!< Number of spatial dimensions */
                         int     nvars,        /*!< Number of variables per grid point */
@@ -314,3 +321,4 @@ int WriteArrayParallel(
 
   return(0);
 }
+#endif

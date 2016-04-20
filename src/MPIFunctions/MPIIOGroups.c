@@ -38,6 +38,8 @@ int MPICreateIOGroups(void *m /*!< MPI object of type #MPIVariables*/)
 {
   MPIVariables *mpi = (MPIVariables*) m;
 
+#ifndef serial
+
   int nproc         = mpi->nproc;
   int rank          = mpi->rank;
   int N_IORanks     = mpi->N_IORanks;
@@ -80,6 +82,8 @@ int MPICreateIOGroups(void *m /*!< MPI object of type #MPIVariables*/)
   MPI_Group_free(&IOGroup);
   MPI_Group_free(&WorldGroup);
   free(FileIORanks);
+
+#endif
 
   return(0);
 }
