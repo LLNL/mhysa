@@ -14,9 +14,14 @@
 
 double NavierStokes3DComputeCFL        (void*,void*,double,double);
 int    NavierStokes3DFlux              (double*,double*,int,void*,double);
+int    NavierStokes3DStiffFlux         (double*,double*,int,void*,double);
+int    NavierStokes3DNonStiffFlux      (double*,double*,int,void*,double);
 int    NavierStokes3DRoeAverage        (double*,double*,double*,void*);
 int    NavierStokes3DParabolicFunction (double*,double*,void*,void*,double);
 int    NavierStokes3DSource            (double*,double*,void*,void*,double);
+
+int    NavierStokes3DJacobian          (double*,double*,void*,int,int);
+int    NavierStokes3DStiffJacobian     (double*,double*,void*,int,int);
 
 int    NavierStokes3DLeftEigenvectors  (double*,double*,void*,int);
 int    NavierStokes3DRightEigenvectors (double*,double*,void*,int);
@@ -26,8 +31,14 @@ int    NavierStokes3DUpwindRF          (double*,double*,double*,double*,double*,
 int    NavierStokes3DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes3DUpwindRusanov     (double*,double*,double*,double*,double*,double*,int,void*,double);
 
+int    NavierStokes3DUpwindRusanovModified   (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes3DUpwinddFRusanovModified (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes3DUpwindFdFRusanovModified(double*,double*,double*,double*,double*,double*,int,void*,double);
+
 int    NavierStokes3DGravityField      (void*,void*);
 int    NavierStokes3DModifiedSolution  (double*,double*,int,void*,void*,double);
+
+int    NavierStokes3DPreStep           (double*,void*,void*,double);
 
 /*! Initialize the 3D Navier-Stokes (#NavierStokes3D) module:
     Sets the default parameters, read in and set physics-related parameters,
@@ -190,15 +201,9 @@ int NavierStokes3DInitialize(
     }
     return(1);
   }
-  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
-    if (!mpi->rank) {
-      fprintf(stderr,"Error in NavierStokes3DInitialize: This physical model does not have a splitting ");
-      fprintf(stderr,"of the hyperbolic term defined.\n");
-    }
-    return(1);
-  }
 
   /* initializing physical model-specific functions */
+  solver->PreStep               = NavierStokes3DPreStep;
   solver->ComputeCFL            = NavierStokes3DComputeCFL;
   solver->FFunction             = NavierStokes3DFlux;
   solver->SFunction             = NavierStokes3DSource;
@@ -206,14 +211,38 @@ int NavierStokes3DInitialize(
   solver->AveragingFunction     = NavierStokes3DRoeAverage;
   solver->GetLeftEigenvectors   = NavierStokes3DLeftEigenvectors;
   solver->GetRightEigenvectors  = NavierStokes3DRightEigenvectors;
-  if      (!strcmp(physics->upw_choice,_ROE_    )) solver->Upwind = NavierStokes3DUpwindRoe;
-  else if (!strcmp(physics->upw_choice,_RF_     )) solver->Upwind = NavierStokes3DUpwindRF;
-  else if (!strcmp(physics->upw_choice,_LLF_    )) solver->Upwind = NavierStokes3DUpwindLLF;
-  else if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->Upwind = NavierStokes3DUpwindRusanov;
-  else {
-    fprintf(stderr,"Error in NavierStokes3DInitialize(): %s is not a valid upwinding scheme.\n",
-            physics->upw_choice);
-    return(1);
+
+  if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
+    solver->FdFFunction = NavierStokes3DNonStiffFlux;
+    solver->dFFunction  = NavierStokes3DStiffFlux;
+    solver->JFunction   = NavierStokes3DStiffJacobian;
+    if (!strcmp(physics->upw_choice,_RUSANOV_)) {
+      solver->Upwind    = NavierStokes3DUpwindRusanovModified;
+      solver->UpwinddF  = NavierStokes3DUpwinddFRusanovModified;
+      solver->UpwindFdF = NavierStokes3DUpwindFdFRusanovModified;
+    } else {
+      if (!mpi->rank) {
+        fprintf(stderr,"Error in NavierStokes3DInitialize(): %s is not a valid upwinding scheme ",
+                physics->upw_choice);
+        fprintf(stderr,"for use with split hyperbolic flux form. Use %s.\n",
+                _RUSANOV_);
+      }
+      return(1);
+    }
+  } else {
+    solver->JFunction      = NavierStokes3DJacobian;
+    if      (!strcmp(physics->upw_choice,_ROE_    )) solver->Upwind = NavierStokes3DUpwindRoe;
+    else if (!strcmp(physics->upw_choice,_RF_     )) solver->Upwind = NavierStokes3DUpwindRF;
+    else if (!strcmp(physics->upw_choice,_LLF_    )) solver->Upwind = NavierStokes3DUpwindLLF;
+    else if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->Upwind = NavierStokes3DUpwindRusanov;
+    else {
+      if (!mpi->rank) {
+        fprintf(stderr,"Error in NavierStokes3DInitialize(): %s is not a valid upwinding scheme. ",
+                physics->upw_choice);
+        fprintf(stderr,"Choices are %s, %s, %s, and %s.\n",_ROE_,_RF_,_LLF_,_RUSANOV_);
+      }
+      return(1);
+    }
   }
 
   /* set the value of gamma in all the boundary objects */
@@ -232,6 +261,10 @@ int NavierStokes3DInitialize(
   int d, size = 1; for (d=0; d<_MODEL_NDIMS_; d++) size *= (dim[d] + 2*ghosts);
   physics->grav_field_f = (double*) calloc (size, sizeof(double));
   physics->grav_field_g = (double*) calloc (size, sizeof(double));
+  /* allocate arrays to hold the fast Jacobian for split form of the hyperbolic flux */
+  physics->fast_jac     = (double*) calloc (_MODEL_NDIMS_*size*_MODEL_NVARS_*_MODEL_NVARS_,sizeof(double));
+  physics->solution     = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
+  /* initialize the gravity fields */
   /* initialize the gravity fields */
   IERR NavierStokes3DGravityField(solver,mpi); CHECKERR(ierr);
 

@@ -39,7 +39,8 @@
   Reference for the partitioning of the flux into its stiff (acoustic) and non-stiff (convective)
   components:
   + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
-    with Characteristic-Based Flux Partitioning, Submitted
+    with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+    To appear.
 
 */
 
@@ -123,6 +124,78 @@
     } \
   }
 
+/*! \def _NavierStokes3DSetStiffFlux_
+  Compute the stiff flux vector (comprising the acoustic modes only), given the flow variables
+  \f{eqnarray}{
+    dir = x, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{1}{\gamma}\rho u \\ \frac{1}{\gamma}\rho u^2 + p \\ \frac{1}{\gamma}\rho u v \\ \frac{1}{\gamma}\rho u w \\ (e+p)u - \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2+w^2\right)u \end{array}\right], \\
+    dir = y, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{1}{\gamma}\rho v \\ \frac{1}{\gamma}\rho u v \\ \frac{1}{\gamma}\rho v^2 + p \\ \frac{1}{\gamma}\rho v w \\ (e+p)v - \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2+w^2\right)v \end{array}\right], \\
+    dir = z, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{1}{\gamma}\rho w \\ \frac{1}{\gamma}\rho u w \\ \frac{1}{\gamma}\rho v w \\ \frac{1}{\gamma}\rho w^2 + p \\ (e+p)w - \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2+w^2\right)w \end{array}\right], \\
+  \f}
+  Reference:
+  + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+    with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+    To appear.
+*/
+#define _NavierStokes3DSetStiffFlux_(f,rho,vx,vy,vz,e,P,dir,gamma) \
+  { \
+    double gamma_inv = 1.0/gamma; \
+    if (dir == _XDIR_) { \
+      f[0] = gamma_inv * rho * vx; \
+      f[1] = gamma_inv * rho * vx * vx + P; \
+      f[2] = gamma_inv * rho * vx * vy; \
+      f[3] = gamma_inv * rho * vx * vz; \
+      f[4] = (e + P) * vx - 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy+vz*vz) * vx; \
+    } else if (dir == _YDIR_) { \
+      f[0] = gamma_inv * rho * vy; \
+      f[1] = gamma_inv * rho * vy * vx; \
+      f[2] = gamma_inv * rho * vy * vy + P; \
+      f[3] = gamma_inv * rho * vy * vz; \
+      f[4] = (e + P) * vy - 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy+vz*vz) * vy; \
+    } else if (dir == _ZDIR_) { \
+      f[0] = gamma_inv * rho * vz; \
+      f[1] = gamma_inv * rho * vz * vx; \
+      f[2] = gamma_inv * rho * vz * vy; \
+      f[3] = gamma_inv * rho * vz * vz + P; \
+      f[4] = (e + P) * vz - 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy+vz*vz) * vz; \
+    } \
+  }
+
+/*! \def _NavierStokes3DSetNonStiffFlux_
+  Compute the non-stiff flux vector (comprising the entropy modes only), given the flow variables
+  \f{eqnarray}{
+    dir = x, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{\gamma-1}{\gamma}\rho u \\ \frac{\gamma-1}{\gamma}\rho u^2 \\ \frac{\gamma-11}{\gamma}\rho u v \\ \frac{\gamma-1}{\gamma}\rho u w \\ \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2+w^2\right)u \end{array}\right], \\
+    dir = y, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{\gamma-1}{\gamma}\rho v \\ \frac{\gamma-1}{\gamma}\rho u v \\ \frac{\gamma-1}{\gamma}\rho v^2 \\ \frac{\gamma-1}{\gamma}\rho v w  \\ \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2+w^2\right)v \end{array}\right], \\
+    dir = z, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{\gamma-1}{\gamma}\rho w \\ \frac{\gamma-1}{\gamma}\rho u w \\ \frac{\gamma-1}{\gamma}\rho v w \\ \frac{\gamma-1}{\gamma}\rho w^2  \\ \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2+w^2\right)w \end{array}\right], \\
+  \f}
+  Reference:
+  + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+    with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+    To appear.
+*/
+#define _NavierStokes3DSetNonStiffFlux_(f,rho,vx,vy,vz,e,P,dir,gamma) \
+  { \
+    double gamma_inv = 1.0/gamma; \
+    if (dir == _XDIR_) { \
+      f[0] = (gamma-1.0) * gamma_inv * rho * vx; \
+      f[1] = (gamma-1.0) * gamma_inv * rho * vx * vx; \
+      f[2] = (gamma-1.0) * gamma_inv * rho * vx * vy; \
+      f[3] = (gamma-1.0) * gamma_inv * rho * vx * vz; \
+      f[4] = 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy+vz*vz) * vx; \
+    } else if (dir == _YDIR_) { \
+      f[0] = (gamma-1.0) * gamma_inv * rho * vy; \
+      f[1] = (gamma-1.0) * gamma_inv * rho * vy * vx; \
+      f[2] = (gamma-1.0) * gamma_inv * rho * vy * vy; \
+      f[3] = (gamma-1.0) * gamma_inv * rho * vy * vz; \
+      f[4] = 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy+vz*vz) * vy; \
+    } else if (dir == _ZDIR_) { \
+      f[0] = (gamma-1.0) * gamma_inv * rho * vz; \
+      f[1] = (gamma-1.0) * gamma_inv * rho * vz * vx; \
+      f[2] = (gamma-1.0) * gamma_inv * rho * vz * vy; \
+      f[3] = (gamma-1.0) * gamma_inv * rho * vz * vz; \
+      f[4] = 0.5 * gamma_inv * (gamma-1.0) * rho * (vx*vx+vy*vy+vz*vz) * vz; \
+    } \
+  }
+
 /*! \def _NavierStokes3DRoeAverage_
   Compute the Roe-average of two solutions.
 */
@@ -172,22 +245,22 @@
     _NavierStokes3DGetFlowVar_(u,rho,vx,vy,vz,e,P,p); \
     c    = sqrt(gamma*P/rho); \
     if (dir == _XDIR_) { \
-      D[0*_MODEL_NVARS_+0] = vx;   D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0;    D[0*_MODEL_NVARS_+4] = 0; \
-      D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = vx-c;   D[1*_MODEL_NVARS_+2] = 0;      D[1*_MODEL_NVARS_+3] = 0;    D[1*_MODEL_NVARS_+4] = 0; \
-      D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = vx;   D[2*_MODEL_NVARS_+3] = 0;    D[2*_MODEL_NVARS_+4] = 0; \
+      D[0*_MODEL_NVARS_+0] = vx;     D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0;    D[0*_MODEL_NVARS_+4] = 0; \
+      D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = vx-c; D[1*_MODEL_NVARS_+2] = 0;      D[1*_MODEL_NVARS_+3] = 0;    D[1*_MODEL_NVARS_+4] = 0; \
+      D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = vx;     D[2*_MODEL_NVARS_+3] = 0;    D[2*_MODEL_NVARS_+4] = 0; \
       D[3*_MODEL_NVARS_+0] = 0;      D[3*_MODEL_NVARS_+1] = 0;    D[3*_MODEL_NVARS_+2] = 0;      D[3*_MODEL_NVARS_+3] = vx;   D[3*_MODEL_NVARS_+4] = 0; \
       D[4*_MODEL_NVARS_+0] = 0;      D[4*_MODEL_NVARS_+1] = 0;    D[4*_MODEL_NVARS_+2] = 0;      D[4*_MODEL_NVARS_+3] = 0;    D[4*_MODEL_NVARS_+4] = vx+c;\
     } else if (dir == _YDIR_) { \
-      D[0*_MODEL_NVARS_+0] = vy;   D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0;    D[0*_MODEL_NVARS_+4] = 0; \
+      D[0*_MODEL_NVARS_+0] = vy;     D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0;    D[0*_MODEL_NVARS_+4] = 0; \
       D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = vy;   D[1*_MODEL_NVARS_+2] = 0;      D[1*_MODEL_NVARS_+3] = 0;    D[1*_MODEL_NVARS_+4] = 0; \
       D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = vy-c;   D[2*_MODEL_NVARS_+3] = 0;    D[2*_MODEL_NVARS_+4] = 0; \
       D[3*_MODEL_NVARS_+0] = 0;      D[3*_MODEL_NVARS_+1] = 0;    D[3*_MODEL_NVARS_+2] = 0;      D[3*_MODEL_NVARS_+3] = vy;   D[3*_MODEL_NVARS_+4] = 0; \
       D[4*_MODEL_NVARS_+0] = 0;      D[4*_MODEL_NVARS_+1] = 0;    D[4*_MODEL_NVARS_+2] = 0;      D[4*_MODEL_NVARS_+3] = 0;    D[4*_MODEL_NVARS_+4] = vy+c;\
     } else if (dir == _ZDIR_) { \
-      D[0*_MODEL_NVARS_+0] = vz;   D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0;    D[0*_MODEL_NVARS_+4] = 0; \
+      D[0*_MODEL_NVARS_+0] = vz;     D[0*_MODEL_NVARS_+1] = 0;    D[0*_MODEL_NVARS_+2] = 0;      D[0*_MODEL_NVARS_+3] = 0;    D[0*_MODEL_NVARS_+4] = 0; \
       D[1*_MODEL_NVARS_+0] = 0;      D[1*_MODEL_NVARS_+1] = vz;   D[1*_MODEL_NVARS_+2] = 0;      D[1*_MODEL_NVARS_+3] = 0;    D[1*_MODEL_NVARS_+4] = 0; \
-      D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = vz;   D[2*_MODEL_NVARS_+3] = 0;    D[2*_MODEL_NVARS_+4] = 0; \
-      D[3*_MODEL_NVARS_+0] = 0;      D[3*_MODEL_NVARS_+1] = 0;    D[3*_MODEL_NVARS_+2] = 0;      D[3*_MODEL_NVARS_+3] = vz-c;   D[3*_MODEL_NVARS_+4] = 0; \
+      D[2*_MODEL_NVARS_+0] = 0;      D[2*_MODEL_NVARS_+1] = 0;    D[2*_MODEL_NVARS_+2] = vz;     D[2*_MODEL_NVARS_+3] = 0;    D[2*_MODEL_NVARS_+4] = 0; \
+      D[3*_MODEL_NVARS_+0] = 0;      D[3*_MODEL_NVARS_+1] = 0;    D[3*_MODEL_NVARS_+2] = 0;      D[3*_MODEL_NVARS_+3] = vz-c; D[3*_MODEL_NVARS_+4] = 0; \
       D[4*_MODEL_NVARS_+0] = 0;      D[4*_MODEL_NVARS_+1] = 0;    D[4*_MODEL_NVARS_+2] = 0;      D[4*_MODEL_NVARS_+3] = 0;    D[4*_MODEL_NVARS_+4] = vz+c;\
     } \
   }
@@ -411,6 +484,9 @@ typedef struct navierstokes3d_parameters {
 
   double  *grav_field_f, /*!< density variation function (\f$\varrho\f$) for hydrostatic equilibrium for flows with gravity */
           *grav_field_g; /*!< pressure variation function (\f$\varrho\f$) for hydrostatic equilibrium for flows with gravity */
+
+  double *fast_jac, /*!< "Fast" Jacobian of the flux function (comprising the acoustic modes) */
+         *solution; /*!< array to store the solution at the beginning of each time step */
 
   /* choice of hydrostatic balance                              */
   /* 1 -> isothermal                                            */
