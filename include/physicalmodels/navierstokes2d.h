@@ -37,7 +37,8 @@
   Reference for the partitioning of the flux into its stiff (acoustic) and non-stiff (convective)
   components:
   + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
-    with Characteristic-Based Flux Partitioning, Submitted
+    with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+    To appear.
 
 */
 #include <basic.h>
@@ -117,7 +118,9 @@
     dir = y, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{1}{\gamma}\rho v \\ \frac{1}{\gamma}\rho u v \\ \frac{1}{\gamma}\rho v^2 + p \\ (e+p)v - \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2\right)v \end{array}\right]
   \f}
   Reference:
-  + Not yet published!
+  + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+    with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+    To appear.
 */
 #define _NavierStokes2DSetStiffFlux_(f,rho,vx,vy,e,P,dir,gamma) \
   { \
@@ -136,13 +139,15 @@
   }
 
 /*! \def _NavierStokes2DSetNonStiffFlux_
-  Compute the stiff flux vector (comprising the acoustic modes only), given the flow variables
+  Compute the non-stiff flux vector (comprising the entropy modes only), given the flow variables
   \f{eqnarray}{
     dir = x, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{\gamma-1}{\gamma}\rho u \\ \frac{\gamma-1}{\gamma}\rho u^2 \\ \frac{\gamma-11}{\gamma}\rho u v \\ \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2\right)u \end{array}\right], \\
     dir = y, & {\bf f}\left({\bf u}\right) = \left[\begin{array}{c} \frac{\gamma-1}{\gamma}\rho v \\ \frac{\gamma-1}{\gamma}\rho u v \\ \frac{\gamma-1}{\gamma}\rho v^2 \\ \frac{1}{2} \frac{\gamma-1}{\gamma}\rho\left(u^2+v^2\right)v \end{array}\right]
   \f}
   Reference:
-  + Not yet published!
+  + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+    with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+    To appear.
 */
 #define _NavierStokes2DSetNonStiffFlux_(f,rho,vx,vy,e,P,dir,gamma) \
   { \
