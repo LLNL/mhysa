@@ -557,7 +557,7 @@ int NavierStokes2DUpwindRusanovModified(
       double alpha  = kappa*max3(alphaL,alphaR,alphaavg);
       double beta   = kappa*max3(betaL,betaR,betaavg);
 
-      _ArraySetValue_(D,_MODEL_NVARS_,0.0);
+      _ArraySetValue_(D,_MODEL_NVARS_*_MODEL_NVARS_,0.0);
       D[0]  = alpha;
       D[5]  = (dir == _XDIR_ ? alpha : beta);
       D[10] = (dir == _YDIR_ ? alpha : beta);
@@ -1266,7 +1266,7 @@ int NavierStokes2DUpwindFdFRusanovModified(
       betaavg = absolute(vel[dir]);
       alpha  = kappa*max3(alphaL,alphaR,alphaavg);
       beta   = kappa*max3(betaL,betaR,betaavg);
-      _ArraySetValue_(D,_MODEL_NVARS_,0.0);
+      _ArraySetValue_(D,_MODEL_NVARS_*_MODEL_NVARS_,0.0);
       D[0]  = alpha;
       D[5]  = (dir == _XDIR_ ? alpha : beta);
       D[10] = (dir == _YDIR_ ? alpha : beta);
