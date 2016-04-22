@@ -265,7 +265,6 @@ int NavierStokes3DInitialize(
   physics->fast_jac     = (double*) calloc (_MODEL_NDIMS_*size*_MODEL_NVARS_*_MODEL_NVARS_,sizeof(double));
   physics->solution     = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
   /* initialize the gravity fields */
-  /* initialize the gravity fields */
   IERR NavierStokes3DGravityField(solver,mpi); CHECKERR(ierr);
 
   return(0);
