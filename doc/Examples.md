@@ -2207,12 +2207,102 @@ command line, for example,
 
 Explicit time integration:
 --------------------------
+\subpage linear_adv_sine_petsc \n
 \subpage linear_adv_disc_petsc (with local truncation error-based adaptive time-step)
-
 
 Implicit time integration:
 --------------------------
 \subpage linear_diff_sine_petsc
+
+\page linear_adv_sine_petsc 1D Linear Advection - Sine Wave
+
+Location: \b hypar/Examples/1D/LinearAdvection/SineWave_PETSc
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Linear Advection Equation (linearadr.h)
+
+References:
+  + Ghosh, D., Baeder, J. D., "Compact Reconstruction Schemes with 
+    Weighted ENO Limiting for Hyperbolic Conservation Laws", 
+    SIAM Journal on Scientific Computing, 34 (3), 2012, A1678–A1706
+
+Domain: \f$0 \le x < 1\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions
+
+Initial solution: \f$u\left(x,0\right) = \sin\left(2\pi x\right)\f$
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Time integration: PETSc (SolvePETSc()) 
+    - Method class: <B>Runge-Kutta</B> (TSRK - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSRK.html)
+    - Specific method: <B>Classical 4th-order RK</B> (TSRK4 - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSRK4.html#TSRK4)
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 1D/LinearAdvection/SineWave_PETSc/petscrc
+
+\b solver.inp
+\include 1D/LinearAdvection/SineWave_PETSc/solver.inp
+
+\b boundary.inp
+\include 1D/LinearAdvection/SineWave_PETSc/boundary.inp
+
+\b physics.inp
+\include 1D/LinearAdvection/SineWave_PETSc/physics.inp
+
+\b lusolver.inp (optional)
+\include 1D/LinearAdvection/SineWave_PETSc/lusolver.inp
+
+\b weno.inp (optional)
+\include 1D/LinearAdvection/SineWave_PETSc/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory. \b Note: if the
+final time is an integer multiple of the time period,
+the file \b initial.inp can also be used as the exact
+solution \b exact.inp (i.e. create a sym link called 
+\a exact.inp pointing to \a initial.inp, or just copy
+\a initial.inp to \a exact.inp).
+\include 1D/LinearAdvection/SineWave_PETSc/aux/init.c
+
+Output:
+-------
+After running the code, there should be 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=1\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. All the files are ASCII 
+text (#HyPar::op_file_format is set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second column 
+is x-coordinate, and the third column is the solution.
+
+Solutions at t=0,0.5,1: The following figure is obtained 
+by plotting \a op_00000.dat (initial), \a op_00005.dat (t=0.5),
+and \a op_00010.dat (final). 
+@image html Solution_1DLinearAdvSinePETSc.png
+
+Since the exact solution is available at the final time 
+(\a exact.inp is a copy of \a initial.inp), the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 1D/LinearAdvection/SineWave_PETSc/errors.dat
+The numbers are: number of grid points (#HyPar::dim_global), 
+number of processors (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Expected screen output:
+\include 1D/LinearAdvection/SineWave_PETSc/output.log
+
 
 \page linear_adv_disc_petsc 1D Linear Advection - Discontinuous Waves
 

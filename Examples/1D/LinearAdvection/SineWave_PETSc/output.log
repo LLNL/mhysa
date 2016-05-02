@@ -1,0 +1,506 @@
+HyPar - Parallel (MPI) version with 1 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 1
+	No. of variables                           : 1
+	Domain size                                : 80 
+	Processes along each dimension             : 1 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 400
+	Restart iteration                          : 0
+	Time integration scheme                    : PETSc 
+	Spatial discretization scheme (hyperbolic) : crweno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 2
+	Time Step                                  : 2.500000E-03
+	Check for conservation                     : no
+	Screen output iterations                   : 10
+	File output iterations                     : 40
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : text
+	Overwrite solution file                    : no
+	Physical model                             : linear-advection-diffusion-reaction
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  4.9005938196344800E-17
+Reading boundary conditions from "boundary.inp".
+  Boundary                       periodic:  Along dimension  0 and face +1
+  Boundary                       periodic:  Along dimension  0 and face -1
+2 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "linear-advection-diffusion-reaction"
+Reading physical model inputs from file "physics.inp".
+Setting up PETSc time integration... 
+SolvePETSc(): Problem type is nonlinear.
+** Starting PETSc time integration **
+0 TS dt 0.0025 time 0.
+Writing solution file op_00000.dat.
+1 TS dt 0.0025 time 0.0025
+2 TS dt 0.0025 time 0.005
+3 TS dt 0.0025 time 0.0075
+4 TS dt 0.0025 time 0.01
+5 TS dt 0.0025 time 0.0125
+6 TS dt 0.0025 time 0.015
+7 TS dt 0.0025 time 0.0175
+8 TS dt 0.0025 time 0.02
+9 TS dt 0.0025 time 0.0225
+Iteration:     10  Time: 2.500E-02  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+10 TS dt 0.0025 time 0.025
+11 TS dt 0.0025 time 0.0275
+12 TS dt 0.0025 time 0.03
+13 TS dt 0.0025 time 0.0325
+14 TS dt 0.0025 time 0.035
+15 TS dt 0.0025 time 0.0375
+16 TS dt 0.0025 time 0.04
+17 TS dt 0.0025 time 0.0425
+18 TS dt 0.0025 time 0.045
+19 TS dt 0.0025 time 0.0475
+Iteration:     20  Time: 5.000E-02  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+20 TS dt 0.0025 time 0.05
+21 TS dt 0.0025 time 0.0525
+22 TS dt 0.0025 time 0.055
+23 TS dt 0.0025 time 0.0575
+24 TS dt 0.0025 time 0.06
+25 TS dt 0.0025 time 0.0625
+26 TS dt 0.0025 time 0.065
+27 TS dt 0.0025 time 0.0675
+28 TS dt 0.0025 time 0.07
+29 TS dt 0.0025 time 0.0725
+Iteration:     30  Time: 7.500E-02  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+30 TS dt 0.0025 time 0.075
+31 TS dt 0.0025 time 0.0775
+32 TS dt 0.0025 time 0.08
+33 TS dt 0.0025 time 0.0825
+34 TS dt 0.0025 time 0.085
+35 TS dt 0.0025 time 0.0875
+36 TS dt 0.0025 time 0.09
+37 TS dt 0.0025 time 0.0925
+38 TS dt 0.0025 time 0.095
+39 TS dt 0.0025 time 0.0975
+Iteration:     40  Time: 1.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00001.dat.
+40 TS dt 0.0025 time 0.1
+41 TS dt 0.0025 time 0.1025
+42 TS dt 0.0025 time 0.105
+43 TS dt 0.0025 time 0.1075
+44 TS dt 0.0025 time 0.11
+45 TS dt 0.0025 time 0.1125
+46 TS dt 0.0025 time 0.115
+47 TS dt 0.0025 time 0.1175
+48 TS dt 0.0025 time 0.12
+49 TS dt 0.0025 time 0.1225
+Iteration:     50  Time: 1.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+50 TS dt 0.0025 time 0.125
+51 TS dt 0.0025 time 0.1275
+52 TS dt 0.0025 time 0.13
+53 TS dt 0.0025 time 0.1325
+54 TS dt 0.0025 time 0.135
+55 TS dt 0.0025 time 0.1375
+56 TS dt 0.0025 time 0.14
+57 TS dt 0.0025 time 0.1425
+58 TS dt 0.0025 time 0.145
+59 TS dt 0.0025 time 0.1475
+Iteration:     60  Time: 1.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+60 TS dt 0.0025 time 0.15
+61 TS dt 0.0025 time 0.1525
+62 TS dt 0.0025 time 0.155
+63 TS dt 0.0025 time 0.1575
+64 TS dt 0.0025 time 0.16
+65 TS dt 0.0025 time 0.1625
+66 TS dt 0.0025 time 0.165
+67 TS dt 0.0025 time 0.1675
+68 TS dt 0.0025 time 0.17
+69 TS dt 0.0025 time 0.1725
+Iteration:     70  Time: 1.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+70 TS dt 0.0025 time 0.175
+71 TS dt 0.0025 time 0.1775
+72 TS dt 0.0025 time 0.18
+73 TS dt 0.0025 time 0.1825
+74 TS dt 0.0025 time 0.185
+75 TS dt 0.0025 time 0.1875
+76 TS dt 0.0025 time 0.19
+77 TS dt 0.0025 time 0.1925
+78 TS dt 0.0025 time 0.195
+79 TS dt 0.0025 time 0.1975
+Iteration:     80  Time: 2.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00002.dat.
+80 TS dt 0.0025 time 0.2
+81 TS dt 0.0025 time 0.2025
+82 TS dt 0.0025 time 0.205
+83 TS dt 0.0025 time 0.2075
+84 TS dt 0.0025 time 0.21
+85 TS dt 0.0025 time 0.2125
+86 TS dt 0.0025 time 0.215
+87 TS dt 0.0025 time 0.2175
+88 TS dt 0.0025 time 0.22
+89 TS dt 0.0025 time 0.2225
+Iteration:     90  Time: 2.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+90 TS dt 0.0025 time 0.225
+91 TS dt 0.0025 time 0.2275
+92 TS dt 0.0025 time 0.23
+93 TS dt 0.0025 time 0.2325
+94 TS dt 0.0025 time 0.235
+95 TS dt 0.0025 time 0.2375
+96 TS dt 0.0025 time 0.24
+97 TS dt 0.0025 time 0.2425
+98 TS dt 0.0025 time 0.245
+99 TS dt 0.0025 time 0.2475
+Iteration:    100  Time: 2.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+100 TS dt 0.0025 time 0.25
+101 TS dt 0.0025 time 0.2525
+102 TS dt 0.0025 time 0.255
+103 TS dt 0.0025 time 0.2575
+104 TS dt 0.0025 time 0.26
+105 TS dt 0.0025 time 0.2625
+106 TS dt 0.0025 time 0.265
+107 TS dt 0.0025 time 0.2675
+108 TS dt 0.0025 time 0.27
+109 TS dt 0.0025 time 0.2725
+Iteration:    110  Time: 2.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+110 TS dt 0.0025 time 0.275
+111 TS dt 0.0025 time 0.2775
+112 TS dt 0.0025 time 0.28
+113 TS dt 0.0025 time 0.2825
+114 TS dt 0.0025 time 0.285
+115 TS dt 0.0025 time 0.2875
+116 TS dt 0.0025 time 0.29
+117 TS dt 0.0025 time 0.2925
+118 TS dt 0.0025 time 0.295
+119 TS dt 0.0025 time 0.2975
+Iteration:    120  Time: 3.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00003.dat.
+120 TS dt 0.0025 time 0.3
+121 TS dt 0.0025 time 0.3025
+122 TS dt 0.0025 time 0.305
+123 TS dt 0.0025 time 0.3075
+124 TS dt 0.0025 time 0.31
+125 TS dt 0.0025 time 0.3125
+126 TS dt 0.0025 time 0.315
+127 TS dt 0.0025 time 0.3175
+128 TS dt 0.0025 time 0.32
+129 TS dt 0.0025 time 0.3225
+Iteration:    130  Time: 3.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+130 TS dt 0.0025 time 0.325
+131 TS dt 0.0025 time 0.3275
+132 TS dt 0.0025 time 0.33
+133 TS dt 0.0025 time 0.3325
+134 TS dt 0.0025 time 0.335
+135 TS dt 0.0025 time 0.3375
+136 TS dt 0.0025 time 0.34
+137 TS dt 0.0025 time 0.3425
+138 TS dt 0.0025 time 0.345
+139 TS dt 0.0025 time 0.3475
+Iteration:    140  Time: 3.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+140 TS dt 0.0025 time 0.35
+141 TS dt 0.0025 time 0.3525
+142 TS dt 0.0025 time 0.355
+143 TS dt 0.0025 time 0.3575
+144 TS dt 0.0025 time 0.36
+145 TS dt 0.0025 time 0.3625
+146 TS dt 0.0025 time 0.365
+147 TS dt 0.0025 time 0.3675
+148 TS dt 0.0025 time 0.37
+149 TS dt 0.0025 time 0.3725
+Iteration:    150  Time: 3.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+150 TS dt 0.0025 time 0.375
+151 TS dt 0.0025 time 0.3775
+152 TS dt 0.0025 time 0.38
+153 TS dt 0.0025 time 0.3825
+154 TS dt 0.0025 time 0.385
+155 TS dt 0.0025 time 0.3875
+156 TS dt 0.0025 time 0.39
+157 TS dt 0.0025 time 0.3925
+158 TS dt 0.0025 time 0.395
+159 TS dt 0.0025 time 0.3975
+Iteration:    160  Time: 4.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00004.dat.
+160 TS dt 0.0025 time 0.4
+161 TS dt 0.0025 time 0.4025
+162 TS dt 0.0025 time 0.405
+163 TS dt 0.0025 time 0.4075
+164 TS dt 0.0025 time 0.41
+165 TS dt 0.0025 time 0.4125
+166 TS dt 0.0025 time 0.415
+167 TS dt 0.0025 time 0.4175
+168 TS dt 0.0025 time 0.42
+169 TS dt 0.0025 time 0.4225
+Iteration:    170  Time: 4.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+170 TS dt 0.0025 time 0.425
+171 TS dt 0.0025 time 0.4275
+172 TS dt 0.0025 time 0.43
+173 TS dt 0.0025 time 0.4325
+174 TS dt 0.0025 time 0.435
+175 TS dt 0.0025 time 0.4375
+176 TS dt 0.0025 time 0.44
+177 TS dt 0.0025 time 0.4425
+178 TS dt 0.0025 time 0.445
+179 TS dt 0.0025 time 0.4475
+Iteration:    180  Time: 4.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+180 TS dt 0.0025 time 0.45
+181 TS dt 0.0025 time 0.4525
+182 TS dt 0.0025 time 0.455
+183 TS dt 0.0025 time 0.4575
+184 TS dt 0.0025 time 0.46
+185 TS dt 0.0025 time 0.4625
+186 TS dt 0.0025 time 0.465
+187 TS dt 0.0025 time 0.4675
+188 TS dt 0.0025 time 0.47
+189 TS dt 0.0025 time 0.4725
+Iteration:    190  Time: 4.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+190 TS dt 0.0025 time 0.475
+191 TS dt 0.0025 time 0.4775
+192 TS dt 0.0025 time 0.48
+193 TS dt 0.0025 time 0.4825
+194 TS dt 0.0025 time 0.485
+195 TS dt 0.0025 time 0.4875
+196 TS dt 0.0025 time 0.49
+197 TS dt 0.0025 time 0.4925
+198 TS dt 0.0025 time 0.495
+199 TS dt 0.0025 time 0.4975
+Iteration:    200  Time: 5.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00005.dat.
+200 TS dt 0.0025 time 0.5
+201 TS dt 0.0025 time 0.5025
+202 TS dt 0.0025 time 0.505
+203 TS dt 0.0025 time 0.5075
+204 TS dt 0.0025 time 0.51
+205 TS dt 0.0025 time 0.5125
+206 TS dt 0.0025 time 0.515
+207 TS dt 0.0025 time 0.5175
+208 TS dt 0.0025 time 0.52
+209 TS dt 0.0025 time 0.5225
+Iteration:    210  Time: 5.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+210 TS dt 0.0025 time 0.525
+211 TS dt 0.0025 time 0.5275
+212 TS dt 0.0025 time 0.53
+213 TS dt 0.0025 time 0.5325
+214 TS dt 0.0025 time 0.535
+215 TS dt 0.0025 time 0.5375
+216 TS dt 0.0025 time 0.54
+217 TS dt 0.0025 time 0.5425
+218 TS dt 0.0025 time 0.545
+219 TS dt 0.0025 time 0.5475
+Iteration:    220  Time: 5.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+220 TS dt 0.0025 time 0.55
+221 TS dt 0.0025 time 0.5525
+222 TS dt 0.0025 time 0.555
+223 TS dt 0.0025 time 0.5575
+224 TS dt 0.0025 time 0.56
+225 TS dt 0.0025 time 0.5625
+226 TS dt 0.0025 time 0.565
+227 TS dt 0.0025 time 0.5675
+228 TS dt 0.0025 time 0.57
+229 TS dt 0.0025 time 0.5725
+Iteration:    230  Time: 5.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+230 TS dt 0.0025 time 0.575
+231 TS dt 0.0025 time 0.5775
+232 TS dt 0.0025 time 0.58
+233 TS dt 0.0025 time 0.5825
+234 TS dt 0.0025 time 0.585
+235 TS dt 0.0025 time 0.5875
+236 TS dt 0.0025 time 0.59
+237 TS dt 0.0025 time 0.5925
+238 TS dt 0.0025 time 0.595
+239 TS dt 0.0025 time 0.5975
+Iteration:    240  Time: 6.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00006.dat.
+240 TS dt 0.0025 time 0.6
+241 TS dt 0.0025 time 0.6025
+242 TS dt 0.0025 time 0.605
+243 TS dt 0.0025 time 0.6075
+244 TS dt 0.0025 time 0.61
+245 TS dt 0.0025 time 0.6125
+246 TS dt 0.0025 time 0.615
+247 TS dt 0.0025 time 0.6175
+248 TS dt 0.0025 time 0.62
+249 TS dt 0.0025 time 0.6225
+Iteration:    250  Time: 6.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+250 TS dt 0.0025 time 0.625
+251 TS dt 0.0025 time 0.6275
+252 TS dt 0.0025 time 0.63
+253 TS dt 0.0025 time 0.6325
+254 TS dt 0.0025 time 0.635
+255 TS dt 0.0025 time 0.6375
+256 TS dt 0.0025 time 0.64
+257 TS dt 0.0025 time 0.6425
+258 TS dt 0.0025 time 0.645
+259 TS dt 0.0025 time 0.6475
+Iteration:    260  Time: 6.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+260 TS dt 0.0025 time 0.65
+261 TS dt 0.0025 time 0.6525
+262 TS dt 0.0025 time 0.655
+263 TS dt 0.0025 time 0.6575
+264 TS dt 0.0025 time 0.66
+265 TS dt 0.0025 time 0.6625
+266 TS dt 0.0025 time 0.665
+267 TS dt 0.0025 time 0.6675
+268 TS dt 0.0025 time 0.67
+269 TS dt 0.0025 time 0.6725
+Iteration:    270  Time: 6.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+270 TS dt 0.0025 time 0.675
+271 TS dt 0.0025 time 0.6775
+272 TS dt 0.0025 time 0.68
+273 TS dt 0.0025 time 0.6825
+274 TS dt 0.0025 time 0.685
+275 TS dt 0.0025 time 0.6875
+276 TS dt 0.0025 time 0.69
+277 TS dt 0.0025 time 0.6925
+278 TS dt 0.0025 time 0.695
+279 TS dt 0.0025 time 0.6975
+Iteration:    280  Time: 7.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00007.dat.
+280 TS dt 0.0025 time 0.7
+281 TS dt 0.0025 time 0.7025
+282 TS dt 0.0025 time 0.705
+283 TS dt 0.0025 time 0.7075
+284 TS dt 0.0025 time 0.71
+285 TS dt 0.0025 time 0.7125
+286 TS dt 0.0025 time 0.715
+287 TS dt 0.0025 time 0.7175
+288 TS dt 0.0025 time 0.72
+289 TS dt 0.0025 time 0.7225
+Iteration:    290  Time: 7.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+290 TS dt 0.0025 time 0.725
+291 TS dt 0.0025 time 0.7275
+292 TS dt 0.0025 time 0.73
+293 TS dt 0.0025 time 0.7325
+294 TS dt 0.0025 time 0.735
+295 TS dt 0.0025 time 0.7375
+296 TS dt 0.0025 time 0.74
+297 TS dt 0.0025 time 0.7425
+298 TS dt 0.0025 time 0.745
+299 TS dt 0.0025 time 0.7475
+Iteration:    300  Time: 7.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+300 TS dt 0.0025 time 0.75
+301 TS dt 0.0025 time 0.7525
+302 TS dt 0.0025 time 0.755
+303 TS dt 0.0025 time 0.7575
+304 TS dt 0.0025 time 0.76
+305 TS dt 0.0025 time 0.7625
+306 TS dt 0.0025 time 0.765
+307 TS dt 0.0025 time 0.7675
+308 TS dt 0.0025 time 0.77
+309 TS dt 0.0025 time 0.7725
+Iteration:    310  Time: 7.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+310 TS dt 0.0025 time 0.775
+311 TS dt 0.0025 time 0.7775
+312 TS dt 0.0025 time 0.78
+313 TS dt 0.0025 time 0.7825
+314 TS dt 0.0025 time 0.785
+315 TS dt 0.0025 time 0.7875
+316 TS dt 0.0025 time 0.79
+317 TS dt 0.0025 time 0.7925
+318 TS dt 0.0025 time 0.795
+319 TS dt 0.0025 time 0.7975
+Iteration:    320  Time: 8.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00008.dat.
+320 TS dt 0.0025 time 0.8
+321 TS dt 0.0025 time 0.8025
+322 TS dt 0.0025 time 0.805
+323 TS dt 0.0025 time 0.8075
+324 TS dt 0.0025 time 0.81
+325 TS dt 0.0025 time 0.8125
+326 TS dt 0.0025 time 0.815
+327 TS dt 0.0025 time 0.8175
+328 TS dt 0.0025 time 0.82
+329 TS dt 0.0025 time 0.8225
+Iteration:    330  Time: 8.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+330 TS dt 0.0025 time 0.825
+331 TS dt 0.0025 time 0.8275
+332 TS dt 0.0025 time 0.83
+333 TS dt 0.0025 time 0.8325
+334 TS dt 0.0025 time 0.835
+335 TS dt 0.0025 time 0.8375
+336 TS dt 0.0025 time 0.84
+337 TS dt 0.0025 time 0.8425
+338 TS dt 0.0025 time 0.845
+339 TS dt 0.0025 time 0.8475
+Iteration:    340  Time: 8.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+340 TS dt 0.0025 time 0.85
+341 TS dt 0.0025 time 0.8525
+342 TS dt 0.0025 time 0.855
+343 TS dt 0.0025 time 0.8575
+344 TS dt 0.0025 time 0.86
+345 TS dt 0.0025 time 0.8625
+346 TS dt 0.0025 time 0.865
+347 TS dt 0.0025 time 0.8675
+348 TS dt 0.0025 time 0.87
+349 TS dt 0.0025 time 0.8725
+Iteration:    350  Time: 8.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+350 TS dt 0.0025 time 0.875
+351 TS dt 0.0025 time 0.8775
+352 TS dt 0.0025 time 0.88
+353 TS dt 0.0025 time 0.8825
+354 TS dt 0.0025 time 0.885
+355 TS dt 0.0025 time 0.8875
+356 TS dt 0.0025 time 0.89
+357 TS dt 0.0025 time 0.8925
+358 TS dt 0.0025 time 0.895
+359 TS dt 0.0025 time 0.8975
+Iteration:    360  Time: 9.000E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00009.dat.
+360 TS dt 0.0025 time 0.9
+361 TS dt 0.0025 time 0.9025
+362 TS dt 0.0025 time 0.905
+363 TS dt 0.0025 time 0.9075
+364 TS dt 0.0025 time 0.91
+365 TS dt 0.0025 time 0.9125
+366 TS dt 0.0025 time 0.915
+367 TS dt 0.0025 time 0.9175
+368 TS dt 0.0025 time 0.92
+369 TS dt 0.0025 time 0.9225
+Iteration:    370  Time: 9.250E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+370 TS dt 0.0025 time 0.925
+371 TS dt 0.0025 time 0.9275
+372 TS dt 0.0025 time 0.93
+373 TS dt 0.0025 time 0.9325
+374 TS dt 0.0025 time 0.935
+375 TS dt 0.0025 time 0.9375
+376 TS dt 0.0025 time 0.94
+377 TS dt 0.0025 time 0.9425
+378 TS dt 0.0025 time 0.945
+379 TS dt 0.0025 time 0.9475
+Iteration:    380  Time: 9.500E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+380 TS dt 0.0025 time 0.95
+381 TS dt 0.0025 time 0.9525
+382 TS dt 0.0025 time 0.955
+383 TS dt 0.0025 time 0.9575
+384 TS dt 0.0025 time 0.96
+385 TS dt 0.0025 time 0.9625
+386 TS dt 0.0025 time 0.965
+387 TS dt 0.0025 time 0.9675
+388 TS dt 0.0025 time 0.97
+389 TS dt 0.0025 time 0.9725
+Iteration:    390  Time: 9.750E-01  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+390 TS dt 0.0025 time 0.975
+391 TS dt 0.0025 time 0.9775
+392 TS dt 0.0025 time 0.98
+393 TS dt 0.0025 time 0.9825
+394 TS dt 0.0025 time 0.985
+395 TS dt 0.0025 time 0.9875
+396 TS dt 0.0025 time 0.99
+397 TS dt 0.0025 time 0.9925
+398 TS dt 0.0025 time 0.995
+399 TS dt 0.0025 time 0.9975
+Iteration:    400  Time: 1.000E+00  Max CFL: 2.000E-01  Max Diff. No.: 0.000E+00  
+Writing solution file op_00010.dat.
+400 TS dt 0.0025 time 1.
+** Completed PETSc time integration **
+Reading array from ASCII file exact.inp (Serial mode).
+Computed errors:
+  L1         Error           : 2.4847632707043008E-07
+  L2         Error           : 2.8839964322800527E-07
+  Linfinity  Error           : 5.5208680027618584E-07
+Conservation Errors:
+	0.0000000000000000E+00
+Solver runtime (in seconds): 6.6768099999999997E-01
+Total  runtime (in seconds): 6.6852699999999998E-01
+Deallocating arrays.
+Finished.
