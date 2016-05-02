@@ -2205,8 +2205,14 @@ command line, for example,
     
     /path/to/hypar/bin/HyPar -use-petscts -ts_type rk -ts_rk_type 4 ...
 
-\subpage linear_adv_disc_petsc (Explicit time integration with local truncation error-based adaptive time-step) \n
-\subpage linear_diff_sine_petsc (Implicit time integration)
+Explicit time integration:
+--------------------------
+\subpage linear_adv_disc_petsc (with local truncation error-based adaptive time-step)
+
+
+Implicit time integration:
+--------------------------
+\subpage linear_diff_sine_petsc
 
 \page linear_adv_disc_petsc 1D Linear Advection - Discontinuous Waves
 
