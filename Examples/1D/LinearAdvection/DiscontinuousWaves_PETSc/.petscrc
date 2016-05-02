@@ -21,7 +21,7 @@
 # RK type - "5dp" (Dormand-Prince method)
 -ts_rk_type 5dp
 
-# No time-step adaptivity
+# Local truncation error-based time-step adaptivity
 -ts_adapt_type basic
 
 # Print time step adapter to screen
