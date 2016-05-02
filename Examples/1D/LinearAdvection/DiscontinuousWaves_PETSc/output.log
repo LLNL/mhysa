@@ -1,0 +1,574 @@
+HyPar - Parallel (MPI) version with 1 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 1
+	No. of variables                           : 1
+	Domain size                                : 160 
+	Processes along each dimension             : 1 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 800
+	Restart iteration                          : 0
+	Time integration scheme                    : PETSc 
+	Spatial discretization scheme (hyperbolic) : crweno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 2
+	Time Step                                  : 2.500000E-03
+	Check for conservation                     : no
+	Screen output iterations                   : 10
+	File output iterations                     : 99999
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : text
+	Overwrite solution file                    : no
+	Physical model                             : linear-advection-diffusion-reaction
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  5.1835172499999993E-01
+Reading boundary conditions from "boundary.inp".
+  Boundary                       periodic:  Along dimension  0 and face +1
+  Boundary                       periodic:  Along dimension  0 and face -1
+2 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "linear-advection-diffusion-reaction"
+Reading physical model inputs from file "physics.inp".
+Setting up PETSc time integration... 
+SolvePETSc(): Problem type is nonlinear.
+** Starting PETSc time integration **
+0 TS dt 0.0025 time 0.
+Writing solution file op_00000.dat.
+      TSAdapt 'basic': step   0 accepted t=0          + 2.500e-03 wlte=0.0173 family='rk' scheme=0:'5dp' dt=5.066e-03 
+1 TS dt 0.00506554 time 0.0025
+      TSAdapt 'basic': step   1 accepted t=0.0025     + 5.066e-03 wlte= 0.11 family='rk' scheme=0:'5dp' dt=7.088e-03 
+2 TS dt 0.0070876 time 0.00756554
+      TSAdapt 'basic': step   2 accepted t=0.00756554 + 7.088e-03 wlte=0.934 family='rk' scheme=0:'5dp' dt=6.466e-03 
+3 TS dt 0.00646637 time 0.0146531
+      TSAdapt 'basic': step   3 rejected t=0.0146531  + 6.466e-03 wlte= 1.55 family='rk' scheme=0:'5dp' dt=5.329e-03 
+      TSAdapt 'basic': step   3 accepted t=0.0146531  + 5.329e-03 wlte=0.688 family='rk' scheme=0:'5dp' dt=5.169e-03 
+4 TS dt 0.00516911 time 0.019982
+      TSAdapt 'basic': step   4 accepted t=0.019982   + 5.169e-03 wlte=0.303 family='rk' scheme=0:'5dp' dt=5.906e-03 
+5 TS dt 0.00590553 time 0.0251511
+      TSAdapt 'basic': step   5 accepted t=0.0251511  + 5.906e-03 wlte=0.284 family='rk' scheme=0:'5dp' dt=6.835e-03 
+6 TS dt 0.00683528 time 0.0310566
+      TSAdapt 'basic': step   6 rejected t=0.0310566  + 6.835e-03 wlte= 1.02 family='rk' scheme=0:'5dp' dt=6.127e-03 
+      TSAdapt 'basic': step   6 accepted t=0.0310566  + 6.127e-03 wlte=0.588 family='rk' scheme=0:'5dp' dt=6.133e-03 
+7 TS dt 0.00613265 time 0.0371834
+      TSAdapt 'basic': step   7 accepted t=0.0371834  + 6.133e-03 wlte=0.177 family='rk' scheme=0:'5dp' dt=7.803e-03 
+8 TS dt 0.00780327 time 0.0433161
+      TSAdapt 'basic': step   8 rejected t=0.0433161  + 7.803e-03 wlte= 1.65 family='rk' scheme=0:'5dp' dt=6.352e-03 
+      TSAdapt 'basic': step   8 accepted t=0.0433161  + 6.352e-03 wlte=0.697 family='rk' scheme=0:'5dp' dt=6.144e-03 
+9 TS dt 0.0061439 time 0.0496676
+      TSAdapt 'basic': step   9 accepted t=0.0496676  + 6.144e-03 wlte=0.216 family='rk' scheme=0:'5dp' dt=7.515e-03 
+Iteration:     10  Time: 5.581E-02  Max CFL: 6.012E-01  Max Diff. No.: 0.000E+00  
+10 TS dt 0.00751542 time 0.0558115
+      TSAdapt 'basic': step  10 rejected t=0.0558115  + 7.515e-03 wlte= 1.44 family='rk' scheme=0:'5dp' dt=6.291e-03 
+      TSAdapt 'basic': step  10 accepted t=0.0558115  + 6.291e-03 wlte=0.542 family='rk' scheme=0:'5dp' dt=6.399e-03 
+11 TS dt 0.00639898 time 0.0621025
+      TSAdapt 'basic': step  11 accepted t=0.0621025  + 6.399e-03 wlte=0.365 family='rk' scheme=0:'5dp' dt=7.044e-03 
+12 TS dt 0.00704445 time 0.0685015
+      TSAdapt 'basic': step  12 rejected t=0.0685015  + 7.044e-03 wlte= 1.19 family='rk' scheme=0:'5dp' dt=6.119e-03 
+      TSAdapt 'basic': step  12 accepted t=0.0685015  + 6.119e-03 wlte=0.463 family='rk' scheme=0:'5dp' dt=6.425e-03 
+13 TS dt 0.00642491 time 0.0746205
+      TSAdapt 'basic': step  13 accepted t=0.0746205  + 6.425e-03 wlte=0.333 family='rk' scheme=0:'5dp' dt=7.203e-03 
+14 TS dt 0.00720298 time 0.0810454
+      TSAdapt 'basic': step  14 rejected t=0.0810454  + 7.203e-03 wlte= 1.06 family='rk' scheme=0:'5dp' dt=6.413e-03 
+      TSAdapt 'basic': step  14 accepted t=0.0810454  + 6.413e-03 wlte=0.503 family='rk' scheme=0:'5dp' dt=6.623e-03 
+15 TS dt 0.00662328 time 0.0874589
+      TSAdapt 'basic': step  15 accepted t=0.0874589  + 6.623e-03 wlte=0.411 family='rk' scheme=0:'5dp' dt=7.121e-03 
+16 TS dt 0.00712122 time 0.0940822
+      TSAdapt 'basic': step  16 accepted t=0.0940822  + 7.121e-03 wlte=0.802 family='rk' scheme=0:'5dp' dt=6.698e-03 
+17 TS dt 0.00669756 time 0.101203
+      TSAdapt 'basic': step  17 accepted t=0.101203   + 6.698e-03 wlte= 0.45 family='rk' scheme=0:'5dp' dt=7.073e-03 
+18 TS dt 0.00707282 time 0.107901
+      TSAdapt 'basic': step  18 accepted t=0.107901   + 7.073e-03 wlte=0.735 family='rk' scheme=0:'5dp' dt=6.769e-03 
+19 TS dt 0.00676928 time 0.114974
+      TSAdapt 'basic': step  19 accepted t=0.114974   + 6.769e-03 wlte=0.343 family='rk' scheme=0:'5dp' dt=7.547e-03 
+Iteration:     20  Time: 1.217E-01  Max CFL: 6.038E-01  Max Diff. No.: 0.000E+00  
+20 TS dt 0.00754722 time 0.121743
+      TSAdapt 'basic': step  20 rejected t=0.121743   + 7.547e-03 wlte= 1.02 family='rk' scheme=0:'5dp' dt=6.762e-03 
+      TSAdapt 'basic': step  20 accepted t=0.121743   + 6.762e-03 wlte=0.613 family='rk' scheme=0:'5dp' dt=6.712e-03 
+21 TS dt 0.00671215 time 0.128505
+      TSAdapt 'basic': step  21 accepted t=0.128505   + 6.712e-03 wlte=0.276 family='rk' scheme=0:'5dp' dt=7.817e-03 
+22 TS dt 0.00781688 time 0.135217
+      TSAdapt 'basic': step  22 rejected t=0.135217   + 7.817e-03 wlte= 1.13 family='rk' scheme=0:'5dp' dt=6.860e-03 
+      TSAdapt 'basic': step  22 accepted t=0.135217   + 6.860e-03 wlte=0.592 family='rk' scheme=0:'5dp' dt=6.857e-03 
+23 TS dt 0.00685712 time 0.142077
+      TSAdapt 'basic': step  23 accepted t=0.142077   + 6.857e-03 wlte=  0.3 family='rk' scheme=0:'5dp' dt=7.852e-03 
+24 TS dt 0.00785183 time 0.148934
+      TSAdapt 'basic': step  24 accepted t=0.148934   + 7.852e-03 wlte=0.851 family='rk' scheme=0:'5dp' dt=7.298e-03 
+25 TS dt 0.00729775 time 0.156786
+      TSAdapt 'basic': step  25 accepted t=0.156786   + 7.298e-03 wlte=0.456 family='rk' scheme=0:'5dp' dt=7.684e-03 
+26 TS dt 0.00768424 time 0.164084
+      TSAdapt 'basic': step  26 accepted t=0.164084   + 7.684e-03 wlte=0.593 family='rk' scheme=0:'5dp' dt=7.677e-03 
+27 TS dt 0.00767715 time 0.171768
+      TSAdapt 'basic': step  27 accepted t=0.171768   + 7.677e-03 wlte=0.839 family='rk' scheme=0:'5dp' dt=7.156e-03 
+28 TS dt 0.00715603 time 0.179445
+      TSAdapt 'basic': step  28 accepted t=0.179445   + 7.156e-03 wlte=0.551 family='rk' scheme=0:'5dp' dt=7.256e-03 
+29 TS dt 0.00725564 time 0.186601
+      TSAdapt 'basic': step  29 accepted t=0.186601   + 7.256e-03 wlte=0.347 family='rk' scheme=0:'5dp' dt=8.068e-03 
+Iteration:     30  Time: 1.939E-01  Max CFL: 6.455E-01  Max Diff. No.: 0.000E+00  
+30 TS dt 0.00806816 time 0.193857
+      TSAdapt 'basic': step  30 accepted t=0.193857   + 8.068e-03 wlte=0.844 family='rk' scheme=0:'5dp' dt=7.511e-03 
+31 TS dt 0.00751101 time 0.201925
+      TSAdapt 'basic': step  31 accepted t=0.201925   + 7.511e-03 wlte=0.448 family='rk' scheme=0:'5dp' dt=7.936e-03 
+32 TS dt 0.00793625 time 0.209436
+      TSAdapt 'basic': step  32 accepted t=0.209436   + 7.936e-03 wlte=0.812 family='rk' scheme=0:'5dp' dt=7.446e-03 
+33 TS dt 0.00744619 time 0.217372
+      TSAdapt 'basic': step  33 accepted t=0.217372   + 7.446e-03 wlte=0.543 family='rk' scheme=0:'5dp' dt=7.572e-03 
+34 TS dt 0.00757198 time 0.224818
+      TSAdapt 'basic': step  34 accepted t=0.224818   + 7.572e-03 wlte=0.587 family='rk' scheme=0:'5dp' dt=7.580e-03 
+35 TS dt 0.00758033 time 0.23239
+      TSAdapt 'basic': step  35 accepted t=0.23239    + 7.580e-03 wlte=0.397 family='rk' scheme=0:'5dp' dt=8.208e-03 
+36 TS dt 0.00820772 time 0.239971
+      TSAdapt 'basic': step  36 accepted t=0.239971   + 8.208e-03 wlte=0.664 family='rk' scheme=0:'5dp' dt=8.016e-03 
+37 TS dt 0.00801625 time 0.248178
+      TSAdapt 'basic': step  37 accepted t=0.248178   + 8.016e-03 wlte=0.759 family='rk' scheme=0:'5dp' dt=7.624e-03 
+38 TS dt 0.00762404 time 0.256195
+      TSAdapt 'basic': step  38 accepted t=0.256195   + 7.624e-03 wlte=0.426 family='rk' scheme=0:'5dp' dt=8.137e-03 
+39 TS dt 0.0081367 time 0.263819
+      TSAdapt 'basic': step  39 accepted t=0.263819   + 8.137e-03 wlte= 0.61 family='rk' scheme=0:'5dp' dt=8.085e-03 
+Iteration:     40  Time: 2.720E-01  Max CFL: 6.468E-01  Max Diff. No.: 0.000E+00  
+40 TS dt 0.00808472 time 0.271955
+      TSAdapt 'basic': step  40 accepted t=0.271955   + 8.085e-03 wlte= 0.56 family='rk' scheme=0:'5dp' dt=8.171e-03 
+41 TS dt 0.0081707 time 0.28004
+      TSAdapt 'basic': step  41 accepted t=0.28004    + 8.171e-03 wlte=0.826 family='rk' scheme=0:'5dp' dt=7.641e-03 
+42 TS dt 0.00764112 time 0.288211
+      TSAdapt 'basic': step  42 accepted t=0.288211   + 7.641e-03 wlte=0.473 family='rk' scheme=0:'5dp' dt=7.987e-03 
+43 TS dt 0.0079867 time 0.295852
+      TSAdapt 'basic': step  43 accepted t=0.295852   + 7.987e-03 wlte=0.582 family='rk' scheme=0:'5dp' dt=8.010e-03 
+44 TS dt 0.00801019 time 0.303839
+      TSAdapt 'basic': step  44 accepted t=0.303839   + 8.010e-03 wlte= 0.51 family='rk' scheme=0:'5dp' dt=8.250e-03 
+45 TS dt 0.0082496 time 0.311849
+      TSAdapt 'basic': step  45 accepted t=0.311849   + 8.250e-03 wlte=0.816 family='rk' scheme=0:'5dp' dt=7.733e-03 
+46 TS dt 0.00773309 time 0.320098
+      TSAdapt 'basic': step  46 accepted t=0.320098   + 7.733e-03 wlte=0.439 family='rk' scheme=0:'5dp' dt=8.206e-03 
+47 TS dt 0.00820607 time 0.327832
+      TSAdapt 'basic': step  47 accepted t=0.327832   + 8.206e-03 wlte=0.607 family='rk' scheme=0:'5dp' dt=8.161e-03 
+48 TS dt 0.00816091 time 0.336038
+      TSAdapt 'basic': step  48 accepted t=0.336038   + 8.161e-03 wlte=0.683 family='rk' scheme=0:'5dp' dt=7.926e-03 
+49 TS dt 0.00792618 time 0.344199
+      TSAdapt 'basic': step  49 accepted t=0.344199   + 7.926e-03 wlte=0.526 family='rk' scheme=0:'5dp' dt=8.112e-03 
+Iteration:     50  Time: 3.521E-01  Max CFL: 6.490E-01  Max Diff. No.: 0.000E+00  
+50 TS dt 0.00811207 time 0.352125
+      TSAdapt 'basic': step  50 accepted t=0.352125   + 8.112e-03 wlte=0.513 family='rk' scheme=0:'5dp' dt=8.344e-03 
+51 TS dt 0.00834441 time 0.360237
+      TSAdapt 'basic': step  51 accepted t=0.360237   + 8.344e-03 wlte= 0.78 family='rk' scheme=0:'5dp' dt=7.893e-03 
+52 TS dt 0.00789322 time 0.368581
+      TSAdapt 'basic': step  52 accepted t=0.368581   + 7.893e-03 wlte= 0.37 family='rk' scheme=0:'5dp' dt=8.667e-03 
+53 TS dt 0.00866719 time 0.376474
+      TSAdapt 'basic': step  53 accepted t=0.376474   + 8.667e-03 wlte=0.798 family='rk' scheme=0:'5dp' dt=8.161e-03 
+54 TS dt 0.00816118 time 0.385142
+      TSAdapt 'basic': step  54 accepted t=0.385142   + 8.161e-03 wlte=0.584 family='rk' scheme=0:'5dp' dt=8.180e-03 
+55 TS dt 0.00817959 time 0.393303
+      TSAdapt 'basic': step  55 accepted t=0.393303   + 8.180e-03 wlte=0.427 family='rk' scheme=0:'5dp' dt=8.728e-03 
+56 TS dt 0.00872808 time 0.401482
+      TSAdapt 'basic': step  56 accepted t=0.401482   + 8.728e-03 wlte=0.822 family='rk' scheme=0:'5dp' dt=8.169e-03 
+57 TS dt 0.00816921 time 0.41021
+      TSAdapt 'basic': step  57 accepted t=0.41021    + 8.169e-03 wlte=0.642 family='rk' scheme=0:'5dp' dt=8.033e-03 
+58 TS dt 0.00803318 time 0.41838
+      TSAdapt 'basic': step  58 accepted t=0.41838    + 8.033e-03 wlte=0.382 family='rk' scheme=0:'5dp' dt=8.766e-03 
+59 TS dt 0.00876572 time 0.426413
+      TSAdapt 'basic': step  59 accepted t=0.426413   + 8.766e-03 wlte=0.903 family='rk' scheme=0:'5dp' dt=8.052e-03 
+Iteration:     60  Time: 4.352E-01  Max CFL: 6.442E-01  Max Diff. No.: 0.000E+00  
+60 TS dt 0.00805224 time 0.435179
+      TSAdapt 'basic': step  60 accepted t=0.435179   + 8.052e-03 wlte=0.566 family='rk' scheme=0:'5dp' dt=8.120e-03 
+61 TS dt 0.00812007 time 0.443231
+      TSAdapt 'basic': step  61 accepted t=0.443231   + 8.120e-03 wlte= 0.41 family='rk' scheme=0:'5dp' dt=8.733e-03 
+62 TS dt 0.00873303 time 0.451351
+      TSAdapt 'basic': step  62 accepted t=0.451351   + 8.733e-03 wlte=0.894 family='rk' scheme=0:'5dp' dt=8.038e-03 
+63 TS dt 0.00803796 time 0.460084
+      TSAdapt 'basic': step  63 accepted t=0.460084   + 8.038e-03 wlte=0.551 family='rk' scheme=0:'5dp' dt=8.150e-03 
+64 TS dt 0.00815048 time 0.468122
+      TSAdapt 'basic': step  64 accepted t=0.468122   + 8.150e-03 wlte=0.431 family='rk' scheme=0:'5dp' dt=8.681e-03 
+65 TS dt 0.00868096 time 0.476272
+      TSAdapt 'basic': step  65 accepted t=0.476272   + 8.681e-03 wlte=0.878 family='rk' scheme=0:'5dp' dt=8.019e-03 
+66 TS dt 0.00801895 time 0.484953
+      TSAdapt 'basic': step  66 accepted t=0.484953   + 8.019e-03 wlte= 0.51 family='rk' scheme=0:'5dp' dt=8.257e-03 
+67 TS dt 0.00825745 time 0.492972
+      TSAdapt 'basic': step  67 accepted t=0.492972   + 8.257e-03 wlte=0.463 family='rk' scheme=0:'5dp' dt=8.669e-03 
+68 TS dt 0.00866893 time 0.50123
+      TSAdapt 'basic': step  68 accepted t=0.50123    + 8.669e-03 wlte=0.868 family='rk' scheme=0:'5dp' dt=8.027e-03 
+69 TS dt 0.00802671 time 0.509899
+      TSAdapt 'basic': step  69 accepted t=0.509899   + 8.027e-03 wlte=0.479 family='rk' scheme=0:'5dp' dt=8.371e-03 
+Iteration:     70  Time: 5.179E-01  Max CFL: 6.697E-01  Max Diff. No.: 0.000E+00  
+70 TS dt 0.00837118 time 0.517925
+      TSAdapt 'basic': step  70 accepted t=0.517925   + 8.371e-03 wlte=0.488 family='rk' scheme=0:'5dp' dt=8.698e-03 
+71 TS dt 0.00869775 time 0.526297
+      TSAdapt 'basic': step  71 accepted t=0.526297   + 8.698e-03 wlte=0.865 family='rk' scheme=0:'5dp' dt=8.058e-03 
+72 TS dt 0.00805792 time 0.534994
+      TSAdapt 'basic': step  72 accepted t=0.534994   + 8.058e-03 wlte=0.464 family='rk' scheme=0:'5dp' dt=8.457e-03 
+73 TS dt 0.00845685 time 0.543052
+      TSAdapt 'basic': step  73 accepted t=0.543052   + 8.457e-03 wlte=0.487 family='rk' scheme=0:'5dp' dt=8.789e-03 
+74 TS dt 0.00878873 time 0.551509
+      TSAdapt 'basic': step  74 accepted t=0.551509   + 8.789e-03 wlte=0.875 family='rk' scheme=0:'5dp' dt=8.123e-03 
+75 TS dt 0.00812314 time 0.560298
+      TSAdapt 'basic': step  75 accepted t=0.560298   + 8.123e-03 wlte=0.484 family='rk' scheme=0:'5dp' dt=8.454e-03 
+76 TS dt 0.00845402 time 0.568421
+      TSAdapt 'basic': step  76 accepted t=0.568421   + 8.454e-03 wlte=0.414 family='rk' scheme=0:'5dp' dt=9.077e-03 
+77 TS dt 0.00907666 time 0.576875
+      TSAdapt 'basic': step  77 accepted t=0.576875   + 9.077e-03 wlte=0.944 family='rk' scheme=0:'5dp' dt=8.263e-03 
+78 TS dt 0.00826346 time 0.585952
+      TSAdapt 'basic': step  78 accepted t=0.585952   + 8.263e-03 wlte=0.601 family='rk' scheme=0:'5dp' dt=8.235e-03 
+79 TS dt 0.00823498 time 0.594215
+      TSAdapt 'basic': step  79 accepted t=0.594215   + 8.235e-03 wlte=0.416 family='rk' scheme=0:'5dp' dt=8.833e-03 
+Iteration:     80  Time: 6.025E-01  Max CFL: 7.066E-01  Max Diff. No.: 0.000E+00  
+80 TS dt 0.00883291 time 0.60245
+      TSAdapt 'basic': step  80 accepted t=0.60245    + 8.833e-03 wlte=0.789 family='rk' scheme=0:'5dp' dt=8.335e-03 
+81 TS dt 0.00833548 time 0.611283
+      TSAdapt 'basic': step  81 accepted t=0.611283   + 8.335e-03 wlte=0.627 family='rk' scheme=0:'5dp' dt=8.235e-03 
+82 TS dt 0.00823501 time 0.619618
+      TSAdapt 'basic': step  82 accepted t=0.619618   + 8.235e-03 wlte=0.349 family='rk' scheme=0:'5dp' dt=9.148e-03 
+83 TS dt 0.00914779 time 0.627853
+      TSAdapt 'basic': step  83 accepted t=0.627853   + 9.148e-03 wlte=0.871 family='rk' scheme=0:'5dp' dt=8.464e-03 
+84 TS dt 0.00846362 time 0.637001
+      TSAdapt 'basic': step  84 accepted t=0.637001   + 8.464e-03 wlte=0.762 family='rk' scheme=0:'5dp' dt=8.042e-03 
+85 TS dt 0.00804187 time 0.645465
+      TSAdapt 'basic': step  85 accepted t=0.645465   + 8.042e-03 wlte=0.265 family='rk' scheme=0:'5dp' dt=9.440e-03 
+86 TS dt 0.00944031 time 0.653507
+      TSAdapt 'basic': step  86 accepted t=0.653507   + 9.440e-03 wlte=0.904 family='rk' scheme=0:'5dp' dt=8.670e-03 
+87 TS dt 0.00867005 time 0.662947
+      TSAdapt 'basic': step  87 accepted t=0.662947   + 8.670e-03 wlte=0.937 family='rk' scheme=0:'5dp' dt=7.906e-03 
+88 TS dt 0.00790573 time 0.671617
+      TSAdapt 'basic': step  88 accepted t=0.671617   + 7.906e-03 wlte=0.246 family='rk' scheme=0:'5dp' dt=9.420e-03 
+89 TS dt 0.00942025 time 0.679523
+      TSAdapt 'basic': step  89 accepted t=0.679523   + 9.420e-03 wlte=0.678 family='rk' scheme=0:'5dp' dt=9.162e-03 
+Iteration:     90  Time: 6.889E-01  Max CFL: 7.330E-01  Max Diff. No.: 0.000E+00  
+90 TS dt 0.00916233 time 0.688943
+      TSAdapt 'basic': step  90 rejected t=0.688943   + 9.162e-03 wlte= 1.25 family='rk' scheme=0:'5dp' dt=7.887e-03 
+      TSAdapt 'basic': step  90 accepted t=0.688943   + 7.887e-03 wlte=0.499 family='rk' scheme=0:'5dp' dt=8.156e-03 
+91 TS dt 0.00815632 time 0.69683
+      TSAdapt 'basic': step  91 accepted t=0.69683    + 8.156e-03 wlte=0.297 family='rk' scheme=0:'5dp' dt=9.361e-03 
+92 TS dt 0.00936119 time 0.704986
+      TSAdapt 'basic': step  92 accepted t=0.704986   + 9.361e-03 wlte=0.626 family='rk' scheme=0:'5dp' dt=9.253e-03 
+93 TS dt 0.0092532 time 0.714348
+      TSAdapt 'basic': step  93 rejected t=0.714348   + 9.253e-03 wlte= 1.23 family='rk' scheme=0:'5dp' dt=7.994e-03 
+      TSAdapt 'basic': step  93 accepted t=0.714348   + 7.994e-03 wlte=0.516 family='rk' scheme=0:'5dp' dt=8.211e-03 
+94 TS dt 0.00821108 time 0.722341
+      TSAdapt 'basic': step  94 accepted t=0.722341   + 8.211e-03 wlte=  0.3 family='rk' scheme=0:'5dp' dt=9.399e-03 
+95 TS dt 0.00939935 time 0.730552
+      TSAdapt 'basic': step  95 accepted t=0.730552   + 9.399e-03 wlte=0.629 family='rk' scheme=0:'5dp' dt=9.282e-03 
+96 TS dt 0.00928243 time 0.739952
+      TSAdapt 'basic': step  96 rejected t=0.739952   + 9.282e-03 wlte= 1.02 family='rk' scheme=0:'5dp' dt=8.318e-03 
+      TSAdapt 'basic': step  96 accepted t=0.739952   + 8.318e-03 wlte=0.576 family='rk' scheme=0:'5dp' dt=8.360e-03 
+97 TS dt 0.00836033 time 0.74827
+      TSAdapt 'basic': step  97 accepted t=0.74827    + 8.360e-03 wlte=0.351 family='rk' scheme=0:'5dp' dt=9.278e-03 
+98 TS dt 0.00927795 time 0.756631
+      TSAdapt 'basic': step  98 accepted t=0.756631   + 9.278e-03 wlte=0.613 family='rk' scheme=0:'5dp' dt=9.209e-03 
+99 TS dt 0.00920911 time 0.765908
+      TSAdapt 'basic': step  99 accepted t=0.765908   + 9.209e-03 wlte=0.814 family='rk' scheme=0:'5dp' dt=8.637e-03 
+Iteration:    100  Time: 7.751E-01  Max CFL: 6.910E-01  Max Diff. No.: 0.000E+00  
+100 TS dt 0.0086372 time 0.775118
+      TSAdapt 'basic': step 100 accepted t=0.775118   + 8.637e-03 wlte=0.768 family='rk' scheme=0:'5dp' dt=8.194e-03 
+101 TS dt 0.00819387 time 0.783755
+      TSAdapt 'basic': step 101 accepted t=0.783755   + 8.194e-03 wlte=0.252 family='rk' scheme=0:'5dp' dt=9.712e-03 
+102 TS dt 0.00971155 time 0.791949
+      TSAdapt 'basic': step 102 accepted t=0.791949   + 9.712e-03 wlte=0.905 family='rk' scheme=0:'5dp' dt=8.916e-03 
+103 TS dt 0.00891632 time 0.80166
+      TSAdapt 'basic': step 103 accepted t=0.80166    + 8.916e-03 wlte=0.932 family='rk' scheme=0:'5dp' dt=8.138e-03 
+104 TS dt 0.00813825 time 0.810577
+      TSAdapt 'basic': step 104 accepted t=0.810577   + 8.138e-03 wlte=0.288 family='rk' scheme=0:'5dp' dt=9.398e-03 
+105 TS dt 0.00939805 time 0.818715
+      TSAdapt 'basic': step 105 accepted t=0.818715   + 9.398e-03 wlte=0.558 family='rk' scheme=0:'5dp' dt=9.505e-03 
+106 TS dt 0.00950465 time 0.828113
+      TSAdapt 'basic': step 106 rejected t=0.828113   + 9.505e-03 wlte= 1.07 family='rk' scheme=0:'5dp' dt=8.440e-03 
+      TSAdapt 'basic': step 106 accepted t=0.828113   + 8.440e-03 wlte=0.562 family='rk' scheme=0:'5dp' dt=8.524e-03 
+107 TS dt 0.00852377 time 0.836553
+      TSAdapt 'basic': step 107 accepted t=0.836553   + 8.524e-03 wlte=0.415 family='rk' scheme=0:'5dp' dt=9.147e-03 
+108 TS dt 0.00914732 time 0.845076
+      TSAdapt 'basic': step 108 accepted t=0.845076   + 9.147e-03 wlte=0.498 family='rk' scheme=0:'5dp' dt=9.463e-03 
+109 TS dt 0.00946265 time 0.854224
+      TSAdapt 'basic': step 109 accepted t=0.854224   + 9.463e-03 wlte=0.838 family='rk' scheme=0:'5dp' dt=8.824e-03 
+Iteration:    110  Time: 8.637E-01  Max CFL: 7.059E-01  Max Diff. No.: 0.000E+00  
+110 TS dt 0.00882376 time 0.863686
+      TSAdapt 'basic': step 110 accepted t=0.863686   + 8.824e-03 wlte=0.889 family='rk' scheme=0:'5dp' dt=8.131e-03 
+111 TS dt 0.00813051 time 0.87251
+      TSAdapt 'basic': step 111 accepted t=0.87251    + 8.131e-03 wlte=0.242 family='rk' scheme=0:'5dp' dt=9.721e-03 
+112 TS dt 0.00972072 time 0.880641
+      TSAdapt 'basic': step 112 accepted t=0.880641   + 9.721e-03 wlte=0.728 family='rk' scheme=0:'5dp' dt=9.321e-03 
+113 TS dt 0.00932139 time 0.890361
+      TSAdapt 'basic': step 113 rejected t=0.890361   + 9.321e-03 wlte= 1.04 family='rk' scheme=0:'5dp' dt=8.327e-03 
+      TSAdapt 'basic': step 113 accepted t=0.890361   + 8.327e-03 wlte=0.535 family='rk' scheme=0:'5dp' dt=8.492e-03 
+114 TS dt 0.0084919 time 0.898689
+      TSAdapt 'basic': step 114 accepted t=0.898689   + 8.492e-03 wlte=0.362 family='rk' scheme=0:'5dp' dt=9.365e-03 
+115 TS dt 0.00936546 time 0.90718
+      TSAdapt 'basic': step 115 accepted t=0.90718    + 9.365e-03 wlte=0.532 family='rk' scheme=0:'5dp' dt=9.561e-03 
+116 TS dt 0.00956149 time 0.916546
+      TSAdapt 'basic': step 116 accepted t=0.916546   + 9.561e-03 wlte=0.958 family='rk' scheme=0:'5dp' dt=8.680e-03 
+117 TS dt 0.00867974 time 0.926107
+      TSAdapt 'basic': step 117 accepted t=0.926107   + 8.680e-03 wlte=0.677 family='rk' scheme=0:'5dp' dt=8.446e-03 
+118 TS dt 0.00844612 time 0.934787
+      TSAdapt 'basic': step 118 accepted t=0.934787   + 8.446e-03 wlte=0.275 family='rk' scheme=0:'5dp' dt=9.841e-03 
+119 TS dt 0.00984083 time 0.943233
+      TSAdapt 'basic': step 119 accepted t=0.943233   + 9.841e-03 wlte= 0.79 family='rk' scheme=0:'5dp' dt=9.284e-03 
+Iteration:    120  Time: 9.531E-01  Max CFL: 7.427E-01  Max Diff. No.: 0.000E+00  
+120 TS dt 0.0092838 time 0.953074
+      TSAdapt 'basic': step 120 rejected t=0.953074   + 9.284e-03 wlte=    1 family='rk' scheme=0:'5dp' dt=8.350e-03 
+      TSAdapt 'basic': step 120 accepted t=0.953074   + 8.350e-03 wlte=0.531 family='rk' scheme=0:'5dp' dt=8.530e-03 
+121 TS dt 0.00852983 time 0.961424
+      TSAdapt 'basic': step 121 accepted t=0.961424   + 8.530e-03 wlte=0.358 family='rk' scheme=0:'5dp' dt=9.425e-03 
+122 TS dt 0.00942527 time 0.969954
+      TSAdapt 'basic': step 122 accepted t=0.969954   + 9.425e-03 wlte=0.522 family='rk' scheme=0:'5dp' dt=9.661e-03 
+123 TS dt 0.00966078 time 0.979379
+      TSAdapt 'basic': step 123 accepted t=0.979379   + 9.661e-03 wlte=0.985 family='rk' scheme=0:'5dp' dt=8.722e-03 
+124 TS dt 0.00872168 time 0.98904
+      TSAdapt 'basic': step 124 accepted t=0.98904    + 8.722e-03 wlte=0.681 family='rk' scheme=0:'5dp' dt=8.477e-03 
+125 TS dt 0.00847722 time 0.997762
+      TSAdapt 'basic': step 125 accepted t=0.997762   + 8.477e-03 wlte=0.291 family='rk' scheme=0:'5dp' dt=9.765e-03 
+126 TS dt 0.00976511 time 1.00624
+      TSAdapt 'basic': step 126 accepted t=1.00624    + 9.765e-03 wlte=0.693 family='rk' scheme=0:'5dp' dt=9.457e-03 
+127 TS dt 0.00945724 time 1.016
+      TSAdapt 'basic': step 127 rejected t=1.016      + 9.457e-03 wlte=  1.1 family='rk' scheme=0:'5dp' dt=8.346e-03 
+      TSAdapt 'basic': step 127 accepted t=1.016      + 8.346e-03 wlte=0.502 family='rk' scheme=0:'5dp' dt=8.622e-03 
+128 TS dt 0.0086224 time 1.02435
+      TSAdapt 'basic': step 128 accepted t=1.02435    + 8.622e-03 wlte=0.369 family='rk' scheme=0:'5dp' dt=9.474e-03 
+129 TS dt 0.00947351 time 1.03297
+      TSAdapt 'basic': step 129 accepted t=1.03297    + 9.474e-03 wlte=0.517 family='rk' scheme=0:'5dp' dt=9.729e-03 
+Iteration:    130  Time: 1.042E+00  Max CFL: 7.784E-01  Max Diff. No.: 0.000E+00  
+130 TS dt 0.00972939 time 1.04245
+      TSAdapt 'basic': step 130 accepted t=1.04245    + 9.729e-03 wlte=0.935 family='rk' scheme=0:'5dp' dt=8.875e-03 
+131 TS dt 0.00887543 time 1.05218
+      TSAdapt 'basic': step 131 accepted t=1.05218    + 8.875e-03 wlte=0.775 family='rk' scheme=0:'5dp' dt=8.406e-03 
+132 TS dt 0.00840562 time 1.06105
+      TSAdapt 'basic': step 132 accepted t=1.06105    + 8.406e-03 wlte=0.291 family='rk' scheme=0:'5dp' dt=9.687e-03 
+133 TS dt 0.00968664 time 1.06946
+      TSAdapt 'basic': step 133 accepted t=1.06946    + 9.687e-03 wlte=0.589 family='rk' scheme=0:'5dp' dt=9.691e-03 
+134 TS dt 0.00969099 time 1.07914
+      TSAdapt 'basic': step 134 rejected t=1.07914    + 9.691e-03 wlte= 1.17 family='rk' scheme=0:'5dp' dt=8.458e-03 
+      TSAdapt 'basic': step 134 accepted t=1.07914    + 8.458e-03 wlte=0.489 family='rk' scheme=0:'5dp' dt=8.784e-03 
+135 TS dt 0.00878438 time 1.0876
+      TSAdapt 'basic': step 135 accepted t=1.0876     + 8.784e-03 wlte=0.425 family='rk' scheme=0:'5dp' dt=9.381e-03 
+136 TS dt 0.00938057 time 1.09639
+      TSAdapt 'basic': step 136 accepted t=1.09639    + 9.381e-03 wlte=0.468 family='rk' scheme=0:'5dp' dt=9.829e-03 
+137 TS dt 0.00982868 time 1.10577
+      TSAdapt 'basic': step 137 accepted t=1.10577    + 9.829e-03 wlte=0.861 family='rk' scheme=0:'5dp' dt=9.114e-03 
+138 TS dt 0.0091143 time 1.11559
+      TSAdapt 'basic': step 138 accepted t=1.11559    + 9.114e-03 wlte=0.949 family='rk' scheme=0:'5dp' dt=8.289e-03 
+139 TS dt 0.00828863 time 1.12471
+      TSAdapt 'basic': step 139 accepted t=1.12471    + 8.289e-03 wlte=0.288 family='rk' scheme=0:'5dp' dt=9.570e-03 
+Iteration:    140  Time: 1.133E+00  Max CFL: 7.656E-01  Max Diff. No.: 0.000E+00  
+140 TS dt 0.00956985 time 1.133
+      TSAdapt 'basic': step 140 accepted t=1.133      + 9.570e-03 wlte=0.501 family='rk' scheme=0:'5dp' dt=9.891e-03 
+141 TS dt 0.00989142 time 1.14257
+      TSAdapt 'basic': step 141 rejected t=1.14257    + 9.891e-03 wlte= 1.04 family='rk' scheme=0:'5dp' dt=8.830e-03 
+      TSAdapt 'basic': step 141 accepted t=1.14257    + 8.830e-03 wlte=0.528 family='rk' scheme=0:'5dp' dt=9.031e-03 
+142 TS dt 0.00903127 time 1.1514
+      TSAdapt 'basic': step 142 accepted t=1.1514     + 9.031e-03 wlte=0.636 family='rk' scheme=0:'5dp' dt=8.898e-03 
+143 TS dt 0.00889847 time 1.16043
+      TSAdapt 'basic': step 143 accepted t=1.16043    + 8.898e-03 wlte=0.307 family='rk' scheme=0:'5dp' dt=1.014e-02 
+144 TS dt 0.0101407 time 1.16933
+      TSAdapt 'basic': step 144 accepted t=1.16933    + 1.014e-02 wlte=0.851 family='rk' scheme=0:'5dp' dt=9.427e-03 
+145 TS dt 0.00942654 time 1.17947
+      TSAdapt 'basic': step 145 accepted t=1.17947    + 9.427e-03 wlte=0.824 family='rk' scheme=0:'5dp' dt=8.819e-03 
+146 TS dt 0.0088186 time 1.1889
+      TSAdapt 'basic': step 146 accepted t=1.1889     + 8.819e-03 wlte=0.471 family='rk' scheme=0:'5dp' dt=9.225e-03 
+147 TS dt 0.00922463 time 1.19771
+      TSAdapt 'basic': step 147 accepted t=1.19771    + 9.225e-03 wlte=0.381 family='rk' scheme=0:'5dp' dt=1.007e-02 
+148 TS dt 0.0100685 time 1.20694
+      TSAdapt 'basic': step 148 accepted t=1.20694    + 1.007e-02 wlte=0.798 family='rk' scheme=0:'5dp' dt=9.480e-03 
+149 TS dt 0.00948007 time 1.21701
+      TSAdapt 'basic': step 149 rejected t=1.21701    + 9.480e-03 wlte= 2.01 family='rk' scheme=0:'5dp' dt=7.422e-03 
+      TSAdapt 'basic': step 149 accepted t=1.21701    + 7.422e-03 wlte=0.278 family='rk' scheme=0:'5dp' dt=8.632e-03 
+Iteration:    150  Time: 1.224E+00  Max CFL: 6.906E-01  Max Diff. No.: 0.000E+00  
+150 TS dt 0.00863224 time 1.22443
+      TSAdapt 'basic': step 150 accepted t=1.22443    + 8.632e-03 wlte=0.298 family='rk' scheme=0:'5dp' dt=9.898e-03 
+151 TS dt 0.00989822 time 1.23306
+      TSAdapt 'basic': step 151 accepted t=1.23306    + 9.898e-03 wlte=0.673 family='rk' scheme=0:'5dp' dt=9.641e-03 
+152 TS dt 0.00964132 time 1.24296
+      TSAdapt 'basic': step 152 accepted t=1.24296    + 9.641e-03 wlte=0.855 family='rk' scheme=0:'5dp' dt=8.952e-03 
+153 TS dt 0.00895247 time 1.2526
+      TSAdapt 'basic': step 153 accepted t=1.2526     + 8.952e-03 wlte=0.852 family='rk' scheme=0:'5dp' dt=8.320e-03 
+154 TS dt 0.00831964 time 1.26155
+      TSAdapt 'basic': step 154 accepted t=1.26155    + 8.320e-03 wlte=0.205 family='rk' scheme=0:'5dp' dt=1.028e-02 
+155 TS dt 0.0102844 time 1.26987
+      TSAdapt 'basic': step 155 accepted t=1.26987    + 1.028e-02 wlte= 0.89 family='rk' scheme=0:'5dp' dt=9.475e-03 
+156 TS dt 0.00947504 time 1.28016
+      TSAdapt 'basic': step 156 accepted t=1.28016    + 9.475e-03 wlte= 0.78 family='rk' scheme=0:'5dp' dt=8.962e-03 
+157 TS dt 0.0089616 time 1.28963
+      TSAdapt 'basic': step 157 accepted t=1.28963    + 8.962e-03 wlte=0.795 family='rk' scheme=0:'5dp' dt=8.444e-03 
+158 TS dt 0.00844362 time 1.29859
+      TSAdapt 'basic': step 158 accepted t=1.29859    + 8.444e-03 wlte= 0.22 family='rk' scheme=0:'5dp' dt=1.029e-02 
+159 TS dt 0.0102896 time 1.30704
+      TSAdapt 'basic': step 159 accepted t=1.30704    + 1.029e-02 wlte=0.941 family='rk' scheme=0:'5dp' dt=9.373e-03 
+Iteration:    160  Time: 1.317E+00  Max CFL: 7.499E-01  Max Diff. No.: 0.000E+00  
+160 TS dt 0.00937326 time 1.31733
+      TSAdapt 'basic': step 160 accepted t=1.31733    + 9.373e-03 wlte=0.795 family='rk' scheme=0:'5dp' dt=8.832e-03 
+161 TS dt 0.00883156 time 1.3267
+      TSAdapt 'basic': step 161 accepted t=1.3267     + 8.832e-03 wlte=0.601 family='rk' scheme=0:'5dp' dt=8.800e-03 
+162 TS dt 0.00880007 time 1.33553
+      TSAdapt 'basic': step 162 accepted t=1.33553    + 8.800e-03 wlte= 0.29 family='rk' scheme=0:'5dp' dt=1.015e-02 
+163 TS dt 0.0101469 time 1.34433
+      TSAdapt 'basic': step 163 accepted t=1.34433    + 1.015e-02 wlte=0.907 family='rk' scheme=0:'5dp' dt=9.312e-03 
+164 TS dt 0.00931206 time 1.35448
+      TSAdapt 'basic': step 164 accepted t=1.35448    + 9.312e-03 wlte=0.869 family='rk' scheme=0:'5dp' dt=8.620e-03 
+165 TS dt 0.00861964 time 1.36379
+      TSAdapt 'basic': step 165 accepted t=1.36379    + 8.620e-03 wlte=0.397 family='rk' scheme=0:'5dp' dt=9.330e-03 
+166 TS dt 0.00932992 time 1.37241
+      TSAdapt 'basic': step 166 accepted t=1.37241    + 9.330e-03 wlte= 0.39 family='rk' scheme=0:'5dp' dt=1.014e-02 
+167 TS dt 0.0101359 time 1.38174
+      TSAdapt 'basic': step 167 accepted t=1.38174    + 1.014e-02 wlte=0.887 family='rk' scheme=0:'5dp' dt=9.344e-03 
+168 TS dt 0.00934411 time 1.39188
+      TSAdapt 'basic': step 168 accepted t=1.39188    + 9.344e-03 wlte=0.781 family='rk' scheme=0:'5dp' dt=8.835e-03 
+169 TS dt 0.00883548 time 1.40122
+      TSAdapt 'basic': step 169 accepted t=1.40122    + 8.835e-03 wlte= 0.37 family='rk' scheme=0:'5dp' dt=9.704e-03 
+Iteration:    170  Time: 1.410E+00  Max CFL: 7.763E-01  Max Diff. No.: 0.000E+00  
+170 TS dt 0.0097038 time 1.41006
+      TSAdapt 'basic': step 170 accepted t=1.41006    + 9.704e-03 wlte=0.445 family='rk' scheme=0:'5dp' dt=1.027e-02 
+171 TS dt 0.0102682 time 1.41976
+      TSAdapt 'basic': step 171 rejected t=1.41976    + 1.027e-02 wlte= 1.71 family='rk' scheme=0:'5dp' dt=8.303e-03 
+      TSAdapt 'basic': step 171 accepted t=1.41976    + 8.303e-03 wlte=0.352 family='rk' scheme=0:'5dp' dt=9.209e-03 
+172 TS dt 0.00920851 time 1.42806
+      TSAdapt 'basic': step 172 accepted t=1.42806    + 9.209e-03 wlte=0.724 family='rk' scheme=0:'5dp' dt=8.842e-03 
+173 TS dt 0.00884151 time 1.43727
+      TSAdapt 'basic': step 173 accepted t=1.43727    + 8.842e-03 wlte=0.279 family='rk' scheme=0:'5dp' dt=1.027e-02 
+174 TS dt 0.0102709 time 1.44611
+      TSAdapt 'basic': step 174 accepted t=1.44611    + 1.027e-02 wlte= 0.76 family='rk' scheme=0:'5dp' dt=9.765e-03 
+175 TS dt 0.00976493 time 1.45638
+      TSAdapt 'basic': step 175 accepted t=1.45638    + 9.765e-03 wlte=0.824 family='rk' scheme=0:'5dp' dt=9.134e-03 
+176 TS dt 0.00913429 time 1.46615
+      TSAdapt 'basic': step 176 accepted t=1.46615    + 9.134e-03 wlte=0.841 family='rk' scheme=0:'5dp' dt=8.511e-03 
+177 TS dt 0.00851107 time 1.47528
+      TSAdapt 'basic': step 177 accepted t=1.47528    + 8.511e-03 wlte=0.217 family='rk' scheme=0:'5dp' dt=1.040e-02 
+178 TS dt 0.010398 time 1.48379
+      TSAdapt 'basic': step 178 accepted t=1.48379    + 1.040e-02 wlte=0.798 family='rk' scheme=0:'5dp' dt=9.791e-03 
+179 TS dt 0.00979056 time 1.49419
+      TSAdapt 'basic': step 179 accepted t=1.49419    + 9.791e-03 wlte=0.766 family='rk' scheme=0:'5dp' dt=9.295e-03 
+Iteration:    180  Time: 1.504E+00  Max CFL: 7.436E-01  Max Diff. No.: 0.000E+00  
+180 TS dt 0.00929463 time 1.50398
+      TSAdapt 'basic': step 180 rejected t=1.50398    + 9.295e-03 wlte= 1.14 family='rk' scheme=0:'5dp' dt=8.149e-03 
+      TSAdapt 'basic': step 180 accepted t=1.50398    + 8.149e-03 wlte=0.405 family='rk' scheme=0:'5dp' dt=8.787e-03 
+181 TS dt 0.00878743 time 1.51213
+      TSAdapt 'basic': step 181 accepted t=1.51213    + 8.787e-03 wlte=0.297 family='rk' scheme=0:'5dp' dt=1.008e-02 
+182 TS dt 0.010085 time 1.52092
+      TSAdapt 'basic': step 182 accepted t=1.52092    + 1.008e-02 wlte=0.698 family='rk' scheme=0:'5dp' dt=9.754e-03 
+183 TS dt 0.00975366 time 1.531
+      TSAdapt 'basic': step 183 accepted t=1.531      + 9.754e-03 wlte=0.914 family='rk' scheme=0:'5dp' dt=8.939e-03 
+184 TS dt 0.0089385 time 1.54076
+      TSAdapt 'basic': step 184 accepted t=1.54076    + 8.939e-03 wlte=0.611 family='rk' scheme=0:'5dp' dt=8.878e-03 
+185 TS dt 0.00887828 time 1.5497
+      TSAdapt 'basic': step 185 accepted t=1.5497     + 8.878e-03 wlte=0.266 family='rk' scheme=0:'5dp' dt=1.042e-02 
+186 TS dt 0.0104173 time 1.55857
+      TSAdapt 'basic': step 186 accepted t=1.55857    + 1.042e-02 wlte=0.827 family='rk' scheme=0:'5dp' dt=9.739e-03 
+187 TS dt 0.00973947 time 1.56899
+      TSAdapt 'basic': step 187 accepted t=1.56899    + 9.739e-03 wlte=0.807 family='rk' scheme=0:'5dp' dt=9.149e-03 
+188 TS dt 0.00914899 time 1.57873
+      TSAdapt 'basic': step 188 accepted t=1.57873    + 9.149e-03 wlte=0.832 family='rk' scheme=0:'5dp' dt=8.542e-03 
+189 TS dt 0.00854214 time 1.58788
+      TSAdapt 'basic': step 189 accepted t=1.58788    + 8.542e-03 wlte=0.204 family='rk' scheme=0:'5dp' dt=1.057e-02 
+Iteration:    190  Time: 1.596E+00  Max CFL: 8.453E-01  Max Diff. No.: 0.000E+00  
+190 TS dt 0.0105658 time 1.59642
+      TSAdapt 'basic': step 190 accepted t=1.59642    + 1.057e-02 wlte=0.854 family='rk' scheme=0:'5dp' dt=9.814e-03 
+191 TS dt 0.00981372 time 1.60699
+      TSAdapt 'basic': step 191 accepted t=1.60699    + 9.814e-03 wlte=0.756 family='rk' scheme=0:'5dp' dt=9.341e-03 
+192 TS dt 0.00934136 time 1.6168
+      TSAdapt 'basic': step 192 rejected t=1.6168     + 9.341e-03 wlte= 1.16 family='rk' scheme=0:'5dp' dt=8.162e-03 
+      TSAdapt 'basic': step 192 accepted t=1.6168     + 8.162e-03 wlte=0.394 family='rk' scheme=0:'5dp' dt=8.851e-03 
+193 TS dt 0.00885102 time 1.62496
+      TSAdapt 'basic': step 193 accepted t=1.62496    + 8.851e-03 wlte=0.292 family='rk' scheme=0:'5dp' dt=1.019e-02 
+194 TS dt 0.0101903 time 1.63381
+      TSAdapt 'basic': step 194 accepted t=1.63381    + 1.019e-02 wlte=  0.7 family='rk' scheme=0:'5dp' dt=9.850e-03 
+195 TS dt 0.00985004 time 1.644
+      TSAdapt 'basic': step 195 accepted t=1.644      + 9.850e-03 wlte=0.898 family='rk' scheme=0:'5dp' dt=9.057e-03 
+196 TS dt 0.00905688 time 1.65385
+      TSAdapt 'basic': step 196 accepted t=1.65385    + 9.057e-03 wlte=0.675 family='rk' scheme=0:'5dp' dt=8.818e-03 
+197 TS dt 0.00881799 time 1.66291
+      TSAdapt 'basic': step 197 accepted t=1.66291    + 8.818e-03 wlte=0.235 family='rk' scheme=0:'5dp' dt=1.060e-02 
+198 TS dt 0.0106002 time 1.67173
+      TSAdapt 'basic': step 198 accepted t=1.67173    + 1.060e-02 wlte=0.826 family='rk' scheme=0:'5dp' dt=9.911e-03 
+199 TS dt 0.00991141 time 1.68233
+      TSAdapt 'basic': step 199 accepted t=1.68233    + 9.911e-03 wlte= 0.76 family='rk' scheme=0:'5dp' dt=9.424e-03 
+Iteration:    200  Time: 1.692E+00  Max CFL: 7.540E-01  Max Diff. No.: 0.000E+00  
+200 TS dt 0.00942439 time 1.69224
+      TSAdapt 'basic': step 200 rejected t=1.69224    + 9.424e-03 wlte= 1.19 family='rk' scheme=0:'5dp' dt=8.187e-03 
+      TSAdapt 'basic': step 200 accepted t=1.69224    + 8.187e-03 wlte= 0.39 family='rk' scheme=0:'5dp' dt=8.893e-03 
+201 TS dt 0.00889327 time 1.70043
+      TSAdapt 'basic': step 201 accepted t=1.70043    + 8.893e-03 wlte=0.285 family='rk' scheme=0:'5dp' dt=1.029e-02 
+202 TS dt 0.0102911 time 1.70932
+      TSAdapt 'basic': step 202 accepted t=1.70932    + 1.029e-02 wlte=0.671 family='rk' scheme=0:'5dp' dt=1.003e-02 
+203 TS dt 0.0100303 time 1.71961
+      TSAdapt 'basic': step 203 accepted t=1.71961    + 1.003e-02 wlte=0.851 family='rk' scheme=0:'5dp' dt=9.322e-03 
+204 TS dt 0.0093225 time 1.72964
+      TSAdapt 'basic': step 204 accepted t=1.72964    + 9.322e-03 wlte=0.903 family='rk' scheme=0:'5dp' dt=8.564e-03 
+205 TS dt 0.00856367 time 1.73897
+      TSAdapt 'basic': step 205 accepted t=1.73897    + 8.564e-03 wlte=0.196 family='rk' scheme=0:'5dp' dt=1.067e-02 
+206 TS dt 0.010674 time 1.74753
+      TSAdapt 'basic': step 206 rejected t=1.74753    + 1.067e-02 wlte= 1.04 family='rk' scheme=0:'5dp' dt=9.538e-03 
+      TSAdapt 'basic': step 206 accepted t=1.74753    + 9.538e-03 wlte=0.481 family='rk' scheme=0:'5dp' dt=9.935e-03 
+207 TS dt 0.00993497 time 1.75707
+      TSAdapt 'basic': step 207 accepted t=1.75707    + 9.935e-03 wlte=0.977 family='rk' scheme=0:'5dp' dt=8.984e-03 
+208 TS dt 0.00898387 time 1.767
+      TSAdapt 'basic': step 208 accepted t=1.767      + 8.984e-03 wlte=0.556 family='rk' scheme=0:'5dp' dt=9.091e-03 
+209 TS dt 0.0090913 time 1.77599
+      TSAdapt 'basic': step 209 accepted t=1.77599    + 9.091e-03 wlte=0.274 family='rk' scheme=0:'5dp' dt=1.060e-02 
+Iteration:    210  Time: 1.785E+00  Max CFL: 8.483E-01  Max Diff. No.: 0.000E+00  
+210 TS dt 0.0106034 time 1.78508
+      TSAdapt 'basic': step 210 accepted t=1.78508    + 1.060e-02 wlte=0.789 family='rk' scheme=0:'5dp' dt=1.001e-02 
+211 TS dt 0.0100062 time 1.79568
+      TSAdapt 'basic': step 211 accepted t=1.79568    + 1.001e-02 wlte=0.717 family='rk' scheme=0:'5dp' dt=9.626e-03 
+212 TS dt 0.00962606 time 1.80569
+      TSAdapt 'basic': step 212 rejected t=1.80569    + 9.626e-03 wlte= 1.23 family='rk' scheme=0:'5dp' dt=8.312e-03 
+      TSAdapt 'basic': step 212 accepted t=1.80569    + 8.312e-03 wlte=0.403 family='rk' scheme=0:'5dp' dt=8.971e-03 
+213 TS dt 0.00897117 time 1.814
+      TSAdapt 'basic': step 213 accepted t=1.814      + 8.971e-03 wlte=0.273 family='rk' scheme=0:'5dp' dt=1.046e-02 
+214 TS dt 0.0104649 time 1.82297
+      TSAdapt 'basic': step 214 accepted t=1.82297    + 1.046e-02 wlte=0.629 family='rk' scheme=0:'5dp' dt=1.033e-02 
+215 TS dt 0.0103331 time 1.83343
+      TSAdapt 'basic': step 215 accepted t=1.83343    + 1.033e-02 wlte=0.903 family='rk' scheme=0:'5dp' dt=9.491e-03 
+216 TS dt 0.00949059 time 1.84377
+      TSAdapt 'basic': step 216 rejected t=1.84377    + 9.491e-03 wlte= 1.09 family='rk' scheme=0:'5dp' dt=8.392e-03 
+      TSAdapt 'basic': step 216 accepted t=1.84377    + 8.392e-03 wlte=0.449 family='rk' scheme=0:'5dp' dt=8.866e-03 
+217 TS dt 0.00886611 time 1.85216
+      TSAdapt 'basic': step 217 accepted t=1.85216    + 8.866e-03 wlte=0.239 family='rk' scheme=0:'5dp' dt=1.062e-02 
+218 TS dt 0.0106233 time 1.86103
+      TSAdapt 'basic': step 218 accepted t=1.86103    + 1.062e-02 wlte=0.631 family='rk' scheme=0:'5dp' dt=1.048e-02 
+219 TS dt 0.0104847 time 1.87165
+      TSAdapt 'basic': step 219 accepted t=1.87165    + 1.048e-02 wlte=0.846 family='rk' scheme=0:'5dp' dt=9.758e-03 
+Iteration:    220  Time: 1.882E+00  Max CFL: 7.806E-01  Max Diff. No.: 0.000E+00  
+220 TS dt 0.00975812 time 1.88213
+      TSAdapt 'basic': step 220 rejected t=1.88213    + 9.758e-03 wlte= 1.93 family='rk' scheme=0:'5dp' dt=7.699e-03 
+      TSAdapt 'basic': step 220 accepted t=1.88213    + 7.699e-03 wlte=0.329 family='rk' scheme=0:'5dp' dt=8.655e-03 
+221 TS dt 0.00865507 time 1.88983
+      TSAdapt 'basic': step 221 accepted t=1.88983    + 8.655e-03 wlte=0.227 family='rk' scheme=0:'5dp' dt=1.048e-02 
+222 TS dt 0.010478 time 1.89849
+      TSAdapt 'basic': step 222 accepted t=1.89849    + 1.048e-02 wlte=0.582 family='rk' scheme=0:'5dp' dt=1.051e-02 
+223 TS dt 0.0105096 time 1.90897
+      TSAdapt 'basic': step 223 accepted t=1.90897    + 1.051e-02 wlte=0.876 family='rk' scheme=0:'5dp' dt=9.713e-03 
+224 TS dt 0.0097132 time 1.91948
+      TSAdapt 'basic': step 224 rejected t=1.91948    + 9.713e-03 wlte= 1.35 family='rk' scheme=0:'5dp' dt=8.233e-03 
+      TSAdapt 'basic': step 224 accepted t=1.91948    + 8.233e-03 wlte=0.416 family='rk' scheme=0:'5dp' dt=8.828e-03 
+225 TS dt 0.00882834 time 1.92771
+      TSAdapt 'basic': step 225 accepted t=1.92771    + 8.828e-03 wlte=0.231 family='rk' scheme=0:'5dp' dt=1.065e-02 
+226 TS dt 0.0106515 time 1.93654
+      TSAdapt 'basic': step 226 accepted t=1.93654    + 1.065e-02 wlte=0.594 family='rk' scheme=0:'5dp' dt=1.064e-02 
+227 TS dt 0.0106389 time 1.94719
+      TSAdapt 'basic': step 227 accepted t=1.94719    + 1.064e-02 wlte=0.814 family='rk' scheme=0:'5dp' dt=9.978e-03 
+228 TS dt 0.00997804 time 1.95783
+      TSAdapt 'basic': step 228 rejected t=1.95783    + 9.978e-03 wlte= 2.68 family='rk' scheme=0:'5dp' dt=7.373e-03 
+      TSAdapt 'basic': step 228 accepted t=1.95783    + 7.373e-03 wlte= 0.27 family='rk' scheme=0:'5dp' dt=8.624e-03 
+229 TS dt 0.00862432 time 1.9652
+      TSAdapt 'basic': step 229 accepted t=1.9652     + 8.624e-03 wlte=0.219 family='rk' scheme=0:'5dp' dt=1.052e-02 
+Iteration:    230  Time: 1.974E+00  Max CFL: 8.417E-01  Max Diff. No.: 0.000E+00  
+230 TS dt 0.010521 time 1.97382
+      TSAdapt 'basic': step 230 accepted t=1.97382    + 1.052e-02 wlte=0.566 family='rk' scheme=0:'5dp' dt=1.061e-02 
+231 TS dt 0.0106093 time 1.98434
+      TSAdapt 'basic': step 231 accepted t=1.98434    + 1.061e-02 wlte=0.861 family='rk' scheme=0:'5dp' dt=9.839e-03 
+232 TS dt 0.00983896 time 1.99495
+      TSAdapt 'basic': step 232 rejected t=1.99495    + 9.839e-03 wlte= 1.42 family='rk' scheme=0:'5dp' dt=8.255e-03 
+      TSAdapt 'basic': step 232 accepted t=1.99495    + 8.255e-03 wlte=0.413 family='rk' scheme=0:'5dp' dt=8.866e-03 
+233 TS dt 0.00886643 time 2.00321
+** Completed PETSc time integration **
+Writing solution file op_00001.dat.
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	0.0000000000000000E+00
+Solver runtime (in seconds): 8.8217500000000004E-01
+Total  runtime (in seconds): 8.8327299999999997E-01
+Deallocating arrays.
+Finished.

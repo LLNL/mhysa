@@ -1,0 +1,31 @@
+# See PETSc documentation for more details (https://www.mcs.anl.gov/petsc/documentation/index.html).
+# Note that if the following are specified in this file, the corresponding inputs in solver.inp are *ignored*.
+# + "-ts_dt" (time step size): ignores "dt" in solver.inp
+# + "-ts_max_steps" (maximum number of time iterations): ignores "n_iter" in solver.inp
+# + "-ts_final_time" (final simulation time): ignores "n_iter" X "dt" in solver.inp
+
+# Use PETSc time-integration
+-use-petscts
+
+# Final time
+-ts_final_time 2.0
+
+# Time step size
+-ts_dt 0.0025
+
+# Maximum number of iterations
+-ts_max_steps 800
+
+# Time integration scheme type - explicit RK
+-ts_type rk
+# RK type - "5dp" (Dormand-Prince method)
+-ts_rk_type 5dp
+
+# No time-step adaptivity
+-ts_adapt_type basic
+
+# Print time step adapter to screen
+-ts_adapt_monitor
+
+# Print time step information to screen
+-ts_monitor
