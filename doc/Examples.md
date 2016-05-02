@@ -2188,15 +2188,24 @@ Expected screen output:
 
 The following are some examples that use implicit or semi-implicit (IMEX) time
 integration. To run them, HyPar needs to be compiled \b with \b PETSc.
-\b Note that familiarity with using PETSc (https://www.mcs.anl.gov/petsc/) is assumed.
+Familiarity with using PETSc (https://www.mcs.anl.gov/petsc/) is assumed.
 In general, any example or simulation can use PETSc time-integrators (assuming
 HyPar is compiled with PETSc) by specifying the PETSc inputs through a 
 <B>.petscrc</B> file. The file 
 + <B>hypar/Examples/PETScInputs/.petscrc_Example</B> 
 
-is an example of a .petscrc file (with explanatory comments).
+is an example of a .petscrc file (with explanatory comments). 
 
-\subpage linear_diff_sine_petsc
+\b Note: 
++ The PETSc example directories have a file <B>.petscrc</B> and a sym link \b petscrc
+pointing to .petscrc. The file .petscrc is the actual input file; \a petscrc is needed to generate
+this documentation because Doxygen does not seem to include files with names starting with a dot!
++ The inputs in the .petscrc files (any lines not starting with a #) can also be specified in the
+command line, for example, 
+    
+    /path/to/hypar/bin/HyPar -use-petscts -ts_type rk -ts_rk_type 4 ...
+
+\subpage linear_diff_sine_petsc - Implicit time integration
 
 \page linear_diff_sine_petsc 1D Linear Diffusion - Sine Wave
 
