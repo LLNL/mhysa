@@ -2196,4 +2196,78 @@ HyPar is compiled with PETSc) by specifying the PETSc inputs through a
 
 is an example of a .petscrc file (with explanatory comments).
 
+\subpage linear_diff_sine_petsc
+
+\page linear_diff_sine_petsc 1D Linear Diffusion - Sine Wave
+
+Location: \b hypar/Examples/1D/LinearDiffusion/SineWave_PETSc
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Linear Diffusion Equation (linearadr.h)
+
+Domain: \f$0 \le x < 1\f$, \a "periodic" (#_PERIODIC_) 
+        boundary conditions
+
+Initial solution: \f$u\left(x,0\right) = \sin\left(2\pi x\right)\f$
+
+Numerical Method:
+  + Spatial discretization (parabolic): 2nd order (Interp2PrimSecondOrder()),
+                                        conservative (ParabolicFunctionCons1Stage())
+  + Time integration: PETSc (SolvePETSc()) - Crank-Nicholson (TSCN - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSCN.html)
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 1D/LinearDiffusion/SineWave_PETSc/petscrc
+
+\b solver.inp
+\include 1D/LinearDiffusion/SineWave_PETSc/solver.inp
+
+\b boundary.inp
+\include 1D/LinearDiffusion/SineWave_PETSc/boundary.inp
+
+\b physics.inp
+\include 1D/LinearDiffusion/SineWave_PETSc/physics.inp
+
+To generate \b initial.inp (initial solution) and 
+\b exact.inp (exact solution), compile and run the 
+following code in the run directory. 
+\include 1D/LinearDiffusion/SineWave_PETSc/aux/exact.c
+
+Output:
+-------
+After running the code, there should be 6 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00005.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=10\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. All the files are ASCII 
+text (#HyPar::op_file_format is set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second column 
+is x-coordinate, and the third column is the solution.
+
+Solutions at t=0,2,4,6,8,10: The following figure is obtained 
+by plotting the solution files.
+@image html Solution_1DLinearDiffSinePETSc.png
+
+Since the exact solution is available at the final time 
+(\a exact.inp is a copy of \a initial.inp), the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 1D/LinearDiffusion/SineWave_PETSc/errors.dat
+The numbers are: number of grid points (#HyPar::dim_global), 
+number of processors (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Expected screen output:
+\include 1D/LinearDiffusion/SineWave_PETSc/output.log
+
 
