@@ -2186,9 +2186,9 @@ Expected screen output:
 
 \page petsc_examples PETSc Examples
 
-The following are some examples that use implicit or semi-implicit (IMEX) time
-integration. To run them, HyPar needs to be compiled \b with \b PETSc.
-Familiarity with using PETSc (https://www.mcs.anl.gov/petsc/) is assumed.
+The following are some examples that use explicit, implicit or semi-implicit (IMEX) time
+integration methods implemented in PETSc (https://www.mcs.anl.gov/petsc/). To run them, 
+HyPar needs to be compiled \b with \b PETSc. Familiarity with using PETSc is assumed.
 In general, any example or simulation can use PETSc time-integrators (assuming
 HyPar is compiled with PETSc) by specifying the PETSc inputs through a 
 <B>.petscrc</B> file. The file 
@@ -2205,7 +2205,92 @@ command line, for example,
     
     /path/to/hypar/bin/HyPar -use-petscts -ts_type rk -ts_rk_type 4 ...
 
-\subpage linear_diff_sine_petsc - Implicit time integration
+\subpage linear_adv_disc_petsc (Explicit time integration with local truncation error-based adaptive time-step) \n
+\subpage linear_diff_sine_petsc (Implicit time integration)
+
+\page linear_adv_disc_petsc 1D Linear Advection - Discontinuous Waves
+
+Location: \b hypar/Examples/1D/LinearAdvection/DiscontinuousWaves_PETSc
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 1D Linear Advection Equation (linearadr.h)
+
+References:
+  + Ghosh, D., Baeder, J. D., "Compact Reconstruction Schemes with 
+    Weighted ENO Limiting for Hyperbolic Conservation Laws", 
+    SIAM Journal on Scientific Computing, 34 (3), 2012, A1678–A1706
+
+Domain: \f$-1 \le x \le 1\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions
+
+Initial solution:
+  \f{equation}{
+    u\left(x,0\right) = \left\{\begin{array}{lc} 
+                          \exp\left(-\log\left(2\right)\frac{\left(x+7\right)^2}{0.0009}\right) & -0.8\le x \le -0.6 \\
+                          1 & -0.4\le x \le -0.2 \\
+                          1 - \left|10\left(x-0.1\right)\right| & 0\le x \le 0.2 \\
+                          \sqrt{1-100\left(x-0.5\right)^2} & 0.4\le x \le 0.6 \\
+                          0 & {\rm otherwise}
+                        \end{array}\right.
+  \f}
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Time integration: PETSc (SolvePETSc()) 
+    - Method class: <B>Runge-Kutta</B> (TSRK - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSRK.html)
+    - Specific method: <B>Dormand-Prince</B> (TSRK5DP - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSRK5DP.html#TSRK5DP)
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 1D/LinearAdvection/DiscontinuousWaves_PETSc/petscrc
+
+\b solver.inp
+\include 1D/LinearAdvection/DiscontinuousWaves_PETSc/solver.inp
+
+\b boundary.inp
+\include 1D/LinearAdvection/DiscontinuousWaves_PETSc/boundary.inp
+
+\b physics.inp
+\include 1D/LinearAdvection/DiscontinuousWaves_PETSc/physics.inp
+
+\b lusolver.inp (optional)
+\include 1D/LinearAdvection/DiscontinuousWaves_PETSc/lusolver.inp
+
+\b weno.inp (optional)
+\include 1D/LinearAdvection/DiscontinuousWaves_PETSc/weno.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory. \b Note: if the
+final time is an integer multiple of the time period,
+the file \b initial.inp can also be used as the exact
+solution \b exact.inp (i.e. create a sym link called 
+\a exact.inp pointing to \a initial.inp, or just copy
+\a initial.inp to \a exact.inp).
+\include 1D/LinearAdvection/DiscontinuousWaves_PETSc/aux/init.c
+
+Output:
+-------
+After running the code, there should be two solution output
+files \b op_00000.dat and \b op_00001.dat; the first one is
+the initial solution, and the latter is the final solution.
+Both these files are ASCII text (#HyPar::op_file_format is
+set to \a text in \b solver.inp).
+
+Final solution at t=2.0: The following figure is obtained 
+by plotting \a op_00000.dat (initial) and \a op_00001.dat
+(final). In both these files, the first column is grid 
+index, the second column is x-coordinate, and the third 
+column is the solution.
+@image html Solution_1DLinearAdvDiscPETSc.png
+
+Expected screen output:
+\include 1D/LinearAdvection/DiscontinuousWaves_PETSc/output.log
+
 
 \page linear_diff_sine_petsc 1D Linear Diffusion - Sine Wave
 
@@ -2225,7 +2310,7 @@ Initial solution: \f$u\left(x,0\right) = \sin\left(2\pi x\right)\f$
 Numerical Method:
   + Spatial discretization (parabolic): 2nd order (Interp2PrimSecondOrder()),
                                         conservative (ParabolicFunctionCons1Stage())
-  + Time integration: PETSc (SolvePETSc()) - Crank-Nicholson (TSCN - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSCN.html)
+  + Time integration: PETSc (SolvePETSc()) - <B>Crank-Nicholson</B> (TSCN - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSCN.html)
 
 Input files required:
 ---------------------
