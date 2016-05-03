@@ -1,0 +1,5 @@
+4
+periodic      0     1     0     0   -3.0    3.0
+periodic      0    -1     0     0   -3.0    3.0
+periodic      1     1  -6.0   6.0      0      0
+periodic      1    -1  -6.0   6.0      0      0

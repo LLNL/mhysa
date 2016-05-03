@@ -1,0 +1,18 @@
+begin
+  ndims             2
+  nvars             1
+  size              80 80
+  iproc             2 2
+  ghost             3
+  n_iter            10
+  time_scheme       rk
+  time_scheme_type  ssprk3
+  par_space_type    nonconservative-1stage
+  par_space_scheme  4
+  dt                1.0
+  screen_op_iter    1
+  file_op_iter      99999
+  op_file_format    tecplot2d
+  op_overwrite      no
+  model             linear-advection-diffusion-reaction
+end

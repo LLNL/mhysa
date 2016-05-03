@@ -1,0 +1,234 @@
+HyPar - Parallel (MPI) version with 4 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 2
+	No. of variables                           : 1
+	Domain size                                : 80 80 
+	Processes along each dimension             : 2 2 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 10
+	Restart iteration                          : 0
+	Time integration scheme                    : PETSc 
+	Spatial discretization scheme (hyperbolic) : 1
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-1stage
+	Spatial discretization scheme (parabolic ) : 4
+	Time Step                                  : 1.000000E+00
+	Check for conservation                     : no
+	Screen output iterations                   : 1
+	File output iterations                     : 99999
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : tecplot2d
+	Overwrite solution file                    : no
+	Physical model                             : linear-advection-diffusion-reaction
+Partitioning domain.
+Allocating data arrays.
+Reading array from ASCII file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  6.9388939039072284E-17
+Reading boundary conditions from "boundary.inp".
+  Boundary                       periodic:  Along dimension  0 and face +1
+  Boundary                       periodic:  Along dimension  0 and face -1
+  Boundary                       periodic:  Along dimension  1 and face +1
+  Boundary                       periodic:  Along dimension  1 and face -1
+4 boundary condition(s) read.
+Initializing solvers.
+Initializing physics. Model = "linear-advection-diffusion-reaction"
+Reading physical model inputs from file "physics.inp".
+Setting up PETSc time integration... 
+Implicit-Explicit time-integration:-
+Hyperbolic        term: Explicit
+Parabolic         term: Implicit
+Source            term: Implicit
+SolvePETSc(): Problem type is linear.
+** Starting PETSc time integration **
+0 TS dt 1. time 0.
+Writing solution file op_00000.dat.
+    0 SNES Function norm 6.316544587530e+00 
+      0 KSP Residual norm 6.316544587530e+00 
+      1 KSP Residual norm 1.957710244371e-02 
+      2 KSP Residual norm 3.361519708928e-03 
+      3 KSP Residual norm 9.036909021230e-04 
+      4 KSP Residual norm 3.013121611804e-04 
+      5 KSP Residual norm 1.137242880954e-04 
+      6 KSP Residual norm 5.178226136166e-05 
+      7 KSP Residual norm 2.570197965195e-05 
+      8 KSP Residual norm 1.316528862842e-05 
+      9 KSP Residual norm 7.601607049462e-06 
+     10 KSP Residual norm 3.908442252440e-06 
+    1 SNES Function norm 3.908442250249e-06 
+    0 SNES Function norm 2.095079996653e+00 
+      0 KSP Residual norm 2.095079996653e+00 
+      1 KSP Residual norm 2.510344078062e-03 
+      2 KSP Residual norm 4.567813299765e-04 
+      3 KSP Residual norm 1.272576137252e-04 
+      4 KSP Residual norm 4.461493869201e-05 
+      5 KSP Residual norm 1.811026261651e-05 
+      6 KSP Residual norm 8.915721814240e-06 
+      7 KSP Residual norm 4.913216367368e-06 
+      8 KSP Residual norm 2.664096961097e-06 
+      9 KSP Residual norm 1.502540792653e-06 
+    1 SNES Function norm 1.502540795606e-06 
+    0 SNES Function norm 3.573714118015e+00 
+      0 KSP Residual norm 3.573714118015e+00 
+      1 KSP Residual norm 5.053890716060e-03 
+      2 KSP Residual norm 7.320195789742e-04 
+      3 KSP Residual norm 1.744389523801e-04 
+      4 KSP Residual norm 4.950310784859e-05 
+      5 KSP Residual norm 1.522546617408e-05 
+      6 KSP Residual norm 7.002876956220e-06 
+      7 KSP Residual norm 3.999190747677e-06 
+      8 KSP Residual norm 2.399450364472e-06 
+    1 SNES Function norm 2.399450367203e-06 
+    0 SNES Function norm 2.796553133414e+00 
+      0 KSP Residual norm 2.796553133414e+00 
+      1 KSP Residual norm 2.038620931170e-04 
+      2 KSP Residual norm 2.124492063383e-05 
+      3 KSP Residual norm 8.324415828222e-06 
+      4 KSP Residual norm 2.704220911566e-06 
+    1 SNES Function norm 2.704220925206e-06 
+    0 SNES Function norm 1.795270247389e+00 
+      0 KSP Residual norm 1.795270247389e+00 
+      1 KSP Residual norm 2.923950492658e-03 
+      2 KSP Residual norm 5.761824076292e-04 
+      3 KSP Residual norm 1.603745824616e-04 
+      4 KSP Residual norm 5.503478416224e-05 
+      5 KSP Residual norm 2.129684291986e-05 
+      6 KSP Residual norm 9.101849874831e-06 
+      7 KSP Residual norm 4.205090333701e-06 
+      8 KSP Residual norm 1.935475804159e-06 
+      9 KSP Residual norm 1.067584928673e-06 
+    1 SNES Function norm 1.067584944838e-06 
+      TSAdapt 'basic': step   0 accepted t=0          + 1.000e+00 wlte=0.000157 family='arkimex' scheme=0:'4' dt=8.036e+00 
+Iteration:      1  Time: 1.000E+00  Max CFL: 0.000E+00  Max Diff. No.: 5.143E+01  
+1 TS dt 8.03591 time 1.
+    0 SNES Function norm 5.836991369676e+00 
+      0 KSP Residual norm 5.836991369676e+00 
+      1 KSP Residual norm 1.606571105711e-02 
+      2 KSP Residual norm 3.555429854438e-03 
+      3 KSP Residual norm 1.054145874303e-03 
+      4 KSP Residual norm 3.816560275222e-04 
+      5 KSP Residual norm 1.553148138111e-04 
+      6 KSP Residual norm 7.141447707860e-05 
+      7 KSP Residual norm 3.573885486615e-05 
+      8 KSP Residual norm 1.762311481526e-05 
+      9 KSP Residual norm 1.102632790155e-05 
+     10 KSP Residual norm 7.604890134366e-06 
+     11 KSP Residual norm 5.891062368248e-06 
+     12 KSP Residual norm 4.706157846087e-06 
+    1 SNES Function norm 4.706157830647e-06 
+    0 SNES Function norm 1.782942356388e+00 
+      0 KSP Residual norm 1.782942356388e+00 
+      1 KSP Residual norm 1.853260541300e-03 
+      2 KSP Residual norm 4.152156454596e-04 
+      3 KSP Residual norm 1.249350988068e-04 
+      4 KSP Residual norm 4.696061156813e-05 
+      5 KSP Residual norm 2.117380251812e-05 
+      6 KSP Residual norm 1.205120355741e-05 
+      7 KSP Residual norm 9.368337382944e-06 
+      8 KSP Residual norm 7.891654819102e-06 
+      9 KSP Residual norm 6.510195954867e-06 
+     10 KSP Residual norm 4.790589179572e-06 
+     11 KSP Residual norm 3.425898719082e-06 
+     12 KSP Residual norm 2.475991492431e-06 
+     13 KSP Residual norm 1.703848519171e-06 
+    1 SNES Function norm 1.703848525017e-06 
+    0 SNES Function norm 2.902135807469e+00 
+      0 KSP Residual norm 2.902135807469e+00 
+      1 KSP Residual norm 5.342770595234e-03 
+      2 KSP Residual norm 1.158645143640e-03 
+      3 KSP Residual norm 3.390080212082e-04 
+      4 KSP Residual norm 1.204503860550e-04 
+      5 KSP Residual norm 4.763446757099e-05 
+      6 KSP Residual norm 2.184096593991e-05 
+      7 KSP Residual norm 1.130727398036e-05 
+      8 KSP Residual norm 5.861271256970e-06 
+      9 KSP Residual norm 3.630792677972e-06 
+     10 KSP Residual norm 2.222925203565e-06 
+    1 SNES Function norm 2.222925226704e-06 
+    0 SNES Function norm 1.980333066245e+00 
+      0 KSP Residual norm 1.980333066245e+00 
+      1 KSP Residual norm 5.226840000371e-04 
+      2 KSP Residual norm 1.093141094418e-04 
+      3 KSP Residual norm 3.323418670939e-05 
+      4 KSP Residual norm 1.422858125667e-05 
+      5 KSP Residual norm 8.078849683438e-06 
+      6 KSP Residual norm 5.778091707955e-06 
+      7 KSP Residual norm 3.508662934946e-06 
+      8 KSP Residual norm 1.735392017695e-06 
+    1 SNES Function norm 1.735392015197e-06 
+    0 SNES Function norm 1.077300487771e+00 
+      0 KSP Residual norm 1.077300487771e+00 
+      1 KSP Residual norm 1.456726027125e-03 
+      2 KSP Residual norm 3.455843454324e-04 
+      3 KSP Residual norm 1.061231373462e-04 
+      4 KSP Residual norm 4.008293887161e-05 
+      5 KSP Residual norm 1.952757666668e-05 
+      6 KSP Residual norm 1.109244240131e-05 
+      7 KSP Residual norm 7.356562327907e-06 
+      8 KSP Residual norm 5.288314779945e-06 
+      9 KSP Residual norm 4.036767337599e-06 
+     10 KSP Residual norm 2.947354553864e-06 
+     11 KSP Residual norm 2.308355431743e-06 
+     12 KSP Residual norm 1.918350363886e-06 
+     13 KSP Residual norm 1.521771393111e-06 
+     14 KSP Residual norm 1.098473343667e-06 
+     15 KSP Residual norm 6.509223678076e-07 
+    1 SNES Function norm 6.509223650753e-07 
+      TSAdapt 'basic': step   1 accepted t=1          + 8.036e+00 wlte=0.0845 family='arkimex' scheme=0:'4' dt=9.641e-01 
+Iteration:      2  Time: 9.036E+00  Max CFL: 0.000E+00  Max Diff. No.: 6.170E+00  
+2 TS dt 0.964091 time 9.03591
+    0 SNES Function norm 3.095086711822e+00 
+      0 KSP Residual norm 3.095086711822e+00 
+      1 KSP Residual norm 5.091402309070e-05 
+      2 KSP Residual norm 1.503364447884e-05 
+      3 KSP Residual norm 4.877560179260e-06 
+      4 KSP Residual norm 2.080593258447e-06 
+    1 SNES Function norm 2.080593257754e-06 
+    0 SNES Function norm 1.027053563489e+00 
+      0 KSP Residual norm 1.027053563489e+00 
+      1 KSP Residual norm 1.637020708637e-05 
+      2 KSP Residual norm 4.901437619396e-06 
+      3 KSP Residual norm 2.425813232555e-06 
+      4 KSP Residual norm 1.109960615936e-06 
+      5 KSP Residual norm 5.608757075441e-07 
+    1 SNES Function norm 5.608757095682e-07 
+    0 SNES Function norm 1.752240074891e+00 
+      0 KSP Residual norm 1.752240074891e+00 
+      1 KSP Residual norm 1.244726995357e-05 
+      2 KSP Residual norm 3.142472564310e-06 
+      3 KSP Residual norm 8.965080697849e-07 
+    1 SNES Function norm 8.965080704085e-07 
+    0 SNES Function norm 1.372183949527e+00 
+      0 KSP Residual norm 1.372183949527e+00 
+      1 KSP Residual norm 7.864867112361e-06 
+      2 KSP Residual norm 1.748857757569e-06 
+      3 KSP Residual norm 7.155189740006e-07 
+    1 SNES Function norm 7.155189732236e-07 
+    0 SNES Function norm 8.814088207223e-01 
+      0 KSP Residual norm 8.814088207223e-01 
+      1 KSP Residual norm 1.449905447682e-05 
+      2 KSP Residual norm 5.448657008534e-06 
+      3 KSP Residual norm 1.971204312598e-06 
+      4 KSP Residual norm 1.056736099819e-06 
+      5 KSP Residual norm 6.128162078077e-07 
+    1 SNES Function norm 6.128162098664e-07 
+      TSAdapt 'basic': step   2 accepted t=9.03591    + 9.641e-01 wlte=1.34e-05 family='arkimex' scheme=0:'4' dt=9.641e+00 
+Iteration:      3  Time: 1.000E+01  Max CFL: 0.000E+00  Max Diff. No.: 6.170E+01  
+3 TS dt 9.64091 time 10.
+** Completed PETSc time integration **
+Writing solution file op_00001.dat.
+Reading array from ASCII file exact.inp (Serial mode).
+Computed errors:
+  L1         Error           : 9.0418545289592411E-05
+  L2         Error           : 9.0523947323434799E-05
+  Linfinity  Error           : 9.0376457451387957E-05
+Conservation Errors:
+	0.0000000000000000E+00
+Solver runtime (in seconds): 6.7724700000000004E-01
+Total  runtime (in seconds): 6.8291199999999996E-01
+Deallocating arrays.
+Finished.

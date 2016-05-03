@@ -278,7 +278,7 @@ by plotting \a op_00000.dat (t=0, initial), \a op_00002.dat (t=2),
 @image html Solution_1DLinearDiffSine.png
 
 Since the exact solution is available at the final time 
-(\a exact.inp is a copy of \a initial.inp), the numerical 
+, the numerical 
 errors are calculated and reported on screen (see below)
 as well as \b errors.dat:
 \include 1D/LinearDiffusion/SineWave/errors.dat
@@ -842,7 +842,7 @@ The following animation was generated from the solution files:
 @image html Solution_2DLinearDiffSine.gif
 
 Since the exact solution is available at the final time 
-(\a exact.inp is a copy of \a initial.inp), the numerical 
+, the numerical 
 errors are calculated and reported on screen (see below)
 as well as \b errors.dat:
 \include 2D/LinearDiffusion/SineWave/errors.dat
@@ -2212,7 +2212,8 @@ Explicit time integration:
 
 Implicit time integration:
 --------------------------
-\subpage linear_diff_sine_petsc
+\subpage linear_diff_sine_petsc \n
+\subpage linear_diff_sine2d_petsc (with local truncation error-based adaptive time-step)
 
 \page linear_adv_sine_petsc 1D Linear Advection - Sine Wave
 
@@ -2445,7 +2446,7 @@ by plotting the solution files.
 @image html Solution_1DLinearDiffSinePETSc.png
 
 Since the exact solution is available at the final time 
-(\a exact.inp is a copy of \a initial.inp), the numerical 
+, the numerical 
 errors are calculated and reported on screen (see below)
 as well as \b errors.dat:
 \include 1D/LinearDiffusion/SineWave_PETSc/errors.dat
@@ -2460,4 +2461,96 @@ and total wall time.
 Expected screen output:
 \include 1D/LinearDiffusion/SineWave_PETSc/output.log
 
+
+\page linear_diff_sine2d_petsc 2D Linear Diffusion - Sine Wave
+
+Location: \b hypar/Examples/2D/LinearDiffusion/SineWave_PETSc
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Linear Diffusion Equation (linearadr.h)
+
+Domain: \f$0 \le x,y < 1\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions on all boundaries.
+
+Initial solution: \f$u\left(x,y,0\right) = u_0\left(x,y\right)= \sin\left(2\pi x\right)\sin\left(2\pi y\right)\f$\n
+Exact solution: \f$u\left(x,y,t\right) = \exp\left[-\pi^2 \left(4\nu_x + 4\nu_y\right) t\right] u0\left(x,y\right)\f$.
+
+Numerical Method:
+ + Spatial discretization (parabolic): 2nd order (Interp2PrimSecondOrder()), 
+                                       conservative (ParabolicFunctionCons1Stage())
+ + Time integration: PETSc (SolvePETSc()) 
+   - Method Class: <B>Additive Runge-Kutta method</B> (TSARKIMEX - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX.html) -
+     Although the ARK methods are semi-implicit (IMEX), here they are used in the "fully implicit" mode, i.e., the implicit 
+     method is used to solve the complete equation (Note the flag \b -ts_arkimex_fully_implicit in <B>.petscrc</B>).
+   - Specific method: <B>Kennedy-Carpenter ARK4</B> (TSARKIMEX4 - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX4.html)
+
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 2D/LinearDiffusion/SineWave_PETSc/petscrc
+
+\b solver.inp
+\include 2D/LinearDiffusion/SineWave_PETSc/solver.inp
+
+\b boundary.inp
+\include 2D/LinearDiffusion/SineWave_PETSc/boundary.inp
+
+\b physics.inp (specifies \f$\nu_x\f$ and \f$\nu_y\f$)
+\include 2D/LinearDiffusion/SineWave_PETSc/physics.inp
+
+To generate \b initial.inp (initial solution) and 
+\b exact.inp (exact solution), compile and run the 
+following code in the run directory. 
+\include 2D/LinearDiffusion/SineWave_PETSc/aux/exact.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2
+
+in \b solver.inp (i.e., 2 processors along \a x, and 2
+processors along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be 2 output
+files: \b op_00000.dat (initial solution at t=0) and 
+\b op_00001.dat (final solution at t=10). Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a tecplot2d in \b solver.inp, and
+thus, all the files are in a format that Tecplot (http://www.tecplot.com/)
+or other visualization software supporting the Tecplot format 
+(e.g. VisIt - https://wci.llnl.gov/simulation/computer-codes/visit/)
+can read. In these files, the first two lines are the Tecplot headers, 
+after which the data is written out as: the first two columns are grid indices, 
+the next two columns are x and y coordinates, and the final column is the 
+solution.  #HyPar::op_file_format can be set to \a text to get the solution
+files in plain text format (which can be read in and visualized in
+MATLAB for example).
+
+The following plots show the initial and final solutions:
+@image html Solution_2DLinearDiffSinePETSc.png
+
+Since the exact solution is available at the final time 
+, the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 2D/LinearDiffusion/SineWave_PETSc/errors.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global), 
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Expected screen output:
+\include 2D/LinearDiffusion/SineWave_PETSc/output.log
 

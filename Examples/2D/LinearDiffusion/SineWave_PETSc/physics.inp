@@ -1,0 +1,3 @@
+begin
+  diffusion 0.001 0.001
+end
