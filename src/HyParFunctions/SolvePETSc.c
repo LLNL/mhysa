@@ -204,6 +204,16 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
     ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-source_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
     if (flag == PETSC_TRUE) context.flag_source = _IMPLICIT_; 
 
+    flag = PETSC_FALSE;
+    ierr = PetscOptionsGetBool(PETSC_NULL,PETSC_NULL,"-ts_arkimex_fully_implicit",&flag,PETSC_NULL); CHKERRQ(ierr);
+    if (flag == PETSC_TRUE) {
+      context.flag_hyperbolic_f   = _IMPLICIT_;
+      context.flag_hyperbolic_df  = _IMPLICIT_;
+      context.flag_hyperbolic     = _IMPLICIT_;
+      context.flag_parabolic      = _IMPLICIT_;
+      context.flag_source         = _IMPLICIT_;
+    }
+
     /* print out a summary of the treatment of each term */
     if (!mpi->rank) {
       printf("Implicit-Explicit time-integration:-\n");
