@@ -1,0 +1,54 @@
+2D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+  d   [ rho   ]   d   [   rho*u    ]    d  [   rho*v   ]
+  --  [ rho*u ] + --  [rho*u*u + p ] +  -- [  rho*u*v  ] =  Viscous + Gravity terms
+  dt  [ rho*v ]   dx  [   rho*u*v  ]    dy [rho*v*v + p]
+      [   e   ]       [   (e+p)*u  ]       [  (e+p)v   ]
+
+  rho   - density
+  u     - x-velocity
+  v     - y-velocity
+  p     - pressure
+  e     - internal energy
+
+  Equation of state:
+           p         1
+    e = -------  +   - rho * (u^2+v^2)
+        gamma-1      2
+
+
+2D Rising Thermal Bubble Problem:
+
++ Giraldo, F.X., Restelli, M., "A study of spectral element and 
+  discontinuous Galerkin methods for the Navier–Stokes equations 
+  in nonhydrostatic mesoscale atmospheric modeling: Equation sets 
+  and test cases", J. Comput. Phys., 227, 2008, 3849--3877
+  doi:10.1016/j.jcp.2007.12.009
+  (Section 3.2)
+
+
+Domain:
+
+  0 <= x,y <= 1000
+  "slip-walls" boundary conditions on all boundaries
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
++ initial.inp   -   Initial solution file (can be generated
+                    by compiling and running aux/init.c in
+                    the run directory).
++ .petscrc      -   Input file for PETSc time-integration
+                    (if not present, then solver will use
+                    native time-integration)
+
+** See hypar/README for other (optional) input files
+
+Visualizing the solution in Tecplot:
+1)  Make sure op_file_format is set to binary in solver.inp.
+2)  Compile and run aux/PostProcess.c after the simulation is
+    over.
+3a) Choose text output and plot in MATLAB using PlotSolution.m
+*or*
+3b) Choose Tecplot output and plot in Tecplot. 

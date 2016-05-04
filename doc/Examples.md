@@ -1251,6 +1251,15 @@ Domain: \f$0 \le x \le 300,000\,m, 0 \le y \le 10,000\,m\f$, \a "periodic" (#_PE
 
 Initial solution: See references above.
 
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes2D::gamma)
+  + Universal gas constant \f$R = 287.058\f$ (#NavierStokes2D::R)
+  + Gravitational force per unit mass \f$g = 9.8\f$ along \a y-axis (#NavierStokes2D::grav_y)
+  + Reference density (at zero altitude) \f$\rho_{ref} = 1.1612055171196529\f$ (#NavierStokes2D::rho0)
+  + Reference pressure (at zero altitude) \f$P_{ref} = 100000\f$ (#NavierStokes2D::p0)
+  + Hydrostatic balance type 3 (#NavierStokes2D::HB)
+  + Brunt-Vaisala frequency 0.01 (#NavierStokes2D::N_bv)
+
 Numerical method:
  + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
  + Time integration: SSPRK3 (TimeRK(), #_RK_SSP3_)
@@ -1348,6 +1357,14 @@ Domain: \f$0 \le x,y \le 1000\,m\f$,
         "slip-wall" (#_SLIP_WALL_) boundary conditions on all sides.
 
 Initial solution: See references above.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes2D::gamma)
+  + Universal gas constant \f$R = 287.058\f$ (#NavierStokes2D::R)
+  + Gravitational force per unit mass \f$g = 9.8\f$ along \a y-axis (#NavierStokes2D::grav_y)
+  + Reference density (at zero altitude) \f$\rho_{ref} = 1.1612055171196529\f$ (#NavierStokes2D::rho0)
+  + Reference pressure (at zero altitude) \f$P_{ref} = 100000\f$ (#NavierStokes2D::p0)
+  + Hydrostatic balance type 2 (#NavierStokes2D::HB)
 
 Numerical method:
  + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
@@ -2215,6 +2232,11 @@ Implicit time integration:
 \subpage linear_diff_sine_petsc \n
 \subpage linear_diff_sine2d_petsc (with local truncation error-based adaptive time-step)
 
+Implicit-Explicit (IMEX) time integration:
+------------------------------------------
+\subpage euler2d_rtb_petsc (with local truncation error-based adaptive time-step)
+
+
 \page linear_adv_sine_petsc 1D Linear Advection - Sine Wave
 
 Location: \b hypar/Examples/1D/LinearAdvection/SineWave_PETSc
@@ -2554,3 +2576,125 @@ and total wall time.
 Expected screen output:
 \include 2D/LinearDiffusion/SineWave_PETSc/output.log
 
+
+\page euler2d_rtb_petsc 2D Euler Equations (with gravitational force) - Rising Thermal Bubble
+
+Location: \b hypar/Examples/2D/NavierStokes2D/RisingThermalBubble_PETSc
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h - By default,
+                     #NavierStokes2D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 2D Euler
+                     equations are solved.)
+
+Reference:
+  + Giraldo, F.X., Restelli, M., "A study of spectral element and
+    discontinuous Galerkin methods for the Navier–Stokes equations
+    in nonhydrostatic mesoscale atmospheric modeling: Equation sets
+    and test cases", J. Comput. Phys., 227, 2008, 3849--3877, 
+    (Section 3.2).
+
+The problem is solved here using <B>implicit-explicit (IMEX)</B> time
+integration, where the hyperbolic flux is partitioned into its entropy
+and acoustic components with the former integrated explicitly and the
+latter integrated implicitly. See the following reference:
++ Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of 
+  Atmospheric Flows with Characteristic-Based Flux Partitioning", SIAM 
+  Journal on Scientific Computing (To appear).
+
+Domain: \f$0 \le x,y \le 1000\,m\f$, 
+        "slip-wall" (#_SLIP_WALL_) boundary conditions on all sides.
+
+Initial solution: See references above.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes2D::gamma)
+  + Universal gas constant \f$R = 287.058\f$ (#NavierStokes2D::R)
+  + Gravitational force per unit mass \f$g = 9.8\f$ along \a y-axis (#NavierStokes2D::grav_y)
+  + Reference density (at zero altitude) \f$\rho_{ref} = 1.1612055171196529\f$ (#NavierStokes2D::rho0)
+  + Reference pressure (at zero altitude) \f$P_{ref} = 100000\f$ (#NavierStokes2D::p0)
+  + Hydrostatic balance type 2 (#NavierStokes2D::HB)
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: PETSc (SolvePETSc()) 
+   - Method Class: <B>Additive Runge-Kutta method</B> (TSARKIMEX - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX.html)
+   - Specific method: <B>Kennedy-Carpenter ARK4</B> (TSARKIMEX4 - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX4.html)
+
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/petscrc
+
+\b solver.inp
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/boundary.inp
+
+\b physics.inp
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/physics.inp
+
+\b weno.inp (optional)
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/weno.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      1 1
+
+in \b solver.inp (i.e., 1 processor along \a x, and 1
+processor along \a y). Thus, this example should be run
+with 1 MPI rank (or change \b iproc).
+
+After running the code, there should be a output
+file \b op.bin (final solution),  
+since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
+  
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, the file is written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following code
+converts these variables to the primitive variables of interest
+to atmospheric flows \f$\left(\rho, u, v, p, \theta\right)\f$.
+It also writes out the hydrostatically balanced quantities 
+\f$\left(\rho_0,\pi_0, \theta_0\right)\f$ for this case that
+can be used to compute and plot the temperature and density
+perturbations. These variables are then written to either
+a tecplot2d or text file.
+(compile and run it in the run directory):
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/aux/PostProcess.c
+
+The following plot shows the potential temperature perturbation
+contours at the final time t=200s. 
+@image html Solution_2DNavStokRTBPETSc.png
+It was plotted by using the 
+above postprocessing code to write the solution in text format
+and using the following MATLAB script:
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/PlotSolution.m
+
+The file <B>function_counts.dat</B> reports the computational expense
+(in terms of the number of function counts):
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/function_counts.dat
+The numbers are, respectively,
++ Time iterations
++ Number of times the hyperbolic term was evaluated
++ Number of times the parabolic term was evaluated
++ Number of times the source term was evaluated
++ Number of calls to the explicit right-hand-side function (PetscRHSFunctionIMEX() or PetscRHSFunctionExpl())
++ Number of calls to the implicit right-hand-side function (PetscIFunctionIMEX() or PetscRHSFunctionImpl())
++ Number of calls to the Jacobian (PetscIJacobianIMEX() or PetscIJacobian())
++ Number of calls to the matrix-free Jacobian function (PetscJacobianFunctionIMEX_Linear(), PetscJacobianFunctionIMEX_JFNK(), PetscJacobianFunction_JFNK(), or PetscJacobianFunction_Linear()).
+
+Expected screen output:
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/output.log

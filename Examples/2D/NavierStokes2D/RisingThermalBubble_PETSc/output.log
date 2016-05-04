@@ -1,0 +1,114 @@
+HyPar - Parallel (MPI) version with 1 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 2
+	No. of variables                           : 4
+	Domain size                                : 101 101 
+	Processes along each dimension             : 1 1 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 1000
+	Restart iteration                          : 0
+	Time integration scheme                    : PETSc 
+	Spatial discretization scheme (hyperbolic) : weno5
+	Split hyperbolic flux term?                : yes
+	Interpolation type for hyperbolic term     : components
+	Spatial discretization type   (parabolic ) : nonconservative-2stage
+	Spatial discretization scheme (parabolic ) : 4
+	Time Step                                  : 2.000000E-01
+	Check for conservation                     : no
+	Screen output iterations                   : 1
+	File output iterations                     : 99999
+	Initial solution file type                 : binary
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : binary
+	Overwrite solution file                    : yes
+	Physical model                             : navierstokes2d
+Partitioning domain.
+Allocating data arrays.
+Reading array from binary file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  1.1370768428280035E+06
+ 1:  0.0000000000000000E+00
+ 2:  0.0000000000000000E+00
+ 3:  2.4090461867112698E+11
+Reading boundary conditions from "boundary.inp".
+  Boundary                      slip-wall:  Along dimension  0 and face +1
+  Boundary                      slip-wall:  Along dimension  0 and face -1
+  Boundary                      slip-wall:  Along dimension  1 and face +1
+  Boundary                      slip-wall:  Along dimension  1 and face -1
+4 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "navierstokes2d"
+Reading physical model inputs from file "physics.inp".
+Setting up PETSc time integration... 
+Implicit-Explicit time-integration:-
+Hyperbolic (f-df) term: Explicit
+Hyperbolic (df)   term: Implicit
+Parabolic         term: Implicit
+Source            term: Implicit
+SolvePETSc(): Problem type is linear.
+** Starting PETSc time integration **
+0 TS dt 0.2 time 0.
+Writing solution file op.bin.
+      TSAdapt 'basic': step   0 accepted t=0          + 2.000e-01 wlte=0.000404 family='arkimex' scheme=0:'4' dt=1.270e+00 
+Iteration:      1  Time: 2.000E-01  Max CFL: 4.409E+01  Max Diff. No.: -1.000E+00  
+1 TS dt 1.26968 time 0.2
+      TSAdapt 'basic': step   1 accepted t=0.2        + 1.270e+00 wlte=0.0909 family='arkimex' scheme=0:'4' dt=2.081e+00 
+Iteration:      2  Time: 1.470E+00  Max CFL: 7.227E+01  Max Diff. No.: -1.000E+00  
+2 TS dt 2.08133 time 1.46968
+      TSAdapt 'basic': step   2 accepted t=1.46968    + 2.081e+00 wlte= 0.14 family='arkimex' scheme=0:'4' dt=3.062e+00 
+Iteration:      3  Time: 3.551E+00  Max CFL: 1.063E+02  Max Diff. No.: -1.000E+00  
+3 TS dt 3.06203 time 3.55101
+      TSAdapt 'basic': step   3 accepted t=3.55101    + 3.062e+00 wlte=0.223 family='arkimex' scheme=0:'4' dt=4.010e+00 
+Iteration:      4  Time: 6.613E+00  Max CFL: 1.392E+02  Max Diff. No.: -1.000E+00  
+4 TS dt 4.00957 time 6.61303
+      TSAdapt 'basic': step   4 accepted t=6.61303    + 4.010e+00 wlte=0.186 family='arkimex' scheme=0:'4' dt=5.498e+00 
+Iteration:      5  Time: 1.062E+01  Max CFL: 1.909E+02  Max Diff. No.: -1.000E+00  
+5 TS dt 5.49814 time 10.6226
+      TSAdapt 'basic': step   5 accepted t=10.6226    + 5.498e+00 wlte=0.367 family='arkimex' scheme=0:'4' dt=6.358e+00 
+Iteration:      6  Time: 1.612E+01  Max CFL: 2.208E+02  Max Diff. No.: -1.000E+00  
+6 TS dt 6.35839 time 16.1207
+      TSAdapt 'basic': step   6 accepted t=16.1207    + 6.358e+00 wlte=0.156 family='arkimex' scheme=0:'4' dt=9.107e+00 
+Iteration:      7  Time: 2.248E+01  Max CFL: 3.163E+02  Max Diff. No.: -1.000E+00  
+7 TS dt 9.10749 time 22.4791
+      TSAdapt 'basic': step   7 accepted t=22.4791    + 9.107e+00 wlte=0.153 family='arkimex' scheme=0:'4' dt=1.310e+01 
+Iteration:      8  Time: 3.159E+01  Max CFL: 4.548E+02  Max Diff. No.: -1.000E+00  
+8 TS dt 13.0973 time 31.5866
+      TSAdapt 'basic': step   8 accepted t=31.5866    + 1.310e+01 wlte=0.129 family='arkimex' scheme=0:'4' dt=1.965e+01 
+Iteration:      9  Time: 4.468E+01  Max CFL: 6.825E+02  Max Diff. No.: -1.000E+00  
+9 TS dt 19.6528 time 44.6839
+      TSAdapt 'basic': step   9 accepted t=44.6839    + 1.965e+01 wlte=0.124 family='arkimex' scheme=0:'4' dt=2.983e+01 
+Iteration:     10  Time: 6.434E+01  Max CFL: 1.036E+03  Max Diff. No.: -1.000E+00  
+10 TS dt 29.8343 time 64.3367
+      TSAdapt 'basic': step  10 accepted t=64.3367    + 2.983e+01 wlte=0.362 family='arkimex' scheme=0:'4' dt=3.461e+01 
+Iteration:     11  Time: 9.417E+01  Max CFL: 1.202E+03  Max Diff. No.: -1.000E+00  
+11 TS dt 34.6126 time 94.171
+      TSAdapt 'basic': step  11 accepted t=94.171     + 3.461e+01 wlte=0.604 family='arkimex' scheme=0:'4' dt=3.533e+01 
+Iteration:     12  Time: 1.288E+02  Max CFL: 1.227E+03  Max Diff. No.: -1.000E+00  
+12 TS dt 35.3308 time 128.784
+      TSAdapt 'basic': step  12 accepted t=128.784    + 3.533e+01 wlte=0.783 family='arkimex' scheme=0:'4' dt=3.380e+01 
+Iteration:     13  Time: 1.641E+02  Max CFL: 1.174E+03  Max Diff. No.: -1.000E+00  
+13 TS dt 33.8018 time 164.114
+      TSAdapt 'basic': step  13 accepted t=164.114    + 3.380e+01 wlte=0.875 family='arkimex' scheme=0:'4' dt=2.084e+00 
+Iteration:     14  Time: 1.979E+02  Max CFL: 7.239E+01  Max Diff. No.: -1.000E+00  
+14 TS dt 2.08381 time 197.916
+      TSAdapt 'basic': step  14 accepted t=197.916    + 2.084e+00 wlte=0.0177 family='arkimex' scheme=0:'4' dt=5.144e+00 
+Iteration:     15  Time: 2.000E+02  Max CFL: 1.787E+02  Max Diff. No.: -1.000E+00  
+15 TS dt 5.14388 time 200.
+** Completed PETSc time integration **
+Writing solution file op.bin.
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+Solver runtime (in seconds): 8.3499854999999997E+01
+Total  runtime (in seconds): 8.3511033999999995E+01
+Deallocating arrays.
+Finished.
