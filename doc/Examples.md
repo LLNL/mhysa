@@ -2206,14 +2206,13 @@ Expected screen output:
 The following are some examples that use explicit, implicit or semi-implicit (IMEX) time
 integration methods implemented in PETSc (https://www.mcs.anl.gov/petsc/). To run them, 
 HyPar needs to be compiled \b with \b PETSc. Familiarity with using PETSc is assumed.
-In general, any example or simulation can use PETSc time-integrators (assuming
-HyPar is compiled with PETSc) by specifying the PETSc inputs through a 
-<B>.petscrc</B> file. The file 
-+ <B>hypar/Examples/PETScInputs/.petscrc_Example</B> 
-
-is an example of a .petscrc file (with explanatory comments). 
 
 \b Note: 
++ In general, any example or simulation can use PETSc time-integrators (assuming
+  HyPar is compiled with PETSc) by specifying the PETSc inputs through a 
+  <B>.petscrc</B> file, similar to the ones in the examples below. 
+  The following file is an example of a .petscrc file (with explanatory comments). 
+  - <B>hypar/Examples/PETScInputs/.petscrc_Example</B> 
 + The PETSc example directories have a file <B>.petscrc</B> and a sym link \b petscrc
 pointing to .petscrc. The file .petscrc is the actual input file; \a petscrc is needed to generate
 this documentation because Doxygen does not seem to include files with names starting with a dot!
@@ -2221,6 +2220,7 @@ this documentation because Doxygen does not seem to include files with names sta
 command line, for example, 
     
     /path/to/hypar/bin/HyPar -use-petscts -ts_type rk -ts_rk_type 4 ...
+
 
 Explicit time integration:
 --------------------------
@@ -2231,6 +2231,8 @@ Implicit time integration:
 --------------------------
 \subpage linear_diff_sine_petsc \n
 \subpage linear_diff_sine2d_petsc (with local truncation error-based adaptive time-step)
+
+\subpage navstok2d_flatplate_petsc
 
 Implicit-Explicit (IMEX) time integration:
 ------------------------------------------
@@ -2698,3 +2700,142 @@ The numbers are, respectively,
 
 Expected screen output:
 \include 2D/NavierStokes2D/RisingThermalBubble_PETSc/output.log
+
+
+\page navstok2d_flatplate_petsc 2D Navier-Stokes Equations -  Laminar Flow over Flat Plate
+
+Location: \b hypar/Examples/2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h)
+
+Reference: 
++ Hirsch, "Numerical Computation of Internal & External Flows",
+  Volume 1 (Fundamentals of Computational Fluid Dynamics), 2nd 
+  Edition, Elsevier, Section 12.3.2 (page 618-625).
+
+Domain: \f$-0.25 \le x \le 1\f$, \f$0 \le y \le 0.25\f$
+
+Boundary conditions:
++ Symmetry BC on \f$y=0, -0.25 \le x < 0\f$ (imposed through "slip-wall" 
+  #_SLIP_WALL_ with 0 wall velocity).
++ No-slip wall BC on \f$y=0, 0 \le x \le 1\f$ (#_NOSLIP_WALL_ with 0
+  wall velocity).
++ Subsonic outflow on \f$y=0.25\f$ (#_SUBSONIC_OUTFLOW_) with pressure
+  \f$p=1/\gamma\f$.
++ Subsonic inflow on \f$x=0\f$ (#_SUBSONIC_INFLOW_) with density \f$\rho=1\f$,
+  and velocity \f$(u,v) = (0.3,0)\f$.
++ Subsonic outflow on \f$x=1\f$ (#_SUBSONIC_OUTFLOW_) with pressure
+  \f$p=1/\gamma\f$.
+
+Initial solution: Uniform flow with \f$\rho=1, u=0.3, v=0, p=1/\gamma\f$.
+
+Other parameters:
+  + \f$\gamma = 1.4\f$ (#NavierStokes2D::gamma)
+  + \f$Re = \frac {\rho u L } {\mu} = 100,000\f$ (Reynolds number) (#NavierStokes2D::Re), 
+    where \f$L=1\f$ is the plate length .
+  + \f$Pr = 0.72\f$ (Prandtl number) (#NavierStokes2D::Pr)
+  + \f$M_\infty = 0.3\f$ (freestream Mach number) (#NavierStokes2D::Minf)
+
+\b Note: Pressure is taken as \f$1/\gamma\f$ in the above so that the freestream 
+speed of sound is 1.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (ParabolicFunctionNC2Stage())
+ + Time integration: PETSc (SolvePETSc()) 
+   - Method Class: <B>Additive Runge-Kutta method</B> (TSARKIMEX - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX.html) -
+     Although the ARK methods are semi-implicit (IMEX), here they are used in the "fully implicit" mode, i.e., the implicit 
+     method is used to solve the complete equation (Note the flag \b -ts_arkimex_fully_implicit in <B>.petscrc</B>).
+   - Specific method: <B>ARK2e</B> (TSARKIMEX2E - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX2E.html)
+
+This is a steady state problem - the solution converges to a steady laminar flow over a 
+flat plate, and the residuals decrease with time. The skin friction coefficient is given by
+\f{equation}{
+  c_f = \frac {0.664} {\sqrt{Re_x}}, Re_x = \frac {\rho u x} {\mu}
+\f}
+(Blasius solution).
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/petscrc
+
+\b solver.inp
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/boundary.inp
+
+\b physics.inp
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/physics.inp
+
+\b weno.inp (optional)
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/weno.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      1 4
+
+in \b solver.inp (i.e., 1 processor along \a x, and 4
+processor along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be one output file
+\b op.bin, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
+  
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b hypar/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file (works only for 2D and 3D).
++ \b hypar/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+The following plot was obtained by converting the binary file to the 
+Tecplot format, and using VisIt to plot it (it shows the density 
+and velocity):
+@image html Solution_2DNavStokFlatPlate.png
+The following plot shows a magnified view of the boundary layer:
+@image html Solution_2DNavStokFlatPlateMagnified.png
+
+The following file computes the skin friction as a function of the 
+Reynolds number and writes to to a text file \b SkinFriction.dat with 4 
+columns: Reynolds number, computed skin friction coefficient, exact skin 
+friction coefficient (\f$0.664/\sqrt{Re_x}\f$), and normal velocity gradient 
+on the plate surface (\f$\left.\partial u/\partial y\right|_{y=0}\f$). 
+Compile and run it in the run directory.
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/aux/SkinFriction.c
+The following figure showing the exact and computed skin friction coefficients
+was obtained by plotting \b SkinFriction.dat:
+@image html Solution_2DNavStokFlatPlateSkinFrictionPETSc.png
+
+The file <B>function_counts.dat</B> reports the computational expense
+(in terms of the number of function counts):
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/function_counts.dat
+The numbers are, respectively,
++ Time iterations
++ Number of times the hyperbolic term was evaluated
++ Number of times the parabolic term was evaluated
++ Number of times the source term was evaluated
++ Number of calls to the explicit right-hand-side function (PetscRHSFunctionIMEX() or PetscRHSFunctionExpl())
++ Number of calls to the implicit right-hand-side function (PetscIFunctionIMEX() or PetscRHSFunctionImpl())
++ Number of calls to the Jacobian (PetscIJacobianIMEX() or PetscIJacobian())
++ Number of calls to the matrix-free Jacobian function (PetscJacobianFunctionIMEX_Linear(), PetscJacobianFunctionIMEX_JFNK(), PetscJacobianFunction_JFNK(), or PetscJacobianFunction_Linear()).
+
+Expected screen output:
+\include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/output.log
+
