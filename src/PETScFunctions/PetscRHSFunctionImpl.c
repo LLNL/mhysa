@@ -75,6 +75,10 @@ PetscErrorCode PetscRHSFunctionImpl(
   _ArrayAXPY_(solver->par   , 1.0,rhs,size*solver->nvars);
   _ArrayAXPY_(solver->source, 1.0,rhs,size*solver->nvars);
 
+  /* save a copy of the solution and RHS for use in IJacobian */
+  _ArrayCopy1D_(u  ,solver->uref  ,(size*solver->nvars));
+  _ArrayCopy1D_(rhs,solver->rhsref,(size*solver->nvars));
+
   /* Transfer RHS to PETSc vector */
   IERR TransferVecToPETSc(rhs,F,context);                                         CHECKERR(ierr);
 
