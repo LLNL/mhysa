@@ -39,7 +39,7 @@ Visualizing the solution in Tecplot or MATLAB:
 Extracting a slice and visualizing it:
 1)  Make sure op_file_format is set to binary in solver.inp.
 2) Create a subdirectory called "slices".
-3) Compile and run hypar/Extras/MidSlice.c (and let it extract
+3) Compile and run hypar/Extras/ExtractSlice.c (and let it extract
    the slice along dimension "2", i.e. "z", so that it extracts
    an x-y slice). The slices will be written in binary format.
 4) In the subdirectory slices, create a copy of solver.inp
