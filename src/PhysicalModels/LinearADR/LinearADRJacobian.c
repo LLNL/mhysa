@@ -20,9 +20,9 @@ int LinearADRJacobian(
                      )
 {
   LinearADR *param = (LinearADR*) p;
-  *Jac =    (1-absolute(upw))*param->a[dir]
+  *Jac =    (1-absolute(upw))*absolute(param->a[dir])
          +  absolute(upw) * (1+upw) * max(0,param->a[dir]) * 0.5
-         +  absolute(upw) * (1-upw) * min(0,param->a[dir]) * 0.5 ;
+         -  absolute(upw) * (1-upw) * min(0,param->a[dir]) * 0.5 ;
 
   return(0);
 }
