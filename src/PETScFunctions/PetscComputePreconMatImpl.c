@@ -71,11 +71,12 @@ int PetscComputePreconMatImpl(
   HyPar           *solver  = context->solver;
   MPIVariables    *mpi     = context->mpi;
   PetscErrorCode  ierr;
-  int             ndims   = solver->ndims,
-                  nvars   = solver->nvars,
-                  ghosts  = solver->ghosts,
-                  *dim    = solver->dim_local,
-                  *dim_g  = solver->dim_global,
+  int             ndims       = solver->ndims,
+                  nvars       = solver->nvars,
+                  ghosts      = solver->ghosts,
+                  *dim        = solver->dim_local,
+                  *dim_g      = solver->dim_global,
+                  *isPeriodic = mpi->bcperiodic,
                   index[ndims],indexL[ndims],indexR[ndims],
                   v,dir,done,rows[nvars],cols[nvars];
   double          *u   = solver->u, dxinv, values[nvars*nvars];
@@ -95,15 +96,21 @@ int PetscComputePreconMatImpl(
     /* compute local and global 1D index of this grid point */
     int p;  _ArrayIndex1D_(ndims,dim,index,ghosts,p); /* local - for accessing u */
     int pg; _ArrayIndex1DWO_(ndims,dim_g,index,mpi->is,0,pg); /* global - row number in Pmat */
+
     /* compute the contributions from the flux derivatives along each dimension */
     for (dir = 0; dir < ndims; dir++) {
+
       /* compute indices and global 1D indices for left and right neighbors */
       _ArrayCopy1D_(index,indexL,ndims); indexL[dir]--;
-      _ArrayCopy1D_(index,indexR,ndims); indexR[dir]++;
-      int pgL; _ArrayIndex1DWO_(ndims,dim_g,indexL,mpi->is,0,pgL);
-      int pgR; _ArrayIndex1DWO_(ndims,dim_g,indexR,mpi->is,0,pgR);
       int pL;  _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
+      if (((indexL[dir]+mpi->is[dir]) < 0) && isPeriodic[dir]) indexL[dir] = dim_g[dir]-1-mpi->is[dir];
+      int pgL; _ArrayIndex1DWO_(ndims,dim_g,indexL,mpi->is,0,pgL);
+
+      _ArrayCopy1D_(index,indexR,ndims); indexR[dir]++;
       int pR;  _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
+      if (((indexR[dir]+mpi->is[dir]) == dim_g[dir]) && isPeriodic[dir]) indexR[dir] = -mpi->is[dir];
+      int pgR; _ArrayIndex1DWO_(ndims,dim_g,indexR,mpi->is,0,pgR);
+
       /* Retrieve 1/delta-x at this grid point */
       _GetCoordinate_(dir,index[dir],dim,ghosts,solver->dxinv,dxinv);
 
