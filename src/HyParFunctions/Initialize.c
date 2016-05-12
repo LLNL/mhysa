@@ -33,6 +33,7 @@ int Initialize(
   mpi->ie           = (int*) calloc (solver->ndims,sizeof(int));
   mpi->bcperiodic   = (int*) calloc (solver->ndims,sizeof(int));
   solver->dim_local = (int*) calloc (solver->ndims,sizeof(int));
+  solver->isPeriodic= (int*) calloc (solver->ndims,sizeof(int));
 
 #ifndef serial
   _DECLARE_IERR_;

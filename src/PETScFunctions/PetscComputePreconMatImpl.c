@@ -76,7 +76,7 @@ int PetscComputePreconMatImpl(
                   ghosts      = solver->ghosts,
                   *dim        = solver->dim_local,
                   *dim_g      = solver->dim_global,
-                  *isPeriodic = mpi->bcperiodic,
+                  *isPeriodic = solver->isPeriodic,
                   index[ndims],indexL[ndims],indexR[ndims],
                   v,dir,done,rows[nvars],cols[nvars];
   double          *u   = solver->u, dxinv, values[nvars*nvars];

@@ -136,6 +136,7 @@ int Cleanup(
   free(solver->fR);
   free(solver->x);
   free(solver->dxinv);
+  free(solver->isPeriodic);
   free(mpi->iproc);
   free(mpi->ip);
   free(mpi->is);

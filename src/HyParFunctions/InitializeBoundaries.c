@@ -138,7 +138,10 @@ int InitializeBoundaries(
         ferr = fscanf(in,"%s" , boundary[n].UnsteadyDirichletFilename);
       }
 
-      /* if boundary is periodic, let the MPI info know */
+      /* if boundary is periodic, let the MPI and HyPar know */
+      if (!strcmp(boundary[n].bctype,_PERIODIC_)) {
+        solver->isPeriodic[boundary[n].dim] = 1;
+      }
       /* 
         The MPI function to exchange internal (MPI) boundary information will handle
         periodic boundaries ONLY IF number of process along that dimension is more 
@@ -185,6 +188,7 @@ int InitializeBoundaries(
     IERR MPIBroadcast_double   (boundary[n].xmin  ,solver->ndims    ,0,&mpi->world); CHECKERR(ierr);
     IERR MPIBroadcast_double   (boundary[n].xmax  ,solver->ndims    ,0,&mpi->world); CHECKERR(ierr);
   }
+  IERR MPIBroadcast_integer(solver->isPeriodic,solver->ndims,0,&mpi->world);CHECKERR(ierr);
 
   /* broadcast periodic boundary info for MPI to all processes */
   IERR MPIBroadcast_integer(mpi->bcperiodic,solver->ndims,0,&mpi->world);CHECKERR(ierr);

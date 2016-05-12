@@ -132,6 +132,9 @@ typedef struct main_parameters {
   int   nBoundaryZones;
   /*! Pointer to the boundary zones: boundary zone type is defined in boundaryconditions.h */
   void  *boundary;
+  /*! Pointer to array of size #HyPar::ndims: each element is 1 if the domain is periodic along
+      that spatial dimension; zero otherwise. */
+  int   *isPeriodic;
 
   /*! pointer to the time-integration object */
   void *time_integrator;
