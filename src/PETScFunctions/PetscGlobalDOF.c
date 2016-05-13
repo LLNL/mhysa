@@ -77,7 +77,6 @@ int PetscGlobalDOF(void *c /*!< Object of type #PETScContext*/)
   int   *dim      = solver->dim_local,
         ndims     = solver->ndims,
         ghosts    = solver->ghosts,
-        nvars     = solver->nvars,
         size_wg   = solver->npoints_local_wghosts,
         size      = solver->npoints_local,
         rank      = mpi->rank,
@@ -85,13 +84,13 @@ int PetscGlobalDOF(void *c /*!< Object of type #PETScContext*/)
         i;
 
   /* if globalDOF already allocated, free it */
-  //if (ctxt->globalDOF) free(ctxt->globalDOF);
-  ctxt->globalDOF = (double*) calloc((size_wg/nvars),sizeof(double));
-  _ArraySetValue_(ctxt->globalDOF,(size_wg/nvars),-1.0);
+  if (ctxt->globalDOF) free(ctxt->globalDOF);
+  ctxt->globalDOF = (double*) calloc(size_wg,sizeof(double));
+  _ArraySetValue_(ctxt->globalDOF,size_wg,-1.0);
 
   int local_sizes[nproc];
   _ArraySetValue_(local_sizes,nproc,0);
-  local_sizes[rank] = size/nvars;
+  local_sizes[rank] = size;
   MPIMax_integer(local_sizes,local_sizes,nproc,&mpi->world);
 
   int myOffset = 0;
