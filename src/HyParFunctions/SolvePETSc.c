@@ -68,6 +68,7 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   context.flag_parabolic      = _EXPLICIT_; 
   context.flag_source         = _EXPLICIT_; 
   context.flag_is_linear      = 0;
+  context.globalDOF           = NULL;
 
   /* create and initialize PETSc solution vector and other parameters */
   /* PETSc solution vector does not have ghost points */
@@ -80,6 +81,9 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
 
   /* copy initial solution to PETSc's vector */
   ierr = TransferVecToPETSc(solver->u,Y,&context); CHECKERR(ierr);
+
+  /* Create the global DOF mapping for all the grid points */
+  ierr = PetscGlobalDOF(&context);
 
   /* Define and initialize the time-integration object */
   ierr = TSCreate(MPI_COMM_WORLD,&ts); CHKERRQ(ierr);
@@ -348,6 +352,7 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   /* calculate error if exact solution has been provided */
   IERR CalculateError(solver,mpi); CHECKERR(ierr);
 
+  ierr = PetscCleanup(&context);
   PetscFunctionReturn(0);
 }
 

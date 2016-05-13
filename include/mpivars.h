@@ -95,6 +95,8 @@ int MPILocalDomainLimits    (int,int,void*,int*,int*,int*);
 
 /*! Find the maximum in an integer array over all ranks */
 int MPIMax_integer          (int*,int*,int,void*);
+/*! Find the maximum in a long integer array over all ranks */
+int MPIMax_long             (long*,long*,int,void*);
 /*! Find the maximum in a double array over all ranks */
 int MPIMax_double           (double*,double*,int,void*);
 /*! Find the minimum in an integer array over all ranks */

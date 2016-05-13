@@ -63,6 +63,13 @@ typedef struct _petsccontext_ {
   /*! \f$\epsilon\f$ parameter for the Jacobian-free Newton-Krylov directional derivative computation */
   double jfnk_eps;
 
+  /*! An essentialy integer array of the same size and layout at the solution 
+      (with ghost points) containing the global DOF index for each grid point. 
+      It is declared as a \a double type so that its calculation can use functions
+      defined for double-type variables.
+      \sa PetscGlobalDOF() */
+  double *globalDOF;
+
 } PETScContext;
 
 /* Copy Functions */
@@ -89,6 +96,8 @@ PetscErrorCode PetscJacobianFunction_Linear(Mat,Vec,Vec);
 int PetscComputePreconMatIMEX(Mat,Vec,void*);
 int PetscComputePreconMatImpl(Mat,Vec,void*);
 
+int PetscGlobalDOF(void*);
+int PetscCleanup(void*);
 
 /* Other functions */
 PetscErrorCode PetscPreStage        (TS,PetscReal);
