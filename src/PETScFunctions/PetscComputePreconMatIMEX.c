@@ -74,11 +74,12 @@ int PetscComputePreconMatIMEX(
   HyPar           *solver  = context->solver;
   MPIVariables    *mpi     = context->mpi;
   PetscErrorCode  ierr;
-  int             ndims   = solver->ndims,
-                  nvars   = solver->nvars,
-                  ghosts  = solver->ghosts,
-                  *dim    = solver->dim_local,
-                  *dim_g  = solver->dim_global,
+  int             ndims       = solver->ndims,
+                  nvars       = solver->nvars,
+                  ghosts      = solver->ghosts,
+                  *dim        = solver->dim_local,
+                  *dim_g      = solver->dim_global,
+                  *isPeriodic = solver->isPeriodic,
                   index[ndims],indexL[ndims],indexR[ndims],
                   v,dir,done,rows[nvars],cols[nvars];
   double          *u   = solver->u, dxinv, values[nvars*nvars];
@@ -97,16 +98,22 @@ int PetscComputePreconMatIMEX(
   while (!done) {
     /* compute local and global 1D index of this grid point */
     int p;  _ArrayIndex1D_(ndims,dim,index,ghosts,p); /* local - for accessing u */
-    int pg; _ArrayIndex1DWO_(ndims,dim_g,index,mpi->is,0,pg); /* global - row number in Pmat */
+    int pg, pgL, pgR;
+
     /* compute the contributions from the flux derivatives along each dimension */
     for (dir = 0; dir < ndims; dir++) {
+
       /* compute indices and global 1D indices for left and right neighbors */
       _ArrayCopy1D_(index,indexL,ndims); indexL[dir]--;
-      _ArrayCopy1D_(index,indexR,ndims); indexR[dir]++;
-      int pgL; _ArrayIndex1DWO_(ndims,dim_g,indexL,mpi->is,0,pgL);
-      int pgR; _ArrayIndex1DWO_(ndims,dim_g,indexR,mpi->is,0,pgR);
       int pL;  _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
+
+      _ArrayCopy1D_(index,indexR,ndims); indexR[dir]++;
       int pR;  _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
+
+      pg  = (int) context->globalDOF[p];
+      pgL = (int) context->globalDOF[pL];
+      pgR = (int) context->globalDOF[pR];
+
       /* Retrieve 1/delta-x at this grid point */
       _GetCoordinate_(dir,index[dir],dim,ghosts,solver->dxinv,dxinv);
 
@@ -117,7 +124,7 @@ int PetscComputePreconMatIMEX(
       ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
 
       /* left neighbor */
-      if ((indexL[dir]+mpi->is[dir]) >= 0) {
+      if (pgL >= 0) {
         for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgL + v; }
         ierr = solver->JFunction(values,(u+nvars*pL),solver->physics,dir,1);
         _ArrayScale1D_(values,-dxinv,(nvars*nvars));
@@ -125,7 +132,7 @@ int PetscComputePreconMatIMEX(
       }
       
       /* right neighbor */
-      if ((indexR[dir]+mpi->is[dir]) < dim_g[dir]) {
+      if (pgR >= 0) {
         for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgR + v; }
         ierr = solver->JFunction(values,(u+nvars*pR),solver->physics,dir,-1);
         _ArrayScale1D_(values,-dxinv,(nvars*nvars));
