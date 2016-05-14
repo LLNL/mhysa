@@ -1,10 +1,10 @@
-HyPar - Parallel (MPI) version with 4 processes
+HyPar - Parallel (MPI) version with 6 processes
 Compiled with PETSc time integration.
 Reading solver inputs from file "solver.inp".
 	No. of dimensions                          : 2
 	No. of variables                           : 4
 	Domain size                                : 226 502 
-	Processes along each dimension             : 1 4 
+	Processes along each dimension             : 2 3 
 	No. of ghosts pts                          : 3
 	No. of iter.                               : 400
 	Restart iteration                          : 0
@@ -28,10 +28,10 @@ Partitioning domain.
 Allocating data arrays.
 Reading array from binary file initial.inp (Serial mode).
 Volume integral of the initial solution:
- 0:  3.1451541361724217E-01
- 1:  9.4354624085130651E-02
+ 0:  3.1451541361714314E-01
+ 1:  9.4354624085191963E-02
  2:  0.0000000000000000E+00
- 3:  5.7578786078642674E-01
+ 3:  5.7578786078649591E-01
 Reading boundary conditions from "boundary.inp".
   Boundary                      slip-wall:  Along dimension  1 and face +1
   Boundary                    noslip-wall:  Along dimension  1 and face +1
@@ -501,7 +501,7 @@ Conservation Errors:
 	0.0000000000000000E+00
 	0.0000000000000000E+00
 	0.0000000000000000E+00
-Solver runtime (in seconds): 2.4682181049999999E+03
-Total  runtime (in seconds): 2.4682673310000000E+03
+Solver runtime (in seconds): 1.9543866630000000E+03
+Total  runtime (in seconds): 1.9544529339999999E+03
 Deallocating arrays.
 Finished.

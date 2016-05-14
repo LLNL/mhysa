@@ -2786,11 +2786,11 @@ Output:
 -------
 Note that \b iproc is set to 
 
-      1 4
+      2 3
 
-in \b solver.inp (i.e., 1 processor along \a x, and 4
+in \b solver.inp (i.e., 2 processor along \a x, and 3
 processor along \a y). Thus, this example should be run
-with 4 MPI ranks (or change \b iproc).
+with 6 MPI ranks (or change \b iproc).
 
 After running the code, there should be one output file
 \b op.bin, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
