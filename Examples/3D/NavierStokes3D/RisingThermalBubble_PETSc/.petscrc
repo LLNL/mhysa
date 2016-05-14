@@ -1,0 +1,61 @@
+# See PETSc documentation for more details (https://www.mcs.anl.gov/petsc/documentation/index.html).
+# Note that if the following are specified in this file, the corresponding inputs in solver.inp are *ignored*.
+# + "-ts_dt" (time step size): ignores "dt" in solver.inp
+# + "-ts_max_steps" (maximum number of time iterations): ignores "n_iter" in solver.inp
+# + "-ts_final_time" (final simulation time): ignores "n_iter" X "dt" in solver.inp
+
+# Use PETSc time-integration
+-use-petscts
+
+# Final time
+-ts_final_time 400.0
+
+# Time step size
+-ts_dt 0.1
+
+# Maximum number of iterations
+-ts_max_steps 1000000
+
+# Time integration scheme type - ARK
+-ts_type arkimex
+-ts_arkimex_type 2e
+
+# Specify the terms to treat explicitly and implicitly
+# In this example, the hyperbolic flux is partitioned
+# into its entropy and acoustic components: f = [f-df] + [df]
+# [f-df] - entropy component
+# [df]   - acoustic component
+-hyperbolic_f_explicit    # treat [f-df] explicitly
+-hyperbolic_df_implicit   # treat [df] implicitly
+-source_implicit          # treat source term implicitly
+# thus, time step size is limited by the [f-df] term, i.e.,
+# the flow velocity.
+
+# print time step info to screen
+-ts_monitor
+
+# local truncation error based time-step adaptivity
+-ts_adapt_type basic
+# print time-step adaptivity info to screen
+-ts_adapt_monitor
+
+# For linear problens, tell nonlinear solver (SNES) to only use the linear solver (KSP)
+-snes_type ksponly
+
+# Linear solver (KSP) type
+-ksp_type gmres
+# Set relative tolerance
+-ksp_rtol 1e-6
+# Set absolute tolerance
+-ksp_atol 1e-6
+
+# use a preconditioner for solving the system
+-with_pc
+
+# preconditioner type - block Jacobi
+-pc_type sor
+-pc_sor_omega 1.0
+-pc_sor_its 1
+
+# apply right preconditioner
+-ksp_pc_side RIGHT
