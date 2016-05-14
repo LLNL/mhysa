@@ -30,7 +30,6 @@ int NavierStokes3DJacobian(
   _NavierStokes3DLeftEigenvectors_ (u,L,param,dir);
   _NavierStokes3DRightEigenvectors_(u,R,param,dir);
 
-  _ArraySetValue_(D,_MODEL_NVARS_*_MODEL_NVARS_,0.0);
   int aupw = absolute(upw), k;
   k = 0;  D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
   k = 6;  D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
@@ -69,14 +68,22 @@ int NavierStokes3DStiffJacobian(
   _NavierStokes3DRightEigenvectors_(u,R,param,dir);
 
   int aupw = absolute(upw), k;
-  _ArraySetValue_(D,_MODEL_NVARS_*_MODEL_NVARS_,0.0);
   if (dir == _XDIR_) {
+    k = 0;  D[k] = 0.0;
     k = 6;  D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
+    k = 12; D[k] = 0.0;
+    k = 18; D[k] = 0.0;
     k = 24; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
   } else if (dir == _YDIR_) {
+    k = 0;  D[k] = 0.0;
+    k = 6;  D[k] = 0.0;
     k = 12; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
+    k = 18; D[k] = 0.0;
     k = 24; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
   } else if (dir == _ZDIR_) {
+    k = 0;  D[k] = 0.0;
+    k = 6;  D[k] = 0.0;
+    k = 12; D[k] = 0.0;
     k = 18; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
     k = 24; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
   }
