@@ -57,7 +57,7 @@ static int ApplyPeriodicity(
 
     #PETScContext::globalDOF is an integer array with the same layout as the solution
     array #HyPar::u (but with one component) containing the global DOF index for the
-    corresponding grid points. It has the same number of ghost points as #Hypar::u.
+    corresponding grid points. It has the same number of ghost points as #HyPar::u.
     + This array is initialized to -1.
     + The global DOF indices are computed for all non-ghost grid points.
     + If any boundaries are periodic, periodic boundary conditions are applied to fill
