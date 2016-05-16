@@ -260,6 +260,8 @@ Format: ASCII text
 This file contains all the inputs required for the PETSc time integrators. See PETSc documentation (http://www.mcs.anl.gov/petsc/documentation/)
 for all the inputs that PETSc needs, or <B>see the PETSc examples</B> for the inputs relevant to HyPar. In addition, following 
 are the HyPar-specific inputs (they are all optional, if not specified, default values are used):
++ <B>-use-petscts</B>: If this flag is specified, PETSc time integration is used. If not specified, native time integration is used 
+  (default).
 + <B>-jfnk_epsilon \<value\></B>: specify \f$\epsilon\f$ parameter for the directional-derivative-based approximation of the Jacobian 
   (relevant only for implicit and IMEX time integration) (default: \f$10^{-6}\f$).
 + <B>-with_pc</B>: If this flag is specified, a preconditioning matrix will be assembled for use with the preconditioners available
