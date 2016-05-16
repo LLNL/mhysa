@@ -11,10 +11,10 @@
 -ts_final_time 400.0
 
 # Time step size
--ts_dt 0.1
+-ts_dt 2.0
 
 # Maximum number of iterations
--ts_max_steps 1000000
+-ts_max_steps 200
 
 # Time integration scheme type - ARK
 -ts_type arkimex
@@ -31,13 +31,8 @@
 # thus, time step size is limited by the [f-df] term, i.e.,
 # the flow velocity.
 
-# print time step info to screen
--ts_monitor
-
-# local truncation error based time-step adaptivity
--ts_adapt_type basic
-# print time-step adaptivity info to screen
--ts_adapt_monitor
+# no time-step adaptivity
+-ts_adapt_type none
 
 # For linear problens, tell nonlinear solver (SNES) to only use the linear solver (KSP)
 -snes_type ksponly
