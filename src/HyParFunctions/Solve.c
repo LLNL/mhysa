@@ -11,7 +11,6 @@
 #ifdef compute_rhs_operators
 int ComputeRHSOperators(void*,void*,double);
 #endif
-int CalculateErrors(void*,void*);
 
 /*! This function integrates the semi-discrete ODE (obtained from discretizing the 
     PDE in space) using natively implemented time integration methods. It initializes 
