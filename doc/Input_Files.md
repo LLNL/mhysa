@@ -243,3 +243,35 @@ Format: ASCII text
         end
 
 See the documentation for the initialization function of the various phyical models for a list of keywords (for example, Euler1DInitialize(), NavierStokes2DInitialize()).
+
+\section petscrc .petscrc
+
+Requirement: \b mandatory <B>if using PETSc time integration</B>; if absent, HyPar will use native time integration. 
+             If compiled without PETSc, this file is not required.
+
+Read by: PETSc
+
+Description: This file contains the input flags required by PETSc time integration and its associated features.
+
+Format: ASCII text
+
+\b Note: The contents of this file may also be specified as command line flags.
+
+This file contains all the inputs required for the PETSc time integrators. See PETSc documentation (http://www.mcs.anl.gov/petsc/documentation/)
+for all the inputs that PETSc needs, or <B>see the PETSc examples</B> for the inputs relevant to HyPar. In addition, following 
+are the HyPar-specific inputs (they are all optional, if not specified, default values are used):
++ <B>-jfnk_epsilon \<value\></B>: specify \f$\epsilon\f$ parameter for the directional-derivative-based approximation of the Jacobian 
+  (relevant only for implicit and IMEX time integration) (default: \f$10^{-6}\f$).
++ <B>-with_pc</B>: If this flag is specified, a preconditioning matrix will be assembled for use with the preconditioners available
+  in PETSc. If not specified, no preconditioning will be used (default).
+
+In addition, if an IMEX time integrator (TSARKIMEX - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX.html) 
+is being used, the following terms specify how the hyperbolic, parabolic,
+and source terms are integrated in time (explicitly or implicitly):
++ <B>-hyperbolic_explicit</B>: treat hyperbolic term explicitly (\b default).
++ <B>-parabolic_explicit</B>: treat parabolic term explicitly.
++ <B>-source_explicit</B>: treat the source term explicitly.
++ <B>-hyperbolic_implicit</B>: treat hyperbolic term implicitly.
++ <B>-parabolic_implicit</B>: treat parabolic term implicitly (\b default).
++ <B>-source_implicit</B>: treat the source term implicitly (\b default).
+

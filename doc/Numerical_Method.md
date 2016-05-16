@@ -7,15 +7,16 @@ algorithm on a Cartesian grid.
   \frac {\partial {\bf u}} {\partial t} = {\bf F}_{\rm hyp}\left({\bf u}\right) + {\bf F}_{\rm par}\left({\bf u}\right) + {\bf F}_{\rm sou}\left({\bf u}\right)
 \f}
 where \f${\bf F}_{\rm hyp}\f$ is the hyperbolic term, \f${\bf F}_{\rm par}\f$ is the parabolic term, and 
-\f${\bf F}_{\rm sou}\f$ is the source term. Each of these is discretized in space as described below, to 
+\f${\bf F}_{\rm sou}\f$ is the source term. Each of these is discretized in space as described below (in
+the section "Spatial Discretization"), to 
 obtain the following semi-discrete ordinary differential equation (ODE) in time:
 \f{equation}{
   \frac {d {\bf u}} {d t} = \hat{\bf F}_{\rm hyp}\left({\bf u}\right) + \hat{\bf F}_{\rm par}\left({\bf u}\right) + \hat{\bf F}_{\rm sou}\left({\bf u}\right)
 \f}
 where \f$\hat{\left(\cdot\right)}\f$ represents the spatially discretized terms. The governing PDE can be
-of any space dimension. The semi-discrete ODE is integrated in time by
-+ Using native time integrators (see timeintegration.h, Solve()).
-+ PETSc (https://www.mcs.anl.gov/petsc/) - specifically the TS module (see petscinterface.h, SolvePETSc()).
+of any space dimension. 
+
+\section spatial_discretization Spatial Discretization
 
 Hyperbolic term
 ---------------
@@ -109,4 +110,85 @@ Source term
 
 #HyPar::SourceFunction points to SourceFunction(). There is no discretization involved in general, and this function
 just calls the physical model-specific source function to which #HyPar::SFunction points.
-  
+
+
+\section time_integration Time Integration
+
+Native Time Integrators
+-----------------------
+
+The semi-discrete ODE is integrated in time using explicit multi-stage time integration methods. The ODE can be written as:
+\f{equation}{
+  \frac {d {\bf u}} {d t} = {\bf F}\left({\bf u}\right)
+\f}
+where
+\f{equation}{
+  {\bf F}\left({\bf u}\right) = \hat{\bf F}_{\rm hyp}\left({\bf u}\right) + \hat{\bf F}_{\rm par}\left({\bf u}\right) + \hat{\bf F}_{\rm sou}\left({\bf u}\right)
+\f}
+The following explicit time integration methods are implemented in HyPar (see timeintegration.h):
++ Forward Euler - TimeForwardEuler(), #_FORWARD_EULER_
++ Explicit Runge-Kutta - TimeRK(), #_RK_
++ Explicit General Linear Methods with Global Error Estimation - TimeGLMGEE(), #_GLM_GEE_
+
+\sa Solve()
+
+
+PETSc Time Integrators
+----------------------
+
+If compiled with PETSc (https://www.mcs.anl.gov/petsc/), HyPar can use all the time integration methods and features implemented in the \b TS module of
+PETSc. See the following for relevant documentation of PETSc time integrators:
++ http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html
++ http://www.mcs.anl.gov/petsc/petsc-current/src/ts/examples/tutorials/index.html
++ http://www.mcs.anl.gov/petsc/petsc-current/docs/manual.pdf (Chapter 6: Scalable ODE and DAE Solvers)
+
+In addition to explicit time integration, the semi-discrete ODE can be solved using 
++ \b Implicit \b methods (Eg. backward Euler (TSBEULER - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSBEULER.html),
+Crank-Nicholson (TSCN - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSCN.html#TSCN), \f$\theta\f$-method (TSTHETA - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSTHETA.html#TSTHETA), 
+etc.)
++ <B>Semi-implicit (IMEX) methods</B> (TSARKIMEX - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX.html)
+
+Implementation: see petscinterface.h and SolvePETSc().
+
+\b Implicit and \b IMEX time integration: 
++ The Jacobian-free approach is used to compute the Jacobian of the implicit term (i.e., the action of the Jacobian on a vector
+  is approximated using a directional derivative). Use the flag <B>-jfnk_epsilon \<value\></B> to specify the parameter \f$\epsilon\f$
+  for the directional derivative computation (default: \f$10^{-6}\f$). See PetscJacobianFunctionIMEX_JFNK(), PetscJacobianFunction_JFNK().
++ A preconditioner can only be used for physical models that define the Jacobian (#HyPar::JFunction) 
+  (for example, LinearADRJacobian(), Euler1DJacobian(), NavierStokes2DJacobian(), NavierStokes3DJacobian(), etc).
+  The flag <B>-with_pc</B> should be specified to use a preconditioner.
+
+<B>IMEX Time Integration</B>: For implicit-explicit (IMEX) time integration, the semi-discrete ODE can be written as follows:
+\f{equation}{
+  \frac {d {\bf u}} {d t} = {\bf F}\left({\bf u}\right) + {\bf G}\left({\bf u}\right)
+\f}
+where \f${\bf F}\left({\bf u}\right)\f$ is integrated explicitly in time and \f${\bf G}\left({\bf u}\right)\f$
+is integrated implicitly in time. The following flags (specified in the command line or in the <B>.petscrc</B>
+file) can be used to specify which of the hyperbolic, parabolic, or source terms are treated explicitly, and 
+which are treated implicitly.
+
+Term                                                        |  Explicit             | Implicit
+------------------------------------------------------------|-----------------------|---------------------
+Hyperbolic \f$\hat{\bf F}_{\rm hyp}\left({\bf u}\right)\f$  | -hyperbolic_explicit  | -hyperbolic_implicit
+Parabolic \f$\hat{\bf F}_{\rm par}\left({\bf u}\right)\f$   | -parabolic_explicit   | -parabolic_implicit
+Source \f$\hat{\bf F}_{\rm sou}\left({\bf u}\right)\f$      | -source_explicit      | -source_implicit
+
++ If contradictory flags are specified, i.e.,
+
+        -parabolic_explicit -parabolic_implicit
+
+  the flag specifying implicit treatment takes precedence.
+
++ In addition, if a partitioning of the hyperbolic flux is defined and is being used (#HyPar::SplitHyperbolicFlux),
+  i.e,
+  \f{equation}{
+    \hat{\bf F}_{\rm hyp}\left({\bf u}\right) = \left[\hat{\bf F}_{\rm hyp}\left({\bf u}\right) - \delta\hat{\bf F}_{\rm hyp}\left({\bf u}\right)\right] + \delta\hat{\bf F}_{\rm hyp}\left({\bf u}\right)
+  \f}
+  the following flags can be used to specify which of these two terms are treated explicitly and which are treated implicitly.
+
+    Term                                                                                                            |  Explicit               | Implicit
+    ----------------------------------------------------------------------------------------------------------------|-------------------------|---------------------
+    \f$\left[\hat{\bf F}_{\rm hyp}\left({\bf u}\right) - \delta\hat{\bf F}_{\rm hyp}\left({\bf u}\right)\right]\f$  | -hyperbolic_f_explicit  | -hyperbolic_f_implicit
+    \f$\delta\hat{\bf F}_{\rm hyp}\left({\bf u}\right)\f$                                                           | -hyperbolic_df_explicit | -hyperbolic_df_implicit
+
+
