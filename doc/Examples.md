@@ -2067,7 +2067,7 @@ and reference variables \f$\rho,u,v,w,P,\theta,\rho_0,P_0,\pi,\theta_0\f$ where 
 subscript \f$0\f$ indicates the hydrostatic mean value.
 \include 3D/NavierStokes3D/RisingThermalBubble/aux/PostProcess.c
 
-The following figure shows the density pertubation iso-surface for the initial
+The following figure shows the potential temperature iso-surface for the initial
 and final solutions (plotted in VisIt):
 @image html Solution_3DNavStok_Bubble3D.png
 
@@ -2230,13 +2230,13 @@ Explicit time integration:
 Implicit time integration:
 --------------------------
 \subpage linear_diff_sine_petsc \n
-\subpage linear_diff_sine2d_petsc (with local truncation error-based adaptive time-step)
-
+\subpage linear_diff_sine2d_petsc (with local truncation error-based adaptive time-step) \n
 \subpage navstok2d_flatplate_petsc
 
 Implicit-Explicit (IMEX) time integration:
 ------------------------------------------
-\subpage euler2d_rtb_petsc (with local truncation error-based adaptive time-step)
+\subpage euler2d_rtb_petsc (with local truncation error-based adaptive time-step) \n
+\subpage ns3d_bubble_petsc
 
 
 \page linear_adv_sine_petsc 1D Linear Advection - Sine Wave
@@ -2838,4 +2838,142 @@ The numbers are, respectively,
 
 Expected screen output:
 \include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/output.log
+
+
+
+\page ns3d_bubble_petsc 3D Navier-Stokes Equations - Rising Thermal Bubble
+
+Location: \b hypar/Examples/3D/NavierStokes3D/RisingThermalBubble_PETSc
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: \f$0 \le x,y,z < 1000\,{\rm m}\f$, \a "slip-wall" (#_SLIP_WALL_) boundaries 
+        everywhere, with zero wall velocity.
+
+Reference:
+  + Kelly, J. F., Giraldo, F. X., "Continuous and discontinuous Galerkin methods for a scalable
+  three-dimensional nonhydrostatic atmospheric model: Limited-area mode", J. Comput. Phys., 231,
+  2012, pp. 7988-8008 (see section 5.1.2).
+  + Giraldo, F. X., Kelly, J. F., Constantinescu, E. M., "Implicit-Explicit Formulations of a
+  Three-Dimensional Nonhydrostatic Unified Model of the Atmosphere (NUMA)", SIAM J. Sci. Comput., 
+  35 (5), 2013, pp. B1162-B1194 (see section 4.1).
+
+The problem is solved here using <B>implicit-explicit (IMEX)</B> time
+integration, where the hyperbolic flux is partitioned into its entropy
+and acoustic components with the former integrated explicitly and the
+latter integrated implicitly. See the following reference:
++ Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of 
+  Atmospheric Flows with Characteristic-Based Flux Partitioning", SIAM 
+  Journal on Scientific Computing (To appear).
+
+Initial solution: A warm bubble in cool ambient atmosphere. Note that in this example, the
+gravitational forces and rising of the bubble is along the \a y-axis.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+  + Universal gas constant \f$R = 287.058\f$ (#NavierStokes3D::R)
+  + Gravitational force per unit mass \f$g = 9.8\f$ along \a y-axis (#NavierStokes3D::grav_y)
+  + Reference density (at zero altitude) \f$\rho_{ref} = 1.1612055171196529\f$ (#NavierStokes3D::rho0)
+  + Reference pressure (at zero altitude) \f$P_{ref} = 100000\f$ (#NavierStokes3D::p0)
+  + Hydrostatic balance type 2 (#NavierStokes3D::HB)
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: PETSc (SolvePETSc()) 
+   - Method Class: <B>Additive Runge-Kutta method</B> (TSARKIMEX - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX.html)
+   - Specific method: <B>ARK 2e</B> (TSARKIMEX2E - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX2E.html)
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/petscrc
+
+\b solver.inp
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/solver.inp
+
+\b boundary.inp
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/boundary.inp
+
+\b physics.inp
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/physics.inp
+
+\b weno.inp (optional)
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/weno.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      4 4 4
+
+in \b solver.inp (i.e., 4 processors along \a x, 4
+processors along \a y, and 4 processor along \a z). Thus, 
+this example should be run with 64 MPI ranks (or change \b iproc).
+
+After running the code, there should be 11 output
+files \b op_00000.bin, \b op_00001.bin, ... \b op_00010.bin; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=200\,{\rm s}\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. All the files are binary
+(#HyPar::op_file_format is set to \a binary in \b solver.inp).
+
+The following code (<B>Examples/3D/NavierStokes3D/RisingThermalBubble_PETSc/aux/PostProcess.c</B>)
+can be used to convert the binary solution file (with conserved variables 
+\f$\rho,\rho u,\rho v,\rho w,e\f$) to Tecplot or plain text files with the primitive
+and reference variables \f$\rho,u,v,w,P,\theta,\rho_0,P_0,\pi,\theta_0\f$ where the
+subscript \f$0\f$ indicates the hydrostatic mean value.
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/aux/PostProcess.c
+
+The following figure shows the potential temperature iso-surface for the initial
+and final solutions (plotted in VisIt):
+@image html Solution_3DNavStok_Bubble3D_PETSc.png
+
+The file \b Extras/ExtractSlice.c can be used to extract a slice perpendicular to any dimension
+at a specified location along that dimension. The extract slice is written out in the same
+binary format as the original solutions files (with the same names op_xxxxx.bin) in a 
+subdirectory called \b slices (\b Note: make the subdirectory called \a slices before running
+this code). The following code (<B>Examples/3D/NavierStokes3D/RisingThermalBubble_PETSc/aux/PostProcessSlice.c</B>)
+can then be used (in the \b slices subdirectory) to convert the binary slice solution file (with conserved variables 
+\f$\rho,\rho u,\rho v,\rho w,e\f$) to Tecplot or plain text files with the primitive
+and reference variables \f$\rho,u,v,w,P,\theta,\rho_0,P_0,\pi,\theta_0\f$.
+\b Note that it needs the relevant \b solver.inp and \b physics.inp that can be created
+as follows:
++ Copy the original solver.inp and physics.inp to the slices subdirectory.
++ In solver.inp, set \b ndims as \b 2, and remove the component of \b size and \b iproc 
+  corresponding to the dimension being eliminated while extracting the slices (in this case,
+  it is \a z or the 3rd component).
++ In physics.inp, remove the component of \b gravity corresponding to the dimension perpendicular
+  to the slice.
+
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/aux/PostProcessSlice.c
+
+The following figure shows the potential temperature \f$\theta\f$ along a slice at \f$z=500\,{\rm m}\f$ 
+(plotted in VisIt):
+@image html Solution_3DNavStok_Bubble_PETSc.gif
+
+The file <B>function_counts.dat</B> reports the computational expense
+(in terms of the number of function counts):
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/function_counts.dat
+The numbers are, respectively,
++ Time iterations
++ Number of times the hyperbolic term was evaluated
++ Number of times the parabolic term was evaluated
++ Number of times the source term was evaluated
++ Number of calls to the explicit right-hand-side function (PetscRHSFunctionIMEX() or PetscRHSFunctionExpl())
++ Number of calls to the implicit right-hand-side function (PetscIFunctionIMEX() or PetscRHSFunctionImpl())
++ Number of calls to the Jacobian (PetscIJacobianIMEX() or PetscIJacobian())
++ Number of calls to the matrix-free Jacobian function (PetscJacobianFunctionIMEX_Linear(), PetscJacobianFunctionIMEX_JFNK(), PetscJacobianFunction_JFNK(), or PetscJacobianFunction_Linear()).
+
+Expected screen output:
+\include 3D/NavierStokes3D/RisingThermalBubble_PETSc/output.log
 
