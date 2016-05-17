@@ -95,16 +95,16 @@ int Interp1PrimFifthOrderCompactUpwind(
   int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double three_by_ten          = 3.0/10.0,
-                      six_by_ten            = 6.0/10.0,
-                      one_by_ten            = 1.0/10.0,
-                      one_by_thirty         = 1.0/30.0,
-                      nineteen_by_thirty    = 19.0/30.0,
-                      one_third             = 1.0/3.0,
-                      thirteen_by_sixty     = 13.0/60.0,
-                      fortyseven_by_sixty   = 47.0/60.0,
-                      twentyseven_by_sixty  = 27.0/60.0,
-                      one_by_twenty         = 1.0/20.0;
+  static const double one_third            = 1.0/3.0,
+                      thirteen_by_sixty    = 13.0/60.0,
+                      fortyseven_by_sixty  = 47.0/60.0,
+                      twentyseven_by_sixty = 27.0/60.0,
+                      one_by_twenty        = 1.0/20.0,
+                      one_by_thirty        = 1.0/30.0,
+                      nineteen_by_thirty   = 19.0/30.0,
+                      three_by_ten         = 3.0/10.0,
+                      six_by_ten           = 6.0/10.0,
+                      one_by_ten           = 1.0/10.0;
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
@@ -154,10 +154,11 @@ int Interp1PrimFifthOrderCompactUpwind(
 
       if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
           || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+
         /* Use 5th order upwind at the physical boundaries */
-        _ArraySetValue_ ((A+Nsys*indexI[dir]+sys*nvars),nvars,0.0)
-        _ArraySetValue_ ((B+Nsys*indexI[dir]+sys*nvars),nvars,1.0)
-        _ArraySetValue_ ((C+Nsys*indexI[dir]+sys*nvars),nvars,0.0)
+        _ArraySetValue_((A+Nsys*indexI[dir]+sys*nvars),nvars,0.0)
+        _ArraySetValue_((B+Nsys*indexI[dir]+sys*nvars),nvars,1.0)
+        _ArraySetValue_((C+Nsys*indexI[dir]+sys*nvars),nvars,0.0)
         for (v=0; v<nvars; v++) {
           (R+Nsys*indexI[dir]+sys*nvars)[v] =   one_by_thirty         * fm3[v]
                                               - thirteen_by_sixty     * fm2[v]
@@ -165,16 +166,18 @@ int Interp1PrimFifthOrderCompactUpwind(
                                               + twentyseven_by_sixty  * fp1[v]
                                               - one_by_twenty         * fp2[v];
         }
+
       } else {
-        /* 5th order compact upwind at the interior points */
+
+        /* Use 5th order upwind at the physical boundaries */
         if (upw > 0) {
-          _ArraySetValue_((A+Nsys*indexI[dir]+sys*nvars),three_by_ten ,nvars);
-          _ArraySetValue_((B+Nsys*indexI[dir]+sys*nvars),six_by_ten   ,nvars);
-          _ArraySetValue_((C+Nsys*indexI[dir]+sys*nvars),one_by_ten   ,nvars);
+          _ArraySetValue_((A+Nsys*indexI[dir]+sys*nvars),nvars,three_by_ten);
+          _ArraySetValue_((B+Nsys*indexI[dir]+sys*nvars),nvars,six_by_ten  );
+          _ArraySetValue_((C+Nsys*indexI[dir]+sys*nvars),nvars,one_by_ten  );
         } else {
-          _ArraySetValue_((C+Nsys*indexI[dir]+sys*nvars),three_by_ten ,nvars);
-          _ArraySetValue_((B+Nsys*indexI[dir]+sys*nvars),six_by_ten   ,nvars);
-          _ArraySetValue_((A+Nsys*indexI[dir]+sys*nvars),one_by_ten   ,nvars);
+          _ArraySetValue_((C+Nsys*indexI[dir]+sys*nvars),nvars,three_by_ten);
+          _ArraySetValue_((B+Nsys*indexI[dir]+sys*nvars),nvars,six_by_ten  );
+          _ArraySetValue_((A+Nsys*indexI[dir]+sys*nvars),nvars,one_by_ten  );
         }
         for (v=0; v<nvars; v++) {
           (R+Nsys*indexI[dir]+sys*nvars)[v] =   one_by_thirty      * fm2[v]

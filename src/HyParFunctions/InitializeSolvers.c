@@ -177,6 +177,8 @@ int InitializeSolvers(
     }
     solver->compact = (CompactScheme*) calloc(1,sizeof(CompactScheme));
     IERR CompactSchemeInitialize(solver,mpi,solver->interp_type);
+    solver->lusolver = (TridiagLU*) calloc (1,sizeof(TridiagLU));
+    IERR tridiagLUInit(solver->lusolver,&mpi->world);CHECKERR(ierr);
 
   } else if (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_WENO_)) {
 
