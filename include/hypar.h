@@ -307,6 +307,8 @@ typedef struct main_parameters {
 
   /*! object containing interpolation-related parameters (of hyperbolic flux reconstruction */
   void *interp;
+  /*! object containing arrays needed for compact finite-difference methods */
+  void *compact;
   /*! object containing multi-stage time-integration (RK-type) related parameters */
   void *msti;
   /*! object containing parameters for the tridiagonal solver */

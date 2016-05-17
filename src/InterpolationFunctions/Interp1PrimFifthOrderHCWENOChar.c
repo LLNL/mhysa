@@ -89,6 +89,7 @@ int Interp1PrimFifthOrderHCWENOChar(
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
+  CompactScheme   *compact= (CompactScheme*)  solver->compact;
   WENOParameters  *weno   = (WENOParameters*) solver->interp;
   TridiagLU       *lu     = (TridiagLU*)      solver->lusolver;
   int             sys,Nsys,d,v,k;
@@ -122,10 +123,10 @@ int Interp1PrimFifthOrderHCWENOChar(
   double R[nvars*nvars], L[nvars*nvars], uavg[nvars];
 
   /* Allocate arrays for tridiagonal system */
-  double *A = weno->A;
-  double *B = weno->B;
-  double *C = weno->C;
-  double *F = weno->R;
+  double *A = compact->A;
+  double *B = compact->B;
+  double *C = compact->C;
+  double *F = compact->R;
 
 #pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,index_outer,indexC,indexI)
   for (sys=0; sys<Nsys; sys++) {
@@ -247,8 +248,8 @@ int Interp1PrimFifthOrderHCWENOChar(
   }
 
   /* Now get the solution to the last interface from the next proc */
-  double *sendbuf = weno->sendbuf;
-  double *recvbuf = weno->recvbuf;
+  double *sendbuf = compact->sendbuf;
+  double *recvbuf = compact->recvbuf;
   MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
   if (mpi->ip[dir]) for (d=0; d<Nsys*nvars; d++) sendbuf[d] = F[d];
   if (mpi->ip[dir] != mpi->iproc[dir]-1) MPI_Irecv(recvbuf,Nsys*nvars,MPI_DOUBLE,mpi->ip[dir]+1,214,mpi->comm[dir],&req[0]);

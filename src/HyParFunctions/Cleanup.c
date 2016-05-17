@@ -107,6 +107,12 @@ int Cleanup(
     IERR WENOCleanup(solver->interp); CHECKERR(ierr);
   }
   if (solver->interp)   free(solver->interp);
+  if (   (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_COMPACT_UPWIND_ )) 
+      || (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_CRWENO_         ))
+      || (!strcmp(solver->spatial_scheme_hyp,_FIFTH_ORDER_HCWENO_         )) ) {
+    IERR CompactSchemeCleanup(solver->compact); CHECKERR(ierr);
+  }
+  if (solver->compact)  free(solver->compact);
   if (solver->lusolver) free(solver->lusolver);
 
   /* Free the communicators created */

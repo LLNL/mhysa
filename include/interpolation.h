@@ -3,17 +3,21 @@
     @author Debojyoti Ghosh
 */
 
-/*! First order upwind scheme */
+/*! First order upwind scheme: Interp1PrimFirstOrderUpwind(), Interp1PrimFirstOrderUpwindChar() */
 #define _FIRST_ORDER_UPWIND_    "1"
-/*! Second order central scheme */
+/*! Second order central scheme: Interp1PrimSecondOrderCentral(), Interp1PrimSecondOrderCentralChar() */
 #define _SECOND_ORDER_CENTRAL_  "2"
-/*! Third order MUSCL scheme with Koren's limiter */
+/*! Third order MUSCL scheme with Koren's limiter: Interp1PrimThirdOrderMUSCL(), Interp1PrimThirdOrderMUSCLChar() */
 #define _THIRD_ORDER_MUSCL_     "muscl3"
-/*! Fifth order Weighted Essentially Non-Oscillatory (WENO) scheme */
+/*! Fifth order upwind scheme: Interp1PrimFifthOrderUpwind(), Interp1PrimFifthOrderUpwindChar() */
+#define _FIFTH_ORDER_UPWIND_      "upw5"
+/*! Fifth order compact upwind scheme: Interp1PrimFifthOrderCompactUpwind(), Interp1PrimFifthOrderCompactUpwindChar() */
+#define _FIFTH_ORDER_COMPACT_UPWIND_ "cupw5"
+/*! Fifth order Weighted Essentially Non-Oscillatory (WENO) scheme: Interp1PrimFifthOrderWENO(), Interp1PrimFifthOrderWENOChar() */
 #define _FIFTH_ORDER_WENO_      "weno5"
-/*! Fifth order Compact Reconstruction Weighted Essentially Non-Oscillatory (CRWENO) scheme */
+/*! Fifth order Compact Reconstruction Weighted Essentially Non-Oscillatory (CRWENO) scheme: Interp1PrimFifthOrderCRWENO(), Interp1PrimFifthOrderCRWENOChar() */
 #define _FIFTH_ORDER_CRWENO_    "crweno5"
-/*! Fifth order hybrid compact-WENO scheme */
+/*! Fifth order hybrid compact-WENO scheme: Interp1PrimFifthOrderHCWENO(), Interp1PrimFifthOrderHCWENOChar() */
 #define _FIFTH_ORDER_HCWENO_    "hcweno5"
 
 /* interpolation type definitions */
@@ -92,6 +96,10 @@ int Interp1PrimFirstOrderUpwind           (double*,double*,double*,double*,int,i
 int Interp1PrimSecondOrderCentral         (double*,double*,double*,double*,int,int,void*,void*,int);
 /*! Component-wise interpolation of the first primitive at the cell interfaces using the third-order MUSCL scheme */
 int Interp1PrimThirdOrderMUSCL            (double*,double*,double*,double*,int,int,void*,void*,int);
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order upwind scheme */
+int Interp1PrimFifthOrderUpwind           (double*,double*,double*,double*,int,int,void*,void*,int);
+/*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order compact upwind scheme */
+int Interp1PrimFifthOrderCompactUpwind    (double*,double*,double*,double*,int,int,void*,void*,int);
 /*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order WENO scheme */
 int Interp1PrimFifthOrderWENO             (double*,double*,double*,double*,int,int,void*,void*,int);
 /*! Component-wise interpolation of the first primitive at the cell interfaces using the fifth-order CRWENO scheme */
@@ -107,6 +115,10 @@ int Interp1PrimFirstOrderUpwindChar       (double*,double*,double*,double*,int,i
 int Interp1PrimSecondOrderCentralChar     (double*,double*,double*,double*,int,int,void*,void*,int);
 /*! Characteristic-based interpolation of the first primitive at the cell interfaces using the third-order MUSCL scheme */
 int Interp1PrimThirdOrderMUSCLChar        (double*,double*,double*,double*,int,int,void*,void*,int);
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order upwind scheme */
+int Interp1PrimFifthOrderUpwindChar       (double*,double*,double*,double*,int,int,void*,void*,int);
+/*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order compact upwind scheme */
+int Interp1PrimFifthOrderCompactUpwindChar(double*,double*,double*,double*,int,int,void*,void*,int);
 /*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order WENO scheme */
 int Interp1PrimFifthOrderWENOChar         (double*,double*,double*,double*,int,int,void*,void*,int);
 /*! Characteristic-based interpolation of the first primitive at the cell interfaces using the fifth-order CRWENO scheme */
@@ -159,16 +171,6 @@ typedef struct parameters_weno {
   */
   double  rc, /*!< Parameter for the hybrid compact-WENO scheme */
           xi; /*!< Parameter for the hybrid compact-WENO scheme */
-
-  /* CRWENO scheme: sub-, main-, and super-diagonals
-   * and the right-hand-side */
-  double *A, /*!< Array to save the sub-diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
-         *B, /*!< Array to save the diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
-         *C, /*!< Array to save the super-diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
-         *R;/*!< Array to save the right-hand-side of the tridiagonal system resulting from the fifth-order CRWENO scheme */
-  /* CRWENO scheme: buffer arrays for sending and receiving data */
-  double *sendbuf, /*!< Buffer array to send data across processors */
-         *recvbuf; /*!< Buffer array to receive data across processors */
 
   /* Arrays to save the WENO weights */
   double *w1, /*!< Array to save the first WENO weight */
@@ -406,3 +408,27 @@ int WENOCleanup(void*);
       w3[idx] = a3 * a_sum_inv; \
     } \
   }
+
+/*! \def CompactScheme
+    \brief Structure of variables/parameters needed by the compact schemes
+ * This structure contains the variables/parameters needed by a compact scheme (#_FIFTH_ORDER_COMPACT_UPWIND_, #_FIFTH_ORDER_CRWENO_, #_FIFTH_ORDER_HCWENO_).
+*/
+/*! \brief Structure of variables/parameters needed by the compact schemes
+ *
+ * This structure contains the variables/parameters needed by a compact scheme (#_FIFTH_ORDER_COMPACT_UPWIND_, #_FIFTH_ORDER_CRWENO_, #_FIFTH_ORDER_HCWENO_).
+*/
+typedef struct compact_scheme {
+
+  double *A, /*!< Array to save the sub-diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
+         *B, /*!< Array to save the diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
+         *C, /*!< Array to save the super-diagonal of the tridiagonal system resulting from the fifth-order CRWENO scheme */
+         *R;/*!< Array to save the right-hand-side of the tridiagonal system resulting from the fifth-order CRWENO scheme */
+  /* CRWENO scheme: buffer arrays for sending and receiving data */
+  double *sendbuf, /*!< Buffer array to send data across processors */
+         *recvbuf; /*!< Buffer array to receive data across processors */
+
+} CompactScheme;
+/*! Initialize the structure containing variables and parameters for compact schemes */
+int CompactSchemeInitialize(void*,void*,char*); 
+/*! Clean up the structure containing variables and parameters for compact schemes */
+int CompactSchemeCleanup(void*);

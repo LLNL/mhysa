@@ -18,8 +18,6 @@ int WENOFifthOrderInitializeWeights   (int,void*,void*);
   This function initializes the WENO-type methods.
   + Sets the parameters to default values.
   + Reads in the parameters from optional input file "weno.inp", if available.
-  + If a compact-type scheme is specified (i.e. CRWENO5), allocates the arrays
-    to store the tridiagonal system.
   + Allocates memory for and initializes the nonlinear weights used by WENO-type
     schemes.
 */
@@ -115,28 +113,6 @@ int WENOInitialize(
    * user input file, so that there's no confusion */
   if (weno->p != 2.0) {
     if (!mpi->rank) printf("Warning from WENOInitialize(): \"p\" parameter is 2.0. Any other value will be ignored!\n");
-  }
-
-  if (   (!strcmp(scheme,_FIFTH_ORDER_CRWENO_))
-      || (!strcmp(scheme,_FIFTH_ORDER_HCWENO_)) ) {
-    int size = 1, d;
-    for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d]+1);
-    size *= solver->nvars;
-    if (!strcmp(solver->interp_type,_CHARACTERISTIC_)) size *= solver->nvars;
-
-    weno->A = (double*) calloc (size, sizeof(double));
-    weno->B = (double*) calloc (size, sizeof(double));
-    weno->C = (double*) calloc (size, sizeof(double));
-    weno->R = (double*) calloc (size, sizeof(double));
-
-    weno->sendbuf = (double*) calloc (size, sizeof(double));
-    weno->recvbuf = (double*) calloc (size, sizeof(double));
-
-  } else {
-
-    weno->A = weno->B = weno->C = weno->R = NULL;
-    weno->sendbuf = weno->recvbuf = NULL;
-
   }
 
   weno->offset = (int*) calloc (ndims,sizeof(int));

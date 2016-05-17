@@ -1,6 +1,6 @@
-/*! @file Interp1PrimFifthOrderHCWENO.c
-    @author Debojyoti Ghosh
-    @brief hybrid compact-WENO5 Scheme (Component-wise application to vectors)
+/*! @file Interp1PrimFifthOrderCompactUpwind.c
+ *  @brief 5th order compact upwind scheme (component-wise application to vectors).
+ *  @author Debojyoti Ghosh
 */
 
 #include <stdio.h>
@@ -21,19 +21,28 @@
  * Minimum number of ghost points required for this interpolation 
  * method.
 */
-#define _MINIMUM_GHOSTS_ 3
+#define _MINIMUM_GHOSTS_ 3 
 
-/*! @brief 5th order hybrid compact-WENO reconstruction (component-wise) on a uniform grid
+/*! @brief 5th order compact upwind reconstruction (component-wise) on a uniform grid
 
     Computes the interpolated values of the first primitive of a function \f${\bf f}\left({\bf u}\right)\f$
-    at the interfaces from the cell-centered values of the function using the fifth order hybrid compact-WENO scheme on a 
-    uniform grid. The tridiagonal system is solved using tridiagLU() (see also #TridiagLU, tridiagLU.h). See references 
-    below for a complete description of the method implemented here.
+    at the interfaces from the cell-centered values of the function using the fifth order compact upwind scheme on a 
+    uniform grid. The first primitive is defined as a function \f${\bf h}\left({\bf u}\right)\f$ that satisfies:
+    \f{equation}{
+      {\bf f}\left({\bf u}\left(x\right)\right) = \frac{1}{\Delta x} \int_{x-\Delta x/2}^{x+\Delta x/2} {\bf h}\left({\bf u}\left(\zeta\right)\right)d\zeta,
+    \f}
+    where \f$x\f$ is the spatial coordinate along the dimension of the interpolation. This function computes the 5th order compact upwind numerical approximation 
+    \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as:
+    \f{align}{
+      \frac{3}{10}\hat{\bf f}_{j-1/2} + \frac{6}{10}\hat{\bf f}_{j+1/2} + \frac{1}{10}\hat{\bf f}_{j+3/2} = \frac{1}{30}{\bf f}_{j-1} + \frac{19}{30}{\bf f}_j + \frac{1}{3}{\bf f}_{j+1}.
+    \f}
+    The resulting tridiagonal system is solved using tridiagLU() (see also #TridiagLU, tridiagLU.h).
 
     \b Implementation \b Notes:
     + This method assumes a uniform grid in the spatial dimension corresponding to the interpolation.
+    + The method described above corresponds to a left-biased interpolation. The corresponding right-biased
+      interpolation can be obtained by reflecting the equations about interface j+1/2.
     + The scalar interpolation method is applied to the vector function in a component-wise manner.
-    + The WENO weights are computed in WENOFifthOrderCalculateWeights().
     + The function computes the interpolant for the entire grid in one call. It loops over all the grid lines along the interpolation direction
       and carries out the 1D interpolation along these grid lines.
     + Location of cell-centers and cell interfaces along the spatial dimension of the interpolation is shown in the following figure:
@@ -56,44 +65,46 @@
 
 
     \b Reference: 
-    + Pirozzoli, S., Conservative Hybrid Compact-WENO Schemes for Shock-Turbulence Interaction, J. Comput. Phys., 178 (1), 2002, pp. 81-117, http://dx.doi.org/10.1006/jcph.2002.7021
-    + Ren, Y.-X., Liu, M., Zhang, H., A characteristic-wise hybrid compact-WENO scheme for solving hyperbolic conservation laws, J. Comput. Phys., 192 (2), 2003, pp. 365-386, 
-      http://dx.doi.org/10.1016/j.jcp.2003.07.006
+    + Ghosh, D., Baeder, J. D., Compact Reconstruction Schemes with Weighted ENO Limiting 
+      for Hyperbolic Conservation Laws, SIAM Journal on Scientific Computing, 34 (3), 2012, A1678–A1706,
+      http://dx.doi.org/10.1137/110857659
  */
-int Interp1PrimFifthOrderHCWENO(
-                                double *fI,  /*!< Array of interpolated function values at the interfaces */
-                                double *fC,  /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
-                                double *u,   /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
-                                double *x,   /*!< Grid coordinates */
-                                int    upw,  /*!< Upwind direction (left or right biased) */
-                                int    dir,  /*!< Spatial dimension along which to interpolation */
-                                void   *s,   /*!< Object of type #HyPar containing solver-related variables */
-                                void   *m,   /*!< Object of type #MPIVariables containing MPI-related variables */
-                                int    uflag /*!< Flag to indicate if \f$f(u) \equiv u\f$, i.e, if the solution is being reconstructed */
-                               )
+int Interp1PrimFifthOrderCompactUpwind(
+                                        double *fI,  /*!< Array of interpolated function values at the interfaces */
+                                        double *fC,  /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                        double *u,   /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                        double *x,   /*!< Grid coordinates */
+                                        int    upw,  /*!< Upwind direction (left or right biased) */
+                                        int    dir,  /*!< Spatial dimension along which to interpolation */
+                                        void   *s,   /*!< Object of type #HyPar containing solver-related variables */
+                                        void   *m,   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                        int    uflag /*!< Flag to indicate if \f$f(u) \equiv u\f$, i.e, if the solution is being reconstructed */
+                                      )
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
   CompactScheme   *compact= (CompactScheme*)  solver->compact;
-  WENOParameters  *weno   = (WENOParameters*) solver->interp;
   TridiagLU       *lu     = (TridiagLU*)      solver->lusolver;
-  int             sys,Nsys,d;
+  int             sys,Nsys,d,v;
   _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;
   int ndims  = solver->ndims;
   int nvars  = solver->nvars;
   int *dim   = solver->dim_local;
+  int *stride= solver->stride_with_ghosts;
 
   /* define some constants */
-  static const double one_half           = 1.0/2.0;
-  static const double one_third          = 1.0/3.0;
-  static const double one_sixth          = 1.0/6.0;
-
-  double *ww1, *ww2, *ww3;
-  ww1 = weno->w1 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
-  ww2 = weno->w2 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
-  ww3 = weno->w3 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
+  static const double three_by_ten          = 3.0/10.0,
+                      six_by_ten            = 6.0/10.0,
+                      one_by_ten            = 1.0/10.0,
+                      one_by_thirty         = 1.0/30.0,
+                      nineteen_by_thirty    = 19.0/30.0,
+                      one_third             = 1.0/3.0,
+                      thirteen_by_sixty     = 13.0/60.0,
+                      fortyseven_by_sixty   = 47.0/60.0,
+                      twentyseven_by_sixty  = 27.0/60.0,
+                      one_by_twenty         = 1.0/20.0;
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
@@ -120,72 +131,56 @@ int Interp1PrimFifthOrderHCWENO(
       int qm1,qm2,qm3,qp1,qp2,p;
       _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
       if (upw > 0) {
-        indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
         indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
+        qm3 = qm1 - 2*stride[dir];
+        qm2 = qm1 -   stride[dir];
+        qp1 = qm1 +   stride[dir];
+        qp2 = qm1 + 2*stride[dir];
       } else {
-        indexC[dir] = indexI[dir]+2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
-        indexC[dir] = indexI[dir]+1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm2);
         indexC[dir] = indexI[dir]  ; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm1);
-        indexC[dir] = indexI[dir]-1; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp1);
-        indexC[dir] = indexI[dir]-2; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qp2);
+        qm3 = qm1 + 2*stride[dir];
+        qm2 = qm1 +   stride[dir];
+        qp1 = qm1 -   stride[dir];
+        qp2 = qm1 - 2*stride[dir];
       }
-      int v; 
-      for (v=0; v<nvars; v++)  {
-        /* Defining stencil points */
-        double fm3, fm2, fm1, fp1, fp2;
-        fm3 = fC[qm3*nvars+v];
-        fm2 = fC[qm2*nvars+v];
-        fm1 = fC[qm1*nvars+v];
-        fp1 = fC[qp1*nvars+v];
-        fp2 = fC[qp2*nvars+v];
 
-        /* Candidate stencils and their optimal weights*/
-        double f1, f2, f3;
-        f1 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1;
-        f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;
-        f3 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;
+      /* Defining stencil points */
+      double *fm3, *fm2, *fm1, *fp1, *fp2;
+      fm3 = fC+qm3*nvars;
+      fm2 = fC+qm2*nvars;
+      fm1 = fC+qm1*nvars;
+      fp1 = fC+qp1*nvars;
+      fp2 = fC+qp2*nvars;
 
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        w1 = *(ww1+p*nvars+v);
-        w2 = *(ww2+p*nvars+v);
-        w3 = *(ww3+p*nvars+v);
-
-        /* calculate the hybridization parameter */
-        double sigma;
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          /* Standard WENO at physical boundaries */
-          sigma = 0.0;
-        } else {
-          double cuckoo, df_jm12, df_jp12, df_jp32, r_j, r_jp1, r_int;
-          cuckoo = (0.9*weno->rc / (1.0-0.9*weno->rc)) * weno->xi * weno->xi;
-          df_jm12 = fm1 - fm2;
-          df_jp12 = fp1 - fm1;
-          df_jp32 = fp2 - fp1;
-          r_j   = (absolute(2*df_jp12*df_jm12)+cuckoo)/(df_jp12*df_jp12+df_jm12*df_jm12+cuckoo);
-          r_jp1 = (absolute(2*df_jp32*df_jp12)+cuckoo)/(df_jp32*df_jp32+df_jp12*df_jp12+cuckoo);
-          r_int = min(r_j, r_jp1);
-          sigma = min((r_int/weno->rc), 1.0); 
+      if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
+          || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+        /* Use 5th order upwind at the physical boundaries */
+        _ArraySetValue_ ((A+Nsys*indexI[dir]+sys*nvars),nvars,0.0)
+        _ArraySetValue_ ((B+Nsys*indexI[dir]+sys*nvars),nvars,1.0)
+        _ArraySetValue_ ((C+Nsys*indexI[dir]+sys*nvars),nvars,0.0)
+        for (v=0; v<nvars; v++) {
+          (R+Nsys*indexI[dir]+sys*nvars)[v] =   one_by_thirty         * fm3[v]
+                                              - thirteen_by_sixty     * fm2[v]
+                                              + fortyseven_by_sixty   * fm1[v]
+                                              + twentyseven_by_sixty  * fp1[v]
+                                              - one_by_twenty         * fp2[v];
         }
-
+      } else {
+        /* 5th order compact upwind at the interior points */
         if (upw > 0) {
-          A[sys*nvars+v+Nsys*indexI[dir]] = one_half  * sigma;
-          B[sys*nvars+v+Nsys*indexI[dir]] = 1.0;
-          C[sys*nvars+v+Nsys*indexI[dir]] = one_sixth * sigma;
+          _ArraySetValue_((A+Nsys*indexI[dir]+sys*nvars),three_by_ten ,nvars);
+          _ArraySetValue_((B+Nsys*indexI[dir]+sys*nvars),six_by_ten   ,nvars);
+          _ArraySetValue_((C+Nsys*indexI[dir]+sys*nvars),one_by_ten   ,nvars);
         } else {
-          C[sys*nvars+v+Nsys*indexI[dir]] = one_half  * sigma;
-          B[sys*nvars+v+Nsys*indexI[dir]] = 1.0;
-          A[sys*nvars+v+Nsys*indexI[dir]] = one_sixth * sigma;
+          _ArraySetValue_((C+Nsys*indexI[dir]+sys*nvars),three_by_ten ,nvars);
+          _ArraySetValue_((B+Nsys*indexI[dir]+sys*nvars),six_by_ten   ,nvars);
+          _ArraySetValue_((A+Nsys*indexI[dir]+sys*nvars),one_by_ten   ,nvars);
         }
-
-        double fWENO, fCompact;
-        fWENO    = w1*f1 + w2*f2 + w3*f3;
-        fCompact = one_sixth * (one_third*fm2 + 19.0*one_third*fm1 + 10.0*one_third*fp1);
-        R[sys*nvars+v+Nsys*indexI[dir]] =   sigma*fCompact + (1.0-sigma)*fWENO;
+        for (v=0; v<nvars; v++) {
+          (R+Nsys*indexI[dir]+sys*nvars)[v] =   one_by_thirty      * fm2[v]
+                                              + nineteen_by_thirty * fm1[v]
+                                              + one_third          * fp1[v];
+        }
       }
     }
   }

@@ -1,6 +1,6 @@
-/*! @file Interp1PrimFifthOrderCRWENOChar.c
+/*! @file Interp1PrimFifthOrderCompactUpwindChar.c
     @author Debojyoti Ghosh
-    @brief Characteristic-based CRWENO5 Scheme
+    @brief Characteristic-based 5th order Compact Upwind Scheme
 */
 
 #include <stdio.h>
@@ -23,27 +23,24 @@
 */
 #define _MINIMUM_GHOSTS_ 3
 
-/*! @brief 5th order CRWENO reconstruction (characteristic-based) on a uniform grid
+/*! @brief 5th order compact upwind reconstruction (characteristic-based) on a uniform grid
 
     Computes the interpolated values of the first primitive of a function \f${\bf f}\left({\bf u}\right)\f$
-    at the interfaces from the cell-centered values of the function using the fifth order CRWENO scheme on a 
+    at the interfaces from the cell-centered values of the function using the fifth order compact upwind scheme on a 
     uniform grid. The first primitive is defined as a function \f${\bf h}\left({\bf u}\right)\f$ that satisfies:
     \f{equation}{
       {\bf f}\left({\bf u}\left(x\right)\right) = \frac{1}{\Delta x} \int_{x-\Delta x/2}^{x+\Delta x/2} {\bf h}\left({\bf u}\left(\zeta\right)\right)d\zeta,
     \f}
-    where \f$x\f$ is the spatial coordinate along the dimension of the interpolation. This function computes the 5th order CRWENO numerical approximation 
-    \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as the convex combination of three 3rd order methods:
+    where \f$x\f$ is the spatial coordinate along the dimension of the interpolation. This function computes the 5th order compact upwind numerical 
+    approximation \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as:
     \f{align}{
-        &\ \omega_1\ \times\ \left[ \frac{2}{3}\hat{\alpha}^k_{j-1/2} + \frac{1}{3}\hat{\alpha}^k_{j+1/2} = \frac{1}{6} \left( f_{j-1} + 5f_j \right) \right]\\
-      + &\ \omega_2\ \times\ \left[ \frac{1}{3}\hat{\alpha}^k_{j-1/2}+\frac{2}{3}\hat{\alpha}^k_{j+1/2} = \frac{1}{6} \left( 5f_j + f_{j+1} \right) \right]  \\
-      + &\ \omega_3\ \times\ \left[ \frac{2}{3}\hat{\alpha}^k_{j+1/2} + \frac{1}{3}\hat{\alpha}^k_{j+3/2} = \frac{1}{6} \left( f_j + 5f_{j+1} \right) \right] \\
-      \Rightarrow &\ \left(\frac{2}{3}\omega_1+\frac{1}{3}\omega_2\right)\hat{\alpha}^k_{j-1/2} + \left[\frac{1}{3}\omega_1+\frac{2}{3}(\omega_2+\omega_3)\right]\hat{\alpha}^k_{j+1/2} + \frac{1}{3}\omega_3\hat{\alpha}^k_{j+3/2} = \frac{\omega_1}{6}{\alpha}^k_{j-1} + \frac{5(\omega_1+\omega_2)+\omega_3}{6}{\alpha}^k_j + \frac{\omega_2+5\omega_3}{6}{\alpha}^k_{j+1},
+      \frac{3}{10}\hat{\alpha}^k_{j-1/2} + \frac{6}{10}\hat{\alpha}^k_{j+1/2} + \frac{1}{10}\hat{\alpha}^k_{j+3/2} = \frac{}{30}{\alpha}^k_{j-1} + \frac{19}{30}{\alpha}^k_j + \frac{1}{3}{\alpha}^k_{j+1},
     \f}
     where
     \f{equation}{
       \alpha^k = {\bf l}_k \cdot {\bf f},\ k=1,\cdots,n
     \f}
-    is the \f$k\f$-th characteristic quantity, and \f${\bf l}_k\f$ is the \f$k\f$-th left eigenvector, \f${\bf r}_k\f$ is the \f$k\f$-th right eigenvector, and \f$n\f$ is #HyPar::nvars. The nonlinear weights \f$\omega_k; k=1,2,3\f$ are the WENO weights computed in WENOFifthOrderCalculateWeightsChar(). The resulting block tridiagonal system is solved using blocktridiagLU() (see also #TridiagLU, tridiagLU.h). The final interpolated function is computed from the interpolated characteristic quantities as:
+    is the \f$k\f$-th characteristic quantity, and \f${\bf l}_k\f$ is the \f$k\f$-th left eigenvector, \f${\bf r}_k\f$ is the \f$k\f$-th right eigenvector, and \f$n\f$ is #HyPar::nvars. The resulting block tridiagonal system is solved using blocktridiagLU() (see also #TridiagLU, tridiagLU.h). The final interpolated function is computed from the interpolated characteristic quantities as:
     \f{equation}{
       \hat{\bf f}_{j+1/2} = \sum_{k=1}^n \alpha^k_{j+1/2} {\bf r}_k
     \f}
@@ -89,22 +86,21 @@
       SIAM Journal on Scientific Computing, 37 (3), 2015, C354–C383,
       http://dx.doi.org/10.1137/140989261
  */
-int Interp1PrimFifthOrderCRWENOChar(
-                                    double *fI,  /*!< Array of interpolated function values at the interfaces */
-                                    double *fC,  /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
-                                    double *u,   /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
-                                    double *x,   /*!< Grid coordinates */
-                                    int    upw,  /*!< Upwind direction (left or right biased) */
-                                    int    dir,  /*!< Spatial dimension along which to interpolation */
-                                    void   *s,   /*!< Object of type #HyPar containing solver-related variables */
-                                    void   *m,   /*!< Object of type #MPIVariables containing MPI-related variables */
-                                    int    uflag /*!< Flag to indicate if \f$f(u) \equiv u\f$, i.e, if the solution is being reconstructed */
-                                   )
+int Interp1PrimFifthOrderCompactUpwindChar(
+                                            double *fI,  /*!< Array of interpolated function values at the interfaces */
+                                            double *fC,  /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
+                                            double *u,   /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
+                                            double *x,   /*!< Grid coordinates */
+                                            int    upw,  /*!< Upwind direction (left or right biased) */
+                                            int    dir,  /*!< Spatial dimension along which to interpolation */
+                                            void   *s,   /*!< Object of type #HyPar containing solver-related variables */
+                                            void   *m,   /*!< Object of type #MPIVariables containing MPI-related variables */
+                                            int    uflag /*!< Flag to indicate if \f$f(u) \equiv u\f$, i.e, if the solution is being reconstructed */
+                                          )
 {
   HyPar           *solver = (HyPar*)          s;
   MPIVariables    *mpi    = (MPIVariables*)   m;
   CompactScheme   *compact= (CompactScheme*)  solver->compact;
-  WENOParameters  *weno   = (WENOParameters*) solver->interp;
   TridiagLU       *lu     = (TridiagLU*)      solver->lusolver;
   int             sys,Nsys,d,v,k;
   _DECLARE_IERR_;
@@ -115,13 +111,16 @@ int Interp1PrimFifthOrderCRWENOChar(
   int *dim   = solver->dim_local;
 
   /* define some constants */
-  static const double one_third          = 1.0/3.0;
-  static const double one_sixth          = 1.0/6.0;
-
-  double *ww1, *ww2, *ww3;
-  ww1 = weno->w1 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
-  ww2 = weno->w2 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
-  ww3 = weno->w3 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
+  static const double three_by_ten          = 3.0/10.0,
+                      six_by_ten            = 6.0/10.0,
+                      one_by_ten            = 1.0/10.0,
+                      one_by_thirty         = 1.0/30.0,
+                      nineteen_by_thirty    = 19.0/30.0,
+                      one_third             = 1.0/3.0,
+                      thirteen_by_sixty     = 13.0/60.0,
+                      fortyseven_by_sixty   = 47.0/60.0,
+                      twentyseven_by_sixty  = 27.0/60.0,
+                      one_by_twenty         = 1.0/20.0;
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
@@ -185,50 +184,38 @@ int Interp1PrimFifthOrderCRWENOChar(
           fp2 += L[v*nvars+k] * fC[qp2*nvars+k];
         }
 
-        /* Candidate stencils and their optimal weights*/
-        double f1, f2, f3;
         if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
             || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          /* Use WENO5 at the physical boundaries */
-          f1 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1;
-          f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;
-          f3 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;
-        } else {
-          /* CRWENO5 at the interior points */
-          f1 = (one_sixth) * (fm2 + 5*fm1);
-          f2 = (one_sixth) * (5*fm1 + fp1);
-          f3 = (one_sixth) * (fm1 + 5*fp1);
-        }
-
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        w1 = *(ww1+p*nvars+v);
-        w2 = *(ww2+p*nvars+v);
-        w3 = *(ww3+p*nvars+v);
-
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
+          /* Use 5th order upwind at the physical boundaries */
           for (k=0; k<nvars; k++) {
             A[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = 0.0;
             C[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = 0.0;
             B[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = L[v*nvars+k];
           }
+          F[(Nsys*indexI[dir]+sys)*nvars+v] =   one_by_thirty         * fm3
+                                              - thirteen_by_sixty     * fm2
+                                              + fortyseven_by_sixty   * fm1
+                                              + twentyseven_by_sixty  * fp1
+                                              - one_by_twenty         * fp2;
         } else {
+          /* 5th order compact upwind at the interior points */
           if (upw > 0) {
             for (k=0; k<nvars; k++) {
-              A[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((2*one_third)*w1 + (one_third)*w2)      * L[v*nvars+k];
-              B[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((one_third)*w1 + (2*one_third)*(w2+w3)) * L[v*nvars+k];
-              C[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((one_third)*w3)                         * L[v*nvars+k];
+              A[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = three_by_ten * L[v*nvars+k];
+              B[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = six_by_ten   * L[v*nvars+k];
+              C[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = one_by_ten   * L[v*nvars+k];
             }
           } else {
             for (k=0; k<nvars; k++) {
-              C[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((2*one_third)*w1 + (one_third)*w2)      * L[v*nvars+k];
-              B[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((one_third)*w1 + (2*one_third)*(w2+w3)) * L[v*nvars+k];
-              A[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((one_third)*w3)                         * L[v*nvars+k];
+              C[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = three_by_ten * L[v*nvars+k];
+              B[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = six_by_ten   * L[v*nvars+k];
+              A[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = one_by_ten   * L[v*nvars+k];
             }
           }
+          F[(Nsys*indexI[dir]+sys)*nvars+v] =   one_by_thirty      * fm2
+                                              + nineteen_by_thirty * fm1
+                                              + one_third          * fp1;
         }
-        F[(Nsys*indexI[dir]+sys)*nvars+v] = w1*f1 + w2*f2 + w3*f3;
       }
     }
   }

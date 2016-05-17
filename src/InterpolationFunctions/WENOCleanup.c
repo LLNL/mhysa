@@ -15,14 +15,6 @@ int WENOCleanup(void *s /*!< WENO object of type #WENOParameters */ )
 {
   WENOParameters  *weno   = (WENOParameters*) s;
 
-  if (weno->A) free(weno->A);
-  if (weno->B) free(weno->B);
-  if (weno->C) free(weno->C);
-  if (weno->R) free(weno->R);
-
-  if (weno->sendbuf) free(weno->sendbuf);
-  if (weno->recvbuf) free(weno->recvbuf);
-
   free(weno->offset);
   free(weno->w1);
   free(weno->w2);

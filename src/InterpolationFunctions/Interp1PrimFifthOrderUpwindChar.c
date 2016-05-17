@@ -1,14 +1,13 @@
-/*! @file Interp1PrimFifthOrderCRWENOChar.c
+/*! @file Interp1PrimFifthOrderUpwindChar.c
     @author Debojyoti Ghosh
-    @brief Characteristic-based CRWENO5 Scheme
+    @brief Characteristic-based Fifth-order Upwind Scheme
 */
 
-#include <stdio.h>
+#include <stdlib.h>
 #include <basic.h>
 #include <arrayfunctions.h>
 #include <mathfunctions.h>
 #include <interpolation.h>
-#include <tridiagLU.h>
 #include <mpivars.h>
 #include <hypar.h>
 
@@ -23,27 +22,24 @@
 */
 #define _MINIMUM_GHOSTS_ 3
 
-/*! @brief 5th order CRWENO reconstruction (characteristic-based) on a uniform grid
+/*! @brief 5th order upwind reconstruction (characteristic-based) on a uniform grid
 
     Computes the interpolated values of the first primitive of a function \f${\bf f}\left({\bf u}\right)\f$
-    at the interfaces from the cell-centered values of the function using the fifth order CRWENO scheme on a 
+    at the interfaces from the cell-centered values of the function using the fifth order upwind scheme on a 
     uniform grid. The first primitive is defined as a function \f${\bf h}\left({\bf u}\right)\f$ that satisfies:
     \f{equation}{
       {\bf f}\left({\bf u}\left(x\right)\right) = \frac{1}{\Delta x} \int_{x-\Delta x/2}^{x+\Delta x/2} {\bf h}\left({\bf u}\left(\zeta\right)\right)d\zeta,
     \f}
-    where \f$x\f$ is the spatial coordinate along the dimension of the interpolation. This function computes the 5th order CRWENO numerical approximation 
-    \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as the convex combination of three 3rd order methods:
+    where \f$x\f$ is the spatial coordinate along the dimension of the interpolation. This function computes the 5th order upwind numerical approximation \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as:
     \f{align}{
-        &\ \omega_1\ \times\ \left[ \frac{2}{3}\hat{\alpha}^k_{j-1/2} + \frac{1}{3}\hat{\alpha}^k_{j+1/2} = \frac{1}{6} \left( f_{j-1} + 5f_j \right) \right]\\
-      + &\ \omega_2\ \times\ \left[ \frac{1}{3}\hat{\alpha}^k_{j-1/2}+\frac{2}{3}\hat{\alpha}^k_{j+1/2} = \frac{1}{6} \left( 5f_j + f_{j+1} \right) \right]  \\
-      + &\ \omega_3\ \times\ \left[ \frac{2}{3}\hat{\alpha}^k_{j+1/2} + \frac{1}{3}\hat{\alpha}^k_{j+3/2} = \frac{1}{6} \left( f_j + 5f_{j+1} \right) \right] \\
-      \Rightarrow &\ \left(\frac{2}{3}\omega_1+\frac{1}{3}\omega_2\right)\hat{\alpha}^k_{j-1/2} + \left[\frac{1}{3}\omega_1+\frac{2}{3}(\omega_2+\omega_3)\right]\hat{\alpha}^k_{j+1/2} + \frac{1}{3}\omega_3\hat{\alpha}^k_{j+3/2} = \frac{\omega_1}{6}{\alpha}^k_{j-1} + \frac{5(\omega_1+\omega_2)+\omega_3}{6}{\alpha}^k_j + \frac{\omega_2+5\omega_3}{6}{\alpha}^k_{j+1},
+      \hat{\alpha}^k_{j+1/2} = \frac{1}{30} {\alpha}^k_{j-2} - \frac{13}{60}{\alpha}^k_{j-1} + \frac{47}{60}{\alpha}^k_j + \frac{27}{60}{\alpha}^k_{j+1} - \frac{1}{20}{\alpha}^k_{j+2},
     \f}
     where
     \f{equation}{
       \alpha^k = {\bf l}_k \cdot {\bf f},\ k=1,\cdots,n
     \f}
-    is the \f$k\f$-th characteristic quantity, and \f${\bf l}_k\f$ is the \f$k\f$-th left eigenvector, \f${\bf r}_k\f$ is the \f$k\f$-th right eigenvector, and \f$n\f$ is #HyPar::nvars. The nonlinear weights \f$\omega_k; k=1,2,3\f$ are the WENO weights computed in WENOFifthOrderCalculateWeightsChar(). The resulting block tridiagonal system is solved using blocktridiagLU() (see also #TridiagLU, tridiagLU.h). The final interpolated function is computed from the interpolated characteristic quantities as:
+    is the \f$k\f$-th characteristic quantity, and \f${\bf l}_k\f$ is the \f$k\f$-th left eigenvector, \f${\bf r}_k\f$ is the \f$k\f$-th right eigenvector, and \f$n\f$ is #HyPar::nvars. 
+    The final interpolated function is computed from the interpolated characteristic quantities as:
     \f{equation}{
       \hat{\bf f}_{j+1/2} = \sum_{k=1}^n \alpha^k_{j+1/2} {\bf r}_k
     \f}
@@ -82,14 +78,9 @@
 
 
     \b Reference: 
-    + Ghosh, D., Baeder, J. D., Compact Reconstruction Schemes with Weighted ENO Limiting 
-      for Hyperbolic Conservation Laws, SIAM Journal on Scientific Computing, 34 (3), 2012, A1678–A1706,
-      http://dx.doi.org/10.1137/110857659
-    + Ghosh, D., Constantinescu, E. M., Brown, J., Efficient Implementation of Nonlinear Compact Schemes on Massively Parallel Platforms, 
-      SIAM Journal on Scientific Computing, 37 (3), 2015, C354–C383,
-      http://dx.doi.org/10.1137/140989261
+    + Jiang, G.-S., Shu, C.-W., Efficient Implementation of Weighted ENO Schemes, J. Comput. Phys., 126 (1), 1996, pp. 202-228, http://dx.doi.org/10.1006/jcph.1996.0130
  */
-int Interp1PrimFifthOrderCRWENOChar(
+int Interp1PrimFifthOrderUpwindChar(
                                     double *fI,  /*!< Array of interpolated function values at the interfaces */
                                     double *fC,  /*!< Array of cell-centered values of the function \f${\bf f}\left({\bf u}\right)\f$ */
                                     double *u,   /*!< Array of cell-centered values of the solution \f${\bf u}\f$ */
@@ -101,12 +92,8 @@ int Interp1PrimFifthOrderCRWENOChar(
                                     int    uflag /*!< Flag to indicate if \f$f(u) \equiv u\f$, i.e, if the solution is being reconstructed */
                                    )
 {
-  HyPar           *solver = (HyPar*)          s;
-  MPIVariables    *mpi    = (MPIVariables*)   m;
-  CompactScheme   *compact= (CompactScheme*)  solver->compact;
-  WENOParameters  *weno   = (WENOParameters*) solver->interp;
-  TridiagLU       *lu     = (TridiagLU*)      solver->lusolver;
-  int             sys,Nsys,d,v,k;
+  HyPar           *solver = (HyPar*) s;
+  int             i, k, v;
   _DECLARE_IERR_;
 
   int ghosts = solver->ghosts;
@@ -115,38 +102,31 @@ int Interp1PrimFifthOrderCRWENOChar(
   int *dim   = solver->dim_local;
 
   /* define some constants */
-  static const double one_third          = 1.0/3.0;
-  static const double one_sixth          = 1.0/6.0;
-
-  double *ww1, *ww2, *ww3;
-  ww1 = weno->w1 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
-  ww2 = weno->w2 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
-  ww3 = weno->w3 + (upw < 0 ? 2*weno->size : 0) + (uflag ? weno->size : 0) + weno->offset[dir];
+  static const double one_by_thirty        = 1.0/30.0,
+                      thirteen_by_sixty    = 13.0/60.0,
+                      fortyseven_by_sixty  = 47.0/60.0,
+                      twentyseven_by_sixty = 27.0/60.0,
+                      one_by_twenty        = 1.0/20.0;
 
   /* create index and bounds for the outer loop, i.e., to loop over all 1D lines along
      dimension "dir"                                                                    */
   int indexC[ndims], indexI[ndims], index_outer[ndims], bounds_outer[ndims], bounds_inter[ndims];
   _ArrayCopy1D_(dim,bounds_outer,ndims); bounds_outer[dir] =  1;
   _ArrayCopy1D_(dim,bounds_inter,ndims); bounds_inter[dir] += 1;
-
-  /* calculate total number of block tridiagonal systems to solve */
-  _ArrayProduct1D_(bounds_outer,ndims,Nsys);
+  int N_outer; _ArrayProduct1D_(bounds_outer,ndims,N_outer);
 
   /* allocate arrays for the averaged state, eigenvectors and characteristic interpolated f */
-  double R[nvars*nvars], L[nvars*nvars], uavg[nvars];
+  double R[nvars*nvars], L[nvars*nvars], uavg[nvars], fchar[nvars];
 
-  /* Allocate arrays for tridiagonal system */
-  double *A = compact->A;
-  double *B = compact->B;
-  double *C = compact->C;
-  double *F = compact->R;
-
-#pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,index_outer,indexC,indexI)
-  for (sys=0; sys<Nsys; sys++) {
-    _ArrayIndexnD_(ndims,sys,bounds_outer,index_outer,0);
+#pragma omp parallel for schedule(auto) default(shared) private(i,k,v,R,L,uavg,fchar,index_outer,indexC,indexI)
+  for (i=0; i<N_outer; i++) {
+    _ArrayIndexnD_(ndims,i,bounds_outer,index_outer,0);
     _ArrayCopy1D_(index_outer,indexC,ndims);
     _ArrayCopy1D_(index_outer,indexI,ndims);
+
     for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
+
+      /* 1D indices of the stencil grid points */
       int qm1,qm2,qm3,qp1,qp2;
       if (upw > 0) {
         indexC[dir] = indexI[dir]-3; _ArrayIndex1D_(ndims,dim,indexC,ghosts,qm3);
@@ -172,7 +152,8 @@ int Interp1PrimFifthOrderCRWENOChar(
       IERR solver->GetLeftEigenvectors  (uavg,L,solver->physics,dir); CHECKERR(ierr);
       IERR solver->GetRightEigenvectors (uavg,R,solver->physics,dir); CHECKERR(ierr);
 
-      for (v=0; v<nvars; v++)  {
+      /* For each characteristic field */
+      for (v = 0; v < nvars; v++) {
 
         /* calculate the characteristic flux components along this characteristic */
         double fm3, fm2, fm1, fp1, fp2;
@@ -185,89 +166,17 @@ int Interp1PrimFifthOrderCRWENOChar(
           fp2 += L[v*nvars+k] * fC[qp2*nvars+k];
         }
 
-        /* Candidate stencils and their optimal weights*/
-        double f1, f2, f3;
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          /* Use WENO5 at the physical boundaries */
-          f1 = (2*one_sixth)*fm3 - (7.0*one_sixth)*fm2 + (11.0*one_sixth)*fm1;
-          f2 = (-one_sixth)*fm2 + (5.0*one_sixth)*fm1 + (2*one_sixth)*fp1;
-          f3 = (2*one_sixth)*fm1 + (5*one_sixth)*fp1 - (one_sixth)*fp2;
-        } else {
-          /* CRWENO5 at the interior points */
-          f1 = (one_sixth) * (fm2 + 5*fm1);
-          f2 = (one_sixth) * (5*fm1 + fp1);
-          f3 = (one_sixth) * (fm1 + 5*fp1);
-        }
-
-        /* calculate WENO weights */
-        double w1,w2,w3;
-        w1 = *(ww1+p*nvars+v);
-        w2 = *(ww2+p*nvars+v);
-        w3 = *(ww3+p*nvars+v);
-
-        if (   ((mpi->ip[dir] == 0                ) && (indexI[dir] == 0       ))
-            || ((mpi->ip[dir] == mpi->iproc[dir]-1) && (indexI[dir] == dim[dir])) ) {
-          for (k=0; k<nvars; k++) {
-            A[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = 0.0;
-            C[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = 0.0;
-            B[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = L[v*nvars+k];
-          }
-        } else {
-          if (upw > 0) {
-            for (k=0; k<nvars; k++) {
-              A[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((2*one_third)*w1 + (one_third)*w2)      * L[v*nvars+k];
-              B[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((one_third)*w1 + (2*one_third)*(w2+w3)) * L[v*nvars+k];
-              C[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((one_third)*w3)                         * L[v*nvars+k];
-            }
-          } else {
-            for (k=0; k<nvars; k++) {
-              C[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((2*one_third)*w1 + (one_third)*w2)      * L[v*nvars+k];
-              B[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((one_third)*w1 + (2*one_third)*(w2+w3)) * L[v*nvars+k];
-              A[(Nsys*indexI[dir]+sys)*nvars*nvars+v*nvars+k] = ((one_third)*w3)                         * L[v*nvars+k];
-            }
-          }
-        }
-        F[(Nsys*indexI[dir]+sys)*nvars+v] = w1*f1 + w2*f2 + w3*f3;
+        /* fifth order upwind approximation of the characteristic flux */
+        fchar[v] =    one_by_thirty         * fm3
+                   -  thirteen_by_sixty     * fm2
+                   +  fortyseven_by_sixty   * fm1
+                   +  twentyseven_by_sixty  * fp1
+                   -  one_by_twenty         * fp2;
       }
-    }
-  }
 
-#ifdef serial
+      /* calculate the interface u from the characteristic u */
+      IERR MatVecMult(nvars,(fI+nvars*p),R,fchar); CHECKERR(ierr);
 
-  /* Solve the tridiagonal system */
-  IERR blocktridiagLU(A,B,C,F,dim[dir]+1,Nsys,nvars,lu,NULL); CHECKERR(ierr);
-
-#else
-
-  /* Solve the tridiagonal system */
-  /* all processes except the last will solve without the last interface to avoid overlap */
-  if (mpi->ip[dir] != mpi->iproc[dir]-1)  { 
-    IERR blocktridiagLU(A,B,C,F,dim[dir]  ,Nsys,nvars,lu,&mpi->comm[dir]); CHECKERR(ierr); 
-  } else { 
-    IERR blocktridiagLU(A,B,C,F,dim[dir]+1,Nsys,nvars,lu,&mpi->comm[dir]); CHECKERR(ierr);
-  }
-
-  /* Now get the solution to the last interface from the next proc */
-  double *sendbuf = compact->sendbuf;
-  double *recvbuf = compact->recvbuf;
-  MPI_Request req[2] = {MPI_REQUEST_NULL,MPI_REQUEST_NULL};
-  if (mpi->ip[dir]) for (d=0; d<Nsys*nvars; d++) sendbuf[d] = F[d];
-  if (mpi->ip[dir] != mpi->iproc[dir]-1) MPI_Irecv(recvbuf,Nsys*nvars,MPI_DOUBLE,mpi->ip[dir]+1,214,mpi->comm[dir],&req[0]);
-  if (mpi->ip[dir])                      MPI_Isend(sendbuf,Nsys*nvars,MPI_DOUBLE,mpi->ip[dir]-1,214,mpi->comm[dir],&req[1]);
-  MPI_Waitall(2,&req[0],MPI_STATUS_IGNORE);
-  if (mpi->ip[dir] != mpi->iproc[dir]-1) for (d=0; d<Nsys*nvars; d++) F[d+Nsys*nvars*dim[dir]] = recvbuf[d];
-
-#endif
-
-  /* save the solution to fI */
-#pragma omp parallel for schedule(auto) default(shared) private(sys,d,v,k,R,L,uavg,index_outer,indexC,indexI)
-  for (sys=0; sys<Nsys; sys++) {
-    _ArrayIndexnD_(ndims,sys,bounds_outer,index_outer,0);
-    _ArrayCopy1D_(index_outer,indexI,ndims);
-    for (indexI[dir] = 0; indexI[dir] < dim[dir]+1; indexI[dir]++) {
-      int p; _ArrayIndex1D_(ndims,bounds_inter,indexI,0,p);
-      _ArrayCopy1D_((F+sys*nvars+Nsys*nvars*indexI[dir]),(fI+nvars*p),nvars);
     }
   }
 
