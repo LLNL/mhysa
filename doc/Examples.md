@@ -2231,11 +2231,12 @@ Implicit time integration:
 --------------------------
 \subpage linear_diff_sine_petsc \n
 \subpage linear_diff_sine2d_petsc (with local truncation error-based adaptive time-step) \n
+\subpage euler2d_vortex_petsc \n
 \subpage navstok2d_flatplate_petsc
 
 Implicit-Explicit (IMEX) time integration:
 ------------------------------------------
-\subpage euler2d_rtb_petsc (with local truncation error-based adaptive time-step) \n
+\subpage euler2d_rtb_petsc_imex (with local truncation error-based adaptive time-step) \n
 \subpage ns3d_bubble_petsc
 
 
@@ -2579,9 +2580,9 @@ Expected screen output:
 \include 2D/LinearDiffusion/SineWave_PETSc/output.log
 
 
-\page euler2d_rtb_petsc 2D Euler Equations (with gravitational force) - Rising Thermal Bubble
+\page euler2d_rtb_petsc_imex 2D Euler Equations (with gravitational force) - Rising Thermal Bubble
 
-Location: \b hypar/Examples/2D/NavierStokes2D/RisingThermalBubble_PETSc
+Location: \b hypar/Examples/2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX
           (This directory contains all the input files needed
           to run this case. If there is a \a Run.m, run it in
           MATLAB to quickly set up, run, and visualize the 
@@ -2631,23 +2632,23 @@ Input files required:
 ---------------------
 
 <B>.petscrc</B>
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/petscrc
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/petscrc
 
 \b solver.inp
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/solver.inp
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/solver.inp
 
 \b boundary.inp
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/boundary.inp
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/boundary.inp
 
 \b physics.inp
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/physics.inp
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/physics.inp
 
 \b weno.inp (optional)
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/weno.inp
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/weno.inp
 
 To generate \b initial.inp (initial solution), compile 
 and run the following code in the run directory.
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/aux/init.c
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/aux/init.c
 
 Output:
 -------
@@ -2675,7 +2676,7 @@ can be used to compute and plot the temperature and density
 perturbations. These variables are then written to either
 a tecplot2d or text file.
 (compile and run it in the run directory):
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/aux/PostProcess.c
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/aux/PostProcess.c
 
 The following plot shows the potential temperature perturbation
 contours at the final time t=200s. 
@@ -2683,11 +2684,11 @@ contours at the final time t=200s.
 It was plotted by using the 
 above postprocessing code to write the solution in text format
 and using the following MATLAB script:
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/PlotSolution.m
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/PlotSolution.m
 
 The file <B>function_counts.dat</B> reports the computational expense
 (in terms of the number of function counts):
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/function_counts.dat
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/function_counts.dat
 The numbers are, respectively,
 + Time iterations
 + Number of times the hyperbolic term was evaluated
@@ -2699,7 +2700,7 @@ The numbers are, respectively,
 + Number of calls to the matrix-free Jacobian function (PetscJacobianFunctionIMEX_Linear(), PetscJacobianFunctionIMEX_JFNK(), PetscJacobianFunction_JFNK(), or PetscJacobianFunction_Linear()).
 
 Expected screen output:
-\include 2D/NavierStokes2D/RisingThermalBubble_PETSc/output.log
+\include 2D/NavierStokes2D/RisingThermalBubble_PETSc_IMEX/output.log
 
 
 \page navstok2d_flatplate_petsc 2D Navier-Stokes Equations -  Laminar Flow over Flat Plate
@@ -2976,4 +2977,137 @@ The numbers are, respectively,
 
 Expected screen output:
 \include 3D/NavierStokes3D/RisingThermalBubble_PETSc_IMEX/output.log
+
+
+\page euler2d_vortex_petsc 2D Euler Equations - Isentropic Vortex Convection
+
+Location: \b hypar/Examples/2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h - By default,
+                     #NavierStokes2D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 2D Euler
+                     equations are solved.)
+
+Reference: C.-W. Shu, "Essentially Non-oscillatory and Weighted Essentially 
+           Non-oscillatory Schemes for Hyperbolic Conservation Laws", 
+           ICASE Report 97-65, 1997
+
+Domain: \f$0 \le x,y \le 10\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions.
+
+Initial solution: The freestream flow is given by
+\f{equation}{
+  \rho_\infty = 1,\ u_\infty = 0.1,\ v_\infty = 0,\ p_\infty = 1
+\f}
+and a vortex is introduced, specified as
+\f{align}{
+\rho &= \left[ 1 - \frac{\left(\gamma-1\right)b^2}{8\gamma\pi^2} e^{1-r^2} \right]^{\frac{1}{\gamma-1}},\ p = \rho^\gamma, \\
+u &= u_\infty - \frac{b}{2\pi} e^{\frac{1}{2}\left(1-r^2\right)} \left(y-y_c\right),\ v = v_\infty + \frac{b}{2\pi} e^{\frac{1}{2}\left(1-r^2\right)} \left(x-x_c\right),
+\f}
+where \f$b=0.5\f$ is the vortex strength and \f$r = \left[(x-x_c)^2 + (y-y_c)^2 \right]^{1/2}\f$ is the distance from the vortex center \f$\left(x_c,y_c\right) = \left(5,5\right)\f$.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order compact upwind (Interp1PrimFifthOrderCompactUpwind())
+ + Time integration: PETSc (SolvePETSc()) - <B>Crank-Nicholson</B> (TSCN - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSCN.html)
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/petscrc
+
+\b solver.inp
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/boundary.inp
+
+\b physics.inp
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/physics.inp
+
+\b lusolver.inp (optional)
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/lusolver.inp
+
+To generate \b initial.inp (initial solution) and \b exact.inp
+(exact solution), compile and run the following code in the run 
+directory.
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/aux/exact.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2
+
+in \b solver.inp (i.e., 2 processors along \a x, and 2
+processors along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=20\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a tecplot2d in \b solver.inp, and
+thus, all the files are in a format that Tecplot (http://www.tecplot.com/)
+or other visualization software supporting the Tecplot format 
+(e.g. VisIt - https://wci.llnl.gov/simulation/computer-codes/visit/)
+can read. In these files, the first two lines are the Tecplot headers, 
+after which the data is written out as: the first two columns are grid indices, 
+the next two columns are x and y coordinates, and the remaining columns are the 
+solution components.  #HyPar::op_file_format can be set to \a text to get the solution
+files in plain text format (which can be read in and visualized in
+MATLAB for example).
+
+The following plot shows the density contours at the final time t=1, 
+obtained from plotting \b op_00010.dat:
+@image html Solution_2DNavStokVortexPETSc.gif
+
+Since the exact solution is available at the final time 
+(\a exact.inp is a copy of \a initial.inp), the numerical 
+errors are calculated and reported on screen (see below)
+as well as \b errors.dat:
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/errors.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global), 
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/conservation.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global),
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError) of each component.
+\b Note that the conservation error depends on the accuracy with which the 
+implicit systems are solved. Since the systems are solved with relaxed tolerances
+here (see \a ksp_atol, \a ksp_rtol, \a snes_atol, \a snes_rtol in <B>.petscrc</B>),
+the conservation error is zero within round-off.
+
+The file <B>function_counts.dat</B> reports the computational expense
+(in terms of the number of function counts):
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/function_counts.dat
+The numbers are, respectively,
++ Time iterations
++ Number of times the hyperbolic term was evaluated
++ Number of times the parabolic term was evaluated
++ Number of times the source term was evaluated
++ Number of calls to the explicit right-hand-side function (PetscRHSFunctionIMEX() or PetscRHSFunctionExpl())
++ Number of calls to the implicit right-hand-side function (PetscIFunctionIMEX() or PetscRHSFunctionImpl())
++ Number of calls to the Jacobian (PetscIJacobianIMEX() or PetscIJacobian())
++ Number of calls to the matrix-free Jacobian function (PetscJacobianFunctionIMEX_Linear(), PetscJacobianFunctionIMEX_JFNK(), PetscJacobianFunction_JFNK(), or PetscJacobianFunction_Linear()).
+
+Expected screen output:
+\include 2D/NavierStokes2D/InviscidVortexConvection_PETSc_Implicit/output.log
 
