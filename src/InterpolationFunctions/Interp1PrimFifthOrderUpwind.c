@@ -34,7 +34,7 @@
     \f$\hat{\bf f}_{j+1/2} \approx {\bf h}_{j+1/2}\f$ as:
     \f{align}{
       \hat{\bf f}_{j+1/2} = \frac{1}{30} {\bf f}_{j-2} - \frac{13}{60}{\bf f}_{j-1} + \frac{47}{60}{\bf f}_j + \frac{27}{60}{\bf f}_{j+1} - \frac{1}{20}{\bf f}_{j+2}.
-    \f
+    \f}
 
     \b Implementation \b Notes:
     + This method assumes a uniform grid in the spatial dimension corresponding to the interpolation.

@@ -43,7 +43,7 @@ is specified by setting #HyPar::model (read from \a "solver.inp" in ReadInputs()
 
 \f$\hat{\bf f}^{L,R}_{d,j+1/2}\f$ are the left- and right-biased numerically interpolated values of the primitive of the flux \f${\bf f}_d\left({\bf u}\right)\f$
 at the grid interfaces and are computed using #HyPar::InterpolateInterfacesHyp. They are initialized in InitializeSolvers() based on the value of 
-#HyPar::spatial_scheme_hyp (read from \a "solver.inp" in ReadInputs()).
+#HyPar::spatial_scheme_hyp (read from \a "solver.inp" in ReadInputs()). See interpolation.h for all the spatial discretization schemes implemented.
 
 #HyPar::HyperbolicFunction points to HyperbolicFunction().
 
@@ -100,7 +100,8 @@ in this form, then the physical model must specify #HyPar::HFunction which must 
   and \f$\mathcal{L}\f$ represents the finite-difference Laplacian operator (computed using #HyPar::SecondDerivativePar).
 
 The function pointers #HyPar::InterpolateInterfacesPar, #HyPar::SecondDerivativePar, and #HyPar::FirstDerivativePar are set in InitializeSolvers() based on the value of 
-#HyPar::spatial_scheme_par (read from \a "solver.inp" in ReadInputs()).
+#HyPar::spatial_scheme_par (read from \a "solver.inp" in ReadInputs()). See interpolation.h, firstderivative.h, and secondderivative.h for the spatial
+disretization methods implemented.
 
 Depending on which of the above forms are used, #HyPar::ParabolicFunction points to either of ParabolicFunctionCons1Stage(), ParabolicFunctionNC1Stage(),
 ParabolicFunctionNC2Stage(), or ParabolicFunctionNC1_5Stage() (set in InitializeSolvers()).
