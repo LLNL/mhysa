@@ -1,0 +1,9 @@
+begin
+  gamma     1.4
+  upwinding rusanov
+  gravity   0.0 9.8
+  rho_ref   1.1612055171196529
+  p_ref     100000.0
+  HB        3 0.01
+  R         287.058
+end
