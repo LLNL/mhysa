@@ -60,21 +60,16 @@ Initial Solution:
 The following input files are required:
 + solver.inp    -   General solver parameters
 + boundary.inp  -   Boundary conditions
-+ physics.inp   -   Physical parameters (advection speed)
++ physics.inp   -   Physical parameters
 
 ** See hypar/README for other (optional) input files
 
 Due to file sizes, the required file initial.inp for 
 initial solution are not provided. It can be generated 
-by compiling aux/init.c running the executable in the 
+by compiling aux/exact.c and running the executable in the 
 run directory (where solver.inp is present).
-Similarly, the exact solution (exact.inp) can be generated
-by compiling and running aux/exact.c.
 
 Notes:-
-The code aux/init.c is an example to generate the initial
+The code aux/exact.c is an example to generate the initial
 solution file in the correct format required by the solver. 
 The exact solution file also needs to be in the same format.
-
-Tecplot users can use the file solution.lay to visualize the
-solution.
