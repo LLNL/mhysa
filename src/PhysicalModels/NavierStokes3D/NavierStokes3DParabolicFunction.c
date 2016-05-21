@@ -61,11 +61,9 @@ int NavierStokes3DParabolicFunction(
   int jmax   = solver->dim_local[1];
   int kmax   = solver->dim_local[2];
   int *dim   = solver->dim_local;
-  int nvars  = solver->nvars;
-  int ndims  = solver->ndims;
-  int size   = (imax+2*ghosts)*(jmax+2*ghosts)*(kmax+2*ghosts)*nvars;
+  int size   = solver->npoints_local_wghosts;
 
-  _ArraySetValue_(par,size,0.0);
+  _ArraySetValue_(par,size*_MODEL_NVARS_,0.0);
   if (physics->Re <= 0) return(0); /* inviscid flow */
   solver->count_par++;
 
@@ -75,13 +73,13 @@ int NavierStokes3DParabolicFunction(
   double        inv_Pr       = 1.0 / physics->Pr;
 
   double *Q; /* primitive variables */
-  Q = (double*) calloc (size,sizeof(double));
+  Q = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
   for (i=-ghosts; i<(imax+ghosts); i++) {
     for (j=-ghosts; j<(jmax+ghosts); j++) {
       for (k=-ghosts; k<(kmax+ghosts); k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
         double energy,pressure;
-        _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
+        _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
         _NavierStokes3DGetFlowVar_( (u+p),
                                     Q[p+0],
                                     Q[p+1],
@@ -95,19 +93,19 @@ int NavierStokes3DParabolicFunction(
     }
   }
 
-  double *QDerivX = (double*) calloc (size,sizeof(double));
-  double *QDerivY = (double*) calloc (size,sizeof(double));
-  double *QDerivZ = (double*) calloc (size,sizeof(double));
+  double *QDerivX = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
+  double *QDerivY = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
+  double *QDerivZ = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
 
   IERR solver->FirstDerivativePar(QDerivX,Q,_XDIR_,1,solver,mpi); CHECKERR(ierr);
   IERR solver->FirstDerivativePar(QDerivY,Q,_YDIR_,1,solver,mpi); CHECKERR(ierr);
   IERR solver->FirstDerivativePar(QDerivZ,Q,_ZDIR_,1,solver,mpi); CHECKERR(ierr);
 
-  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+  IERR MPIExchangeBoundariesnD(_MODEL_NDIMS_,_MODEL_NVARS_,solver->dim_local,
                                  solver->ghosts,mpi,QDerivX); CHECKERR(ierr);
-  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+  IERR MPIExchangeBoundariesnD(_MODEL_NDIMS_,_MODEL_NVARS_,solver->dim_local,
                                  solver->ghosts,mpi,QDerivY); CHECKERR(ierr);
-  IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
+  IERR MPIExchangeBoundariesnD(_MODEL_NDIMS_,_MODEL_NVARS_,solver->dim_local,
                                  solver->ghosts,mpi,QDerivY); CHECKERR(ierr);
 
   for (i=-ghosts; i<(imax+ghosts); i++) {
@@ -115,26 +113,26 @@ int NavierStokes3DParabolicFunction(
       for (k=-ghosts; k<(kmax+ghosts); k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
         double dxinv, dyinv, dzinv;
-        _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
+        _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
         _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv,dxinv);
         _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,solver->dxinv,dyinv);
         _GetCoordinate_(_ZDIR_,index[_ZDIR_],dim,ghosts,solver->dxinv,dzinv);
-        _ArrayScale1D_((QDerivX+p),dxinv,nvars);
-        _ArrayScale1D_((QDerivY+p),dyinv,nvars);
-        _ArrayScale1D_((QDerivZ+p),dzinv,nvars);
+        _ArrayScale1D_((QDerivX+p),dxinv,_MODEL_NVARS_);
+        _ArrayScale1D_((QDerivY+p),dyinv,_MODEL_NVARS_);
+        _ArrayScale1D_((QDerivZ+p),dzinv,_MODEL_NVARS_);
       }
     }
   }
 
-  double *FViscous = (double*) calloc (size,sizeof(double));
-  double *FDeriv   = (double*) calloc (size,sizeof(double));
+  double *FViscous = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
+  double *FDeriv   = (double*) calloc (size*_MODEL_NVARS_,sizeof(double));
 
   /* Along X */
   for (i=-ghosts; i<(imax+ghosts); i++) {
     for (j=-ghosts; j<(jmax+ghosts); j++) {
       for (k=-ghosts; k<(kmax+ghosts); k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
-        _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
+        _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
 
         double uvel, vvel, wvel, T, Tx, 
                ux, uy, uz, vx, vy, wx, wz;
@@ -174,9 +172,9 @@ int NavierStokes3DParabolicFunction(
       for (k=0; k<kmax; k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
         double dxinv;
-        _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
+        _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
         _GetCoordinate_(_XDIR_,index[_XDIR_],dim,ghosts,solver->dxinv,dxinv);
-        for (v=0; v<nvars; v++) (par+p)[v] += (dxinv * (FDeriv+p)[v] );
+        for (v=0; v<_MODEL_NVARS_; v++) (par+p)[v] += (dxinv * (FDeriv+p)[v] );
       }
     }
   }
@@ -186,7 +184,7 @@ int NavierStokes3DParabolicFunction(
     for (j=-ghosts; j<(jmax+ghosts); j++) {
       for (k=-ghosts; k<(kmax+ghosts); k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
-        _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
+        _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
 
         double uvel, vvel, wvel, T, Ty, 
                ux, uy, vx, vy, vz, wy, wz;
@@ -226,9 +224,9 @@ int NavierStokes3DParabolicFunction(
       for (k=0; k<kmax; k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
         double dyinv;
-        _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
+        _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
         _GetCoordinate_(_YDIR_,index[_YDIR_],dim,ghosts,solver->dxinv,dyinv);
-        for (v=0; v<nvars; v++) (par+p)[v] += (dyinv * (FDeriv+p)[v] );
+        for (v=0; v<_MODEL_NVARS_; v++) (par+p)[v] += (dyinv * (FDeriv+p)[v] );
       }
     }
   }
@@ -238,7 +236,7 @@ int NavierStokes3DParabolicFunction(
     for (j=-ghosts; j<(jmax+ghosts); j++) {
       for (k=-ghosts; k<(kmax+ghosts); k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
-        _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
+        _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
 
         double uvel, vvel, wvel, T, Tz, 
                ux, uz, vy, vz, wx, wy, wz;
@@ -278,9 +276,9 @@ int NavierStokes3DParabolicFunction(
       for (k=0; k<kmax; k++) {
         int p,index[3]; index[0]=i; index[1]=j; index[2]=k;
         double dzinv;
-        _ArrayIndex1D_(ndims,dim,index,ghosts,p); p *= nvars;
+        _ArrayIndex1D_(_MODEL_NDIMS_,dim,index,ghosts,p); p *= _MODEL_NVARS_;
         _GetCoordinate_(_ZDIR_,index[_ZDIR_],dim,ghosts,solver->dxinv,dzinv);
-        for (v=0; v<nvars; v++) (par+p)[v] += (dzinv * (FDeriv+p)[v] );
+        for (v=0; v<_MODEL_NVARS_; v++) (par+p)[v] += (dzinv * (FDeriv+p)[v] );
       }
     }
   }
@@ -292,5 +290,6 @@ int NavierStokes3DParabolicFunction(
   free(FViscous);
   free(FDeriv);
 
+  if (solver->flag_ib) _ArrayBlockMultiply_(par,solver->iblank,size,_MODEL_NVARS_);
   return(0);
 }

@@ -10,6 +10,7 @@
 #include <mpivars.h>
 #include <tridiagLU.h>
 #include <boundaryconditions.h>
+#include <immersedboundaries.h>
 #include <timeintegration.h>
 #include <interpolation.h>
 #include <hypar.h>
@@ -48,6 +49,12 @@ int Cleanup(
     IERR BCCleanup(&boundary[i]); CHECKERR(ierr);
   }
   free(solver->boundary);
+
+  /* Clean up immersed boundaries */
+  if (solver->flag_ib) {
+    IERR IBCleanup(solver->ib);
+    free(solver->ib);
+  }
 
   /* Clean up any allocations in physical model */
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
@@ -128,6 +135,7 @@ int Cleanup(
   if (solver->rhsref) free(solver->rhsref);
   if (solver->rhs)    free(solver->rhs);   
 #endif
+  free(solver->iblank);
   free(solver->hyp);
   free(solver->par);
   free(solver->source);

@@ -104,6 +104,7 @@ int ReadInputs(
   solver->screen_op_iter  = 1;
   solver->file_op_iter    = 1000;
   solver->write_residual  = 0;
+  solver->flag_ib         = 0;
   strcpy(solver->time_scheme        ,"euler"         );
   strcpy(solver->time_scheme_type   ," "             );
   strcpy(solver->spatial_scheme_hyp ,"1"             );
@@ -118,6 +119,7 @@ int ReadInputs(
   strcpy(solver->model              ,"none"          );
   strcpy(solver->ConservationCheck  ,"no"            );
   strcpy(solver->SplitHyperbolicFlux,"no"            );
+  strcpy(solver->ib_filename        ,"none"          );
 
   /* reading solver inputs */
   if (!mpi->rank) {
@@ -182,6 +184,7 @@ int ReadInputs(
             if (strcmp(solver->output_mode,"serial"))       ferr = fscanf(in,"%d",&mpi->N_IORanks);
           } else if   (!strcmp(word, "op_overwrite"     ))  ferr = fscanf(in,"%s",solver->op_overwrite      );
    		  	else if   (!strcmp(word, "model"              ))  ferr = fscanf(in,"%s",solver->model             );
+   		  	else if   (!strcmp(word, "immersed_body"      ))  ferr = fscanf(in,"%s",solver->ib_filename       );
           else if   ( strcmp(word, "end"                )) {
             char useless[_MAX_STRING_SIZE_];
             ferr = fscanf(in,"%s",useless);
@@ -198,6 +201,13 @@ int ReadInputs(
 
       if (solver->screen_op_iter <= 0)  solver->screen_op_iter = 1;
       if (solver->file_op_iter <= 0)    solver->file_op_iter   = solver->n_iter;
+
+      if ((solver->ndims != 3) && (strcmp(solver->ib_filename,"none"))) {
+        printf("Warning: immersed boundaries not implemented for ndims = %d. ",solver->ndims);
+        printf("Ignoring input for \"immersed_body\" (%s).\n",solver->ib_filename);
+        strcpy(solver->ib_filename,"none");
+      }
+      solver->flag_ib = strcmp(solver->ib_filename,"none");
 
       /* Print to screen the inputs read */
       int i;
@@ -250,6 +260,9 @@ int ReadInputs(
       printf("\tSolution file format                       : %s\n"     ,solver->op_file_format      );
       printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite        );
       printf("\tPhysical model                             : %s\n"     ,solver->model               );
+      if (solver->flag_ib) {
+        printf("\tImmersed Body                              : %s\n"     ,solver->ib_filename         );
+      }
     }
     /* checks - restart only supported for binary output files */
     if ((solver->restart_iter != 0) && strcmp(solver->op_file_format,"binary")) {
@@ -274,6 +287,7 @@ int ReadInputs(
   IERR MPIBroadcast_integer(&solver->restart_iter       ,1            ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer(&solver->screen_op_iter     ,1            ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer(&solver->file_op_iter       ,1            ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer(&solver->flag_ib            ,1            ,0,&mpi->world); CHECKERR(ierr);
 
   IERR MPIBroadcast_character(solver->time_scheme         ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character(solver->time_scheme_type    ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
@@ -289,6 +303,7 @@ int ReadInputs(
   IERR MPIBroadcast_character(solver->output_mode         ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character(solver->op_overwrite        ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character(solver->model               ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character(solver->ib_filename         ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
 
   IERR MPIBroadcast_double(&solver->dt,1,0,&mpi->world); CHECKERR(ierr);
 #endif

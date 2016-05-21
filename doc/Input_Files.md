@@ -52,6 +52,7 @@ input_mode         | char[]       | #HyPar::input_mode            | serial
 output_mode        | char[]       | #HyPar::output_mode           | serial
 op_overwrite       | char[]       | #HyPar::op_overwrite          | no
 model              | char[]       | #HyPar::model                 | must be specified
+immersed_body      | char[]       | #HyPar::ib_filename           | "none"
 
 \b Notes:
 + "ndims" \b must be specified \b before "size" and "iproc".

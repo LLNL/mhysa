@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <basic.h>
+#include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 
@@ -116,6 +117,7 @@ int Initialize(
   solver->hyp     = (double*) calloc (solver->nvars*size,sizeof(double));
   solver->par     = (double*) calloc (solver->nvars*size,sizeof(double));
   solver->source  = (double*) calloc (solver->nvars*size,sizeof(double));
+  solver->iblank  = (double*) calloc (size              ,sizeof(double));
   /* grid */
   size = 0;
   for (i=0; i<solver->ndims; i++) size += (solver->dim_local[i]+2*solver->ghosts);
@@ -162,6 +164,9 @@ int Initialize(
     = solver->count_IJacobian = solver->count_IJacFunction 
     = 0;
 #endif
+
+  /* Initialize iblank to 1*/
+  _ArraySetValue_(solver->iblank,solver->npoints_local_wghosts,1);
 
   return(0);
 }

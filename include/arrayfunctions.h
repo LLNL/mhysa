@@ -342,6 +342,21 @@
     for (arraycounter=0; arraycounter<size; arraycounter++) p *= x[arraycounter]; \
   }
 
+/*! \def _ArrayBlockMultiply_
+  Given two arrays: \a x of size \a n*bs, and \a a of size \a n, this macro
+  implements: \a x[i][j] *= \a a[i] where \a i = 1,...,\a n, j = 1,...,\a bs,
+  and \a x is stored as a 1D array in row-major format, i.e., \a x[i][j] = \a x[i*bs+j].
+*/
+#define _ArrayBlockMultiply_(x,a,n,bs) \
+  { \
+    int arraycounter1,arraycounter2; \
+    for (arraycounter1=0; arraycounter1<n; arraycounter1++) { \
+      for (arraycounter2=0; arraycounter2<bs; arraycounter2++) { \
+        x[bs*arraycounter1+arraycounter2] *= a[arraycounter1]; \
+      } \
+    }\
+  }
+
 #if !defined(INLINE)
 # define INLINE inline
 #endif

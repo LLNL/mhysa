@@ -4,6 +4,7 @@ SUBDIRS = \
   BoundaryConditions\
   FirstDerivative \
   HyParFunctions \
+  ImmersedBoundaries \
   InterpolationFunctions \
   IOFunctions \
   PETScFunctions \
@@ -20,6 +21,7 @@ HyPar_LDADD = \
   HyParFunctions/libHyParFunctions.a \
   TimeIntegration/libTimeIntegration.a \
   PETScFunctions/libPETScFunctions.a \
+  ImmersedBoundaries/libImmersedBoundaries.a \
   BoundaryConditions/libBoundaryConditions.a \
   PhysicalModels/LinearADR/libLinearADR.a \
   PhysicalModels/FPDoubleWell/libFPDoubleWell.a \

@@ -365,21 +365,40 @@ typedef struct main_parameters {
       count_RHSJacFunction; /*!< number of times the RHSJacFunction is called */
 #endif
 
+  /*! blanking array: of same size and layout as #HyPar::u (but with 1 component
+      per grid point, it has a value 1 for all valid grid points and 0 for grid 
+      points that are blanked out. It is essentially an integer array, but the
+      declared as a \a double type to use functions defined for the \a double 
+      data type.
+  */        
+  double *iblank;          
+
+  /*! Name of immersed body STL file (input - \b solver.inp )*/
+  char ib_filename[_MAX_STRING_SIZE_];
+  /*! Flag to indicate if immersed boundaries are in use */
+  int flag_ib;
+  /*! Immersed boundary object */
+  void *ib;
+
+  /*! Physics-specific immersed boundary treatment function (assigned in the physical model initialization called from InitializePhysics()) */
+  int (*IBFunction) (void*,double*,double);
+
 } HyPar;
 
 /* The following functions are called by main() */
-int CalculateError          (void*,void*);/*!< Calculate the error in the final solution */
-int Cleanup                 (void*,void*);/*!< Clean up: deallocate all arrays and objects */
-int Initialize              (void*,void*);/*!< Initialize the solver */
-int InitializeBoundaries    (void*,void*);/*!< Initialize the boundary conditions */
-int InitializePhysics       (void*,void*);/*!< Initialize the physics */
-int InitializeSolvers       (void*,void*);/*!< Initialize the solvers */
-int InitialSolution         (void*,void*);/*!< Read the initial solution */
-int OutputSolution          (void*,void*);/*!< Write solution to file */
-int ReadInputs              (void*,void*);/*!< Read the input parameters */
-int Solve                   (void*,void*);/*!< Solve the PDE - time-integration */
+int CalculateError                (void*,void*);/*!< Calculate the error in the final solution */
+int Cleanup                       (void*,void*);/*!< Clean up: deallocate all arrays and objects */
+int Initialize                    (void*,void*);/*!< Initialize the solver */
+int InitializeBoundaries          (void*,void*);/*!< Initialize the boundary conditions */
+int InitializeImmersedBoundaries  (void*,void*);/*!< Initialize the immersed boundary conditions */
+int InitializePhysics             (void*,void*);/*!< Initialize the physics */
+int InitializeSolvers             (void*,void*);/*!< Initialize the solvers */
+int InitialSolution               (void*,void*);/*!< Read the initial solution */
+int OutputSolution                (void*,void*);/*!< Write solution to file */
+int ReadInputs                    (void*,void*);/*!< Read the input parameters */
+int Solve                         (void*,void*);/*!< Solve the PDE - time-integration */
 #ifdef with_petsc
-int SolvePETSc            (void*,void*);  /*!< Solve the PDE using PETSc TS */
+int SolvePETSc                    (void*,void*);  /*!< Solve the PDE using PETSc TS */
 #endif
 
 /* Some definitions - types of discretizations available 

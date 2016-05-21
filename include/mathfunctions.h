@@ -194,3 +194,5 @@ void FindInterval(double,double,double*,int,int*,int*);
     y[3] = A[15]*x[0] +  A[16]*x[1] +  A[17]*x[2] +  A[18]*x[3] +  A[19]*x[4];\
     y[4] = A[20]*x[0] +  A[21]*x[1] +  A[22]*x[2] +  A[23]*x[3] +  A[24]*x[4];\
   }
+
+void TrilinearInterpCoeffs(double,double,double,double,double,double,double,double,double,double*);

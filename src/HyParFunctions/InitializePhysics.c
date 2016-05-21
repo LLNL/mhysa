@@ -67,6 +67,7 @@ int InitializePhysics(
   solver->AveragingFunction     = NULL;
   solver->GetLeftEigenvectors   = NULL;
   solver->GetRightEigenvectors  = NULL;
+  solver->IBFunction            = NULL;
 
   if (!strcmp(solver->model,_LINEAR_ADVECTION_DIFFUSION_REACTION_)) {
 
@@ -165,5 +166,14 @@ int InitializePhysics(
     if (solver->FdFFunction && solver->UpwindFdF) solver->flag_fdf_specified = 1;
     else                                          solver->flag_fdf_specified = 0;
   }
+
+  if ((solver->IBFunction == NULL) && (solver->flag_ib)) {
+    if (!mpi->rank) {
+      fprintf(stderr,"Error in InitializePhysics(): Physical model %s does not yet have an immersed boundary treatment.\n",
+              solver->model);
+    }
+    return(1);
+  }
+
   return(0);
 }

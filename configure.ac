@@ -133,6 +133,7 @@ AC_CONFIG_FILES([
  src/BoundaryConditions/Makefile
  src/FirstDerivative/Makefile
  src/HyParFunctions/Makefile
+ src/ImmersedBoundaries/Makefile
  src/InterpolationFunctions/Makefile
  src/IOFunctions/Makefile
  src/MathFunctions/Makefile

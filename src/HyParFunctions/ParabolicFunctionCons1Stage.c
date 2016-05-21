@@ -51,11 +51,9 @@ int ParabolicFunctionCons1Stage(
   int     ghosts = solver->ghosts;
   int     *dim   = solver->dim_local;
   double  *dxinv = solver->dxinv;
+  int     size   = solver->npoints_local_wghosts;
 
   int index[ndims], index1[ndims], index2[ndims], dim_interface[ndims];
-
-  int size = 1;
-  for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
 
   _ArraySetValue_(par,size*nvars,0.0);
   if (!solver->GFunction) return(0); /* zero parabolic term */
@@ -90,5 +88,6 @@ int ParabolicFunctionCons1Stage(
     offset += dim[d] + 2*ghosts;
   }
 
+  if (solver->flag_ib) _ArrayBlockMultiply_(par,solver->iblank,size,nvars);
   return(0);
 }

@@ -52,12 +52,10 @@ int HyperbolicFunction(
   int     nvars  = solver->nvars;
   int     ghosts = solver->ghosts;
   int     *dim   = solver->dim_local;
+  int     size   = solver->npoints_local_wghosts;
   double  *x     = solver->x;
   double  *dxinv = solver->dxinv;
   int     index[ndims], index1[ndims], index2[ndims], dim_interface[ndims];
-
-  int size = 1;
-  for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
 
   LimFlag = (LimFlag && solver->flag_nonlinearinterp && solver->SetInterpLimiterVar);
 
@@ -101,6 +99,7 @@ int HyperbolicFunction(
     offset += dim[d] + 2*ghosts;
   }
 
+  if (solver->flag_ib) _ArrayBlockMultiply_(hyp,solver->iblank,size,nvars);
   return(0);
 }
 

@@ -12,6 +12,7 @@ libHyParFunctions_a_SOURCES = \
   Initialize.c \
   InitialSolution.c \
   InitializeBoundaries.c \
+  InitializeImmersedBoundaries.c \
   InitializePhysics.c \
   InitializeSolvers.c \
   NonLinearInterpolation.c \

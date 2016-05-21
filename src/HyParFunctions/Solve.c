@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <mpivars.h>
+#include <io.h>
 #include <hypar.h>
 #include <timeintegration.h>
 
@@ -27,6 +28,12 @@ int Solve(
   MPIVariables  *mpi    = (MPIVariables*) m;
   int           tic     = 0;
   _DECLARE_IERR_;
+
+  /* write out iblank to file for visualization */
+  if (solver->flag_ib) {
+    WriteArray(solver->ndims,1,solver->dim_global,solver->dim_local,
+               solver->ghosts,solver->x,solver->iblank,solver,mpi,"iblank");
+  }
 
   /* Define and initialize the time-integration object */
   TimeIntegration TS;
