@@ -3,6 +3,8 @@
     @brief Cleans up allocations in PETSc interface.
 */
 
+#ifdef with_petsc
+
 #include <stdlib.h>
 #include <petscinterface.h>
 
@@ -13,3 +15,5 @@ int PetscCleanup(void *obj /*!< Object of type #PETScContext */)
   if (ctxt->globalDOF) free(ctxt->globalDOF);
   return(0);
 }
+
+#endif
