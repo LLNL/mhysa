@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <basic.h>
+#include <timeintegration.h>
 #include <mpivars.h>
 #include <hypar.h>
 
@@ -216,12 +217,19 @@ int ReadInputs(
 #ifdef with_petsc
       if (solver->use_petscTS)
         printf("\tTime integration scheme                    : PETSc \n"                            );
-      else
-        printf("\tTime integration scheme                    : %s (%s)\n",
-               solver->time_scheme,solver->time_scheme_type                                         );
+      else {
+        printf("\tTime integration scheme                    : %s ",solver->time_scheme             );
+        if (strcmp(solver->time_scheme,_FORWARD_EULER_)) {
+          printf("(%s)",solver->time_scheme_type                                                    );
+        }
+        printf("\n");
+      }
 #else
-      printf("\tTime integration scheme                    : %s (%s)\n",
-             solver->time_scheme,solver->time_scheme_type                                           );
+      printf("\tTime integration scheme                    : %s ",solver->time_scheme               );
+      if (strcmp(solver->time_scheme,_FORWARD_EULER_)) {
+        printf("(%s)",solver->time_scheme_type                                                      );
+      }
+      printf("\n");
 #endif
       printf("\tSpatial discretization scheme (hyperbolic) : %s\n"     ,solver->spatial_scheme_hyp  );
       printf("\tSplit hyperbolic flux term?                : %s\n"     ,solver->SplitHyperbolicFlux );
