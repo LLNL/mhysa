@@ -3171,7 +3171,7 @@ Input files required:
 \b physics.inp
 \include 2D/NavierStokes2D/LowMachVortexConvection_PETSc_IMEX/physics.inp
 
-To generate \b initial.inp (initial solution) and \exact.inp (exact solution), 
+To generate \b initial.inp (initial solution) and \b exact.inp (exact solution), 
 compile and run the following code in the run 
 directory:
 \include 2D/NavierStokes2D/LowMachVortexConvection_PETSc_IMEX/aux/exact.c
