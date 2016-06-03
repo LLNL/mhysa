@@ -381,7 +381,7 @@ typedef struct main_parameters {
   void *ib;
 
   /*! Physics-specific immersed boundary treatment function (assigned in the physical model initialization called from InitializePhysics()) */
-  int (*IBFunction) (void*,double*,double);
+  int (*IBFunction) (void*,void*,double*,double);
 
 } HyPar;
 

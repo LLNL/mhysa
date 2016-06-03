@@ -6,6 +6,7 @@
 #include <arrayfunctions.h>
 #include <immersedboundaries.h>
 #include <physicalmodels/navierstokes3d.h>
+#include <mpivars.h>
 #include <hypar.h>
 
 /*!
@@ -16,11 +17,13 @@
 */
 int NavierStokes3DImmersedBoundary(
                                     void    *s, /*!< Solver object of type #HyPar */
+                                    void    *m, /*!< Solver object of type #HyPar */
                                     double  *u, /*!< Array with the solution vector */ 
                                     double  t   /*!< Current simulation time */
                                   )
 {
   HyPar             *solver   = (HyPar*)   s;
+  MPIVariables      *mpi      = (MPIVariables*) m;
   ImmersedBoundary  *IB       = (ImmersedBoundary*) solver->ib;
   IBNode            *boundary = IB->boundary;
   NavierStokes3D    *param    = (NavierStokes3D*) solver->physics;
@@ -28,6 +31,9 @@ int NavierStokes3DImmersedBoundary(
   int               n, j, k, nb = IB->n_boundary_nodes;
 
   if (!solver->flag_ib) return(0);
+
+  /* Ideally, this shouldn't be here - Need to clean up ApplyBoundaryConditions */
+  MPIExchangeBoundariesnD(_MODEL_NDIMS_,_MODEL_NVARS_,solver->dim_local,solver->ghosts,mpi,u);
 
   double inv_gamma_m1 = 1.0 / (param->gamma - 1.0);
 

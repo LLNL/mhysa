@@ -55,7 +55,7 @@ int ApplyBoundaryConditions(void    *s,     /*!< Object of type #HyPar containin
   }
 
   /* Apply immersed boundary conditions, if applicable */
-  if (solver->flag_ib) IERR solver->IBFunction(solver,x,waqt);
+  if (solver->flag_ib && (!flag)) IERR solver->IBFunction(solver,mpi,x,waqt);
 
   return(0);
 }

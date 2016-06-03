@@ -42,7 +42,7 @@ int    NavierStokes3DGravityField      (void*,void*);
 int    NavierStokes3DModifiedSolution  (double*,double*,int,void*,void*,double);
 
 int    NavierStokes3DPreStep           (double*,void*,void*,double);
-int    NavierStokes3DImmersedBoundary  (void*,double*,double);
+int    NavierStokes3DImmersedBoundary  (void*,void*,double*,double);
 
 /*! Initialize the 3D Navier-Stokes (#NavierStokes3D) module:
     Sets the default parameters, read in and set physics-related parameters,
