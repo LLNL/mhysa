@@ -49,7 +49,7 @@ int PetscTimeError(
   if (!strcmp(time_scheme,TSGLEE)) {
 
     ierr = VecDuplicate(Y,&Z); CHKERRQ(ierr);
-    ierr = TSGetTimeError(ts,&Z);CHKERRQ(ierr);
+    ierr = TSGetTimeError(ts,0,&Z);CHKERRQ(ierr);
     ierr = TransferVecFromPETSc(Uerr,Z,context); CHECKERR(ierr);
     ierr = VecDestroy(&Z); CHKERRQ(ierr);
 
