@@ -25,6 +25,11 @@
 #define _SUBSONIC_INFLOW_               "subsonic-inflow"
 /*! Subsonic outflow boundary condition: pressure is specified in the input, density and velocity are extrapolated from the interior (specific to Euler/Navier-Stokes) \sa #BCSubsonicOutflowU */
 #define _SUBSONIC_OUTFLOW_              "subsonic-outflow"
+/*! Subsonic "ambivalent" boundary condition: (specific to Euler/Navier-Stokes) the velocity at the boundary is extrapolated from the interior, and based on that, either subsonic outflow
+    or inflow boundary conditions are applied. Specify all flow quantities (density, velocity, and pressure) in the input; depending on whether it is inflow or outflow, the appropriate
+    quantities will be used. \sa #BCSubsonicAmbivalentU 
+*/
+#define _SUBSONIC_AMBIVALENT_              "subsonic-ambivalent"
 /*! Supersonic inflow boundary condition: density, velocity, and pressure are specified in the input (specific to Euler/Navier-Stokes) \sa #BCSupersonicInflowU */
 #define _SUPERSONIC_INFLOW_             "supersonic-inflow"
 /*! Supersonic outflow boundary condition: all flow quantities are extrapolated from the interior (specific to Euler/Navier-Stokes) \sa BCSupersonicOutflowU */
@@ -111,6 +116,8 @@ int BCSlipWallU                     (void*,void*,int,int,int*,int,double*,double
 int BCSubsonicInflowU               (void*,void*,int,int,int*,int,double*,double);    
 /*! Subsonic outflow boundary conditions for the solution vector U */
 int BCSubsonicOutflowU              (void*,void*,int,int,int*,int,double*,double);    
+/*! Subsonic "ambivalent" boundary conditions for the solution vector U */
+int BCSubsonicAmbivalentU           (void*,void*,int,int,int*,int,double*,double);    
 /*! Supersonic inflow boundary conditions for the solution vector U */
 int BCSupersonicInflowU             (void*,void*,int,int,int*,int,double*,double);    
 /*! Supersonic outflow boundary conditions for the solution vector U */
@@ -138,6 +145,8 @@ int BCSlipWallDU                    (void*,void*,int,int,int*,int,double*,double
 int BCSubsonicInflowDU              (void*,void*,int,int,int*,int,double*,double*,double);    
 /*! Subsonic outflow boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
 int BCSubsonicOutflowDU             (void*,void*,int,int,int*,int,double*,double*,double);    
+/*! Subsonic "ambivalent" boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
+int BCSubsonicAmbivalentDU          (void*,void*,int,int,int*,int,double*,double*,double);    
 /*! Supersonic inflow boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
 int BCSupersonicInflowDU            (void*,void*,int,int,int*,int,double*,double*,double);    
 /*! Supersonic outflow boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */

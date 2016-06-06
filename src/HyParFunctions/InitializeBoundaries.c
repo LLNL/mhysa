@@ -119,6 +119,15 @@ int InitializeBoundaries(
         ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
       }
 
+      if (!strcmp(boundary[n].bctype,_SUBSONIC_AMBIVALENT_)) {
+        boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+                                     /* deallocated in BCCleanup.c */
+        /* read in the inflow density, velocity, and pressure */
+        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
+        ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
+      }
+
       if (!strcmp(boundary[n].bctype,_SUPERSONIC_INFLOW_)) {
         boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
                                      /* deallocated in BCCleanup.c */
@@ -224,6 +233,13 @@ int InitializeBoundaries(
     }
 
     if (!strcmp(boundary[n].bctype,_SUBSONIC_OUTFLOW_)) {
+      IERR MPIBroadcast_double(&boundary[n].FlowPressure,1,0,&mpi->world); CHECKERR(ierr);
+    }
+
+    if (!strcmp(boundary[n].bctype,_SUBSONIC_AMBIVALENT_)) {
+      if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
+      IERR MPIBroadcast_double(&boundary[n].FlowDensity,1            ,0,&mpi->world); CHECKERR(ierr);
+      IERR MPIBroadcast_double(boundary[n].FlowVelocity,solver->ndims,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(&boundary[n].FlowPressure,1,0,&mpi->world); CHECKERR(ierr);
     }
 
