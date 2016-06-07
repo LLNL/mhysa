@@ -26,7 +26,7 @@
 
     where the list of keywords and their type are:\n
     Keyword name       | Type         | Variable                      | Default value
-    ------------------ | ------------ | ----------------------------- | ------------------------
+    ------------------ | ------------ | ----------------------------- | ------------------------------------------
     ndims              | int          | #HyPar::ndims                 | 1
     nvars              | int          | #HyPar::nvars                 | 1
     size               | int[ndims]   | #HyPar::dim_global            | must be specified
@@ -51,6 +51,7 @@
     output_mode        | char[]       | #HyPar::output_mode           | serial
     op_overwrite       | char[]       | #HyPar::op_overwrite          | no
     model              | char[]       | #HyPar::model                 | must be specified
+    immersed_body      | char[]       | #HyPar::ib_filename           | "none"
 
     \b Notes:
     + "ndims" \b must be specified \b before "size" and "iproc".
@@ -80,6 +81,9 @@
         because it does not have a parabolic term.
       - unless a conservation check is required, "conservation_check" can be left
         out and the code will not check for conservation.
+      - "immersed_body" need not be specified if there are no immersed bodies present.
+         \b NOTE: However, if it is specified, and a file of that filename does not
+         exist, it will result in an error.
 */
 int ReadInputs(
                 void *s,  /*!< Solver object of type #HyPar */

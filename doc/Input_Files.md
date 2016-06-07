@@ -82,6 +82,9 @@ immersed_body      | char[]       | #HyPar::ib_filename           | "none"
     because it does not have a parabolic term.
   - unless a conservation check is required, "conservation_check" can be left
     out and the code will not check for conservation.
+  - "immersed_body" need not be specified if there are no immersed bodies present.
+    \b NOTE: However, if it is specified, and a file of that filename does not
+    exist, it will result in an error.
 
 \section boundary_inp boundary.inp
 
