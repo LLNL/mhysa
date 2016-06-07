@@ -3389,7 +3389,7 @@ representation of the immersed body is necessary. Note:
 
 \subpage ns3d_cylinder_subsonic
 
-\page ns3d_cylinder_subsonic Navier-Stokes Equations - Incompressible flow around a cylinder.
+\page ns3d_cylinder_subsonic Navier-Stokes Equations - Steady, incompressible flow around a cylinder.
 
 Location: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder
 
