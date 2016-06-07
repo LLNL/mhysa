@@ -10,6 +10,8 @@ with PETSc. Most of them can be run on one or a small number of processors.
 Some examples that use implicit or semi-implicit (IMEX) time
 integration methods implemented in PETSc. To run them, HyPar needs to be compiled \b with \b PETSc.
 
+\subpage ib_examples : Examples that use the immersed boundary method to simulate various geometries.
+
 \page basic_examples Basic Examples
 
 The following are some basic examples that are simulated using HyPar. They 
@@ -3373,3 +3375,133 @@ The numbers are, respectively,
 
 Expected screen output:
 \include 2D/NavierStokes2D/InertiaGravityWave_PETSc_IMEX/output.log
+
+
+
+\page ib_examples Immersed Boundaries Examples
+
+The following are some examples are use the immersed boundary methodology to solve the PDE in the presence of
+various geometries. To use the immersed boundary implementation in HyPar, an STL (https://en.wikipedia.org/wiki/STL_%28file_format%29) 
+representation of the immersed body is necessary. Note:
++ The immersed boundary method is \b only implemented for 3-dimensional simulations (#HyPar::ndims = 3).
++ It can be used with only those physical models that define an immersed boundary implementation (#HyPar::IBFunction()), for
+  example, the 3D Navier-Stokes equations (NavierStokes3DImmersedBoundary()).
+
+\subpage ns3d_cylinder_subsonic
+
+\page ns3d_cylinder_subsonic Navier-Stokes Equations - Incompressible flow around a cylinder.
+
+Location: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: The domain consists of a fine uniform grid around the cylinder defined by [-2,6] X [-2,2],
+        and a stretched grid beyond this zone.
+\b Note: This is a 2D flow simulated using a 3-dimensional setup by taking a the length of the
+         domain along \a z to be very small and with only 3 grid points (the domain size along \a z
+         \b must \b be smaller than the cylinder length).
+
+Geometry: A cylinder of radius 1.0 centered at (0,0)
+          (\b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/cylinder.stl)
+
+The following images shows the grid and the cylinder:
+@image html Domain3D_Cylinder.png
+@image html Domain2D_Cylinder.png
+
+Boundary conditions:
+  + xmin: Subsonic inflow #_SUBSONIC_INFLOW_
+  + xmax: Subsonic outflow #_SUBSONIC_OUTFLOW_
+  + ymin and ymax: Subsonic "ambivalent" #_SUBSONIC_AMBIVALENT_
+  + zmin and zmax: Periodic #_PERIODIC_ (to simulate a 2D flow in the x-y plane)
+
+Reference:
+  + Taneda, S., "Experimental Investigation of the Wakes behind Cylinders and Plates at Low 
+    Reynolds Numbers," Journal of the Physical Society of Japan, Vol. 11, 302–307, 1956. 
+
+Initial solution: \f$\rho=1, u=0.1, v=w=0, p=1/\gamma\f$ everywhere in the domain.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+  + Freestream Mach number \f$M_{\infty} = 0.1\f$ (#NavierStokes3D::Minf)
+  + Prandlt number \f$Pr = 0.72\f$ (#NavierStokes3D::Pr)
+  + Reynolds number \f$Re = \frac {\rho u L } {\mu} = 10,15,20\f$ (#NavierStokes3D::Re) (\b Note: 
+    since the diameter of the cylinder is 2.0, the cylinder-diameter-based Reynolds number is 
+    \f$Re_D = 2Re = 20,30,40\f$.
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (NavierStokes3DParabolicFunction())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+These files are all located in: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/
+
+\b solver.inp
+\include 3D/NavierStokes3D/2D_Cylinder/solver.inp
+
+\b boundary.inp
+\include 3D/NavierStokes3D/2D_Cylinder/boundary.inp
+
+\b physics.inp : The following file specifies a Reynolds number
+of 10 (corresponding to \f$Re_D\f$ of 20). To try other Reynolds 
+numbers, change it here.
+\include 3D/NavierStokes3D/2D_Cylinder/physics.inp
+
+\b cylinder.stl : the filename "cylinder.stl" \b must match
+the input for \a immersed_body in \a solver.inp.\n
+Located at \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/cylinder.stl
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 3D/NavierStokes3D/2D_Cylinder/aux/init.c
+
+Output:
+-------
+
+Note that \b iproc is set to 
+
+      4 2 1
+
+in \b solver.inp (i.e., 4 processors along \a x, 2
+processors along \a y, and 1 processor along \a z). Thus, 
+this example should be run with 8 MPI ranks (or change \b iproc).
+
+After running the code, there should be one output file
+\b op.bin, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b hypar/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file.
++ \b hypar/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+The file \b Extras/ExtractSlice.c can be used to extract a slice perpendicular to any dimension
+at a specified location along that dimension. The extracted slice is written out in the same
+binary format as the original solutions files (with the same names op_xxxxx.bin) in a 
+subdirectory called \b slices (\b Note: make the subdirectory called \a slices before running
+this code). The codes Extras/BinaryToTecplot.c and Extras/BinaryToText.c
+can then be used (in the \b slices subdirectory) to convert the binary slice solution file
+to Tecplot or plain text files.
+\b Note that it needs the relevant \b solver.inp that can be created as follows:
++ Copy the original solver.inp to the slices subdirectory.
++ In solver.inp, set \b ndims as \b 2, and remove the component of \b size and \b iproc 
+  corresponding to the dimension being eliminated while extracting the slices (in this case,
+  it is \a z or the 3rd component).
+
+The following figure shows the flow (density and streamlines) at \f$Re_D=20\f$:
+@image html Solution_3DNavStokCylinder_ReD020.png
+The parameter \a Re can be changed to 20 in \a physics.inp to run this simulation for
+\f$Re_D=40\f$, and following figure shows the solution:
+@image html Solution_3DNavStokCylinder_ReD040.png
+
+Expected screen output (for \f$Re_D = 20\f$):
+\include 3D/NavierStokes3D/2D_Cylinder/output.log
+
+  
+
