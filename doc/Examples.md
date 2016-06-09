@@ -3390,7 +3390,10 @@ representation of the immersed body is necessary. Note:
 3D Navier-Stokes Equations:
 ---------------------------
 
-\subpage ns3d_cylinder_steady_incompressible_viscous
+\subpage ns3d_cylinder_steady_incompressible_viscous \n
+\subpage ns3d_cylinder_unsteady_incompressible_viscous
+
+\subpage ns3d_shock_cylinder_interaction
 
 \page ns3d_cylinder_steady_incompressible_viscous Steady, incompressible, viscous flow around a cylinder
 
@@ -3400,12 +3403,12 @@ Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
 
 Domain: The domain consists of a fine uniform grid around the cylinder defined by [-2,6] X [-2,2],
         and a stretched grid beyond this zone.
-\b Note: This is a 2D flow simulated using a 3-dimensional setup by taking a the length of the
+\b Note: This is a 2D flow simulated using a 3-dimensional setup by taking the length of the
          domain along \a z to be very small and with only 3 grid points (the domain size along \a z
          \b must \b be smaller than the cylinder length).
 
 Geometry: A cylinder of radius 1.0 centered at (0,0)
-          (\b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/cylinder.stl)
+          (\b hypar/Examples/STLGeometries/cylinder.stl)
 
 The following images shows the grid and the cylinder:
 @image html Domain3D_Cylinder.png
@@ -3432,7 +3435,7 @@ Other parameters (all dimensional quantities are in SI units):
     \f$Re_D = 2Re = 20,30,40\f$.
 
 Numerical Method:
- + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
  + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
                                         non-conservative 2-stage (NavierStokes3DParabolicFunction())
  + Time integration: RK4 (TimeRK(), #_RK_44_)
@@ -3455,7 +3458,7 @@ numbers, change it here.
 
 \b cylinder.stl : the filename "cylinder.stl" \b must match
 the input for \a immersed_body in \a solver.inp.\n
-Located at \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/cylinder.stl
+Located at \b hypar/Examples/STLGeometries/cylinder.stl
 
 To generate \b initial.inp (initial solution), compile 
 and run the following code in the run directory.
@@ -3466,11 +3469,11 @@ Output:
 
 Note that \b iproc is set to 
 
-      4 2 1
+      2 2 1
 
-in \b solver.inp (i.e., 4 processors along \a x, 2
+in \b solver.inp (i.e., 2 processors along \a x, 2
 processors along \a y, and 1 processor along \a z). Thus, 
-this example should be run with 8 MPI ranks (or change \b iproc).
+this example should be run with 4 MPI ranks (or change \b iproc).
 
 After running the code, there should be one output file
 \b op.bin, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
@@ -3510,6 +3513,227 @@ in the reference above:
 
 Expected screen output (for \f$Re_D = 20\f$):
 \include 3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/output.log
+
+  
+\page ns3d_cylinder_unsteady_incompressible_viscous Unsteady, incompressible, viscous flow around a cylinder (vortex shedding)
+
+Location: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/Unsteady_Viscous_Incompressible
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: The domain consists of a fine uniform grid around the cylinder defined by [-4,12] X [-2,2],
+        and a stretched grid beyond this zone.
+\b Note: This is a 2D flow simulated using a 3-dimensional setup by taking the length of the
+         domain along \a z to be very small and with only 3 grid points (the domain size along \a z
+         \b must \b be smaller than the cylinder length).
+
+Geometry: A cylinder of radius 1.0 centered at (0,0)
+          (\b hypar/Examples/STLGeometries/cylinder.stl)
+
+The following images shows the grid and the cylinder:
+@image html Domain3D_Cylinder2.png
+@image html Domain2D_Cylinder2.png
+
+Boundary conditions:
+  + xmin: Subsonic inflow #_SUBSONIC_INFLOW_
+  + xmax: Subsonic outflow #_SUBSONIC_OUTFLOW_
+  + ymin and ymax: Subsonic "ambivalent" #_SUBSONIC_AMBIVALENT_
+  + zmin and zmax: Periodic #_PERIODIC_ (to simulate a 2D flow in the x-y plane)
+
+Reference:
+  + Taneda, S., "Experimental Investigation of the Wakes behind Cylinders and Plates at Low 
+    Reynolds Numbers," Journal of the Physical Society of Japan, Vol. 11, 302–307, 1956. 
+
+Initial solution: \f$\rho=1, u=0.1, v=w=0, p=1/\gamma\f$ everywhere in the domain.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+  + Freestream Mach number \f$M_{\infty} = 0.1\f$ (#NavierStokes3D::Minf)
+  + Prandlt number \f$Pr = 0.72\f$ (#NavierStokes3D::Pr)
+  + Reynolds number \f$Re = \frac {\rho u L } {\mu} = 50\f$ (#NavierStokes3D::Re) (\b Note: 
+    since the diameter of the cylinder is 2.0, the cylinder-diameter-based Reynolds number is 
+    \f$Re_D = 2Re = 100\f$.
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (NavierStokes3DParabolicFunction())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+These files are all located in: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/Unsteady_Viscous_Incompressible/
+
+\b solver.inp
+\include 3D/NavierStokes3D/2D_Cylinder/Unsteady_Viscous_Incompressible/solver.inp
+
+\b boundary.inp
+\include 3D/NavierStokes3D/2D_Cylinder/Unsteady_Viscous_Incompressible/boundary.inp
+
+\b physics.inp
+\include 3D/NavierStokes3D/2D_Cylinder/Unsteady_Viscous_Incompressible/physics.inp
+
+\b cylinder.stl : the filename "cylinder.stl" \b must match
+the input for \a immersed_body in \a solver.inp.\n
+Located at \b hypar/Examples/STLGeometries/cylinder.stl
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 3D/NavierStokes3D/2D_Cylinder/Unsteady_Viscous_Incompressible/aux/init.c
+
+Output:
+-------
+
+Note that \b iproc is set to 
+
+      4 2 1
+
+in \b solver.inp (i.e., 4 processors along \a x, 2
+processors along \a y, and 1 processor along \a z). Thus, 
+this example should be run with 8 MPI ranks (or change \b iproc).
+
+After running the code, there should be 401 solution files \b op_00000.bin, 
+\b op_00001.bin, ..., \b op_00400.bin. Since #HyPar::op_overwrite is set to 
+\a no in \b solver.inp, separate files are written for solutions at each
+output time.
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b hypar/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file.
++ \b hypar/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+The file \b Extras/ExtractSlice.c can be used to extract a slice perpendicular to any dimension
+at a specified location along that dimension. The extracted slice is written out in the same
+binary format as the original solutions files (with the same names op_xxxxx.bin) in a 
+subdirectory called \b slices (\b Note: make the subdirectory called \a slices before running
+this code). The codes Extras/BinaryToTecplot.c and Extras/BinaryToText.c
+can then be used (in the \b slices subdirectory) to convert the binary slice solution file
+to Tecplot or plain text files.
+\b Note that it needs the relevant \b solver.inp that can be created as follows:
++ Copy the original solver.inp to the slices subdirectory.
++ In solver.inp, set \b ndims as \b 2, and remove the component of \b size and \b iproc 
+  corresponding to the dimension being eliminated while extracting the slices (in this case,
+  it is \a z or the 3rd component).
+
+The following animation shows the vorticity magnitude and has been created by
+plotting op_00301.bin through op_00400.bin, and shows the vortex shedding:
+@image html Solution_3DNavStokCylinder_Shedding.gif
+
+Expected screen output:
+\include 3D/NavierStokes3D/2D_Cylinder/Unsteady_Viscous_Incompressible/output.log
+
+  
+\page ns3d_shock_cylinder_interaction Inviscid Shock-Cylinder Interaction 
+
+Location: \b hypar/Examples/3D/NavierStokes3D/2D_Shock_Cylinder_Interaction
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h - by default
+                     #NavierStokes3D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 3D Euler
+                     equations are solved.)
+
+Domain: \f$-2.5 \le x \le 7.5\f$, \f$-5 \le y \le 5\f$
+\b Note: This is a 2D flow simulated using a 3-dimensional setup by taking the length of the
+         domain along \a z to be very small and with only 3 grid points (the domain size along \a z
+         \b must \b be smaller than the cylinder length).
+
+Geometry: A cylinder of radius 1.0 centered at (0,0)
+          (\b hypar/Examples/STLGeometries/cylinder.stl)
+
+Boundary conditions:
+  + xmin: Subsonic inflow #_SUBSONIC_INFLOW_ (with post-shock flow conditions)
+  + xmax: Supersonic inflow #_SUPERSONIC_OUTFLOW_ (with pre-shock flow conditions)
+  + ymin and ymax: Slip walls $_SLIP_WALL_
+  + zmin and zmax: Periodic #_PERIODIC_ (to simulate a 2D flow in the x-y plane)
+
+Reference:
++ O. Boiron, G. Chiavassa, R. Donat, A high-resolution penalization method for large Mach number 
+  flows in the presence of obstacles, Computers & Fluids, 38 (2009), pp. 703-714, Section 5.1
+
+Initial solution: see reference
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+These files are all located in: \b hypar/Examples/3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/
+
+\b solver.inp
+\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/solver.inp
+
+\b boundary.inp
+\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/boundary.inp
+
+\b physics.inp
+\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/physics.inp
+
+\b cylinder.stl : the filename "cylinder.stl" \b must match
+the input for \a immersed_body in \a solver.inp.\n
+Located at \b hypar/Examples/STLGeometries/cylinder.stl
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/aux/init.c
+
+Output:
+-------
+
+Note that \b iproc is set to 
+
+      2 2 1
+
+in \b solver.inp (i.e., 2 processors along \a x, 2
+processors along \a y, and 1 processor along \a z). Thus, 
+this example should be run with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be 81 solution files \b op_00000.bin 
+(initial solution), 
+\b op_00001.bin, ..., \b op_00080.bin (solution at t=2). 
+Since #HyPar::op_overwrite is set to 
+\a no in \b solver.inp, separate files are written for solutions at each
+output time.
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b hypar/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file.
++ \b hypar/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+The file \b Extras/ExtractSlice.c can be used to extract a slice perpendicular to any dimension
+at a specified location along that dimension. The extracted slice is written out in the same
+binary format as the original solutions files (with the same names op_xxxxx.bin) in a 
+subdirectory called \b slices (\b Note: make the subdirectory called \a slices before running
+this code). The codes Extras/BinaryToTecplot.c and Extras/BinaryToText.c
+can then be used (in the \b slices subdirectory) to convert the binary slice solution file
+to Tecplot or plain text files.
+\b Note that it needs the relevant \b solver.inp that can be created as follows:
++ Copy the original solver.inp to the slices subdirectory.
++ In solver.inp, set \b ndims as \b 2, and remove the component of \b size and \b iproc 
+  corresponding to the dimension being eliminated while extracting the slices (in this case,
+  it is \a z or the 3rd component).
+
+The following plot shows the density contours for the final solution (t=2):
+@image html Solution_3DNavStokShockCyl_Density.png
+and the following is the numerical Schlieren image (contour plot of \f$\|\nabla\rho\|_2\f$):
+@image html Solution_3DNavStokShockCyl_Schlieren.png
+@image html Solution_3DNavStokShockCyl_Schlieren2.png
+
+Expected screen output:
+\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/output.log
 
   
 

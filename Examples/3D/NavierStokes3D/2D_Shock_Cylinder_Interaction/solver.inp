@@ -1,0 +1,20 @@
+begin
+  ndims               3
+  nvars               5
+  size                256 256 3
+  iproc               2 2 1
+  ghost               3
+  n_iter              400
+  time_scheme         rk
+  time_scheme_type    44
+  hyp_space_scheme    weno5
+  hyp_interp_type     characteristic
+  dt                  0.005
+  screen_op_iter      1
+  file_op_iter        5
+  ip_file_type        binary
+  op_file_format      binary
+  op_overwrite        no
+  model               navierstokes3d
+  immersed_body       cylinder.stl
+end

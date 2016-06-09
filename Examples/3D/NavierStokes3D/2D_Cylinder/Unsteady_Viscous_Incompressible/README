@@ -1,0 +1,73 @@
+3D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+Two-dimensional unsteady, viscous, incompressible flow around a cylinder
+(vortex shedding)
+
+Domain:
+
+  Uniform grid in the following region:
+  -4 <= x <= 12
+  -2 <= y <= 2
+  Stretched mesh beyond that (location of actual
+  boundary depends on stretching ratio and number
+  of points - as far as possible)
+
+  Length of the domain along z is very small and with only 3 grid points
+
+Immersed body: Cylinder of radius 1, centered at (0,0).
+
+Boundary Conditions: 
++ xmin: Subsonic inflow
++ xmax: Subsonic outflow
++ ymin and ymax: Subsonic "ambivalent"
++ zmin and zmax: Periodic
+
+Initial solution:
+    rho = 1.0
+    u   = 0.1
+    v   = 0.0
+    w   = 0.0
+    p   = 1/gamma
+  everywhere in the domain
+
+Other parameters:
+  gamma = 1.4
+  freestream Mach number = 0.1
+  Prandtl number = 0.72
+  Reynolds number = 50 (cylinder-diameter-based Reynolds number = 100)
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
++ initial.inp   -   Initial solution file (can be generated
+                    by compiling and running aux/init.c in
+                    the run directory).
++ cylinder.stl  -   Copy from hypar/Examples/STLGeometries/cylinder.stl
+NOTE: The cylinder geometry must be specified as a STL file.
+
+Visualization:
++ If "op_file_format" is set to "tecplot3d", the solution files can be
+  visualized in any software that reads in the Tecplot format (eg., 
+  Tecplot, VisIt, Paraview, etc)
++ If the "op_file_format" is set to "text", the solution files are ASCII
+  text files with the following columns: i-index, j-index, k-index,
+  x-coordinate, y-coordinate, z-coordinate, rho, rho*u, rho*v, rho*w, E.
++ If the "op_file_format is set to "binary", the solutions are written
+  to binary files.
+  - hypar/Extras/BinaryToTecplot.c - use this code to convert to a Tecplot
+    format solution file.
+  - hypar/Extras/BinaryToText.c - use this code to convert to a plain text
+    format solution file.
+  - hypar/Extras/ExtractSlice.c - use this code to extract a 2D slice normal
+    to a specified dimension at a specified position along that dimension.
+    The output will be binary solution files (with the same names) written
+    to a subdirectory "slices" (NOTE: create the subdirectory "slices" 
+    before using this). The binary solution files for the slices can then
+    be converted to Tecplot or text formats using the above codes. This 
+    needs the relevant solver.inp in the slices subdirectory that can be 
+    created as follows:
+    + Copy the original solver.inp to the slices subdirectory.
+    + In this solver.inp, set ndims as 2, and remove the component of size and 
+      iproc corresponding to the dimension being eliminated while extracting 
+      the slices (in this case, it is z or the 3rd component).

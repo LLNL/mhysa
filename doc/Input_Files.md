@@ -281,3 +281,18 @@ and source terms are integrated in time (explicitly or implicitly):
 + <B>-parabolic_implicit</B>: treat parabolic term implicitly (\b default).
 + <B>-source_implicit</B>: treat the source term implicitly (\b default).
 
+\section immersed_body Immersed Body
+
+Requirement: \b mandatory <B>if using immersed boundaries</B> (the keyword \a immersed_body is specified in 
+             \b solver.inp); if absent, HyPar will not use immersed boundaries.
+
+Read by: IBReadBodySTL(), called by the initialization function for immersed boundaries InitializeImmersedBoundaries().
+
+File name: The name of this file <B>must</B> be the same as the value of the keyword \a immersed_body in \b solver.inp.
+
+Format: ASCII STL (https://en.wikipedia.org/wiki/STL_%28file_format%29)
+
+Notes:
++ The normal defined in the STL file must be the <B>"outward"</B> normal, i.e., pointing outside the body.
++ The geometry must be a closed one.
++ Some sample STL files are available in \b hypar/Examples/STLGeometries/
