@@ -3387,11 +3387,14 @@ representation of the immersed body is necessary. Note:
 + It can be used with only those physical models that define an immersed boundary implementation (#HyPar::IBFunction()), for
   example, the 3D Navier-Stokes equations (NavierStokes3DImmersedBoundary()).
 
-\subpage ns3d_cylinder_subsonic
+3D Navier-Stokes Equations:
+---------------------------
 
-\page ns3d_cylinder_subsonic Navier-Stokes Equations - Steady, incompressible flow around a cylinder.
+\subpage ns3d_cylinder_steady_incompressible_viscous
 
-Location: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder
+\page ns3d_cylinder_steady_incompressible_viscous Steady, incompressible, viscous flow around a cylinder
+
+Location: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
 
@@ -3402,7 +3405,7 @@ Domain: The domain consists of a fine uniform grid around the cylinder defined b
          \b must \b be smaller than the cylinder length).
 
 Geometry: A cylinder of radius 1.0 centered at (0,0)
-          (\b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/cylinder.stl)
+          (\b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/cylinder.stl)
 
 The following images shows the grid and the cylinder:
 @image html Domain3D_Cylinder.png
@@ -3437,26 +3440,26 @@ Numerical Method:
 Input files required:
 ---------------------
 
-These files are all located in: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/
+These files are all located in: \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/
 
 \b solver.inp
-\include 3D/NavierStokes3D/2D_Cylinder/solver.inp
+\include 3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/solver.inp
 
 \b boundary.inp
-\include 3D/NavierStokes3D/2D_Cylinder/boundary.inp
+\include 3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/boundary.inp
 
 \b physics.inp : The following file specifies a Reynolds number
 of 10 (corresponding to \f$Re_D\f$ of 20). To try other Reynolds 
 numbers, change it here.
-\include 3D/NavierStokes3D/2D_Cylinder/physics.inp
+\include 3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/physics.inp
 
 \b cylinder.stl : the filename "cylinder.stl" \b must match
 the input for \a immersed_body in \a solver.inp.\n
-Located at \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/cylinder.stl
+Located at \b hypar/Examples/3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/cylinder.stl
 
 To generate \b initial.inp (initial solution), compile 
 and run the following code in the run directory.
-\include 3D/NavierStokes3D/2D_Cylinder/aux/init.c
+\include 3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/aux/init.c
 
 Output:
 -------
@@ -3500,8 +3503,13 @@ The parameter \a Re can be changed to 20 in \a physics.inp to run this simulatio
 \f$Re_D=40\f$, and following figure shows the solution:
 @image html Solution_3DNavStokCylinder_ReD040.png
 
+The following plot shows the wake length (\f$L/D\f$) as a function of the Reynolds
+number (\f$Re_D\f$) for the computed solutions and experimental results reported
+in the reference above:
+@image html Solution_3DNavStokCylinder_WL.png
+
 Expected screen output (for \f$Re_D = 20\f$):
-\include 3D/NavierStokes3D/2D_Cylinder/output.log
+\include 3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/output.log
 
   
 
