@@ -70,82 +70,8 @@ int PetscComputePreconMatIMEX(
                               void *ctxt  /*!< Application context */
                              )
 {
-  PETScContext    *context = (PETScContext*) ctxt;
-  HyPar           *solver  = context->solver;
-  MPIVariables    *mpi     = context->mpi;
-  PetscErrorCode  ierr;
-  int             ndims       = solver->ndims,
-                  nvars       = solver->nvars,
-                  ghosts      = solver->ghosts,
-                  *dim        = solver->dim_local,
-                  *dim_g      = solver->dim_global,
-                  *isPeriodic = solver->isPeriodic,
-                  index[ndims],indexL[ndims],indexR[ndims],
-                  v,dir,done,rows[nvars],cols[nvars];
-  double          *u   = solver->u, dxinv, values[nvars*nvars];
-
-  PetscFunctionBegin;
-  /* copy solution from PETSc vector */
-  ierr = TransferVecFromPETSc(u,Y,context); CHECKERR(ierr);
-  /* apply boundary conditions and exchange data over MPI interfaces */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,context->waqt); CHECKERR(ierr);
-  ierr = MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
-  /* initialize preconditioning matrix to zero */
-  ierr = MatZeroEntries(Pmat); CHKERRQ(ierr);
-
-  /* loop through all grid points */
-  done = 0; _ArraySetValue_(index,ndims,0);
-  while (!done) {
-    /* compute local and global 1D index of this grid point */
-    int p;  _ArrayIndex1D_(ndims,dim,index,ghosts,p); /* local - for accessing u */
-    int pg, pgL, pgR;
-
-    /* compute the contributions from the flux derivatives along each dimension */
-    for (dir = 0; dir < ndims; dir++) {
-
-      /* compute indices and global 1D indices for left and right neighbors */
-      _ArrayCopy1D_(index,indexL,ndims); indexL[dir]--;
-      int pL;  _ArrayIndex1D_(ndims,dim,indexL,ghosts,pL);
-
-      _ArrayCopy1D_(index,indexR,ndims); indexR[dir]++;
-      int pR;  _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
-
-      pg  = (int) context->globalDOF[p];
-      pgL = (int) context->globalDOF[pL];
-      pgR = (int) context->globalDOF[pR];
-
-      /* Retrieve 1/delta-x at this grid point */
-      _GetCoordinate_(dir,index[dir],dim,ghosts,solver->dxinv,dxinv);
-
-      /* diagonal element */
-      for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pg + v; }
-      ierr = solver->JFunction(values,(u+nvars*p),solver->physics,dir,0);
-      _ArrayScale1D_(values,dxinv,(nvars*nvars));
-      ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
-
-      /* left neighbor */
-      if (pgL >= 0) {
-        for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgL + v; }
-        ierr = solver->JFunction(values,(u+nvars*pL),solver->physics,dir,1);
-        _ArrayScale1D_(values,-dxinv,(nvars*nvars));
-        ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
-      }
-      
-      /* right neighbor */
-      if (pgR >= 0) {
-        for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgR + v; }
-        ierr = solver->JFunction(values,(u+nvars*pR),solver->physics,dir,-1);
-        _ArrayScale1D_(values,-dxinv,(nvars*nvars));
-        ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
-      }
-    }
-    _ArrayIncrementIndex_(ndims,dim,index,done);
-  }
-  ierr = MatAssemblyBegin(Pmat,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-  ierr = MatAssemblyEnd  (Pmat,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-  
-  ierr = MatShift(Pmat,context->shift); CHKERRQ(ierr);
-  PetscFunctionReturn(0);
+  /* Same implementation as PetscComputePreconMatImpl() */
+  return(PetscComputePreconMatImpl(Pmat,Y,ctxt));
 }
 
 #endif

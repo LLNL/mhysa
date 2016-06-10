@@ -75,11 +75,12 @@ int PetscComputePreconMatImpl(
                   nvars       = solver->nvars,
                   ghosts      = solver->ghosts,
                   *dim        = solver->dim_local,
-                  *dim_g      = solver->dim_global,
                   *isPeriodic = solver->isPeriodic,
                   index[ndims],indexL[ndims],indexR[ndims],
                   v,dir,done,rows[nvars],cols[nvars];
-  double          *u   = solver->u, dxinv, values[nvars*nvars];
+  double          *u      = solver->u, 
+                  *iblank = solver->iblank,
+                  dxinv, values[nvars*nvars];
 
   PetscFunctionBegin;
   /* copy solution from PETSc vector */
@@ -117,14 +118,14 @@ int PetscComputePreconMatImpl(
       /* diagonal element */
       for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pg + v; }
       ierr = solver->JFunction(values,(u+nvars*p),solver->physics,dir,0);
-      _ArrayScale1D_(values,dxinv,(nvars*nvars));
+      _ArrayScale1D_(values,(iblank[p]*dxinv),(nvars*nvars));
       ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
 
       /* left neighbor */
       if (pgL >= 0) {
         for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgL + v; }
         ierr = solver->JFunction(values,(u+nvars*pL),solver->physics,dir,1);
-        _ArrayScale1D_(values,-dxinv,(nvars*nvars));
+        _ArrayScale1D_(values,-(iblank[p]*dxinv),(nvars*nvars));
         ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
       }
       
@@ -132,7 +133,7 @@ int PetscComputePreconMatImpl(
       if (pgR >= 0) {
         for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgR + v; }
         ierr = solver->JFunction(values,(u+nvars*pR),solver->physics,dir,-1);
-        _ArrayScale1D_(values,-dxinv,(nvars*nvars));
+        _ArrayScale1D_(values,-(iblank[p]*dxinv),(nvars*nvars));
         ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
       }
     }
