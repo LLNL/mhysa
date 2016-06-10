@@ -702,9 +702,9 @@ int NavierStokes3DUpwindRusanovModified(
         D[18] = alpha;
         D[24] = alpha;
       }
-      MatMult5  (_MODEL_NVARS_,DL,D,L);
-      MatMult5  (_MODEL_NVARS_,modA,R,DL);
-      MatVecMult5(_MODEL_NVARS_,udiss,modA,udiff);
+      MatMult5    (_MODEL_NVARS_,DL,D,L);
+      MatMult5    (_MODEL_NVARS_,modA,R,DL);
+      MatVecMult5 (_MODEL_NVARS_,udiss,modA,udiff);
 
       fI[q+0] = 0.5*(fL[q+0]+fR[q+0])-udiss[0];
       fI[q+1] = 0.5*(fL[q+1]+fR[q+1])-udiss[1];
@@ -778,11 +778,11 @@ int NavierStokes3DUpwinddFRusanovModified(
 
       double c, vel[_MODEL_NDIMS_], rho,E,P;
 
-      _NavierStokes3DGetFlowVar_((u+_MODEL_NVARS_*pL),rho,vel[0],vel[1],vel[2],E,P,param);
+      _NavierStokes3DGetFlowVar_((uref+_MODEL_NVARS_*pL),rho,vel[0],vel[1],vel[2],E,P,param);
       c = sqrt(param->gamma*P/rho);
       double alphaL = c + absolute(vel[dir]);
 
-      _NavierStokes3DGetFlowVar_((u+_MODEL_NVARS_*pR),rho,vel[0],vel[1],vel[2],E,P,param);
+      _NavierStokes3DGetFlowVar_((uref+_MODEL_NVARS_*pR),rho,vel[0],vel[1],vel[2],E,P,param);
       c = sqrt(param->gamma*P/rho);
       double alphaR = c + absolute(vel[dir]);
 
@@ -804,9 +804,9 @@ int NavierStokes3DUpwinddFRusanovModified(
         D[18] = alpha;
         D[24] = alpha;
       }
-      MatMult5  (_MODEL_NVARS_,DL,D,L);
-      MatMult5  (_MODEL_NVARS_,modA,R,DL);
-      MatVecMult5(_MODEL_NVARS_,udiss,modA,udiff);
+      MatMult5    (_MODEL_NVARS_,DL,D,L);
+      MatMult5    (_MODEL_NVARS_,modA,R,DL);
+      MatVecMult5 (_MODEL_NVARS_,udiss,modA,udiff);
 
       fI[q+0] = 0.5*(fL[q+0]+fR[q+0])-udiss[0];
       fI[q+1] = 0.5*(fL[q+1]+fR[q+1])-udiss[1];
@@ -844,18 +844,17 @@ int NavierStokes3DUpwindFdFRusanovModified(
   static int bounds_outer[_MODEL_NDIMS_], bounds_inter[_MODEL_NDIMS_];
   bounds_outer[0] = dim[0]; bounds_outer[1] = dim[1]; bounds_outer[2] = dim[2]; bounds_outer[dir] = 1;
   bounds_inter[0] = dim[0]; bounds_inter[1] = dim[1]; bounds_inter[2] = dim[2]; bounds_inter[dir]++;
+
   static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], 
                 L[_MODEL_NVARS_*_MODEL_NVARS_], DL[_MODEL_NVARS_*_MODEL_NVARS_], 
                 modA[_MODEL_NVARS_*_MODEL_NVARS_];
 
-  static int index_outer[_MODEL_NDIMS_], index_inter[_MODEL_NDIMS_],
-             indexL[_MODEL_NDIMS_], indexR[_MODEL_NDIMS_];
+  static int indexL[_MODEL_NDIMS_], indexR[_MODEL_NDIMS_],
+             index_outer[_MODEL_NDIMS_], index_inter[_MODEL_NDIMS_];
 
-  static double udiff[_MODEL_NVARS_],uavg[_MODEL_NVARS_],udiss[_MODEL_NVARS_],
-                udiss_total[_MODEL_NVARS_],udiss_acoustic[_MODEL_NVARS_];
+  static double udiff[_MODEL_NVARS_],uavg[_MODEL_NVARS_],udiss[_MODEL_NVARS_];
 
-  done = 0; 
-  _ArraySetValue_(index_outer,_MODEL_NDIMS_,0);
+  done = 0; _ArraySetValue_(index_outer,_MODEL_NDIMS_,0);
   while (!done) {
     _ArrayCopy1D_(index_outer,index_inter,_MODEL_NDIMS_);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
@@ -866,8 +865,14 @@ int NavierStokes3DUpwindFdFRusanovModified(
       int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
       int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
       int q = p*_MODEL_NVARS_;
+      double udiff[_MODEL_NVARS_], udiss[_MODEL_NVARS_], uavg[_MODEL_NVARS_],
+             udiss_total[_MODEL_NVARS_],udiss_acoustic[_MODEL_NVARS_];
 
       /* Modified Rusanov's upwinding scheme */
+      /* Modified Rusanov's upwinding scheme */
+      double c, vel[_MODEL_NDIMS_], rho,E,P, alphaL, alphaR, alphaavg,
+             betaL, betaR, betaavg, alpha, beta,
+             kappa  = max(param->grav_field_g[pL],param->grav_field_g[pR]);
 
       udiff[0] = 0.5 * (uR[q+0] - uL[q+0]);
       udiff[1] = 0.5 * (uR[q+1] - uL[q+1]);
@@ -875,13 +880,7 @@ int NavierStokes3DUpwindFdFRusanovModified(
       udiff[3] = 0.5 * (uR[q+3] - uL[q+3]);
       udiff[4] = 0.5 * (uR[q+4] - uL[q+4]);
 
-      double c, vel[_MODEL_NDIMS_], rho,E,P,
-             alphaL, alphaR, alphaavg, alpha,
-             betaL, betaR, betaavg, beta,
-             kappa;
-
-      /* compute total dissipation term */
-
+      /* Compute total dissipation */
       _NavierStokes3DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
       _NavierStokes3DLeftEigenvectors_  (uavg,L,param,dir);
       _NavierStokes3DRightEigenvectors_ (uavg,R,param,dir);
@@ -925,12 +924,11 @@ int NavierStokes3DUpwindFdFRusanovModified(
         D[18] = alpha;
         D[24] = alpha;
       }
-      MatMult5  (_MODEL_NVARS_,DL,D,L);
-      MatMult5  (_MODEL_NVARS_,modA,R,DL);
-      MatVecMult5(_MODEL_NVARS_,udiss_total,modA,udiff);
+      MatMult5    (_MODEL_NVARS_,DL,D,L);
+      MatMult5    (_MODEL_NVARS_,modA,R,DL);
+      MatVecMult5 (_MODEL_NVARS_,udiss_total,modA,udiff);
 
-      /* compute dissipation term for acoustic modes */
-
+      /* Compute dissipation for the linearized acoustic modes */
       _NavierStokes3DRoeAverage_        (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
       _NavierStokes3DLeftEigenvectors_  (uavg,L,param,dir);
       _NavierStokes3DRightEigenvectors_ (uavg,R,param,dir);
@@ -961,9 +959,9 @@ int NavierStokes3DUpwindFdFRusanovModified(
         D[18] = alpha;
         D[24] = alpha;
       }
-      MatMult5  (_MODEL_NVARS_,DL,D,L);
-      MatMult5  (_MODEL_NVARS_,modA,R,DL);
-      MatVecMult5(_MODEL_NVARS_,udiss_acoustic,modA,udiff);
+      MatMult5    (_MODEL_NVARS_,DL,D,L);
+      MatMult5    (_MODEL_NVARS_,modA,R,DL);
+      MatVecMult5 (_MODEL_NVARS_,udiss_acoustic,modA,udiff);
 
       /* Compute dissipation for the entropy modes */
       _ArraySubtract1D_(udiss,udiss_total,udiss_acoustic,_MODEL_NVARS_);
