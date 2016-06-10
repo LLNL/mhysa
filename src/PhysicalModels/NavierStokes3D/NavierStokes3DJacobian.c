@@ -37,8 +37,8 @@ int NavierStokes3DJacobian(
   k = 18; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
   k = 24; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
 
-  MatMult(_MODEL_NVARS_,DL,D,L);
-  MatMult(_MODEL_NVARS_,Jac,R,DL);
+  MatMult5(_MODEL_NVARS_,DL,D,L);
+  MatMult5(_MODEL_NVARS_,Jac,R,DL);
 
   return(0);
 }
@@ -88,8 +88,8 @@ int NavierStokes3DStiffJacobian(
     k = 24; D[k] = absolute( (1-aupw)*D[k] + 0.5*aupw*(1+upw)*max(0,D[k]) + 0.5*aupw*(1-upw)*min(0,D[k]) );
   }
 
-  MatMult(_MODEL_NVARS_,DL,D,L);
-  MatMult(_MODEL_NVARS_,Jac,R,DL);
+  MatMult5(_MODEL_NVARS_,DL,D,L);
+  MatMult5(_MODEL_NVARS_,Jac,R,DL);
 
   return(0);
 }

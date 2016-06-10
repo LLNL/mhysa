@@ -31,6 +31,9 @@ int    NavierStokes3DUpwindRF          (double*,double*,double*,double*,double*,
 int    NavierStokes3DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes3DUpwindRusanov     (double*,double*,double*,double*,double*,double*,int,void*,double);
 
+int    NavierStokes3DUpwinddFRoe       (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes3DUpwindFdFRoe      (double*,double*,double*,double*,double*,double*,int,void*,double);
+
 int    NavierStokes3DUpwindRusanovModified   (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes3DUpwinddFRusanovModified (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes3DUpwindFdFRusanovModified(double*,double*,double*,double*,double*,double*,int,void*,double);
@@ -216,7 +219,11 @@ int NavierStokes3DInitialize(
     solver->FdFFunction = NavierStokes3DNonStiffFlux;
     solver->dFFunction  = NavierStokes3DStiffFlux;
     solver->JFunction   = NavierStokes3DStiffJacobian;
-    if (!strcmp(physics->upw_choice,_RUSANOV_)) {
+    if (!strcmp(physics->upw_choice,_ROE_)) {
+      solver->Upwind    = NavierStokes3DUpwindRoe;
+      solver->UpwinddF  = NavierStokes3DUpwinddFRoe;
+      solver->UpwindFdF = NavierStokes3DUpwindFdFRoe;
+    } else if (!strcmp(physics->upw_choice,_RUSANOV_)) {
       solver->Upwind    = NavierStokes3DUpwindRusanovModified;
       solver->UpwinddF  = NavierStokes3DUpwinddFRusanovModified;
       solver->UpwindFdF = NavierStokes3DUpwindFdFRusanovModified;
@@ -224,8 +231,8 @@ int NavierStokes3DInitialize(
       if (!mpi->rank) {
         fprintf(stderr,"Error in NavierStokes3DInitialize(): %s is not a valid upwinding scheme ",
                 physics->upw_choice);
-        fprintf(stderr,"for use with split hyperbolic flux form. Use %s.\n",
-                _RUSANOV_);
+        fprintf(stderr,"for use with split hyperbolic flux form. Use %s or %s.\n",
+                _ROE_,_RUSANOV_);
       }
       return(1);
     }

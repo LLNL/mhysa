@@ -60,6 +60,10 @@ int NavierStokes3DUpwindRoe(
     _ArrayCopy1D3_(index_outer,index_inter,_MODEL_NDIMS_);
     for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
       int p; _ArrayIndex1D3_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
+      int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
+      int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
+      int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
+      int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
       double udiff[_MODEL_NVARS_], uavg[_MODEL_NVARS_],udiss[_MODEL_NVARS_];
 
       /* Roe's upwinding scheme */
@@ -70,11 +74,10 @@ int NavierStokes3DUpwindRoe(
       udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
       udiff[4] = 0.5 * (uR[_MODEL_NVARS_*p+4] - uL[_MODEL_NVARS_*p+4]);
 
-      _NavierStokes3DRoeAverage_(uavg,(uL+_MODEL_NVARS_*p),(uR+_MODEL_NVARS_*p),param);
-
-      _NavierStokes3DEigenvalues_(uavg,D,param,dir);
-      _NavierStokes3DLeftEigenvectors_(uavg,L,param,dir);
-      _NavierStokes3DRightEigenvectors_(uavg,R,param,dir);
+      _NavierStokes3DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _NavierStokes3DEigenvalues_       (uavg,D,param,dir);
+      _NavierStokes3DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes3DRightEigenvectors_ (uavg,R,param,dir);
 
       /* Harten's Entropy Fix - Page 362 of Leveque */
       int k;
@@ -390,6 +393,208 @@ int NavierStokes3DUpwindRusanov(
       fI[q+2] = 0.5*(fL[q+2]+fR[q+2])-alpha*udiff[2];
       fI[q+3] = 0.5*(fL[q+3]+fR[q+3])-alpha*udiff[3];
       fI[q+4] = 0.5*(fL[q+4]+fR[q+4])-alpha*udiff[4];
+    }
+    _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds_outer,index_outer,done);
+  }
+
+  return(0);
+}
+
+/*! The Roe upwinding scheme (#NavierStokes3DUpwindRoe) for the partitioned hyperbolic flux that comprises
+    of the acoustic waves only (see #NavierStokes3DStiffFlux, #_NavierStokes3DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+*/
+int NavierStokes3DUpwinddFRoe(
+                              double  *fI, /*!< Computed upwind interface flux */
+                              double  *fL, /*!< Left-biased reconstructed interface flux */
+                              double  *fR, /*!< Right-biased reconstructed interface flux */
+                              double  *uL, /*!< Left-biased reconstructed interface solution */
+                              double  *uR, /*!< Right-biased reconstructed interface solution */
+                              double  *u,  /*!< Cell-centered solution */
+                              int     dir, /*!< Spatial dimension (x, y, or z) */
+                              void    *s,  /*!< Solver object of type #HyPar */
+                              double  t    /*!< Current solution time */
+                             )
+{
+  HyPar           *solver = (HyPar*)    s;
+  NavierStokes3D  *param  = (NavierStokes3D*)  solver->physics;
+  int             done;
+
+  int     *dim  = solver->dim_local;
+  double  *uref = param->solution;
+
+  int bounds_outer[_MODEL_NDIMS_], bounds_inter[_MODEL_NDIMS_];
+  _ArrayCopy1D3_(dim,bounds_outer,_MODEL_NDIMS_); bounds_outer[dir] =  1;
+  _ArrayCopy1D3_(dim,bounds_inter,_MODEL_NDIMS_); bounds_inter[dir] += 1;
+  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], 
+                L[_MODEL_NVARS_*_MODEL_NVARS_], DL[_MODEL_NVARS_*_MODEL_NVARS_], 
+                modA[_MODEL_NVARS_*_MODEL_NVARS_];
+
+  done = 0; int index_outer[3] = {0,0,0}, index_inter[3];
+  while (!done) {
+    _ArrayCopy1D3_(index_outer,index_inter,_MODEL_NDIMS_);
+    for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
+      int p; _ArrayIndex1D3_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
+      int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
+      int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
+      int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
+      int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
+      double udiff[_MODEL_NVARS_], uavg[_MODEL_NVARS_],udiss[_MODEL_NVARS_];
+
+      /* Roe's upwinding scheme */
+
+      udiff[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] - uL[_MODEL_NVARS_*p+0]);
+      udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
+      udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
+      udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
+      udiff[4] = 0.5 * (uR[_MODEL_NVARS_*p+4] - uL[_MODEL_NVARS_*p+4]);
+
+      _NavierStokes3DRoeAverage_        (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
+      _NavierStokes3DEigenvalues_       (uavg,D,param,dir);
+      _NavierStokes3DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes3DRightEigenvectors_ (uavg,R,param,dir);
+
+      /* Harten's Entropy Fix - Page 362 of Leveque */
+      int k;
+      double delta = 0.000001, delta2 = delta*delta;
+      if (dir == _XDIR_) {
+        k=0;  D[k] = 0.0;
+        k=6;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+        k=12; D[k] = 0.0;
+        k=18; D[k] = 0.0;
+        k=24; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      } else if (dir == _YDIR_) {
+        k=0;  D[k] = 0.0;
+        k=6;  D[k] = 0.0;
+        k=12; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+        k=18; D[k] = 0.0;
+        k=24; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      } else if (dir == _ZDIR_) {
+        k=0;  D[k] = 0.0;
+        k=6;  D[k] = 0.0;
+        k=12; D[k] = 0.0;
+        k=18; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+        k=24; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      }
+
+      MatMult5(_MODEL_NVARS_,DL,D,L);
+      MatMult5(_MODEL_NVARS_,modA,R,DL);
+      MatVecMult5(_MODEL_NVARS_,udiss,modA,udiff);
+      
+      fI[_MODEL_NVARS_*p+0] = 0.5 * (fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0]) - udiss[0];
+      fI[_MODEL_NVARS_*p+1] = 0.5 * (fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1]) - udiss[1];
+      fI[_MODEL_NVARS_*p+2] = 0.5 * (fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2]) - udiss[2];
+      fI[_MODEL_NVARS_*p+3] = 0.5 * (fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3]) - udiss[3];
+      fI[_MODEL_NVARS_*p+4] = 0.5 * (fL[_MODEL_NVARS_*p+4]+fR[_MODEL_NVARS_*p+4]) - udiss[4];
+    }
+    _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds_outer,index_outer,done);
+  }
+
+  return(0);
+}
+
+/*! The Roe upwinding scheme (#NavierStokes3DUpwindRoe) for the partitioned hyperbolic flux that comprises
+    of the entropy waves only (see #NavierStokes3DNonStiffFlux, #_NavierStokes3DSetStiffFlux_). Thus, only the 
+    characteristic fields / eigen-modes corresponding to \f$u\f$ are used.
+*/
+int NavierStokes3DUpwindFdFRoe(
+                                double  *fI, /*!< Computed upwind interface flux */
+                                double  *fL, /*!< Left-biased reconstructed interface flux */
+                                double  *fR, /*!< Right-biased reconstructed interface flux */
+                                double  *uL, /*!< Left-biased reconstructed interface solution */
+                                double  *uR, /*!< Right-biased reconstructed interface solution */
+                                double  *u,  /*!< Cell-centered solution */
+                                int     dir, /*!< Spatial dimension (x, y, or z) */
+                                void    *s,  /*!< Solver object of type #HyPar */
+                                double  t    /*!< Current solution time */
+                              )
+{
+  HyPar           *solver = (HyPar*)    s;
+  NavierStokes3D  *param  = (NavierStokes3D*)  solver->physics;
+  int             done;
+
+  int     *dim  = solver->dim_local;
+  double  *uref = param->solution;
+
+  int bounds_outer[_MODEL_NDIMS_], bounds_inter[_MODEL_NDIMS_];
+  _ArrayCopy1D3_(dim,bounds_outer,_MODEL_NDIMS_); bounds_outer[dir] =  1;
+  _ArrayCopy1D3_(dim,bounds_inter,_MODEL_NDIMS_); bounds_inter[dir] += 1;
+  static double R[_MODEL_NVARS_*_MODEL_NVARS_], D[_MODEL_NVARS_*_MODEL_NVARS_], 
+                L[_MODEL_NVARS_*_MODEL_NVARS_], DL[_MODEL_NVARS_*_MODEL_NVARS_], 
+                modA[_MODEL_NVARS_*_MODEL_NVARS_];
+
+  done = 0; int index_outer[3] = {0,0,0}, index_inter[3];
+  while (!done) {
+    _ArrayCopy1D3_(index_outer,index_inter,_MODEL_NDIMS_);
+    for (index_inter[dir] = 0; index_inter[dir] < bounds_inter[dir]; index_inter[dir]++) {
+      int p; _ArrayIndex1D3_(_MODEL_NDIMS_,bounds_inter,index_inter,0,p);
+      int indexL[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexL,_MODEL_NDIMS_); indexL[dir]--;
+      int indexR[_MODEL_NDIMS_]; _ArrayCopy1D_(index_inter,indexR,_MODEL_NDIMS_);
+      int pL; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexL,solver->ghosts,pL);
+      int pR; _ArrayIndex1D_(_MODEL_NDIMS_,dim,indexR,solver->ghosts,pR);
+      int k;
+      double udiff[_MODEL_NVARS_],uavg[_MODEL_NVARS_],udiss[_MODEL_NVARS_],
+             udiss_total[_MODEL_NVARS_],udiss_stiff[_MODEL_NVARS_];
+      double delta = 0.000001, delta2 = delta*delta;
+
+      /* Roe's upwinding scheme */
+
+      udiff[0] = 0.5 * (uR[_MODEL_NVARS_*p+0] - uL[_MODEL_NVARS_*p+0]);
+      udiff[1] = 0.5 * (uR[_MODEL_NVARS_*p+1] - uL[_MODEL_NVARS_*p+1]);
+      udiff[2] = 0.5 * (uR[_MODEL_NVARS_*p+2] - uL[_MODEL_NVARS_*p+2]);
+      udiff[3] = 0.5 * (uR[_MODEL_NVARS_*p+3] - uL[_MODEL_NVARS_*p+3]);
+      udiff[4] = 0.5 * (uR[_MODEL_NVARS_*p+4] - uL[_MODEL_NVARS_*p+4]);
+
+      /* Compute total dissipation */
+      _NavierStokes3DRoeAverage_        (uavg,(u+_MODEL_NVARS_*pL),(u+_MODEL_NVARS_*pR),param);
+      _NavierStokes3DEigenvalues_       (uavg,D,param,dir);
+      _NavierStokes3DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes3DRightEigenvectors_ (uavg,R,param,dir);
+      k=0;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=6;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=12; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=18; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      k=24; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      MatMult5(_MODEL_NVARS_,DL,D,L);
+      MatMult5(_MODEL_NVARS_,modA,R,DL);
+      MatVecMult5(_MODEL_NVARS_,udiss_total,modA,udiff);
+      
+      /* Compute dissipation corresponding to acoustic modes */
+      _NavierStokes3DRoeAverage_        (uavg,(uref+_MODEL_NVARS_*pL),(uref+_MODEL_NVARS_*pR),param);
+      _NavierStokes3DEigenvalues_       (uavg,D,param,dir);
+      _NavierStokes3DLeftEigenvectors_  (uavg,L,param,dir);
+      _NavierStokes3DRightEigenvectors_ (uavg,R,param,dir);
+      if (dir == _XDIR_) {
+        k=0;  D[k] = 0.0;
+        k=6;  D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+        k=12; D[k] = 0.0;
+        k=18; D[k] = 0.0;
+        k=24; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      } else if (dir == _YDIR_) {
+        k=0;  D[k] = 0.0;
+        k=6;  D[k] = 0.0;
+        k=12; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+        k=18; D[k] = 0.0;
+        k=24; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      } else if (dir == _ZDIR_) {
+        k=0;  D[k] = 0.0;
+        k=6;  D[k] = 0.0;
+        k=12; D[k] = 0.0;
+        k=18; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+        k=24; D[k] = (absolute(D[k]) < delta ? (D[k]*D[k]+delta2)/(2*delta) : absolute(D[k]) );
+      }
+      MatMult5(_MODEL_NVARS_,DL,D,L);
+      MatMult5(_MODEL_NVARS_,modA,R,DL);
+      MatVecMult5(_MODEL_NVARS_,udiss_stiff,modA,udiff);
+
+     /* Compute the dissipation term for the entropy modes */
+      _ArraySubtract1D_(udiss,udiss_total,udiss_stiff,_MODEL_NVARS_);
+
+      fI[_MODEL_NVARS_*p+0] = 0.5 * (fL[_MODEL_NVARS_*p+0]+fR[_MODEL_NVARS_*p+0]) - udiss[0];
+      fI[_MODEL_NVARS_*p+1] = 0.5 * (fL[_MODEL_NVARS_*p+1]+fR[_MODEL_NVARS_*p+1]) - udiss[1];
+      fI[_MODEL_NVARS_*p+2] = 0.5 * (fL[_MODEL_NVARS_*p+2]+fR[_MODEL_NVARS_*p+2]) - udiss[2];
+      fI[_MODEL_NVARS_*p+3] = 0.5 * (fL[_MODEL_NVARS_*p+3]+fR[_MODEL_NVARS_*p+3]) - udiss[3];
+      fI[_MODEL_NVARS_*p+4] = 0.5 * (fL[_MODEL_NVARS_*p+4]+fR[_MODEL_NVARS_*p+4]) - udiss[4];
     }
     _ArrayIncrementIndex_(_MODEL_NDIMS_,bounds_outer,index_outer,done);
   }
