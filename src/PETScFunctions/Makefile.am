@@ -4,6 +4,7 @@ libPETScFunctions_a_SOURCES = \
   PetscComputeRHSOperators.c \
   PetscComputePreconMatIMEX.c \
   PetscComputePreconMatImpl.c \
+  PetscCreatePointList.c \
   PetscGlobalDOF.c \
   PetscIJacobian.c \
   PetscIFunctionIMEX.c \

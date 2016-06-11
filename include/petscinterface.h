@@ -42,6 +42,16 @@ typedef struct _petsccontext_ {
   /*! A counter variable */
   int       tic;
 
+  /*! Number of computational points, i.e., total number of grid points
+      not counting the ghost points and blanked out points (for eg, inside
+      immersed bodies) */
+  int npoints;
+  /*! index list of points whose size is (#HyPar::ndims+1)*#PETScContext::npoints.
+      For each point, it stores its ndims-dimensional index and its 1D index 
+      of its location in the array #HyPar::u.
+  */
+  int *points;
+
   /* flags for implicit treatment */
   /*! Flag to indicate if hyperbolic term is treated implicitly or explicitly    */
   int flag_hyperbolic;    
@@ -98,6 +108,7 @@ int PetscComputePreconMatImpl(Mat,Vec,void*);
 
 int PetscGlobalDOF(void*);
 int PetscCleanup(void*);
+int PetscCreatePointList(void*);
 
 /* Other functions */
 PetscErrorCode PetscPreStage        (TS,PetscReal);

@@ -13,13 +13,13 @@
 #include <petscinterface.h>
 
 static int ApplyPeriodicity(
-                  int     dir,    /*!< Spatial dimension along which to apply periodicity */
-                  int     ndims,  /*!< Number of spatial dimensions */
-                  int     *size,  /*!< Integer array with the number of grid points in 
-                                       each spatial dimension */
-                  int     ghosts, /*!< Number of ghost points */
-                  double  *phi    /*!< The array on which to apply the boundary condition */
-               )
+                              int     dir,    /*!< Spatial dimension along which to apply periodicity */
+                              int     ndims,  /*!< Number of spatial dimensions */
+                              int     *size,  /*!< Integer array with the number of grid points in 
+                                                   each spatial dimension */
+                              int     ghosts, /*!< Number of ghost points */
+                              double  *phi    /*!< The array on which to apply the boundary condition */
+                           )
 {
   int bounds[ndims], index1[ndims], index2[ndims], offset[ndims], 
       done, p1 = 0, p2 = 0;
@@ -78,10 +78,9 @@ int PetscGlobalDOF(void *c /*!< Object of type #PETScContext*/)
         ndims     = solver->ndims,
         ghosts    = solver->ghosts,
         size_wg   = solver->npoints_local_wghosts,
-        size      = solver->npoints_local,
         rank      = mpi->rank,
         nproc     = mpi->nproc,
-        i;
+        nv        = ndims + 1, i;
 
   /* if globalDOF already allocated, free it */
   if (ctxt->globalDOF) free(ctxt->globalDOF);
@@ -90,19 +89,15 @@ int PetscGlobalDOF(void *c /*!< Object of type #PETScContext*/)
 
   int local_sizes[nproc];
   _ArraySetValue_(local_sizes,nproc,0);
-  local_sizes[rank] = size;
+  local_sizes[rank] = ctxt->npoints;
   MPIMax_integer(local_sizes,local_sizes,nproc,&mpi->world);
 
   int myOffset = 0;
   for (i=0; i<rank; i++) myOffset += local_sizes[i];
 
-  int done, index[ndims]; 
-  done = 0; _ArraySetValue_(index,ndims,0);
-  while (!done) {
-    int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-    int q; _ArrayIndex1D_(ndims,dim,index,0,q);
-    ctxt->globalDOF[p] = (double) (q + myOffset);
-    _ArrayIncrementIndex_(ndims,dim,index,done);
+  for (i=0; i<ctxt->npoints; i++) {
+    int p = (ctxt->points+i*nv)[ndims];
+    ctxt->globalDOF[p] = (double) (i + myOffset);
   }
 
   for (i=0; i<ndims; i++) {

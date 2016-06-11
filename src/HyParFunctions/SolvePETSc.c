@@ -69,12 +69,13 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   context.flag_source         = _EXPLICIT_; 
   context.flag_is_linear      = 0;
   context.globalDOF           = NULL;
+  context.points              = NULL;
+
+  ierr = PetscCreatePointList(&context);
 
   /* create and initialize PETSc solution vector and other parameters */
   /* PETSc solution vector does not have ghost points */
-  int total_size = 1;
-  for (d=0; d<solver->ndims; d++) total_size *= (solver->dim_local[d]);
-  total_size *= solver->nvars;
+  int total_size = context.npoints * solver->nvars;
   ierr = VecCreate(MPI_COMM_WORLD,&Y); CHKERRQ(ierr);
   ierr = VecSetSizes(Y,total_size,PETSC_DECIDE); CHKERRQ(ierr);
   ierr = VecSetUp(Y); CHKERRQ(ierr);

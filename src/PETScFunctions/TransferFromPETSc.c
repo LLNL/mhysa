@@ -31,15 +31,19 @@ int TransferVecFromPETSc(
   const double    *Yarr;
 
   PetscFunctionBegin;
-
-  int *index = (int*) calloc (solver->ndims,sizeof(int));
+  int npoints = context->npoints, 
+      *points = context->points,
+      nvars   = solver->nvars,
+      ndims   = solver->ndims,
+      nv      = ndims + 1, n;
 
   ierr = VecGetArrayRead(Y,&Yarr); CHKERRQ(ierr);
-  ierr = ArrayCopynD(solver->ndims,(double*)Yarr,u,solver->dim_local,0,
-                     solver->ghosts,index,solver->nvars); CHECKERR(ierr);
+  for (n = 0; n < npoints; n++) {
+    int p = (points+n*nv)[ndims];
+    _ArrayCopy1D_((Yarr+n*nvars),(u+p*nvars),nvars);
+  }
   ierr = VecRestoreArrayRead(Y,&Yarr); CHKERRQ(ierr);
 
-  free(index);
   PetscFunctionReturn(0);
 }
 

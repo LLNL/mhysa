@@ -73,11 +73,13 @@ int PetscComputePreconMatImpl(
   PetscErrorCode  ierr;
   int             ndims       = solver->ndims,
                   nvars       = solver->nvars,
+                  npoints     = context->npoints,
                   ghosts      = solver->ghosts,
                   *dim        = solver->dim_local,
                   *isPeriodic = solver->isPeriodic,
+                  *points     = context->points,
                   index[ndims],indexL[ndims],indexR[ndims],
-                  v,dir,done,rows[nvars],cols[nvars];
+                  v,n,dir,done,rows[nvars],cols[nvars];
   double          *u      = solver->u, 
                   *iblank = solver->iblank,
                   dxinv, values[nvars*nvars];
@@ -91,13 +93,11 @@ int PetscComputePreconMatImpl(
   /* initialize preconditioning matrix to zero */
   ierr = MatZeroEntries(Pmat); CHKERRQ(ierr);
 
-  /* loop through all grid points */
-  done = 0; _ArraySetValue_(index,ndims,0);
-  while (!done) {
-    /* compute local and global 1D index of this grid point */
-    int p;  _ArrayIndex1D_(ndims,dim,index,ghosts,p); /* local - for accessing u */
-    int pg, pgL, pgR;
-
+  /* loop through all computational points */
+  for (n = 0; n < npoints; n++) {
+    int *this_point = points + n*(ndims+1);
+    int p = this_point[ndims];
+    int index[ndims]; _ArrayCopy1D_(this_point,index,ndims);
     /* compute the contributions from the flux derivatives along each dimension */
     for (dir = 0; dir < ndims; dir++) {
 
@@ -108,6 +108,7 @@ int PetscComputePreconMatImpl(
       _ArrayCopy1D_(index,indexR,ndims); indexR[dir]++;
       int pR;  _ArrayIndex1D_(ndims,dim,indexR,ghosts,pR);
 
+      int pg, pgL, pgR;
       pg  = (int) context->globalDOF[p];
       pgL = (int) context->globalDOF[pL];
       pgR = (int) context->globalDOF[pR];
@@ -118,14 +119,14 @@ int PetscComputePreconMatImpl(
       /* diagonal element */
       for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pg + v; }
       ierr = solver->JFunction(values,(u+nvars*p),solver->physics,dir,0);
-      _ArrayScale1D_(values,(iblank[p]*dxinv),(nvars*nvars));
+      _ArrayScale1D_(values,dxinv,(nvars*nvars));
       ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
 
       /* left neighbor */
       if (pgL >= 0) {
         for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgL + v; }
         ierr = solver->JFunction(values,(u+nvars*pL),solver->physics,dir,1);
-        _ArrayScale1D_(values,-(iblank[p]*dxinv),(nvars*nvars));
+        _ArrayScale1D_(values,-dxinv,(nvars*nvars));
         ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
       }
       
@@ -133,11 +134,10 @@ int PetscComputePreconMatImpl(
       if (pgR >= 0) {
         for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgR + v; }
         ierr = solver->JFunction(values,(u+nvars*pR),solver->physics,dir,-1);
-        _ArrayScale1D_(values,-(iblank[p]*dxinv),(nvars*nvars));
+        _ArrayScale1D_(values,-dxinv,(nvars*nvars));
         ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
       }
     }
-    _ArrayIncrementIndex_(ndims,dim,index,done);
   }
   ierr = MatAssemblyBegin(Pmat,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
   ierr = MatAssemblyEnd  (Pmat,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);

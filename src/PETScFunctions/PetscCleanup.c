@@ -13,6 +13,7 @@ int PetscCleanup(void *obj /*!< Object of type #PETScContext */)
 {
   PETScContext *ctxt = (PETScContext*) obj;
   if (ctxt->globalDOF) free(ctxt->globalDOF);
+  if (ctxt->points)    free(ctxt->points);
   return(0);
 }
 
