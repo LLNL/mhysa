@@ -38,7 +38,8 @@ int PetscCreatePointList(void *obj /*!< Object of type #PETScContext */)
   _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-    if (solver->iblank[p] == 1) npoints++;
+    if (1) npoints++;
+    //if (solver->iblank[p] == 1) npoints++;
     _ArrayIncrementIndex_(ndims,dim,index,done);
   }
   ctxt->npoints = npoints;
@@ -49,7 +50,8 @@ int PetscCreatePointList(void *obj /*!< Object of type #PETScContext */)
   done    = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-    if (solver->iblank[p] == 1) {
+    //if (solver->iblank[p] == 1) {
+    if (1) {
       _ArrayCopy1D_(index,(ctxt->points+npoints*nv),ndims);
       (ctxt->points+npoints*nv)[ndims] = p;
       npoints++;

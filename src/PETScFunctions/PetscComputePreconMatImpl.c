@@ -98,6 +98,9 @@ int PetscComputePreconMatImpl(
     int *this_point = points + n*(ndims+1);
     int p = this_point[ndims];
     int index[ndims]; _ArrayCopy1D_(this_point,index,ndims);
+
+    double iblank = solver->iblank[p];
+
     /* compute the contributions from the flux derivatives along each dimension */
     for (dir = 0; dir < ndims; dir++) {
 
@@ -119,14 +122,14 @@ int PetscComputePreconMatImpl(
       /* diagonal element */
       for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pg + v; }
       ierr = solver->JFunction(values,(u+nvars*p),solver->physics,dir,0);
-      _ArrayScale1D_(values,dxinv,(nvars*nvars));
+      _ArrayScale1D_(values,(dxinv*iblank),(nvars*nvars));
       ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
 
       /* left neighbor */
       if (pgL >= 0) {
         for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgL + v; }
         ierr = solver->JFunction(values,(u+nvars*pL),solver->physics,dir,1);
-        _ArrayScale1D_(values,-dxinv,(nvars*nvars));
+        _ArrayScale1D_(values,(-dxinv*iblank),(nvars*nvars));
         ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
       }
       
@@ -134,7 +137,7 @@ int PetscComputePreconMatImpl(
       if (pgR >= 0) {
         for (v=0; v<nvars; v++) { rows[v] = nvars*pg + v; cols[v] = nvars*pgR + v; }
         ierr = solver->JFunction(values,(u+nvars*pR),solver->physics,dir,-1);
-        _ArrayScale1D_(values,-dxinv,(nvars*nvars));
+        _ArrayScale1D_(values,(-dxinv*iblank),(nvars*nvars));
         ierr = MatSetValues(Pmat,nvars,rows,nvars,cols,values,ADD_VALUES); CHKERRQ(ierr);
       }
     }

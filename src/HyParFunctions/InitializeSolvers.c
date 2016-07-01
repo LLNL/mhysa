@@ -17,6 +17,7 @@
 
 /* Function declarations */
 int  ApplyBoundaryConditions     (void*,void*,double*,double*,int,double);
+int  ApplyIBConditions           (void*,void*,double*,double);
 int  HyperbolicFunction          (double*,double*,void*,void*,double,int,
                                   int(*)(double*,double*,int,void*,double),
                                   int(*)(double*,double*,double*,double*,double*,
@@ -49,6 +50,7 @@ int InitializeSolvers(
   if (!mpi->rank) printf("Initializing solvers.\n");
 
   solver->ApplyBoundaryConditions     = ApplyBoundaryConditions;
+  solver->ApplyIBConditions           = ApplyIBConditions;
   solver->HyperbolicFunction          = HyperbolicFunction;
   solver->SourceFunction              = SourceFunction;
   solver->VolumeIntegralFunction      = VolumeIntegral;

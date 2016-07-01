@@ -54,6 +54,7 @@ int NonLinearInterpolation(
 
     /* apply boundary conditions and exchange data over MPI interfaces */
     IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);      CHECKERR(ierr);
+    IERR solver->ApplyIBConditions(solver,mpi,u,t);                   CHECKERR(ierr);
     IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u);       CHECKERR(ierr);
 
     int offset = 0;

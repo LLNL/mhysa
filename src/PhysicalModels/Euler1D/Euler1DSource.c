@@ -11,7 +11,6 @@
 #include <hypar.h>
 
 static int Euler1DSourceFunction(double*,double*,double*,void*,void*,double);
-int ApplyBoundaryConditions(void*,void*,double*,double*,int,double);
 
 /*! Compute the gravitational source terms for the 1D Euler equations. The source term
     is computed according to the balanced formulation introduced in the reference below.

@@ -12,7 +12,6 @@
 
 static int ShallowWater2DSourceFunction1  (double*,double*,double*,void*,void*,double,int);
 static int ShallowWater2DSourceFunction2  (double*,double*,double*,void*,void*,double,int);
-int        ApplyBoundaryConditions        (void*,void*,double*,double*,int,double);
 
 /*! Compute the source terms for the 2D shallow water equations. 
     + The topography gradient source term is computed according to the balanced 

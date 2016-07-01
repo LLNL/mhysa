@@ -41,6 +41,9 @@ PetscErrorCode PetscPostStage(
   /* get solution */
   ierr = TransferVecFromPETSc(solver->u,Y[stageindex],context); CHECKERR(ierr);
 
+  /* apply immersed boundaries */
+  IERR solver->ApplyIBConditions(solver,mpi,solver->u,stagetime); CHECKERR(ierr);
+
   /* If using a non-linear scheme with ARKIMEX methods, 
      compute the non-linear finite-difference operator */
   ierr = TSGetType(ts,&time_scheme); CHKERRQ(ierr);
@@ -54,6 +57,7 @@ PetscErrorCode PetscPostStage(
     ierr = solver->PostStage(solver->u,solver,mpi,stagetime); CHECKERR(ierr);
   }
 
+  IERR TransferVecToPETSc(solver->u,Y[stageindex],context);
   PetscFunctionReturn(0);
 }
 

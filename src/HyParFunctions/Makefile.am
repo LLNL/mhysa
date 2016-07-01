@@ -1,6 +1,7 @@
 noinst_LIBRARIES = libHyParFunctions.a
 libHyParFunctions_a_SOURCES = \
   ApplyBoundaryConditions.c \
+  ApplyIBConditions.c \
   BoundaryIntegral.c \
   CalculateError.c \
   CalculateConservationError.c \

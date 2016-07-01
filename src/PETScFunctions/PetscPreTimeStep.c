@@ -49,6 +49,7 @@ PetscErrorCode PetscPreTimeStep(TS ts /*!< Time integration object */)
 
   /* apply boundary conditions and exchange data over MPI interfaces */
   IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,0,waqt); CHECKERR(ierr);
+  IERR solver->ApplyIBConditions(solver,mpi,solver->u,waqt); CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                solver->ghosts,mpi,solver->u);             CHECKERR(ierr);
 
@@ -78,6 +79,7 @@ PetscErrorCode PetscPreTimeStep(TS ts /*!< Time integration object */)
     ierr = OutputSolution(solver,mpi); CHECKERR(ierr); 
   }
 
+  IERR TransferVecToPETSc(solver->u,Y,context);
   PetscFunctionReturn(0);
 }
 

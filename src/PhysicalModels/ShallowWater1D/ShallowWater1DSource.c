@@ -12,7 +12,6 @@
 
 static int ShallowWater1DSourceFunction1 (double*,double*,double*,void*,void*,double);
 static int ShallowWater1DSourceFunction2 (double*,double*,double*,void*,void*,double);
-int        ApplyBoundaryConditions      (void*,void*,double*,double*,int,double);
 
 /*! Compute the source terms for the 1D shallow water equations. The source term
     is computed according to the balanced formulation introduced in the reference below.

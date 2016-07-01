@@ -85,6 +85,7 @@ int ComputeRHSOperators(
   _ArrayCopy1D_(solver->u,u0,size); 
   /* apply boundary conditions to the solution u0 */
   IERR solver->ApplyBoundaryConditions(solver,mpi,u0,NULL,0,t);CHECKERR(ierr);
+  IERR solver->ApplyIBConditions(solver,mpi,u0,t);CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u0); CHECKERR(ierr);
 
   /* compute linearized matrix for the hyperbolic FFunction */
@@ -117,6 +118,7 @@ int ComputeRHSOperators(
       u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
       IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR solver->ApplyIBConditions(solver,mpi,u,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the FFunction of u */
       IERR solver->HyperbolicFunction(rhs,u,solver,mpi,t,1,solver->FFunction,
@@ -176,6 +178,7 @@ int ComputeRHSOperators(
       u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
       IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR solver->ApplyIBConditions(solver,mpi,u,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the FFunction of u */
       if (solver->flag_fdf_specified) {
@@ -232,6 +235,7 @@ int ComputeRHSOperators(
       u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
       IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR solver->ApplyIBConditions(solver,mpi,u,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the FFunction of u */
       IERR solver->HyperbolicFunction(rhs,u,solver,mpi,t,0,solver->dFFunction,
@@ -280,6 +284,7 @@ int ComputeRHSOperators(
       u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
       IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR solver->ApplyIBConditions(solver,mpi,u,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the SFunction of u */
       IERR solver->SourceFunction(rhs,u,solver,mpi,t); CHECKERR(ierr);

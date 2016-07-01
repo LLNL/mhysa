@@ -32,7 +32,8 @@ int NavierStokes3DImmersedBoundary(
 
   if (!solver->flag_ib) return(0);
 
-  /* Ideally, this shouldn't be here - Need to clean up ApplyBoundaryConditions */
+  /* Ideally, this shouldn't be here - But this function is called everywhere
+     (through ApplyIBConditions()) *before* MPIExchangeBoundariesnD is called! */
   MPIExchangeBoundariesnD(_MODEL_NDIMS_,_MODEL_NVARS_,solver->dim_local,solver->ghosts,mpi,u);
 
   double inv_gamma_m1 = 1.0 / (param->gamma - 1.0);

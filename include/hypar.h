@@ -178,6 +178,9 @@ typedef struct main_parameters {
   /*! Pointer to the function to apply the physical boundary conditions to the solution, assigned in InitializeSolvers() */
   int (*ApplyBoundaryConditions)  (void*,void*,double*,double*,int,double);
 
+  /*! Pointer to the function to apply the immersed boundary conditions to the solution, assigned in InitializeSolvers() */
+  int (*ApplyIBConditions)  (void*,void*,double*,double);
+
   /*! Pointer to the function to integrate the solution in time, assigned in InitializeSolvers() */
   int (*TimeIntegrate)            (void*);
 
