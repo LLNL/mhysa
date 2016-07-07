@@ -231,7 +231,7 @@ int ExtractSlice(char *f, int slicedim, double slicepos)
 
       int v;
       for (v = 0; v < nvars; v++) {
-        SU[pslice*nvars+v] = alpha*U[p1*nvars+v] + (1-alpha)*alpha*U[p2*nvars+v];
+        SU[pslice*nvars+v] = alpha*U[p1*nvars+v] + (1-alpha)*U[p2*nvars+v];
       }
     }
     _ArrayIncrementIndex_(ndims,dims,index,done);
