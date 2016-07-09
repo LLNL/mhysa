@@ -6,6 +6,7 @@ libNavierStokes3D_a_SOURCES = \
   NavierStokes3DFlux.c \
   NavierStokes3DFunctions.c \
   NavierStokes3DGravityField.c \
+  NavierStokes3DIBForces.c \
   NavierStokes3DImmersedBoundary.c \
   NavierStokes3DInitialize.c \
 	NavierStokes3DJacobian.c \

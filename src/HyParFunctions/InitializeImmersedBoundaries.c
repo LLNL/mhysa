@@ -75,6 +75,9 @@ int InitializeImmersedBoundaries(
   /* send the global grid to other ranks */
   MPIBroadcast_double(Xg,size,0,&mpi->world);
 
+  /* identify whether this is a 3D or "pseudo-2D" simulation */
+  IBIdentifyMode(Xg,dim_global,solver->ib);
+
   /* identify grid points inside the immersed body */
   int count_inside_body = 0;
   count = IBIdentifyBody(solver->ib,dim_global,dim_local,ghosts,mpi,Xg,solver->iblank);
@@ -140,6 +143,10 @@ int InitializeImmersedBoundaries(
      and compute their interpolation coefficients */
   count = IBInterpCoeffs(solver->ib,mpi,solver->x,dim_local,ghosts,solver->iblank);
   if (count) return(count);
+
+  /* Create facet mapping */;
+  count = IBCreateFacetMapping(ib,mpi,solver->x,dim_local,ghosts);
+  if (count) return(count);
   
   /* Done */
   if (!mpi->rank) {
@@ -151,6 +158,7 @@ int InitializeImmersedBoundaries(
     printf("    Number of grid points inside immersed body: %d (%4.1f%%).\n",count_inside_body,percentage);
     percentage = ((double)count_boundary_points)/((double)solver->npoints_global)*100.0;
     printf("    Number of immersed boundary points        : %d (%4.1f%%).\n",count_boundary_points,percentage);
+    printf("    Immersed body simulation mode             : %d.\n", ib->mode);
   }
 
   return(0);

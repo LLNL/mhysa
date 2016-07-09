@@ -43,6 +43,7 @@ int    NavierStokes3DModifiedSolution  (double*,double*,int,void*,void*,double);
 
 int    NavierStokes3DPreStep           (double*,void*,void*,double);
 int    NavierStokes3DImmersedBoundary  (void*,void*,double*,double);
+int    NavierStokes3DIBForces          (void*,void*);
 
 /*! Initialize the 3D Navier-Stokes (#NavierStokes3D) module:
     Sets the default parameters, read in and set physics-related parameters,
@@ -215,7 +216,11 @@ int NavierStokes3DInitialize(
   solver->AveragingFunction     = NavierStokes3DRoeAverage;
   solver->GetLeftEigenvectors   = NavierStokes3DLeftEigenvectors;
   solver->GetRightEigenvectors  = NavierStokes3DRightEigenvectors;
-  solver->IBFunction            = NavierStokes3DImmersedBoundary;
+
+  if (solver->flag_ib) {
+    solver->IBFunction          = NavierStokes3DImmersedBoundary;
+    solver->PhysicsOutput       = NavierStokes3DIBForces;
+  }
 
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
     solver->FdFFunction = NavierStokes3DNonStiffFlux;

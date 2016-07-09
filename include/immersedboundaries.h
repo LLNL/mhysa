@@ -9,6 +9,17 @@
     corners of a cube. */
 #define _IB_NNODES_ 8
 
+/*! "Pseudo-2D" simulation in the x-y plane */
+#define _IB_XY_ "2d (xy)"
+/*! "Pseudo-2D" simulation in the x-z plane */
+#define _IB_XZ_ "2d (xz)"
+/*! "Pseudo-2D" simulation in the y-z plane */
+#define _IB_YZ_ "2d (yz)"
+/*! 3D simulation */
+#define _IB_3D_ "3d"
+
+#include <basic.h>
+
 /*! \def Facet3D
     \brief Structure defining a facet.
     
@@ -36,6 +47,26 @@ typedef struct _facet_3d_{
          ny, /*!< y-component of surface normal */
          nz; /*!< z-component of surface normal */
 } Facet3D;
+
+/*! \def FacetMap
+    \brief Structure defining a facet map.
+
+    A facet map contains information for facets that lie
+    within the local computational domain of this MPI
+    rank.
+*/
+/*! \brief Structure defining a facet map.
+
+    A facet map contains information for facets that lie
+    within the local computational domain of this MPI
+    rank.
+*/
+typedef struct _facet_map_{
+  Facet3D   *facet; /*!< pointer to the facet */
+  int       index;  /*!< index of this facet in the array #Body3D::surface */
+  int       interp_nodes[_IB_NNODES_]; /*!< indices of grid points surrounding the facet centroid */
+  double    interp_coeffs[_IB_NNODES_];/*!< interpolation coefficients corresponding to #FacetMap::interp_nodes */
+} FacetMap;
 
 /*! \def Body3D
     \brief Structure defining a body.
@@ -104,12 +135,17 @@ typedef struct _boundary_node_{
     boundaries.
 */
 typedef struct immersed_boundary{
-  Body3D  *body;      /*!< immersed body */
-  IBNode  *boundary;  /*!< immersed boundary nodes */
+  Body3D    *body;      /*!< immersed body */
+  IBNode    *boundary;  /*!< immersed boundary nodes */
+  FacetMap  *fmap;      /*!< list of "local" facets */
 
   double  tolerance; /*!< zero tolerance */
   int     itr_max;   /*!< maximum intersections in ray-tracing method */
   int     n_boundary_nodes; /*!< number of immersed boundary nodes */
+  int     nfacets_local;    /*!< number of "local" facets */
+
+  char    mode[_MAX_STRING_SIZE_]; /*!< identifies if the simulation is 2D along a plane
+                                        or truly 3D. \sa IBIdentifyMode() */
 } ImmersedBoundary;
 
 
@@ -118,7 +154,9 @@ int IBWriteBodySTL(Body3D*,char*,void*,int,int*);
 
 int IBCleanup           (void*);
 int IBComputeBoundingBox(Body3D*);
+int IBCreateFacetMapping(void*,void*,double*,int*,int);
 int IBIdentifyBody      (void*,int*,int*,int,void*,double*,double*);
 int IBIdentifyBoundary  (void*,void*,int*,int,double*);
+int IBIdentifyMode      (double*,int*,void*);
 int IBNearestFacetNormal(void*,void*,double*,double,int*,int);
 int IBInterpCoeffs      (void*,void*,double*,int*,int,double*);
