@@ -15,7 +15,7 @@
 #include <hypar.h>
 
 /*!
-  Write the aerodynamic forces on the immersed body to a PLY file.
+  Write the aerodynamic forces on the immersed body to a ASCII Tecplot file.
 */
 static void WriteSurfaceData(
                               void      *m,             /*!< MPI object of type #MPIVariables */
