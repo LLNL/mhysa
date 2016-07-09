@@ -130,28 +130,16 @@ static void WriteSurfaceData(
 
 		FILE *out;
     out = fopen(filename,"w");
-		fprintf(out,"ply\n");
-		fprintf(out,"format ascii 1.0\n");
-		fprintf(out,"comment Surface Pressure data for Immersed Body\n");
-		fprintf(out,"element vertex %d\n",3*nfacets_global);
-		fprintf(out,"property float x\n");
-		fprintf(out,"property float y\n");
-		fprintf(out,"property float z\n");
-		fprintf(out,"property float Surface_Pressure\n");
-		fprintf(out,"property float Shear_Force_X\n");
-		fprintf(out,"property float Shear_Force_Y\n");
-		fprintf(out,"property float Shear_Force_Z\n");
-		fprintf(out,"property float Shear_Magnitude\n");
-		fprintf(out,"element face %d\n",nfacets_global);
-		fprintf(out,"property list uchar int vertex_indices\n");
-		fprintf(out,"end_header\n");
+    fprintf(out,"TITLE = \"Surface data created by HyPar.\"\n");
+    fprintf(out,"VARIABLES = \"X\", \"Y\", \"Z\", \"Surface_Pressure\", \"Shear_x\", \"Shear_y\", \"Shear_z\", \"Shear_magn\"\n");
+    fprintf(out,"ZONE N = %d, E = %d, DATAPACKING = POINT, ZONETYPE = FETRIANGLE\n",3*nfacets_global,nfacets_global);
 
 		for (n = 0; n < nfacets_global; n++) {
-      fprintf(out, "%f %f %f %f %f %f %f %f\n",facets[n].x1,facets[n].y1,facets[n].z1,sp_wd[n],tx_wd[n],ty_wd[n],tz_wd[n],tm_wd[n]);
-      fprintf(out, "%f %f %f %f %f %f %f %f\n",facets[n].x2,facets[n].y2,facets[n].z2,sp_wd[n],tx_wd[n],ty_wd[n],tz_wd[n],tm_wd[n]);
-      fprintf(out, "%f %f %f %f %f %f %f %f\n",facets[n].x3,facets[n].y3,facets[n].z3,sp_wd[n],tx_wd[n],ty_wd[n],tz_wd[n],tm_wd[n]);
+      fprintf(out, "%lf %lf %lf %lf %lf %lf %lf %lf\n",facets[n].x1,facets[n].y1,facets[n].z1,sp_wd[n],tx_wd[n],ty_wd[n],tz_wd[n],tm_wd[n]);
+      fprintf(out, "%lf %lf %lf %lf %lf %lf %lf %lf\n",facets[n].x2,facets[n].y2,facets[n].z2,sp_wd[n],tx_wd[n],ty_wd[n],tz_wd[n],tm_wd[n]);
+      fprintf(out, "%lf %lf %lf %lf %lf %lf %lf %lf\n",facets[n].x3,facets[n].y3,facets[n].z3,sp_wd[n],tx_wd[n],ty_wd[n],tz_wd[n],tm_wd[n]);
 		}
-		for (n = 0; n < nfacets_global; n++) fprintf(out,"3 %d %d %d\n",3*n,3*n+1,3*n+2);
+		for (n = 0; n < nfacets_global; n++) fprintf(out,"%d %d %d\n",3*n+1,3*n+2,3*n+3);
 		fclose(out);
 
 		free(sp_wd);
@@ -260,7 +248,7 @@ int NavierStokes3DIBForces(
 
   char surface_filename[_MAX_STRING_SIZE_] = "surface";
   if (!strcmp(solver->op_overwrite,"no")) strcat(surface_filename,solver->filename_index);
-  strcat(surface_filename,".ply");
+  strcat(surface_filename,".dat");
 
   if (!mpi->rank) {
     printf("Writing immersed body surface data file %s.\n",surface_filename);
