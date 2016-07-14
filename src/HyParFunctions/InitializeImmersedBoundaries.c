@@ -158,7 +158,7 @@ int InitializeImmersedBoundaries(
     printf("    Number of grid points inside immersed body: %d (%4.1f%%).\n",count_inside_body,percentage);
     percentage = ((double)count_boundary_points)/((double)solver->npoints_global)*100.0;
     printf("    Number of immersed boundary points        : %d (%4.1f%%).\n",count_boundary_points,percentage);
-    printf("    Immersed body simulation mode             : %d.\n", ib->mode);
+    printf("    Immersed body simulation mode             : %s.\n", ib->mode);
   }
 
   return(0);

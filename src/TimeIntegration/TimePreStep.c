@@ -28,7 +28,6 @@ int TimePreStep(void *ts /*!< Object of type #TimeIntegration */ )
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,solver->u);               CHECKERR(ierr);
 
-  /* copy current solution for norm computation later */
   if ((TS->iter+1)%solver->screen_op_iter == 0) {
     int size = 1,d;
     for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d] + 2*solver->ghosts);

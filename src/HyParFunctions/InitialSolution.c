@@ -31,6 +31,9 @@ int InitialSolution(void *s, void *m)
   }
   CHECKERR(ierr);
 
+  /* exchange MPI-boundary values of u between processors */
+  MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,solver->ghosts,mpi,solver->u);
+
   /* calculate dxinv */
   offset = 0;
   for (d = 0; d < solver->ndims; d++) {
