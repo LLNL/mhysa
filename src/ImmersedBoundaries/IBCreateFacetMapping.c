@@ -10,7 +10,7 @@
 #include <immersedboundaries.h>
 #include <mpivars.h>
 
-/*! is x inside the interval [a,b] */
+/*! is x inside the interval [a,b]? */
 static inline int isInside(
                             double x, /*!< the value to check for */
                             double a, /*!< small end of the interval */
@@ -133,9 +133,9 @@ int IBCreateFacetMapping(
           }
         }
 
-        if      (!strcmp(IB->mode,_IB_XY_))  kc = 0;
-        else if (!strcmp(IB->mode,_IB_XZ_))  jc = 0;
-        else if (!strcmp(IB->mode,_IB_YZ_))  ic = 0;
+        if      (!strcmp(IB->mode,_IB_XY_))  { kc = ghosts; zc = 0.5*(zmin+zmax); }
+        else if (!strcmp(IB->mode,_IB_XZ_))  { jc = ghosts; yc = 0.5*(ymin+ymax); }
+        else if (!strcmp(IB->mode,_IB_YZ_))  { ic = ghosts; xc = 0.5*(xmin+xmax); }
 
         if (ic == -1) {
           fprintf(stderr,"Error in IBCreateFacetMapping() on rank %d: ic = -1.\n", mpi->rank);
@@ -154,14 +154,14 @@ int IBCreateFacetMapping(
         kc++;
 
         int pc[_IB_NNODES_], index[_IB_NDIMS_];
-        index[0]=ic-1; index[1]=jc-1; index[2]=kc-1; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[0]);
-        index[0]=ic  ; index[1]=jc-1; index[2]=kc-1; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[1]);
-        index[0]=ic-1; index[1]=jc  ; index[2]=kc-1; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[2]);
-        index[0]=ic  ; index[1]=jc  ; index[2]=kc-1; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[3]);
-        index[0]=ic-1; index[1]=jc-1; index[2]=kc  ; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[4]);
-        index[0]=ic  ; index[1]=jc-1; index[2]=kc  ; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[5]);
-        index[0]=ic-1; index[1]=jc  ; index[2]=kc  ; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[6]);
-        index[0]=ic  ; index[1]=jc  ; index[2]=kc  ; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[7]);
+        index[0]=ic-1-ghosts; index[1]=jc-1-ghosts; index[2]=kc-1-ghosts; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[0]);
+        index[0]=ic-ghosts  ; index[1]=jc-1-ghosts; index[2]=kc-1-ghosts; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[1]);
+        index[0]=ic-1-ghosts; index[1]=jc-ghosts  ; index[2]=kc-1-ghosts; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[2]);
+        index[0]=ic-ghosts  ; index[1]=jc-ghosts  ; index[2]=kc-1-ghosts; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[3]);
+        index[0]=ic-1-ghosts; index[1]=jc-1-ghosts; index[2]=kc-ghosts  ; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[4]);
+        index[0]=ic-ghosts  ; index[1]=jc-1-ghosts; index[2]=kc-ghosts  ; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[5]);
+        index[0]=ic-1-ghosts; index[1]=jc-ghosts  ; index[2]=kc-ghosts  ; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[6]);
+        index[0]=ic-ghosts  ; index[1]=jc-ghosts  ; index[2]=kc-ghosts  ; _ArrayIndex1D_(_IB_NDIMS_,dim,index,ghosts,pc[7]);
         _ArrayCopy1D_(pc,fmap[count].interp_nodes,_IB_NNODES_);
 
         double coeffs[_IB_NNODES_];
