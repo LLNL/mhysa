@@ -112,26 +112,34 @@ int IBCreateFacetMapping(
         fmap[count].facet = facets + n;
         fmap[count].index = n;
         int i, j, k, ic, jc, kc;
-
         ic = jc = kc = -1;
+
         for (i = ghosts-1; i < dim[0]+ghosts; i++) {
           if (isInside(xc,x[i],x[i+1])) {
             ic = i;
             break;
           }
         }
+        if      (ic == ghosts-1)        ic++;
+        else if (ic == dim[0]+ghosts-1) ic--;
+
         for (j = ghosts-1; j < dim[1]+ghosts; j++) {
           if (isInside(yc,y[j],y[j+1])) {
             jc = j;
             break;
           }
         }
+        if      (jc == ghosts-1)        jc++;
+        else if (jc == dim[1]+ghosts-1) jc--;
+
         for (k = ghosts-1; k < dim[2]+ghosts; k++) {
           if (isInside(zc,z[k],z[k+1])) {
             kc = k;
             break;
           }
         }
+        if      (kc == ghosts-1)        kc++;
+        else if (kc == dim[2]+ghosts-1) kc--;
 
         if      (!strcmp(IB->mode,_IB_XY_))  { kc = ghosts; zc = 0.5*(zmin+zmax); }
         else if (!strcmp(IB->mode,_IB_XZ_))  { jc = ghosts; yc = 0.5*(ymin+ymax); }
