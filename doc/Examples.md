@@ -3511,6 +3511,16 @@ number (\f$Re_D\f$) for the computed solutions and experimental results reported
 in the reference above:
 @image html Solution_3DNavStokCylinder_WL.png
 
+In addition to the main solution, the code also writes out a file with the aerodynamic
+forces on the immersed body. This file is called \a surface.dat (if #HyPar::op_overwrite
+is "yes") or \a surface_nnnnn.dat (if #HyPar::op_overwrite is "no", "nnnnn" is a numerical
+index) (in this example, the file \b surface.dat is written out). This is an ASCII file in 
+the Tecplot format, where the immersed body and the forces on it are represented using the 
+"FETRIANGLE" type. The following image shows the surface pressure on the cylinder (front-view):
+@image html IBSurface_3DNavStokCylinder.png
+Since this is a 2D simulation, the value of the surface pressure on the end-surfaces of the 
+cylinder (zmin and zmax) are not physically relevant.
+
 Expected screen output (for \f$Re_D = 20\f$):
 \include 3D/NavierStokes3D/2D_Cylinder/Steady_Viscous_Incompressible/output.log
 
