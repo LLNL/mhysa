@@ -9,6 +9,7 @@
 #include <math.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <mathfunctions.h>
 #include <immersedboundaries.h>
 #include <physicalmodels/navierstokes3d.h>
 #include <mpivars.h>
@@ -220,26 +221,70 @@ int NavierStokes3DIBForces(
 
   for (n = 0; n < nfacets_local; n++) {
 
-    double *alpha = &(fmap[n].interp_coeffs[0]);
-    int    *nodes = &(fmap[n].interp_nodes[0]);
+    double *alpha;
+    int    *nodes, j, k;
 
+    alpha = &(fmap[n].interp_coeffs[0]);
+    nodes = &(fmap[n].interp_nodes[0]);
     _ArraySetValue_(v,_MODEL_NVARS_,0.0);
-    int j, k;
     for (j=0; j<_IB_NNODES_; j++) {
       for (k=0; k<_MODEL_NVARS_; k++) {
         v[k] += ( alpha[j] * solver->u[_MODEL_NVARS_*nodes[j]+k] );
       }
     }
+    double rho_c, uvel_c, vvel_c, wvel_c, energy_c, pressure_c;
+    _NavierStokes3DGetFlowVar_(v,rho_c,uvel_c,vvel_c,wvel_c,energy_c,pressure_c,physics);
 
-    double rho, uvel, vvel, wvel, energy, pressure;
-    _NavierStokes3DGetFlowVar_(v,rho,uvel,vvel,wvel,energy,pressure,physics);
+    alpha = &(fmap[n].interp_coeffs_ns[0]);
+    nodes = &(fmap[n].interp_nodes_ns[0]);
+    _ArraySetValue_(v,_MODEL_NVARS_,0.0);
+    for (j=0; j<_IB_NNODES_; j++) {
+      for (k=0; k<_MODEL_NVARS_; k++) {
+        v[k] += ( alpha[j] * solver->u[_MODEL_NVARS_*nodes[j]+k] );
+      }
+    }
+    double rho_ns, uvel_ns, vvel_ns, wvel_ns, energy_ns, pressure_ns;
+    _NavierStokes3DGetFlowVar_(v,rho_ns,uvel_ns,vvel_ns,wvel_ns,energy_ns,pressure_ns,physics);
 
-    surface_pressure[n] = pressure;
+    surface_pressure[n] = pressure_c;
 
-    /* Not yet implemented */
-    shear_force_x[n] = 0;
-    shear_force_y[n] = 0;
-    shear_force_z[n] = 0;
+    if (physics->Re > 0) {
+      
+      double u_x = (uvel_ns - uvel_c) / fmap[n].dx;
+      double v_x = (vvel_ns - vvel_c) / fmap[n].dx;
+      double w_x = (wvel_ns - wvel_c) / fmap[n].dx;
+      
+      double u_y = (uvel_ns - uvel_c) / fmap[n].dy;
+      double v_y = (vvel_ns - vvel_c) / fmap[n].dy;
+      double w_y = (wvel_ns - wvel_c) / fmap[n].dy;
+      
+      double u_z = (uvel_ns - uvel_c) / fmap[n].dz;
+      double v_z = (vvel_ns - vvel_c) / fmap[n].dz;
+      double w_z = (wvel_ns - wvel_c) / fmap[n].dz;
+      
+      double nx = fmap[n].facet->nx;
+      double ny = fmap[n].facet->ny;
+      double nz = fmap[n].facet->nz;
+      
+      double T      = physics->gamma*pressure_c/rho_c;
+      double mu     = raiseto(T, 0.76);
+      double inv_Re = 1.0/physics->Re;
+
+      double tau_x = (mu*inv_Re) * (2*u_x*nx + (u_y+v_x)*ny + (u_z+w_x)*nz);
+      double tau_y = (mu*inv_Re) * ((v_x+u_y)*nx + 2*v_y*ny + (v_z+w_y)*nz);
+      double tau_z = (mu*inv_Re) * ((w_x+u_z)*nx + (w_y+v_z)*ny + 2*w_z*nz);
+
+      shear_force_x[n] = tau_x;
+      shear_force_y[n] = tau_y;
+      shear_force_z[n] = tau_z;
+
+    } else {
+
+      shear_force_x[n] = 0.0;
+      shear_force_y[n] = 0.0;
+      shear_force_z[n] = 0.0;
+
+    }
     shear_force_magn[n] = sqrt(   (shear_force_x[n])*(shear_force_x[n]) 
                                 + (shear_force_y[n])*(shear_force_y[n]) 
                                 + (shear_force_z[n])*(shear_force_z[n]) );

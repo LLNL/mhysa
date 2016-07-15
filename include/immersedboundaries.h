@@ -64,8 +64,21 @@ typedef struct _facet_3d_{
 typedef struct _facet_map_{
   Facet3D   *facet; /*!< pointer to the facet */
   int       index;  /*!< index of this facet in the array #Body3D::surface */
-  int       interp_nodes[_IB_NNODES_]; /*!< indices of grid points surrounding the facet centroid */
-  double    interp_coeffs[_IB_NNODES_];/*!< interpolation coefficients corresponding to #FacetMap::interp_nodes */
+  int       interp_nodes    [_IB_NNODES_];/*!< indices of grid points surrounding the facet centroid */
+  double    interp_coeffs   [_IB_NNODES_];/*!< interpolation coefficients corresponding to #FacetMap::interp_nodes */
+  int       interp_nodes_ns [_IB_NNODES_];/*!< indices of grid points surrounding the "near-surface" point near the centroid */
+  double    interp_coeffs_ns[_IB_NNODES_];/*!< interpolation coefficients corresponding to #FacetMap::interp_nodes_ns */
+
+  double    xc, /*!< x-coordinate of centroid of #FacetMap::facet */
+            yc, /*!< y-coordinate of centroid of #FacetMap::facet */
+            zc, /*!< z-coordinate of centroid of #FacetMap::facet */
+            xns,/*!< x-coordinate of "near surface" point of #FacetMap::facet */
+            yns,/*!< y-coordinate of "near surface" point of #FacetMap::facet */
+            zns;/*!< z-coordinate of "near surface" point of #FacetMap::facet */
+
+  double    dx, /*!< #FacetMap::xns - #FacetMap::xc */
+            dy, /*!< #FacetMap::yns - #FacetMap::yc */
+            dz; /*!< #FacetMap::zns - #FacetMap::zc */
 } FacetMap;
 
 /*! \def Body3D
@@ -140,6 +153,7 @@ typedef struct immersed_boundary{
   FacetMap  *fmap;      /*!< list of "local" facets */
 
   double  tolerance; /*!< zero tolerance */
+  double  delta;     /*!< small number */
   int     itr_max;   /*!< maximum intersections in ray-tracing method */
   int     n_boundary_nodes; /*!< number of immersed boundary nodes */
   int     nfacets_local;    /*!< number of "local" facets */

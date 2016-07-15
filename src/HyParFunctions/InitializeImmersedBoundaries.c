@@ -51,6 +51,7 @@ int InitializeImmersedBoundaries(
   /* allocate immersed boundary object and set it up */
   ib = (ImmersedBoundary*) calloc (1, sizeof(ImmersedBoundary));
   ib->tolerance = 1e-12;
+  ib->delta     = 1e-6;
   ib->itr_max   = 500;
   ib->body      = body;
   solver->ib    = ib;
