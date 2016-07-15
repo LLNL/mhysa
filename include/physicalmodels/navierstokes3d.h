@@ -497,6 +497,9 @@ typedef struct navierstokes3d_parameters {
                                                                     3 - stratified atmosphere with a Brunt-Vaisala frequency) */;
   double N_bv; /*!< the Brunt-Vaisala frequency for #NavierStokes3D::HB = 3 */
 
+  char ib_write_surface_data[_MAX_STRING_SIZE_]; /*!< Flag to indicate whether to analyze and write surface data for
+                                                      immersed body, if present. Applicable only if #HyPar::flag_ib is 1 */
+
 } NavierStokes3D;
 
 int    NavierStokes3DInitialize (void*,void*);

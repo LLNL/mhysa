@@ -120,6 +120,7 @@ int NavierStokes3DInitialize(
   physics->R      = 1.0;
   physics->N_bv   = 0.0;
   strcpy(physics->upw_choice,"roe");
+  strcpy(physics->ib_write_surface_data,"yes");
 
   /* reading physical model specific inputs - all processes */
   if (!mpi->rank) {
@@ -158,6 +159,8 @@ int NavierStokes3DInitialize(
             }
           } else if (!strcmp(word,"R")) {
             ferr = fscanf(in,"%lf",&physics->R);        if (ferr != 1) return(1);
+          } else if (!strcmp(word,"ib_surface_data")) {
+            ferr = fscanf(in,"%s",physics->ib_write_surface_data); if (ferr != 1) return(1);
           } else if (strcmp(word,"end")) {
             char useless[_MAX_STRING_SIZE_];
             ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
@@ -173,19 +176,20 @@ int NavierStokes3DInitialize(
     fclose(in);
   }
 
-  IERR MPIBroadcast_character (physics->upw_choice,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->gamma    ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->Pr       ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->Re       ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->Minf     ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->grav_x   ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->grav_y   ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->grav_z   ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->rho0     ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->p0       ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->R        ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_double    (&physics->N_bv     ,1                ,0,&mpi->world); CHECKERR(ierr);
-  IERR MPIBroadcast_integer   (&physics->HB       ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character (physics->upw_choice            ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character (physics->ib_write_surface_data ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->gamma                ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Pr                   ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Re                   ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->Minf                 ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->grav_x               ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->grav_y               ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->grav_z               ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->rho0                 ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->p0                   ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->R                    ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->N_bv                 ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_integer   (&physics->HB                   ,1                ,0,&mpi->world); CHECKERR(ierr);
 
   /* Scaling Re by M_inf */
   physics->Re /= physics->Minf;
@@ -219,7 +223,9 @@ int NavierStokes3DInitialize(
 
   if (solver->flag_ib) {
     solver->IBFunction          = NavierStokes3DImmersedBoundary;
-    solver->PhysicsOutput       = NavierStokes3DIBForces;
+    if (!strcmp(physics->ib_write_surface_data,"yes")) {
+      solver->PhysicsOutput     = NavierStokes3DIBForces;
+    }
   }
 
   if (!strcmp(solver->SplitHyperbolicFlux,"yes")) {
