@@ -191,6 +191,17 @@ int NavierStokes3DInitialize(
   IERR MPIBroadcast_double    (&physics->N_bv                 ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_integer   (&physics->HB                   ,1                ,0,&mpi->world); CHECKERR(ierr);
 
+  /* if file output is disabled in HyPar, respect that */
+  if (!strcmp(solver->op_file_format,"none")) {
+    if (!strcmp(physics->ib_write_surface_data,"yes")) {
+      if (!mpi->rank) {
+        printf("Warning from NavierStokes3DInitialize(): solver->op_file_format is set to \"none\", thus ");
+        printf("setting physics->ib_write_surface_data to \"no\" (no solution files will be written).\n");
+      }
+    }
+    strcpy(physics->ib_write_surface_data,"no");
+  }
+
   /* Scaling Re by M_inf */
   physics->Re /= physics->Minf;
 
