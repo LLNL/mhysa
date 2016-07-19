@@ -1,0 +1,86 @@
+3D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+Steady, viscous, incompressible flow around a sphere
+
+Reference:
+  + Taneda, S., “Experimental Investigation of Wake behind a Sphere at Low 
+    Reynolds Numbers,” Journal of the Physical Society of Japan, Vol. 11, 1956.
+  + Johnson, T.A. and Patel, V.C., “Flow Past a Sphere up to a Reynolds Number 
+    of 300,” Journal of Fluid Mechanics, Vol. 378, 1999.
+
+Domain:
+
+  Uniform grid in the following region:
+  -2 <= x <= 6
+  -2 <= y <= 2
+  -2 <= z <= 2
+  Stretched mesh beyond that (location of actual
+  boundary depends on stretching ratio and number
+  of points - as far as possible)
+
+Immersed body: Sphere of radius 0.5, centered at (0,0).
+
+Boundary Conditions: 
++ xmin: Subsonic inflow
++ xmax: Subsonic outflow
++ ymin and ymax: Subsonic "ambivalent"
++ zmin and zmax: Subsonic "ambivalent"
+
+Initial solution:
+    rho = 1.0
+    u   = 0.1
+    v   = 0.0
+    w   = 0.0
+    p   = 1/gamma
+  everywhere in the domain
+
+Other parameters:
+  gamma = 1.4
+  freestream Mach number = 0.1
+  Prandtl number = 0.72
+  Reynolds number = 100 ( = sphere-diameter-based Reynolds number)
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
++ initial.inp   -   Initial solution file (can be generated
+                    by compiling and running aux/init.c in
+                    the run directory).
++ sphere.stl    -   Copy from hypar/Examples/STLGeometries/sphere.stl
+NOTE: The sphere geometry must be specified as a STL file.
+
+Visualization of the main solution:
+
++ If "op_file_format" is set to "tecplot3d", the solution files can be
+  visualized in any software that reads in the Tecplot format (eg., 
+  Tecplot, VisIt, Paraview, etc)
++ If the "op_file_format" is set to "text", the solution files are ASCII
+  text files with the following columns: i-index, j-index, k-index,
+  x-coordinate, y-coordinate, z-coordinate, rho, rho*u, rho*v, rho*w, E.
++ If the "op_file_format is set to "binary", the solutions are written
+  to binary files.
+  - hypar/Extras/BinaryToTecplot.c - use this code to convert to a Tecplot
+    format solution file.
+  - hypar/Extras/BinaryToText.c - use this code to convert to a plain text
+    format solution file.
+  - hypar/Extras/ExtractSlice.c - use this code to extract a 2D slice normal
+    to a specified dimension at a specified position along that dimension.
+    The output will be binary solution files (with the same names) written
+    to a subdirectory "slices" (NOTE: create the subdirectory "slices" 
+    before using this). The binary solution files for the slices can then
+    be converted to Tecplot or text formats using the above codes. This 
+    needs the relevant solver.inp in the slices subdirectory that can be 
+    created as follows:
+    + Copy the original solver.inp to the slices subdirectory.
+    + In this solver.inp, set ndims as 2, and remove the component of size and 
+      iproc corresponding to the dimension being eliminated while extracting 
+      the slices (in this case, it is z or the 3rd component).
+
+Visualization of the Immersed Body:
+In addition to the main solution (op*.*), there will be a file surface*.dat
+(if op_overwrite is set to "yes", then surface.dat, else surface_nnnnn.dat,
+where nnnnn is a numerical index). This file contains the surface aerodynamic
+forces on the immersed body in Tecplot format - the data is written in the
+unstructured finite-element triangle format. This file can be opened and
+visualized in any software that can read Tecplot format.
