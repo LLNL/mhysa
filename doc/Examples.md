@@ -40,6 +40,7 @@ with PETSc.
 \subpage euler2d_igwave \n
 \subpage euler2d_rtb
 
+\subpage navstok2d_ldsc \n
 \subpage navstok2d_flatplate
 
 \subpage sw_circdambreak \n
@@ -1438,6 +1439,102 @@ plots and visualize the solution:
 
 Expected screen output:
 \include 2D/NavierStokes2D/RisingThermalBubble/output.log
+
+
+\page navstok2d_ldsc 2D Navier-Stokes Equations -  Lid-Driven Square Cavity
+
+Location: \b hypar/Examples/2D/NavierStokes2D/LidDrivenCavity
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Euler Equations (navierstokes2d.h)
+
+Reference: 
++ Erturk, E., Corke, T.C., and Gokcol, C., "Numerical Solutions of
+  2-D Steady Incompressible Driven Cavity Flow at High Reynolds Numbers",
+  International Journal for Numerical Methods in Fluids, 48, 2005,
+  http://dx.doi.org/10.1002/fld.953.
++ Ghia, U., Ghia, K.N., Shin, C.T., "High-Re Solutions for Incompressible
+  Flow using the Navier-Stokes Equations and a Multigrid Method", Journal
+  of Computational Physics, 48, 1982, http://dx.doi.org/10.1016/0021-9991(82)90058-4.
+
+Note that this is an incompressible problem being solved here using the compressible
+Navier-Stokes equations in terms of non-dimensional flow variables. The density and 
+pressure are taken such that the speed of sound is 1.0, and the flow velocities 
+specified in the initial and boundary conditions correspond to a characteristic 
+Mach number of 0.1 (thus, they are 0.1 times the values in the above reference).
+
+Domain: \f$0 \le x, y \le 1\f$
+
+Boundary conditions:
++ No-slip wall BC on \f$x=0,1, 0 \le y \le 1\f$ (#_NOSLIP_WALL_ with 0 wall velocity).
++ No-slip wall BC on \f$y=0, 0 \le x \le 1\f$ (#_NOSLIP_WALL_ with 0 wall velocity).
++ Moving no-slip wall BC on \f$y=1, 0 \le x \le 1\f$ (#_NOSLIP_WALL_ with specified 
+  wall velocity of 0.1 in the x-direction).
+
+Initial solution: \f$\rho=1, p=1/\gamma\f$. The velocities are specified according to 
+the references above, but scaled by a factor of 0.1 to ensure that the characteristic
+Mach number is 0.1.
+
+Other parameters:
+  + \f$\gamma = 1.4\f$ (#NavierStokes2D::gamma)
+  + \f$Re = \frac {\rho u L } {\mu} = 100, 1000, 3200\f$ (Reynolds number) (#NavierStokes2D::Re), 
+    where \f$L=1\f$ is the cavity length and width.
+  + \f$Pr = 0.72\f$ (Prandtl number) (#NavierStokes2D::Pr)
+  + \f$M_\infty = 0.1\f$ (characteristic Mach number) (#NavierStokes2D::Minf)
+
+\b Note: Pressure is taken as \f$1/\gamma\f$ in the above so that the freestream 
+speed of sound is 1.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order upwind (Interp1PrimFifthOrderUpwind())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (ParabolicFunctionNC2Stage())
+ + Time integration: 4th order, 4-stage Runge-Kutta (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include 2D/NavierStokes2D/LidDrivenCavity/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/LidDrivenCavity/boundary.inp
+
+\b physics.inp (\b Note: this file specifies \f$Re = 3200\f$,
+change \a Re here for other Reynolds numbers.)
+\include 2D/NavierStokes2D/LidDrivenCavity/physics.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 2D/NavierStokes2D/LidDrivenCavity/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2
+
+in \b solver.inp (i.e., 2 processors along \a x, and 2
+processor along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be one output file
+\b op.dat, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
+Since #HyPar::op_file_format is set to \a tecplot2d in \b solver.inp,
+this file is in the ASCII Tecplot format and can be viewed in any
+software that supports this format (e.g. VisIt).
+
+Following plots show the streamlines (colored by the velocity magnitude)
+for the solutions with Reynolds number 100, 1000, and 3200, respectively.
+@image html Solution_2DNavStokLDSC_Re0100.png
+@image html Solution_2DNavStokLDSC_Re1000.png
+@image html Solution_2DNavStokLDSC_Re3200.png
+
+Expected screen output (for Reynolds number 3200):
+\include 2D/NavierStokes2D/LidDrivenCavity/output.log
 
 
 \page navstok2d_flatplate 2D Navier-Stokes Equations -  Laminar Flow over Flat Plate
