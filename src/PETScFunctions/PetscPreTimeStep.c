@@ -47,6 +47,9 @@ PetscErrorCode PetscPreTimeStep(TS ts /*!< Time integration object */)
   ierr = TSGetTime(ts,&waqt);                        CHKERRQ(ierr);
   ierr = TSGetTimeStepNumber(ts,&iter);              CHKERRQ(ierr);
 
+  /* save a copy of the solution to compute norm at end of time step */
+  _ArrayCopy1D_(solver->u,solver->u0,(solver->npoints_local_wghosts*solver->nvars));
+
   /* apply boundary conditions and exchange data over MPI interfaces */
   IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,0,waqt); CHECKERR(ierr);
   IERR solver->ApplyIBConditions(solver,mpi,solver->u,waqt); CHECKERR(ierr);

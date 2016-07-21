@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <basic.h>
+#include <arrayfunctions.h>
 #include <mpivars.h>
 #include <petscinterface.h>
 #include <hypar.h>
@@ -52,6 +53,13 @@ PetscErrorCode PetscPostTimeStep(TS ts /*!< Time integrator object */)
   if (solver->ComputeDiffNumber) local_max_diff = solver->ComputeDiffNumber (solver,mpi,dt,waqt);
   ierr = MPIMax_double(&max_cfl ,&local_max_cfl ,1,&mpi->world); CHECKERR(ierr);
   ierr = MPIMax_double(&max_diff,&local_max_diff,1,&mpi->world); CHECKERR(ierr);
+
+  /* Calculate norm of the change in the solution for this time step */
+  _ArrayAXPY_(solver->u,-1.0,solver->u0,(solver->npoints_local_wghosts*solver->nvars));
+  double sum = ArraySumSquarenD(solver->nvars,solver->ndims,solver->dim_local,
+                                solver->ghosts,solver->index,solver->u0);
+  double global_sum = 0; MPISum_double(&global_sum,&sum,1,&mpi->world);
+  double norm = sqrt((global_sum/(double)solver->npoints_global));
   
   if (!strcmp(solver->ConservationCheck,"yes")) {
     /* calculate volume integral of the solution at this time step */
@@ -67,6 +75,7 @@ PetscErrorCode PetscPostTimeStep(TS ts /*!< Time integrator object */)
     printf("Time: %1.3E  "          ,waqt    );
     printf("Max CFL: %1.3E  "       ,max_cfl );
     printf("Max Diff. No.: %1.3E  " ,max_diff);
+    printf("Norm: %1.4E "           ,norm    );
     /* calculate and print conservation error */
     if (!strcmp(solver->ConservationCheck,"yes")) {
       double error = 0;

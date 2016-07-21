@@ -109,10 +109,11 @@ int Initialize(
   solver->u       = (double*) calloc (solver->nvars*size,sizeof(double));
 #ifdef with_petsc
   if (solver->use_petscTS) {
+    solver->u0      = (double*) calloc (solver->nvars*size,sizeof(double));
     solver->uref    = (double*) calloc (solver->nvars*size,sizeof(double));
     solver->rhsref  = (double*) calloc (solver->nvars*size,sizeof(double));
     solver->rhs     = (double*) calloc (solver->nvars*size,sizeof(double));
-  } else solver->uref = solver->rhsref = solver->rhs = NULL;
+  } else solver->u0 = solver->uref = solver->rhsref = solver->rhs = NULL;
 #endif
   solver->hyp     = (double*) calloc (solver->nvars*size,sizeof(double));
   solver->par     = (double*) calloc (solver->nvars*size,sizeof(double));

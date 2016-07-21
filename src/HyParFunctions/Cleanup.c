@@ -131,6 +131,7 @@ int Cleanup(
   free(solver->index);
   free(solver->u);
 #ifdef with_petsc
+  if (solver->u0)     free(solver->u0);
   if (solver->uref)   free(solver->uref);
   if (solver->rhsref) free(solver->rhsref);
   if (solver->rhs)    free(solver->rhs);   

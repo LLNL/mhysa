@@ -343,6 +343,7 @@ typedef struct main_parameters {
 
 #ifdef with_petsc
   int     use_petscTS;  /*!< Use PETSc time-integration? */
+  double  *u0;          /*!< copy of solution vector        */
   double  *uref;        /*!< copy of solution vector        */
   double  *rhsref;      /*!< copy of the RHS vector      */
   double  *rhs;         /*!< RHS vector                  */
