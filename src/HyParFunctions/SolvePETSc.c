@@ -92,6 +92,13 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   ierr = TSSetInitialTimeStep(ts,0.0,solver->dt); CHKERRQ(ierr);
   ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP); CHKERRQ(ierr);
   ierr = TSSetType(ts,TSBEULER); CHKERRQ(ierr);
+
+  /* set default time step adaptivity to none */
+  TSAdapt adapt;
+  ierr = TSGetAdapt(ts,&adapt);
+  TSAdaptSetType(adapt,TSADAPTNONE);
+
+  /* set options from input */
   ierr = TSSetFromOptions(ts); CHKERRQ(ierr);
 
   /* Define the right and left -hand side functions for each time-integration scheme */
