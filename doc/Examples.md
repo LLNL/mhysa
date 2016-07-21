@@ -3522,6 +3522,9 @@ Boundary conditions:
 Reference:
   + Taneda, S., "Experimental Investigation of the Wakes behind Cylinders and Plates at Low 
     Reynolds Numbers," Journal of the Physical Society of Japan, Vol. 11, 302–307, 1956. 
+  + Dennis, S. C. R., Chang, G.-Z., "Numerical solutions for steady flow past a circular
+    cylinder at Reynolds numbers up to 100", Journal of Fluid Mechanics, 42 (3), 1970,
+    pp. 471-489.
 
 Initial solution: \f$\rho=1, u=0.1, v=w=0, p=1/\gamma\f$ everywhere in the domain.
 
