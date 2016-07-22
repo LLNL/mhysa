@@ -19,10 +19,17 @@
   (MPI) platforms. The physical models define the physics-specific functions such as the exact 
   forms of the hyperbolic flux, parabolic flux, source terms, upwinding functions, etc.
 
-  + It is written entirely in C and uses the MPICH library. It also uses OpenMP threads 
+  Features
+  --------
+  + Solves <B>hyperbolic-parabolic PDEs with source terms</B>.
+  + Allows arbitrary number of <B>spatial dimensions</B> and <B>vector components per grid point</B>.
+  + Solves the PDEs over <B>Cartesian</B> grids.
+  + Written entirely in C and uses the MPICH library. It also uses OpenMP threads 
     but this is a work-in-progress.
-  + An option to compile it with PETSc (http://www.mcs.anl.gov/petsc/) is available, where 
-    it can use PETSc's time integration module TS ().
+  + Can be <B>compiled with PETSc</B> (http://www.mcs.anl.gov/petsc/), if available, where 
+    it can use PETSc's time integration module TS (http://www.mcs.anl.gov/petsc/petsc-current/src/ts/).
+  + For 3-dimensional simulations, the <B>immersed boundaries</B> can be used to
+    solve over non-Cartesian geometries.
 
   HyPar has been developed to be scalable, and apart from the usual functionalities to
   solve a system of PDEs on distributed architectures, it provides scalable file I/O
@@ -57,6 +64,9 @@
 
   CFLAGS should include all the compiler flags.
 
+  \b Note: Default installation target is its own directory, and thus "make install" should not require
+           administrative privileges. The binary will be placed in \a bin/ subdirectory.
+
   The configure options can include options such as BLAS/LAPACK location, MPI directory, etc. Type "./configure --help"
   to see a full list. The options specific to HyPar are:
   + --with-mpi-dir: Specify path where mpicc is installed.
@@ -77,8 +87,8 @@
   -----
   + This package has been tested using the GNU and IBM C compilers. The configuration script is designed to look for these 
     compilers only.
-  + Feel free to contact me about anything regarding this (doubts/difficulties/suggestions), and use and modify the code
-    in any way.
+  + Feel free to contact me about anything regarding this (doubts/difficulties/suggestions).
+  + Feel free to use and modify the code in any way.
 
   Running
   -------
