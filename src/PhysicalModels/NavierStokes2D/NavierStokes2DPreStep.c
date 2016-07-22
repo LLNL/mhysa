@@ -26,7 +26,7 @@
     Reference:
     + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
       with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
-      To appear.
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369.
 */
 int NavierStokes2DPreStep(
                             double  *u,   /*!< Solution vector */

@@ -2708,7 +2708,8 @@ and acoustic components with the former integrated explicitly and the
 latter integrated implicitly. See the following reference:
 + Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of 
   Atmospheric Flows with Characteristic-Based Flux Partitioning", SIAM 
-  Journal on Scientific Computing (To appear).
+  Journal on Scientific Computing, 38 (3), 2016, A1848-A1875, 
+  http://dx.doi.org/10.1137/15M1044369.
 
 Domain: \f$0 \le x,y \le 1000\,m\f$, 
         "slip-wall" (#_SLIP_WALL_) boundary conditions on all sides.
@@ -2973,7 +2974,8 @@ and acoustic components with the former integrated explicitly and the
 latter integrated implicitly. See:
 + Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of 
   Atmospheric Flows with Characteristic-Based Flux Partitioning", SIAM 
-  Journal on Scientific Computing (To appear).
+  Journal on Scientific Computing, 38 (3), 2016, A1848-A1875, 
+  http://dx.doi.org/10.1137/15M1044369.
 
 Domain: \f$0 \le x, y \le 1\f$
 
@@ -3090,7 +3092,8 @@ and acoustic components with the former integrated explicitly and the
 latter integrated implicitly. See the following reference:
 + Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of 
   Atmospheric Flows with Characteristic-Based Flux Partitioning", SIAM 
-  Journal on Scientific Computing (To appear).
+  Journal on Scientific Computing, 38 (3), 2016, A1848-A1875, 
+  http://dx.doi.org/10.1137/15M1044369.
 
 Initial solution: A warm bubble in cool ambient atmosphere. Note that in this example, the
 gravitational forces and rising of the bubble is along the \a y-axis.
@@ -3348,7 +3351,8 @@ Governing equations: 2D Euler Equations (navierstokes2d.h - By default,
 
 Reference: Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of 
            Atmospheric Flows with Characteristic-Based Flux Partitioning", SIAM 
-           Journal on Scientific Computing (To appear).
+           Journal on Scientific Computing, 38 (3), 2016, A1848-A1875, 
+           http://dx.doi.org/10.1137/15M1044369.
 
 The problem is solved here using <B>implicit-explicit (IMEX)</B> time
 integration, where the hyperbolic flux is partitioned into its entropy
@@ -3498,7 +3502,8 @@ and acoustic components with the former integrated explicitly and the
 latter integrated implicitly. See the following reference:
 + Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of 
   Atmospheric Flows with Characteristic-Based Flux Partitioning", SIAM 
-  Journal on Scientific Computing (To appear).
+  Journal on Scientific Computing, 38 (3), 2016, A1848-A1875, 
+  http://dx.doi.org/10.1137/15M1044369.
 
 Domain: \f$0 \le x \le 300,000\,m, 0 \le y \le 10,000\,m\f$, \a "periodic" (#_PERIODIC_)
         boundary conditions along \f$x\f$, "slip-wall" (#_SLIP_WALL_) boundary conditions along \f$y\f$.

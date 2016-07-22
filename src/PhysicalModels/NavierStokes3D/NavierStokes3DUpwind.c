@@ -27,7 +27,7 @@
       7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
       http://dx.doi.org/10.2514/6.2015-2889
     + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
-      for Atmospheric Flows, Submitted
+      for Atmospheric Flows, 54 (4), 2016, pp. 1370-1385, http://dx.doi.org/10.2514/1.J054580
 
 */
 int NavierStokes3DUpwindRoe(
@@ -220,7 +220,7 @@ int NavierStokes3DUpwindRF(
       7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
       http://dx.doi.org/10.2514/6.2015-2889
     + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
-      for Atmospheric Flows, Submitted
+      for Atmospheric Flows, 54 (4), 2016, pp. 1370-1385, http://dx.doi.org/10.2514/1.J054580
 */
 int NavierStokes3DUpwindLLF(
                             double  *fI, /*!< Computed upwind interface flux */
@@ -324,7 +324,7 @@ int NavierStokes3DUpwindLLF(
       7th AIAA Atmospheric and Space Environments Conference, June 22-26, 2015, Dallas, TX,
       http://dx.doi.org/10.2514/6.2015-2889
     + Ghosh, D., Constantinescu, E.M., A Well-Balanced, Conservative Finite-Difference Algorithm
-      for Atmospheric Flows, Submitted
+      for Atmospheric Flows, 54 (4), 2016, pp. 1370-1385, http://dx.doi.org/10.2514/1.J054580
 
 */
 int NavierStokes3DUpwindRusanov(
@@ -403,6 +403,10 @@ int NavierStokes3DUpwindRusanov(
 /*! The Roe upwinding scheme (#NavierStokes3DUpwindRoe) for the partitioned hyperbolic flux that comprises
     of the acoustic waves only (see #NavierStokes3DStiffFlux, #_NavierStokes3DSetStiffFlux_). Thus, only the 
     characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369.
 */
 int NavierStokes3DUpwinddFRoe(
                               double  *fI, /*!< Computed upwind interface flux */
@@ -496,6 +500,10 @@ int NavierStokes3DUpwinddFRoe(
 /*! The Roe upwinding scheme (#NavierStokes3DUpwindRoe) for the partitioned hyperbolic flux that comprises
     of the entropy waves only (see #NavierStokes3DNonStiffFlux, #_NavierStokes3DSetStiffFlux_). Thus, only the 
     characteristic fields / eigen-modes corresponding to \f$u\f$ are used.
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369.
 */
 int NavierStokes3DUpwindFdFRoe(
                                 double  *fI, /*!< Computed upwind interface flux */
@@ -721,6 +729,10 @@ int NavierStokes3DUpwindRusanovModified(
 /*! The modified Rusanov upwinding scheme (NavierStokes3DUpwindRusanovModified()) for the partitioned hyperbolic flux that comprises
     of the acoustic waves only (see #NavierStokes3DStiffFlux, #_NavierStokes3DSetStiffFlux_). Thus, only the 
     characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369.
 */
 int NavierStokes3DUpwinddFRusanovModified(
                                           double  *fI, /*!< Computed upwind interface flux */
@@ -823,6 +835,10 @@ int NavierStokes3DUpwinddFRusanovModified(
 /*! The modified Rusanov upwinding scheme (NavierStokes3DUpwindRusanovModified()) for the partitioned hyperbolic flux that comprises
     of the entropy waves only (see #NavierStokes3DNonStiffFlux, #_NavierStokes3DSetNonStiffFlux_). Thus, only the 
     characteristic fields / eigen-modes corresponding to \f$u\f$ are used.
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369.
 */
 int NavierStokes3DUpwindFdFRusanovModified(
                                             double  *fI, /*!< Computed upwind interface flux */

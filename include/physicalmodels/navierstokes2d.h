@@ -38,7 +38,7 @@
   components:
   + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
     with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
-    To appear.
+    38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369.
 
 */
 #include <basic.h>
@@ -120,7 +120,7 @@
   Reference:
   + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
     with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
-    To appear.
+    38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369.
 */
 #define _NavierStokes2DSetStiffFlux_(f,rho,vx,vy,e,P,dir,gamma) \
   { \
@@ -147,7 +147,7 @@
   Reference:
   + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
     with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
-    To appear.
+    38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369.
 */
 #define _NavierStokes2DSetNonStiffFlux_(f,rho,vx,vy,e,P,dir,gamma) \
   { \
