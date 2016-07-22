@@ -1,0 +1,58 @@
+2D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+  d   [ rho   ]   d   [   rho*u    ]    d  [   rho*v   ]
+  --  [ rho*u ] + --  [rho*u*u + p ] +  -- [  rho*u*v  ] =  Viscous terms
+  dt  [ rho*v ]   dx  [   rho*u*v  ]    dy [rho*v*v + p]
+      [   e   ]       [   (e+p)*u  ]       [  (e+p)v   ]
+
+  rho   - density
+  u     - x-velocity
+  v     - y-velocity
+  p     - pressure
+  e     - internal energy
+
+  Equation of state:
+           p         1
+    e = -------  +   - rho * (u^2+v^2)
+        gamma-1      2
+
+
+Lid-Driven Square Cavity:
+
++ Erturk, E., Corke, T.C., and Gokcol, C., "Numerical Solutions of 2-D Steady 
+  Incompressible Driven Cavity Flow at High Reynolds Numbers", International 
+  Journal for Numerical Methods in Fluids, 48, 2005, http://dx.doi.org/10.1002/fld.953.
++ Ghia, U., Ghia, K.N., Shin, C.T., "High-Re Solutions for Incompressible Flow using the 
+  Navier-Stokes Equations and a Multigrid Method", Journal of Computational Physics, 48, 
+  1982, http://dx.doi.org/10.1016/0021-9991(82)90058-4.
+
+Domain:
+
+  0 <= x,y <= 1.0
+  "no-slip wall" BC on the left, bottom and right boundaries
+  "moving wall" BC on the top boundary
+
+Note that this is an incompressible problem being solved here using the compressible 
+Navier-Stokes equations in terms of non-dimensional flow variables. The density and 
+pressure are taken such that the speed of sound is 1.0, and the flow velocities specified 
+in the initial and boundary conditions correspond to a characteristic Mach number of 0.1 
+(thus, they are 0.1 times the values in the above reference).
+
+Initial Solution: See references.
+
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters
+
+** See hypar/README for other (optional) input files
+
+Due to file sizes, the required file initial.inp for 
+initial solution is not provided. It can be generated 
+by compiling aux/init.c and running the executable in the 
+run directory (where solver.inp is present).
+
+Notes:-
+The code aux/init.c is an example to generate the initial
+solution file in the correct format required by the solver. 

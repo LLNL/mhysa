@@ -1449,7 +1449,7 @@ Location: \b hypar/Examples/2D/NavierStokes2D/LidDrivenCavity
           MATLAB to quickly set up, run, and visualize the 
           example).
 
-Governing equations: 2D Euler Equations (navierstokes2d.h)
+Governing equations: 2D Navier-Stokes Equations (navierstokes2d.h)
 
 Reference: 
 + Erturk, E., Corke, T.C., and Gokcol, C., "Numerical Solutions of
@@ -2338,6 +2338,7 @@ Implicit-Explicit (IMEX) time integration:
 \subpage euler2d_low_mach_vortex_petsc \n
 \subpage euler2d_igwave_petsc \n
 \subpage euler2d_rtb_petsc_imex (with local truncation error-based adaptive time-step) \n
+\subpage ns2d_ldsc_petsc_imex \n
 \subpage ns3d_bubble_petsc
 
 
@@ -2940,6 +2941,125 @@ The numbers are, respectively,
 
 Expected screen output:
 \include 2D/NavierStokes2D/FlatPlateLaminar_PETSc_Implicit/output.log
+
+\page ns2d_ldsc_petsc_imex 2D Navier-Stokes Equations -  Lid-Driven Square Cavity
+
+Location: \b hypar/Examples/2D/NavierStokes2D/LidDrivenCavity_PETSc_IMEX
+          (This directory contains all the input files needed
+          to run this case. If there is a \a Run.m, run it in
+          MATLAB to quickly set up, run, and visualize the 
+          example).
+
+Governing equations: 2D Navier-Stokes Equations (navierstokes2d.h)
+
+Reference: 
++ Erturk, E., Corke, T.C., and Gokcol, C., "Numerical Solutions of
+  2-D Steady Incompressible Driven Cavity Flow at High Reynolds Numbers",
+  International Journal for Numerical Methods in Fluids, 48, 2005,
+  http://dx.doi.org/10.1002/fld.953.
++ Ghia, U., Ghia, K.N., Shin, C.T., "High-Re Solutions for Incompressible
+  Flow using the Navier-Stokes Equations and a Multigrid Method", Journal
+  of Computational Physics, 48, 1982, http://dx.doi.org/10.1016/0021-9991(82)90058-4.
+
+Note that this is an incompressible problem being solved here using the compressible
+Navier-Stokes equations in terms of non-dimensional flow variables. The density and 
+pressure are taken such that the speed of sound is 1.0, and the flow velocities 
+specified in the initial and boundary conditions correspond to a characteristic 
+Mach number of 0.1 (thus, they are 0.1 times the values in the above reference).
+
+The problem is solved here using <B>implicit-explicit (IMEX)</B> time
+integration, where the hyperbolic flux is partitioned into its entropy
+and acoustic components with the former integrated explicitly and the
+latter integrated implicitly. See:
++ Ghosh, D., Constantinescu, E. M., "Semi-Implicit Time Integration of 
+  Atmospheric Flows with Characteristic-Based Flux Partitioning", SIAM 
+  Journal on Scientific Computing (To appear).
+
+Domain: \f$0 \le x, y \le 1\f$
+
+Boundary conditions:
++ No-slip wall BC on \f$x=0,1, 0 \le y \le 1\f$ (#_NOSLIP_WALL_ with 0 wall velocity).
++ No-slip wall BC on \f$y=0, 0 \le x \le 1\f$ (#_NOSLIP_WALL_ with 0 wall velocity).
++ Moving no-slip wall BC on \f$y=1, 0 \le x \le 1\f$ (#_NOSLIP_WALL_ with specified 
+  wall velocity of 0.1 in the x-direction).
+
+Initial solution: \f$\rho=1, p=1/\gamma\f$. The velocities are specified according to 
+the references above, but scaled by a factor of 0.1 to ensure that the characteristic
+Mach number is 0.1.
+
+Other parameters:
+  + \f$\gamma = 1.4\f$ (#NavierStokes2D::gamma)
+  + \f$Re = \frac {\rho u L } {\mu} = 3200\f$ (Reynolds number) (#NavierStokes2D::Re), 
+    where \f$L=1\f$ is the cavity length and width.
+  + \f$Pr = 0.72\f$ (Prandtl number) (#NavierStokes2D::Pr)
+  + \f$M_\infty = 0.1\f$ (characteristic Mach number) (#NavierStokes2D::Minf)
+
+\b Note: Pressure is taken as \f$1/\gamma\f$ in the above so that the freestream 
+speed of sound is 1.
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order upwind (Interp1PrimFifthOrderUpwind())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (ParabolicFunctionNC2Stage())
+ + Time integration: PETSc (SolvePETSc()) 
+   - Method Class: <B>Additive Runge-Kutta method</B> (TSARKIMEX - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX.html)
+   - Specific method: <B>Kennedy-Carpenter ARK4</B> (TSARKIMEX4 - http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/TSARKIMEX4.html)
+
+Input files required:
+---------------------
+
+<B>.petscrc</B>
+\include 2D/NavierStokes2D/LidDrivenCavity_PETSc_IMEX/petscrc
+
+\b solver.inp
+\include 2D/NavierStokes2D/LidDrivenCavity_PETSc_IMEX/solver.inp
+
+\b boundary.inp
+\include 2D/NavierStokes2D/LidDrivenCavity_PETSc_IMEX/boundary.inp
+
+\b physics.inp (\b Note: this file specifies \f$Re = 3200\f$,
+change \a Re here for other Reynolds numbers.)
+\include 2D/NavierStokes2D/LidDrivenCavity_PETSc_IMEX/physics.inp
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include 2D/NavierStokes2D/LidDrivenCavity_PETSc_IMEX/aux/init.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      2 2
+
+in \b solver.inp (i.e., 2 processors along \a x, and 2
+processor along \a y). Thus, this example should be run
+with 4 MPI ranks (or change \b iproc).
+
+After running the code, there should be one output file
+\b op.dat, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
+Since #HyPar::op_file_format is set to \a tecplot2d in \b solver.inp,
+this file is in the ASCII Tecplot format and can be viewed in any
+software that supports this format (e.g. VisIt).
+
+The following plot shows the streamlines (colored by the velocity magnitude):
+@image html Solution_2DNavStokLDSC_Re3200_PETSc_IMEX.png
+
+The file <B>function_counts.dat</B> reports the computational expense
+(in terms of the number of function counts):
+\include 2D/NavierStokes2D/LidDrivenCavity_PETSc_IMEX/function_counts.dat
+The numbers are, respectively,
++ Time iterations
++ Number of times the hyperbolic term was evaluated
++ Number of times the parabolic term was evaluated
++ Number of times the source term was evaluated
++ Number of calls to the explicit right-hand-side function (PetscRHSFunctionIMEX() or PetscRHSFunctionExpl())
++ Number of calls to the implicit right-hand-side function (PetscIFunctionIMEX() or PetscRHSFunctionImpl())
++ Number of calls to the Jacobian (PetscIJacobianIMEX() or PetscIJacobian())
++ Number of calls to the matrix-free Jacobian function (PetscJacobianFunctionIMEX_Linear(), PetscJacobianFunctionIMEX_JFNK(), PetscJacobianFunction_JFNK(), or PetscJacobianFunction_Linear()).
+
+Expected screen output (for Reynolds number 3200):
+\include 2D/NavierStokes2D/LidDrivenCavity_PETSc_IMEX/output.log
+
 
 
 

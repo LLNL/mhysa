@@ -1,0 +1,24 @@
+begin
+  ndims               2
+  nvars               4
+  size                128 128
+  iproc               2 2
+  ghost               3
+  n_iter              2500
+  time_scheme         rk
+  time_scheme_type    44
+  hyp_space_scheme    upw5
+  hyp_flux_split      yes
+  hyp_interp_type     components
+  par_space_type      nonconservative-2stage
+  par_space_scheme    4
+  dt                  0.1
+  screen_op_iter      10
+  file_op_iter        500
+  input_mode          serial
+  ip_file_type        binary
+  output_mode         serial
+  op_file_format      tecplot2d
+  op_overwrite        yes
+  model               navierstokes2d
+end
