@@ -55,6 +55,11 @@ int Euler1DFlux(
     \f$A_f\f$ is computed for the solution at the beginning of each time step in
     #Euler1DPreStep.
     \sa #_Euler1DSetStiffFlux_, #_Euler1DSetLinearizedStiffFlux_, #_Euler1DSetStiffJac_
+
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369
 */
 int Euler1DStiffFlux(
                 double  *f, /*!< Array to hold the computed flux (same size and layout as u) */

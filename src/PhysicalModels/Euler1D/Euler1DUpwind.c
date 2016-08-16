@@ -442,6 +442,11 @@ int Euler1DUpwinddFRoe(
 /*! The characteristic-based Roe-fixed upwinding scheme (#Euler1DUpwindRF) for the partitioned hyperbolic flux 
     that comprises of the acoustic waves only (see #Euler1DStiffFlux, #_Euler1DSetStiffFlux_). Thus, only the 
     characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369
 */
 int Euler1DUpwinddFRF(
                       double  *fI, /*!< Computed upwind interface flux */
@@ -526,6 +531,11 @@ int Euler1DUpwinddFRF(
 /*! The characteristic-based local Lax-Friedrich upwinding scheme (#Euler1DUpwindLLF) for the partitioned hyperbolic 
     flux that comprises of the acoustic waves only (see #Euler1DStiffFlux, #_Euler1DSetStiffFlux_). Thus, only the 
     characteristic fields / eigen-modes corresponding to \f$ u\pm a\f$ are used.
+
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing,
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369
 */
 int Euler1DUpwinddFLLF(
                       double  *fI, /*!< Computed upwind interface flux */

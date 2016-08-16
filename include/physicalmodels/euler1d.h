@@ -20,7 +20,8 @@
   For the partitioning of the flux into its stiff (acoustic) and non-stiff (convective)
   components, refer to:
   + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
-    with Characteristic-Based Flux Partitioning, Submitted
+    with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing, 
+    38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369
 
   For the treatment of gravitational source terms, refer to:
   + Xing, Y., Shu, C.-W., "High Order Well-Balanced WENO Scheme for the Gas Dynamics 
@@ -103,6 +104,11 @@
     implicit-explicit time-integration. The stiff flux is integrated
     in time implicitly.
     \sa #_Euler1DSetStiffJac_, #_Euler1DSetLinearizedStiffFlux_
+
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing, 
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369
 */
 #define _Euler1DSetStiffFlux_(f,rho,v,e,P,gamma) \
   { \
@@ -117,6 +123,11 @@
     of the stiff flux is evaluated at the beginning of each time
     step.
     \sa #_Euler1DSetStiffJac_
+
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing, 
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369
 */
 #define _Euler1DSetLinearizedStiffFlux_(f,u,J) \
   { \
@@ -127,6 +138,11 @@
     Compute the Jacobian of the stiff flux defined in
     #_Euler1DSetStiffFlux_. The Jacobian is stored in
     the row-major format.
+
+    Reference:
+    + Ghosh, D., Constantinescu, E. M., Semi-Implicit Time Integration of Atmospheric Flows 
+      with Characteristic-Based Flux Partitioning, SIAM Journal on Scientific Computing, 
+      38 (3), 2016, A1848-A1875, http://dx.doi.org/10.1137/15M1044369
 */
 #define _Euler1DSetStiffJac_(J,rho,v,e,P,gamma) \
   { \
