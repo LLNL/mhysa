@@ -35,9 +35,9 @@ PetscErrorCode PetscPostTimeStep(TS ts /*!< Time integrator object */)
   mpi     = context->mpi;
   context->tic++;
 
-  int     iter; ierr = TSGetTimeStepNumber(ts,&iter); CHKERRQ(ierr);
-  double  dt;   ierr = TSGetTimeStep      (ts,&dt  ); CHKERRQ(ierr);
-  double  waqt; ierr = TSGetTime          (ts,&waqt); CHKERRQ(ierr);
+  int     iter; ierr = TSGetStepNumber(ts,&iter); CHKERRQ(ierr);
+  double  dt;   ierr = TSGetTimeStep  (ts,&dt  ); CHKERRQ(ierr);
+  double  waqt; ierr = TSGetTime      (ts,&waqt); CHKERRQ(ierr);
 
   /* get solution */
   ierr = TSGetSolution(ts,&Y); CHKERRQ(ierr);

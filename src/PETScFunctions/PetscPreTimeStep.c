@@ -42,10 +42,10 @@ PetscErrorCode PetscPreTimeStep(TS ts /*!< Time integration object */)
   mpi     = context->mpi;
 
   /* get solution */
-  ierr = TSGetSolution(ts,&Y);                       CHKERRQ(ierr);
-  ierr = TransferVecFromPETSc(solver->u,Y,context);  CHECKERR(ierr);
-  ierr = TSGetTime(ts,&waqt);                        CHKERRQ(ierr);
-  ierr = TSGetTimeStepNumber(ts,&iter);              CHKERRQ(ierr);
+  ierr = TSGetSolution(ts,&Y);                        CHKERRQ(ierr);
+  ierr = TransferVecFromPETSc(solver->u,Y,context);   CHECKERR(ierr);
+  ierr = TSGetTime(ts,&waqt);                         CHKERRQ(ierr);
+  ierr = TSGetStepNumber(ts,&iter);                   CHKERRQ(ierr);
 
   /* save a copy of the solution to compute norm at end of time step */
   _ArrayCopy1D_(solver->u,solver->u0,(solver->npoints_local_wghosts*solver->nvars));

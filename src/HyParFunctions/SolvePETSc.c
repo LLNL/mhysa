@@ -89,8 +89,10 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
 
   /* Define and initialize the time-integration object */
   ierr = TSCreate(MPI_COMM_WORLD,&ts); CHKERRQ(ierr);
-  ierr = TSSetDuration(ts,solver->n_iter,solver->dt*solver->n_iter); CHKERRQ(ierr);
-  ierr = TSSetInitialTimeStep(ts,0.0,solver->dt); CHKERRQ(ierr);
+  ierr = TSSetMaxSteps(ts,solver->n_iter); CHKERRQ(ierr);
+  ierr = TSSetMaxTime(ts,solver->dt*solver->n_iter); CHKERRQ(ierr);
+  ierr = TSSetTimeStep(ts,solver->dt); CHKERRQ(ierr);
+  ierr = TSSetTime(ts,0.0); CHKERRQ(ierr);
   ierr = TSSetExactFinalTime(ts,TS_EXACTFINALTIME_MATCHSTEP); CHKERRQ(ierr);
   ierr = TSSetType(ts,TSBEULER); CHKERRQ(ierr);
 
@@ -340,7 +342,7 @@ int SolvePETSc(void *s, /*!< Solver object of type #HyPar */
   if (!mpi->rank) printf("** Completed PETSc time integration **\n");
 
   /* Get the number of time steps */
-  ierr = TSGetTimeStepNumber(ts,&solver->n_iter); CHKERRQ(ierr);
+  ierr = TSGetStepNumber(ts,&solver->n_iter); CHKERRQ(ierr);
 
   /* get and write to file any auxiliary solutions */
   char aux_fname_root[4] = "ts0";
