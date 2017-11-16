@@ -37,16 +37,6 @@
 /*! Turbulent, supersonic inflow boundary condition: density, velocity, and pressure are specified in the input, along with turbulent fluctuations (specific to Euler/Navier-Stokes) \sa #BCTurbulentSupersonicInflowU, #BCReadTurbulentInflowData */
 #define _TURBULENT_SUPERSONIC_INFLOW_   "turbulent-supersonic-inflow"
 
-/* some BC types unique to the NUMA system */
-/*! No-flux boundary condition (specific to NUMA) \sa #BCNoFluxU */
-#define _NO_FLUX_BC_                    "numa-nfbc"
-
-/* some BC types unique to the shallow water system */
-/*! Slip boundary condition (specific to shallow water equations) \sa #BCSWSlipWallU */
-#define _SW_SLIP_WALL_                  "shallow-water-slip-wall"
-/*! Viscous wall boundary condition (specific to shallow water equations) (not implemented yet) */
-#define _SW_NOSLIP_WALL_                "shallow-water-noslip-wall"
-
 /*! \def DomainBoundary
     \brief Structure containing the variables and function pointers defining a boundary
  * This structure contains all the variables and function pointers needed to specify
@@ -124,10 +114,6 @@ int BCSupersonicInflowU             (void*,void*,int,int,int*,int,double*,double
 int BCSupersonicOutflowU            (void*,void*,int,int,int*,int,double*,double);    
 /*! Turbulent Supersonic inflow boundary conditions for the solution vector U */
 int BCTurbulentSupersonicInflowU    (void*,void*,int,int,int*,int,double*,double);    
-/*! No-Flux (inviscid wall) boundary conditions for the solution vector U */
-int BCNoFluxU                       (void*,void*,int,int,int*,int,double*,double);    
-/*! Slip (inviscid) wall boundary conditions for the solution vector U */
-int BCSWSlipWallU                   (void*,void*,int,int,int*,int,double*,double);    
 
 /*! Periodic boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
 int BCPeriodicDU                    (void*,void*,int,int,int*,int,double*,double*,double);    
@@ -153,10 +139,6 @@ int BCSupersonicInflowDU            (void*,void*,int,int,int*,int,double*,double
 int BCSupersonicOutflowDU           (void*,void*,int,int,int*,int,double*,double*,double);    
 /*! Turbulent Supersonic inflow  boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
 int BCTurbulentSupersonicInflowDU   (void*,void*,int,int,int*,int,double*,double*,double);    
-/*! No-Flux ((inviscid wall) boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
-int BCNoFluxDU                      (void*,void*,int,int,int*,int,double*,double*,double);    
-/*! Slip (inviscid) wall boundary conditions for the "delta-solution" vector dU (for use in implicit time-integration) */
-int BCSWSlipWallDU                  (void*,void*,int,int,int*,int,double*,double*,double);    
 
 /*! a special BC enforcement - an absorbent sponge - enforced through a source term */
 int BCSpongeSource        (void*,int,int,int,int*,double*,double*,double*);

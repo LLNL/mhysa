@@ -8,21 +8,20 @@
 
   @author Debojyoti Ghosh [\b Email: (first name) (dot) (last name) (at) gmail (dot) com, \b Website: http://debog.github.io/]
 
-  HyPar: Hyperbolic-Parabolic (with Source) Partial Differential Equations Solver
-  -------------------------------------------------------------------------------
+  MHYSA: Multispecies Hypersonic Flow Simulator
+  ---------------------------------------------
 
-  HyPar is a finite-difference algorithm to solve hyperbolic-parabolic partial differential
-  equations (with source terms) on Cartesian grids. It is a unified framework that can handle 
-  systems of PDEs with arbitrary number of spatial dimensions and solution components. It 
-  provides the spatial discretization and time integration functions, functions to read and 
-  write solutions from/to files, as well as functions required to solve the system on parallel 
-  (MPI) platforms. The physical models define the physics-specific functions such as the exact 
-  forms of the hyperbolic flux, parabolic flux, source terms, upwinding functions, etc.
+  MHYSA is a conservative finite-difference code to solve the 1D, 2D, and 3D multispecies
+  Navier-Stokes equations for hypersonic flow applications. It supports Cartesian grids 
+  only and has the option of including immersed boundaries.
+
+  MHYSA is based on HyPar (http://hypar.github.io/), a finite-difference algorithm to solve 
+  hyperbolic-parabolic partial differential equations (with source terms). See the HyPar
+  website and documentation for more details.
 
   Features
   --------
-  + Solves <B>hyperbolic-parabolic PDEs with source terms</B>.
-  + Allows arbitrary number of <B>spatial dimensions</B> and <B>vector components per grid point</B>.
+  + Solves <B>1D Euler</B> and <B>2D and 3D Navier-Stokes equations</B>.
   + Solves the PDEs over <B>Cartesian</B> grids.
   + Written entirely in C and uses the MPICH library. It also uses OpenMP threads 
     but this is a work-in-progress.
@@ -31,21 +30,20 @@
   + For 3-dimensional simulations, the <B>immersed boundaries</B> can be used to
     solve over non-Cartesian geometries.
 
-  HyPar has been developed to be scalable, and apart from the usual functionalities to
-  solve a system of PDEs on distributed architectures, it provides scalable file I/O
-  functions. It has been tested on several platforms, including DOE Leadership-class
+  MHYSA is based on HyPar, which has been developed to be scalable, and apart from the usual 
+  functionalities to solve a system of PDEs on distributed architectures, it provides scalable 
+  file I/O functions. It has been tested on several platforms, including DOE Leadership-class
   supercomputers, with up to ~0.5 million MPI ranks.
 
   Download
   --------
-  The code is available at: https://bitbucket.org/deboghosh/hypar
+  The code is available at: https://bitbucket.org/deboghosh/mhysa
 
-  It can be cloned using git as follows:
-  + git clone git@bitbucket.org:deboghosh/hypar.git (if you have a Bitbucket account)
-  + git clone https://bitbucket.org/deboghosh/hypar.git (if you don't have a Bitbucket account)
+  If you have access, it can be cloned using git as follows:
+  + git clone git@bitbucket.org:deboghosh/mhysa.git
 
   Bitbucket also allows downloading the package as a tarball, see 
-  https://bitbucket.org/deboghosh/hypar/downloads.
+  https://bitbucket.org/deboghosh/mhysa/downloads.
 
   Documentation
   -------------
@@ -55,7 +53,7 @@
   Compiling
   ---------
 
-  To compile HyPar, follow these steps in the root directory:
+  To compile MHYSA, follow these steps in the root directory:
   
         autoreconf -i
         [CFLAGS="..."] ./configure [options]
@@ -68,7 +66,7 @@
            administrative privileges. The binary will be placed in \a bin/ subdirectory.
 
   The configure options can include options such as BLAS/LAPACK location, MPI directory, etc. Type "./configure --help"
-  to see a full list. The options specific to HyPar are:
+  to see a full list. The options specific to MHYSA are:
   + --with-mpi-dir: Specify path where mpicc is installed.
   + --enable-omp: Enable OpenMP threads.
   + --enable-scalapack: Enable ScaLAPACK (this will make available a tridiagonal solver using ScaLAPACK).
@@ -80,7 +78,7 @@
 
   \b Compiling \b with \b PETSc:
   Install PETSc and make sure the environment variables \b PETSC_DIR and \b PETSC_ARCH are defined. Please PETSc's
-  installation instructions for this. Once these environment variables are present, HyPar will use them to compile
+  installation instructions for this. Once these environment variables are present, MHYSA will use them to compile
   itself with PETSc functionalities.
 
   Notes
@@ -105,7 +103,7 @@
 #include <mpivars.h>
 #include <hypar.h>
 
-static const char help[] = "HyPar - A finite-difference algorithm for solving hyperbolic-parabolic PDEs";
+static const char help[] = "MHYSA - Multispecies Hypersonic Flow Simulator";
 
 /*!
  * \brief Main driver
@@ -128,13 +126,13 @@ int main(int argc,char **argv)
   mpi.nproc = 1;
   mpi.world = 0;
   mpi.comm  = NULL;
-  printf("HyPar - Serial Version\n");
+  printf("MHYSA - Serial Version\n");
 #else
   MPI_Init(&argc,&argv);
   MPI_Comm_dup (MPI_COMM_WORLD,&mpi.world);
   MPI_Comm_rank(mpi.world,&mpi.rank );
   MPI_Comm_size(mpi.world,&mpi.nproc);
-  if (!mpi.rank) printf("HyPar - Parallel (MPI) version with %d processes\n",mpi.nproc);
+  if (!mpi.rank) printf("MHYSA - Parallel (MPI) version with %d processes\n",mpi.nproc);
 #endif
 
 #ifdef with_petsc

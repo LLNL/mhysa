@@ -1,9 +1,9 @@
-AC_INIT([hypar],[0.1],[ghosh@mcs.anl.gov])
+AC_INIT([mhysa],[1.0],[debojyoti.ghosh@gmail.com])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 echo -n AC_PACKAGE_VERSION>VERSION
 AC_SUBST(PACKAGE_VERSION)
-AC_MSG_NOTICE([hypar AC_PACKAGE_VERSION])
+AC_MSG_NOTICE([mhysa AC_PACKAGE_VERSION])
 
 AM_INIT_AUTOMAKE
 AC_PREFIX_DEFAULT('$(top_srcdir)')
@@ -132,7 +132,7 @@ AC_CONFIG_FILES([
  src/BandedMatrix/Makefile
  src/BoundaryConditions/Makefile
  src/FirstDerivative/Makefile
- src/HyParFunctions/Makefile
+ src/CoreFunctions/Makefile
  src/ImmersedBoundaries/Makefile
  src/InterpolationFunctions/Makefile
  src/IOFunctions/Makefile
@@ -140,19 +140,9 @@ AC_CONFIG_FILES([
  src/MPIFunctions/Makefile
  src/PETScFunctions/Makefile
  src/PhysicalModels/Makefile
-   src/PhysicalModels/LinearADR/Makefile
-   src/PhysicalModels/FPDoubleWell/Makefile
-   src/PhysicalModels/FPPowerSystem/Makefile
-   src/PhysicalModels/FPPowerSystem1Bus/Makefile
-   src/PhysicalModels/FPPowerSystem3Bus/Makefile
    src/PhysicalModels/Euler1D/Makefile
-   src/PhysicalModels/Euler2D/Makefile
    src/PhysicalModels/NavierStokes2D/Makefile
    src/PhysicalModels/NavierStokes3D/Makefile
-   src/PhysicalModels/Numa2D/Makefile
-   src/PhysicalModels/Numa3D/Makefile
-   src/PhysicalModels/ShallowWater1D/Makefile
-   src/PhysicalModels/ShallowWater2D/Makefile
  src/SecondDerivative/Makefile
  src/TimeIntegration/Makefile
  src/TridiagLU/Makefile

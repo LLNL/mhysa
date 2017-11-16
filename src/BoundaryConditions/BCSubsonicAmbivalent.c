@@ -8,7 +8,7 @@
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
-#include <physicalmodels/euler2d.h>
+#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 /*! Applies the subsonic "ambivalent" boundary condition: 
@@ -23,7 +23,7 @@
       density and velocity are extrapolated from the interior. 
         
     This boundary condition is specific to two and three dimension Euler and 
-    Navier-Stokes systems (#Euler2D, #NavierStokes2D, #NavierStokes3D).
+    Navier-Stokes systems (#NavierStokes2D, #NavierStokes3D).
 */
 int BCSubsonicAmbivalentU(
                       void    *b,     /*!< Boundary object of type #DomainBoundary */
@@ -44,7 +44,7 @@ int BCSubsonicAmbivalentU(
   if (ndims == 2) {
 
     /* create a fake physics object */
-    Euler2D physics; 
+    NavierStokes2D physics; 
     double gamma;
     gamma = physics.gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
@@ -85,8 +85,8 @@ int BCSubsonicAmbivalentU(
         _ArrayIndex1D_(ndims,size,indexj,ghosts,p2);
         double uvel1, uvel2, uvelb,
                vvel1, vvel2, vvelb;
-        _Euler2DGetFlowVar_((phi+nvars*p1),rho,uvel1,vvel1,energy,pressure,(&physics));
-        _Euler2DGetFlowVar_((phi+nvars*p2),rho,uvel2,vvel2,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi+nvars*p1),rho,uvel1,vvel1,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel2,vvel2,energy,pressure,(&physics));
         uvelb = 1.5*uvel1 - 0.5*uvel2;
         vvelb = 1.5*vvel1 - 0.5*vvel2;
         double vel_normal = uvelb*nx + vvelb*ny;
@@ -100,7 +100,7 @@ int BCSubsonicAmbivalentU(
         _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
         
         /* flow variables in the interior */
-        _Euler2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
 
         /* set the ghost point values */
         double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;

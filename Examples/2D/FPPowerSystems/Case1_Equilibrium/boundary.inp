@@ -1,7 +1,0 @@
-4
-periodic      0     1     0     0    0.99   1.01
-periodic      0    -1     0     0    0.99   1.01
-dirichlet     1     1   0.0   1.2      0      0
-0.0
-dirichlet     1    -1   0.0   1.2      0      0
-0.0

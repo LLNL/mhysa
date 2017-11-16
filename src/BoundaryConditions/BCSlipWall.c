@@ -9,11 +9,11 @@
 #include <boundaryconditions.h>
 
 #include <physicalmodels/euler1d.h>
-#include <physicalmodels/euler2d.h>
+#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 /*! Applies the slip-wall boundary condition: This is specific to the two and three
-    dimensional Euler and Navier-Stokes systems (#Euler2D, #NavierStokes2D, #NavierStokes3D).
+    dimensional Navier-Stokes systems (#NavierStokes2D, #NavierStokes3D).
     It is used for simulating inviscid walls or symmetric boundaries. The pressure, density,
     and tangential velocity at the ghost points are extrapolated from the interior, while the
     normal velocity at the ghost points is set such that the interpolated value at the boundary 
@@ -80,7 +80,7 @@ int BCSlipWallU(
   } else if (ndims == 2) {
 
     /* create a fake physics object */
-    Euler2D physics; 
+    NavierStokes2D physics; 
     double gamma; 
     gamma = physics.gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
@@ -103,7 +103,7 @@ int BCSlipWallU(
         /* flow variables in the interior */
         double rho, uvel, vvel, energy, pressure;
         double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
-        _Euler2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
         /* set the ghost point values */
         rho_gpt = rho;
         pressure_gpt = pressure;
@@ -195,7 +195,7 @@ int BCSlipWallU(
 }
 
 /*! Applies the slip-wall boundary condition to the delta-solution: This is specific to the two 
-    and three dimensional Euler and Navier-Stokes systems (#Euler2D, #NavierStokes2D, #NavierStokes3D).
+    and three dimensional Euler and Navier-Stokes systems (#NavierStokes2D, #NavierStokes3D).
     It is used for simulating inviscid walls or symmetric boundaries. The pressure, density,
     and tangential velocity at the ghost points are extrapolated from the interior, while the
     normal velocity at the ghost points is set such that the interpolated value at the boundary 
@@ -281,7 +281,7 @@ int BCSlipWallDU(
   } else if (ndims == 2) {
 
     /* create a fake physics object */
-    Euler2D physics; 
+    NavierStokes2D physics; 
     double gamma; 
     gamma = physics.gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
@@ -308,8 +308,8 @@ int BCSlipWallDU(
         /* flow variables in the interior */
         double rho , uvel , vvel , energy , pressure ;
         double rho0, uvel0, vvel0, energy0, pressure0;
-        _Euler2DGetFlowVar_(phi_total,rho,uvel,vvel,energy,pressure,(&physics));
-        _Euler2DGetFlowVar_((phi_ref+nvars*p2),rho0,uvel0,vvel0,energy0,pressure0,(&physics));
+        _NavierStokes2DGetFlowVar_(phi_total,rho,uvel,vvel,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi_ref+nvars*p2),rho0,uvel0,vvel0,energy0,pressure0,(&physics));
         /* set the ghost point values */
         double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
         double rho0_gpt, uvel0_gpt, vvel0_gpt, energy0_gpt, pressure0_gpt;

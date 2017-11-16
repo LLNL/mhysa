@@ -1,7 +1,7 @@
 Input Files
 ===========
 
-The following input files are required to run HyPar. They are indicated as being mandatory or 
+The following input files are required to run MHYSA. They are indicated as being mandatory or 
 optional. If optional, then default values are used if not found.
 
 \b Note: It is best to start with the provided examples, understand their input files based on the 
@@ -120,7 +120,7 @@ where
 
         u[0]  u[1]  ... u[#HyPar::nvars-1]
 
-  - #_SLIP_WALL_, #_NOSLIP_WALL_, #_SW_SLIP_WALL_, or #_SW_NOSLIP_WALL_: the next line should specify the wall velocity (assumed to be constant 
+  - #_SLIP_WALL_, or #_NOSLIP_WALL_: the next line should specify the wall velocity (assumed to be constant 
     in space and time). Each component of the velocity must be specified (i.e. #HyPar::ndims real numbers).
 
         u[0]  u[1]  ... u[#HyPar::ndims-1]
@@ -250,7 +250,7 @@ See the documentation for the initialization function of the various phyical mod
 
 \section petscrc .petscrc
 
-Requirement: \b mandatory <B>if using PETSc time integration</B>; if absent, HyPar will use native time integration. 
+Requirement: \b mandatory <B>if using PETSc time integration</B>; if absent, MHYSA will use native time integration. 
              If compiled without PETSc, this file is not required.
 
 Read by: PETSc
@@ -262,8 +262,8 @@ Format: ASCII text
 \b Note: The contents of this file may also be specified as command line flags.
 
 This file contains all the inputs required for the PETSc time integrators. See PETSc documentation (http://www.mcs.anl.gov/petsc/documentation/)
-for all the inputs that PETSc needs, or <B>see the PETSc examples</B> for the inputs relevant to HyPar. In addition, following 
-are the HyPar-specific inputs (they are all optional, if not specified, default values are used):
+for all the inputs that PETSc needs, or <B>see the PETSc examples</B> for the inputs relevant to MHYSA. In addition, following 
+are the MHYSA-specific inputs (they are all optional, if not specified, default values are used):
 + <B>-use-petscts</B>: If this flag is specified, PETSc time integration is used. If not specified, native time integration is used 
   (default).
 + <B>-jfnk_epsilon \<value\></B>: specify \f$\epsilon\f$ parameter for the directional-derivative-based approximation of the Jacobian 
@@ -284,7 +284,7 @@ and source terms are integrated in time (explicitly or implicitly):
 \section immersed_body Immersed Body
 
 Requirement: \b mandatory <B>if using immersed boundaries</B> (the keyword \a immersed_body is specified in 
-             \b solver.inp); if absent, HyPar will not use immersed boundaries.
+             \b solver.inp); if absent, MHYSA will not use immersed boundaries.
 
 Read by: IBReadBodySTL(), called by the initialization function for immersed boundaries InitializeImmersedBoundaries().
 
@@ -295,4 +295,4 @@ Format: ASCII STL (https://en.wikipedia.org/wiki/STL_%28file_format%29)
 Notes:
 + The normal defined in the STL file must be the <B>"outward"</B> normal, i.e., pointing outside the body.
 + The geometry must be a closed one.
-+ Some sample STL files are available in \b hypar/Examples/STLGeometries/
++ Some sample STL files are available in \b MHYSA/Examples/STLGeometries/

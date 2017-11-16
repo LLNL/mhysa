@@ -4,7 +4,6 @@ libBoundaryConditions_a_SOURCES = \
   BCDirichlet.c \
   BCExtrapolate.c \
   BCInitialize.c \
-  BCNoFlux.c \
   BCNoslipWall.c \
   BCPeriodic.c \
   BCReflect.c \
@@ -15,5 +14,4 @@ libBoundaryConditions_a_SOURCES = \
 	BCSubsonicOutflow.c \
 	BCSupersonicInflow.c \
 	BCSupersonicOutflow.c \
-  BCSWSlipWall.c \
 	BCTurbulentSupersonicInflow.c

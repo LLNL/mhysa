@@ -3,7 +3,7 @@ SUBDIRS = \
   BandedMatrix \
   BoundaryConditions\
   FirstDerivative \
-  HyParFunctions \
+  CoreFunctions \
   ImmersedBoundaries \
   InterpolationFunctions \
   IOFunctions \
@@ -15,27 +15,17 @@ SUBDIRS = \
   TimeIntegration \
   TridiagLU
 
-bin_PROGRAMS = HyPar
-HyPar_SOURCES = main.c
-HyPar_LDADD = \
-  HyParFunctions/libHyParFunctions.a \
+bin_PROGRAMS = mhysa
+mhysa_SOURCES = main.c
+mhysa_LDADD = \
+  CoreFunctions/libCoreFunctions.a \
   TimeIntegration/libTimeIntegration.a \
   PETScFunctions/libPETScFunctions.a \
   ImmersedBoundaries/libImmersedBoundaries.a \
   BoundaryConditions/libBoundaryConditions.a \
-  PhysicalModels/LinearADR/libLinearADR.a \
-  PhysicalModels/FPDoubleWell/libFPDoubleWell.a \
-  PhysicalModels/FPPowerSystem/libFPPowerSystem.a \
-  PhysicalModels/FPPowerSystem1Bus/libFPPowerSystem1Bus.a \
-  PhysicalModels/FPPowerSystem3Bus/libFPPowerSystem3Bus.a \
   PhysicalModels/Euler1D/libEuler1D.a \
-  PhysicalModels/Euler2D/libEuler2D.a \
   PhysicalModels/NavierStokes2D/libNavierStokes2D.a \
   PhysicalModels/NavierStokes3D/libNavierStokes3D.a \
-  PhysicalModels/Numa2D/libNuma2D.a \
-  PhysicalModels/Numa3D/libNuma3D.a \
-  PhysicalModels/ShallowWater1D/libShallowWater1D.a \
-  PhysicalModels/ShallowWater2D/libShallowWater2D.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   FirstDerivative/libFirstDerivative.a \
   SecondDerivative/libSecondDerivative.a \

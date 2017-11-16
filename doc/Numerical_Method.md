@@ -1,7 +1,7 @@
 Numerical Method
 ================
 
-HyPar solves the following partial differential equation (PDE) using a conservative finite-difference
+MHYSA solves the following partial differential equation (PDE) using a conservative finite-difference
 algorithm on a Cartesian grid.
 \f{equation}{
   \frac {\partial {\bf u}} {\partial t} = {\bf F}_{\rm hyp}\left({\bf u}\right) + {\bf F}_{\rm par}\left({\bf u}\right) + {\bf F}_{\rm sou}\left({\bf u}\right)
@@ -126,7 +126,7 @@ where
 \f{equation}{
   {\bf F}\left({\bf u}\right) = \hat{\bf F}_{\rm hyp}\left({\bf u}\right) + \hat{\bf F}_{\rm par}\left({\bf u}\right) + \hat{\bf F}_{\rm sou}\left({\bf u}\right)
 \f}
-The following explicit time integration methods are implemented in HyPar (see timeintegration.h):
+The following explicit time integration methods are implemented in MHYSA (see timeintegration.h):
 + Forward Euler - TimeForwardEuler(), #_FORWARD_EULER_
 + Explicit Runge-Kutta - TimeRK(), #_RK_
 + Explicit General Linear Methods with Global Error Estimation - TimeGLMGEE(), #_GLM_GEE_
@@ -137,7 +137,7 @@ The following explicit time integration methods are implemented in HyPar (see ti
 PETSc Time Integrators
 ----------------------
 
-If compiled with PETSc (https://www.mcs.anl.gov/petsc/), HyPar can use all the time integration methods and features implemented in the \b TS module of
+If compiled with PETSc (https://www.mcs.anl.gov/petsc/), MHYSA can use all the time integration methods and features implemented in the \b TS module of
 PETSc. See the following for relevant documentation of PETSc time integrators:
 + http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/TS/index.html
 + http://www.mcs.anl.gov/petsc/petsc-current/src/ts/examples/tutorials/index.html

@@ -8,13 +8,10 @@
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
-#include <physicalmodels/euler2d.h>
-#include <physicalmodels/navierstokes3d.h>
-
 /*! Applies the supersonic (steady) inflow boundary condition: All the flow variables
     (density, pressure, velocity) are specified at the physical boundary ghost points,
     since it is supersonic inflow. This boundary condition is specific to two and three
-    dimensional Euler/Navier-Stokes systems (#Euler2D, #NavierStokes2D, #NavierStokes3D).
+    dimensional Euler/Navier-Stokes systems (#NavierStokes2D, #NavierStokes3D).
     \n\n
     Note: the Dirichlet boundary condition (#_DIRICHLET_) could be used as well for
     supersonic inflow; however the specified Dirichlet state should be in terms of the 

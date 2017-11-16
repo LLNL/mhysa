@@ -8,13 +8,13 @@
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
-#include <physicalmodels/euler2d.h>
+#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 /*! Applies the supersonic outflow boundary condition: All flow variables
     (density, pressure, velocity) are extrapolated from the interior since
     the outflow is supersonic. This boundary condition is specific to two
-    and three dimensional Euler/Navier-Stokes systems (#Euler2D, #NavierStokes2D,
+    and three dimensional Euler/Navier-Stokes systems (#NavierStokes2D,
     #NavierStokes3D).
     \n\n
     Note: The extrapolate boundary condition (#_EXTRAPOLATE_) can be used as well
@@ -40,7 +40,7 @@ int BCSupersonicOutflowU(
   if (ndims == 2) {
 
     /* create a fake physics object */
-    Euler2D physics; 
+    NavierStokes2D physics; 
     double gamma;
     gamma = physics.gamma = boundary->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
@@ -63,7 +63,7 @@ int BCSupersonicOutflowU(
         /* flow variables in the interior */
         double rho, uvel, vvel, energy, pressure;
         double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
-        _Euler2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
         /* set the ghost point values */
         rho_gpt       = rho;
         pressure_gpt  = pressure;
@@ -135,7 +135,7 @@ int BCSupersonicOutflowU(
 /*! Applies the supersonic outflow boundary condition to the delta-solution: 
     All flow variables are extrapolated from the interior since
     the outflow is supersonic. This boundary condition is specific to two
-    and three dimensional Euler/Navier-Stokes systems (#Euler2D, #NavierStokes2D,
+    and three dimensional Euler/Navier-Stokes systems (#NavierStokes2D, #NavierStokes2D,
     #NavierStokes3D).
     \n\n
     Note: The code here is identical to BCExtrapolateDU().
