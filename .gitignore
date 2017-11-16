@@ -20,5 +20,6 @@ doc/html/
 doc/latex/
 doc/bib*
 doc/citelist*
+doc/README
 .deps
 stamp-h1
