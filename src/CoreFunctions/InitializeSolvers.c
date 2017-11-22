@@ -16,7 +16,7 @@
 #include <secondderivative.h>
 
 /* Function declarations */
-int  ApplyBoundaryConditions     (void*,void*,double*,double*,int,double);
+int  ApplyBoundaryConditions     (void*,void*,double*,double*,double);
 int  ApplyIBConditions           (void*,void*,double*,double);
 int  HyperbolicFunction          (double*,double*,void*,void*,double,int,
                                   int(*)(double*,double*,int,void*,double),

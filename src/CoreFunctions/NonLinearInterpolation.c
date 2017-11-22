@@ -53,7 +53,7 @@ int NonLinearInterpolation(
     for (d=0; d<ndims; d++) size *= (dim[d] + 2*ghosts);
 
     /* apply boundary conditions and exchange data over MPI interfaces */
-    IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);      CHECKERR(ierr);
+    IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);        CHECKERR(ierr);
     IERR solver->ApplyIBConditions(solver,mpi,u,t);                   CHECKERR(ierr);
     IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u);       CHECKERR(ierr);
 

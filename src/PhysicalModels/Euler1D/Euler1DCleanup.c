@@ -12,8 +12,5 @@ int Euler1DCleanup(
                   )
 {
   Euler1D *param  = (Euler1D*) s;
-  free(param->grav_field);
-  free(param->fast_jac);
-  free(param->solution);
   return(0);
 }

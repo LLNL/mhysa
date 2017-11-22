@@ -23,7 +23,7 @@ int TimePreStep(void *ts /*!< Object of type #TimeIntegration */ )
   _DECLARE_IERR_;
 
   /* apply boundary conditions and exchange data over MPI interfaces */
-  IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,0,TS->waqt); CHECKERR(ierr);
+  IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,TS->waqt);   CHECKERR(ierr);
   IERR solver->ApplyIBConditions(solver,mpi,solver->u,TS->waqt);              CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,solver->u);               CHECKERR(ierr);

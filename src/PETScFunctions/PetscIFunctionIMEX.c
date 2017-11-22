@@ -76,7 +76,7 @@ PetscErrorCode PetscIFunctionIMEX(
   /* copy solution from PETSc vector */
   ierr = TransferVecFromPETSc(u,Y,context);                         CHECKERR(ierr);
   /* apply boundary conditions and exchange data over MPI interfaces */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);    CHECKERR(ierr);
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);      CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,u);             CHECKERR(ierr);
 

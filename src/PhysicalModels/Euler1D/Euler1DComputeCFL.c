@@ -27,19 +27,28 @@ double Euler1DComputeCFL(
   int *dim    = solver->dim_local;
   int ghosts  = solver->ghosts;
   int ndims   = solver->ndims;
+  int nvars   = solver->nvars;
+
+  int ns      = param->n_species;
+  int nv      = param->n_vibeng;
+
   int index[ndims];
   double *u   = solver->u;
 
   double max_cfl = 0;
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
+
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-    double rho, v, e, P, c, dxinv, local_cfl;
-    _Euler1DGetFlowVar_((u+_MODEL_NVARS_*p),rho,v,e,P,param);
+    double rho_s[ns], rho_t, v, E, E_v[nv], P, c, dxinv, local_cfl;
+
+    _Euler1DGetFlowVar_((u+nvars*p),rho_s,rho_t,v,E,E_v,P,param);
     _GetCoordinate_(0,index[0],dim,ghosts,solver->dxinv,dxinv); /* 1/dx */
-    c         = sqrt(param->gamma*P/rho); /* speed of sound */
+    c = sqrt(param->gamma*P/rho_t); /* speed of sound */
+
     local_cfl = (absolute(v)+c)*dt*dxinv; /* local cfl for this grid point */
     if (local_cfl > max_cfl) max_cfl = local_cfl;
+
     _ArrayIncrementIndex_(ndims,dim,index,done);
   }
 

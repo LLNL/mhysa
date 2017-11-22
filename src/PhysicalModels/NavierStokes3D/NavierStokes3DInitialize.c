@@ -7,7 +7,6 @@
 #include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
-#include <boundaryconditions.h>
 #include <physicalmodels/navierstokes3d.h>
 #include <mpivars.h>
 #include <hypar.h>
@@ -275,11 +274,6 @@ int NavierStokes3DInitialize(
       return(1);
     }
   }
-
-  /* set the value of gamma in all the boundary objects */
-  int n;
-  DomainBoundary  *boundary = (DomainBoundary*) solver->boundary;
-  for (n = 0; n < solver->nBoundaryZones; n++)  boundary[n].gamma = physics->gamma;
 
   /* finally, hijack the main solver's dissipation function pointer
    * to this model's own function, since it's difficult to express 

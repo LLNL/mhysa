@@ -155,7 +155,7 @@ PetscErrorCode PetscJacobianFunction_JFNK(
     ierr = TransferVecFromPETSc(u,Y,context);                             CHECKERR(ierr);
     _ArrayAYPX_(uref,epsilon,u,size*solver->nvars);
     /* apply boundary conditions and exchange data over MPI interfaces */
-    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);        CHECKERR(ierr);
+    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);          CHECKERR(ierr);
     ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                    solver->ghosts,mpi,u);                 CHECKERR(ierr);
 
@@ -272,7 +272,7 @@ PetscErrorCode PetscJacobianFunction_Linear(
     ierr = TransferVecFromPETSc(u,Y,context);                             CHECKERR(ierr);
     _ArrayAYPX_(uref,1.0,u,size*solver->nvars);
     /* apply boundary conditions and exchange data over MPI interfaces */
-    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);        CHECKERR(ierr);
+    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);          CHECKERR(ierr);
     ierr = MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                    solver->ghosts,mpi,u);                 CHECKERR(ierr);
 

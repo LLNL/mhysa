@@ -257,6 +257,11 @@ int InitializeBoundaries(
     IERR BCInitialize(&boundary[n]); CHECKERR(ierr);
   }
 
+  /* set pointer to physics object in each boundary zone */
+  for (n = 0; n < solver->nBoundaryZones; n++) {
+    boundary[n].physics = &(solver->physics);
+  }
+
   return(0);
 }
 

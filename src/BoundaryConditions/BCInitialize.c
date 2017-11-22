@@ -32,24 +32,5 @@ int BCInitialize(void *b /*!< Boundary object of type #DomainBoundary*/)
     return(1);
   }
 
-  if      (!strcmp(boundary->bctype,_PERIODIC_                    )) boundary->BCFunctionDU = BCPeriodicDU;
-  else if (!strcmp(boundary->bctype,_EXTRAPOLATE_                 )) boundary->BCFunctionDU = BCExtrapolateDU;
-  else if (!strcmp(boundary->bctype,_DIRICHLET_                   )) boundary->BCFunctionDU = BCDirichletDU;  
-  else if (!strcmp(boundary->bctype,_REFLECT_                     )) boundary->BCFunctionDU = BCReflectDU;    
-  else if (!strcmp(boundary->bctype,_SPONGE_                      )) boundary->BCFunctionDU = BCSpongeDUDummy;    
-  else if (!strcmp(boundary->bctype,_NOSLIP_WALL_                 )) boundary->BCFunctionDU = BCNoslipWallDU;    
-  else if (!strcmp(boundary->bctype,_SLIP_WALL_                   )) boundary->BCFunctionDU = BCSlipWallDU;    
-  else if (!strcmp(boundary->bctype,_SUBSONIC_OUTFLOW_            )) boundary->BCFunctionDU = BCSubsonicOutflowDU;    
-  else if (!strcmp(boundary->bctype,_SUBSONIC_INFLOW_             )) boundary->BCFunctionDU = BCSubsonicInflowDU;    
-  else if (!strcmp(boundary->bctype,_SUBSONIC_AMBIVALENT_         )) boundary->BCFunctionDU = BCSubsonicAmbivalentDU;    
-  else if (!strcmp(boundary->bctype,_SUPERSONIC_OUTFLOW_          )) boundary->BCFunctionDU = BCSupersonicOutflowDU;    
-  else if (!strcmp(boundary->bctype,_SUPERSONIC_INFLOW_           )) boundary->BCFunctionDU = BCSupersonicInflowDU;    
-  else if (!strcmp(boundary->bctype,_TURBULENT_SUPERSONIC_INFLOW_ )) boundary->BCFunctionDU = BCTurbulentSupersonicInflowDU;    
-  else {
-    fprintf(stderr,"Error in BCInitialize(): \"%s\" is not a supported boundary condition.\n",
-            boundary->bctype);
-    return(1);
-  }
-
   return(0);
 }

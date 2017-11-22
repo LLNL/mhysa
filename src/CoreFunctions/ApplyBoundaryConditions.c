@@ -28,7 +28,6 @@ int ApplyBoundaryConditions(void    *s,     /*!< Object of type #HyPar containin
                             void    *m,     /*!< Object of type #MPIVariables containing MPI-related variables */
                             double  *x,     /*!< The solution vector on which the boundary conditions are to be applied */
                             double  *xref,  /*!< Reference solution vector, if needed */
-                            int     flag,   /*!< Flag to indicate if x is the solution or delta-solution */
                             double  waqt    /*!< Current simulation time */
                            ) 
 {
@@ -40,18 +39,10 @@ int ApplyBoundaryConditions(void    *s,     /*!< Object of type #HyPar containin
 
   /* Apply domain boundary conditions to x */
   int n;
-  if (flag) {
-    for (n = 0; n < nb; n++) {
-      IERR boundary[n].BCFunctionDU(&boundary[n],mpi,solver->ndims,solver->nvars,
-                                   solver->dim_local,solver->ghosts,x,xref,waqt);
-      CHECKERR(ierr);
-    }
-  } else {
-    for (n = 0; n < nb; n++) {
-      IERR boundary[n].BCFunctionU(&boundary[n],mpi,solver->ndims,solver->nvars,
-                                   solver->dim_local,solver->ghosts,x,waqt);
-      CHECKERR(ierr);
-    }
+  for (n = 0; n < nb; n++) {
+    IERR boundary[n].BCFunctionU(&boundary[n],mpi,solver->ndims,solver->nvars,
+                                 solver->dim_local,solver->ghosts,x,waqt);
+    CHECKERR(ierr);
   }
 
   return(0);

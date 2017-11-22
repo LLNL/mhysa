@@ -106,7 +106,7 @@ int PetscComputeRHSOperators(
   /* copy the current solution to u0 */
   _ArrayCopy1D_(solver->u,u0,size); 
   /* apply boundary conditions to the solution u0 */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u0,NULL,0,t);CHECKERR(ierr);
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u0,NULL,t);CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u0); CHECKERR(ierr);
 
   /* compute linearized matrix for the RHSFunctionExpl */
@@ -136,7 +136,7 @@ int PetscComputeRHSOperators(
     /* add a perturbation */
     u[nvars*p+v] += epsilon;
     /* apply boundary conditions to the perturbed solution u */
-    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);CHECKERR(ierr);
     ierr = MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
     /* compute the RHSFunctionExpl of u */
     ierr = TransferVecToPETSc(u,U,context);         CHECKERR(ierr);
@@ -184,7 +184,7 @@ int PetscComputeRHSOperators(
     /* add a perturbation */
     u[nvars*p+v] += epsilon;
     /* apply boundary conditions to the perturbed solution u */
-    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);CHECKERR(ierr);
     ierr = MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
     /* compute the RHSFunctionIMEX of u */
     ierr = TransferVecToPETSc(u,U,context);           CHECKERR(ierr);
@@ -231,7 +231,7 @@ int PetscComputeRHSOperators(
     /* add a perturbation */
     u[nvars*p+v] += epsilon;
     /* apply boundary conditions to the perturbed solution u */
-    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+    ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);CHECKERR(ierr);
     ierr = MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
     /* compute the IFunctionIMEX of u */
     ierr = TransferVecToPETSc(u,U,context);             CHECKERR(ierr);

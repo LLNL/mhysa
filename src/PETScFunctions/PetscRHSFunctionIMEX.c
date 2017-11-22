@@ -72,7 +72,7 @@ PetscErrorCode PetscRHSFunctionIMEX(
   /* copy solution from PETSc vector */
   IERR TransferVecFromPETSc(u,Y,context); CHECKERR(ierr);
   /* apply boundary conditions and exchange data over MPI interfaces */
-  IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t); CHECKERR(ierr);
+  IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t); CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                solver->ghosts,mpi,u); CHECKERR(ierr);
 

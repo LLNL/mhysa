@@ -26,15 +26,15 @@
     Navier-Stokes systems (#NavierStokes2D, #NavierStokes3D).
 */
 int BCSubsonicAmbivalentU(
-                      void    *b,     /*!< Boundary object of type #DomainBoundary */
-                      void    *m,     /*!< MPI object of type #MPIVariables */
-                      int     ndims,  /*!< Number of spatial dimensions */
-                      int     nvars,  /*!< Number of variables/DoFs per grid point */
-                      int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
-                      int     ghosts, /*!< Number of ghost points */
-                      double  *phi,   /*!< The solution array on which to apply the boundary condition */
-                      double  waqt    /*!< Current solution time */
-                     )
+                            void    *b,     /*!< Boundary object of type #DomainBoundary */
+                            void    *m,     /*!< MPI object of type #MPIVariables */
+                            int     ndims,  /*!< Number of spatial dimensions */
+                            int     nvars,  /*!< Number of variables/DoFs per grid point */
+                            int     *size,  /*!< Integer array with the number of grid points in each spatial dimension */
+                            int     ghosts, /*!< Number of ghost points */
+                            double  *phi,   /*!< The solution array on which to apply the boundary condition */
+                            double  waqt    /*!< Current solution time */
+                         )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
@@ -43,10 +43,8 @@ int BCSubsonicAmbivalentU(
 
   if (ndims == 2) {
 
-    /* create a fake physics object */
-    NavierStokes2D physics; 
-    double gamma;
-    gamma = physics.gamma = boundary->gamma;
+    NavierStokes2D *physics = (NavierStokes2D*) (*(boundary->physics)); 
+    double gamma = physics->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
 
     /* boundary normal (pointing into the domain) */
@@ -85,8 +83,8 @@ int BCSubsonicAmbivalentU(
         _ArrayIndex1D_(ndims,size,indexj,ghosts,p2);
         double uvel1, uvel2, uvelb,
                vvel1, vvel2, vvelb;
-        _NavierStokes2DGetFlowVar_((phi+nvars*p1),rho,uvel1,vvel1,energy,pressure,(&physics));
-        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel2,vvel2,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi+nvars*p1),rho,uvel1,vvel1,energy,pressure,physics);
+        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel2,vvel2,energy,pressure,physics);
         uvelb = 1.5*uvel1 - 0.5*uvel2;
         vvelb = 1.5*vvel1 - 0.5*vvel2;
         double vel_normal = uvelb*nx + vvelb*ny;
@@ -100,7 +98,7 @@ int BCSubsonicAmbivalentU(
         _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
         
         /* flow variables in the interior */
-        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,(&physics));
+        _NavierStokes2DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,energy,pressure,physics);
 
         /* set the ghost point values */
         double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
@@ -131,10 +129,8 @@ int BCSubsonicAmbivalentU(
 
   } else if (ndims == 3) {
 
-    /* create a fake physics object */
-    NavierStokes3D physics;
-    double gamma;
-    gamma = physics.gamma = boundary->gamma;
+    NavierStokes3D *physics = (NavierStokes3D*) (*(boundary->physics));
+    double gamma = physics->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
 
     /* boundary normal (pointing into the domain) */
@@ -181,8 +177,8 @@ int BCSubsonicAmbivalentU(
         double uvel1, uvel2, uvelb,
                vvel1, vvel2, vvelb,
                wvel1, wvel2, wvelb;
-        _NavierStokes3DGetFlowVar_((phi+nvars*p1),rho,uvel1,vvel1,wvel1,energy,pressure,(&physics));
-        _NavierStokes3DGetFlowVar_((phi+nvars*p2),rho,uvel2,vvel2,wvel2,energy,pressure,(&physics));
+        _NavierStokes3DGetFlowVar_((phi+nvars*p1),rho,uvel1,vvel1,wvel1,energy,pressure,physics);
+        _NavierStokes3DGetFlowVar_((phi+nvars*p2),rho,uvel2,vvel2,wvel2,energy,pressure,physics);
         uvelb = 1.5*uvel1 - 0.5*uvel2;
         vvelb = 1.5*vvel1 - 0.5*vvel2;
         wvelb = 1.5*wvel1 - 0.5*wvel2;
@@ -197,7 +193,7 @@ int BCSubsonicAmbivalentU(
         _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
         
         /* flow variables in the interior */
-        _NavierStokes3DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,wvel,energy,pressure,(&physics));
+        _NavierStokes3DGetFlowVar_((phi+nvars*p2),rho,uvel,vvel,wvel,energy,pressure,physics);
 
         /* set the ghost point values */
         double rho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, energy_gpt, pressure_gpt;
@@ -231,23 +227,5 @@ int BCSubsonicAmbivalentU(
     }
 
   }
-  return(0);
-}
-
-/*! Not implemented */
-int BCSubsonicAmbivalentDU(
-                        void    *b,       /*!< Boundary object of type #DomainBoundary */
-                        void    *m,       /*!< MPI object of type #MPIVariables */
-                        int     ndims,    /*!< Number of spatial dimensions */
-                        int     nvars,    /*!< Number of variables/DoFs per grid point */
-                        int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
-                        int     ghosts,   /*!< Number of ghost points */
-                        double  *phi,     /*!< The solution array on which to apply the boundary condition -
-                                               Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
-                        double  *phi_ref, /*!< Reference solution */
-                        double  waqt      /*!< Current solution time */
-                      )
-{
-  printf("ERROR: BCSubsonicAmbivalentDU() not implemented!\n");
   return(0);
 }

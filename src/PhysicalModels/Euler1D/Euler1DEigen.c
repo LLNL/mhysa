@@ -1,3 +1,5 @@
+#if 0
+
 /*! @file Euler1DEigen.c
     @author Debojyoti Ghosh
     @brief Contains the functions to compute left and right eigenvectors for the 1D Euler equations.
@@ -18,7 +20,7 @@
 */
 int Euler1DLeftEigenvectors(
                             double *u, /*!< Conserved solution at a grid point */
-                            double *L, /*!< Array of size nvar^2 = 3^2 to save the matrix of
+                            double *L, /*!< Array of size nvar^2 to save the matrix of
                                             left eigenvectors in (row-major format). */
                             void   *p, /*!< Object of type #Euler1D with physics-related variables */
                             int    dir /*!< Spatial dimension (not used, since this is a 1D system) */
@@ -37,7 +39,7 @@ int Euler1DLeftEigenvectors(
 */
 int Euler1DRightEigenvectors(
                               double  *u, /*!< Conserved solution at a grid point */
-                              double  *R, /*!< Array of size nvar^2 = 3^2 to save the matrix of 
+                              double  *R, /*!< Array of size nvar^2 to save the matrix of 
                                                right eigenvectors in (row-major format). */
                               void    *p, /*!< Object of type #Euler1D with physics-related variables */
                               int     dir /*!< Spatial dimension (not used, since this is a 1D system) */
@@ -47,3 +49,5 @@ int Euler1DRightEigenvectors(
   _Euler1DRightEigenvectors_(u,R,param,dir);
   return(0);
 }
+
+#endif

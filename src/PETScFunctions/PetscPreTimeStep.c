@@ -51,7 +51,7 @@ PetscErrorCode PetscPreTimeStep(TS ts /*!< Time integration object */)
   _ArrayCopy1D_(solver->u,solver->u0,(solver->npoints_local_wghosts*solver->nvars));
 
   /* apply boundary conditions and exchange data over MPI interfaces */
-  IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,0,waqt); CHECKERR(ierr);
+  IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,waqt); CHECKERR(ierr);
   IERR solver->ApplyIBConditions(solver,mpi,solver->u,waqt); CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                solver->ghosts,mpi,solver->u);             CHECKERR(ierr);

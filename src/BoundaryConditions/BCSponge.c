@@ -83,23 +83,3 @@ int BCSpongeUDummy(
 {
   return(0);
 }
-
-/*! Dummy function to ensure consistency with the overall boundary condition 
-    implementation. The actual sponge boundary condition is implemented by
-    BCSpongeSource()
-*/
-int BCSpongeDUDummy(
-                    void    *b,       /*!< Boundary object of type #DomainBoundary */
-                    void    *m,       /*!< MPI object of type #MPIVariables */
-                    int     ndims,    /*!< Number of spatial dimensions */
-                    int     nvars,    /*!< Number of variables/DoFs per grid point */
-                    int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
-                    int     ghosts,   /*!< Number of ghost points */
-                    double  *phi,     /*!< The solution array on which to apply the boundary condition -
-                                           Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
-                    double  *phi_ref, /*!< Reference solution */
-                    double  waqt      /*!< Current solution time */
-                   )
-{
-  return(0);
-}

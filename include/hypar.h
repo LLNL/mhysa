@@ -176,7 +176,7 @@ typedef struct main_parameters {
   int (*WriteOutput)              (int,int,int*,double*,double*,char*,int*);  
 
   /*! Pointer to the function to apply the physical boundary conditions to the solution, assigned in InitializeSolvers() */
-  int (*ApplyBoundaryConditions)  (void*,void*,double*,double*,int,double);
+  int (*ApplyBoundaryConditions)  (void*,void*,double*,double*,double);
 
   /*! Pointer to the function to apply the immersed boundary conditions to the solution, assigned in InitializeSolvers() */
   int (*ApplyIBConditions)  (void*,void*,double*,double);

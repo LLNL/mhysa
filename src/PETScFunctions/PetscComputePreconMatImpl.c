@@ -88,7 +88,7 @@ int PetscComputePreconMatImpl(
   /* copy solution from PETSc vector */
   ierr = TransferVecFromPETSc(u,Y,context); CHECKERR(ierr);
   /* apply boundary conditions and exchange data over MPI interfaces */
-  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,context->waqt); CHECKERR(ierr);
+  ierr = solver->ApplyBoundaryConditions(solver,mpi,u,NULL,context->waqt); CHECKERR(ierr);
   ierr = MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
   /* initialize preconditioning matrix to zero */
   ierr = MatZeroEntries(Pmat); CHKERRQ(ierr);

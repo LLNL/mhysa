@@ -11,6 +11,9 @@
 #include <boundaryconditions.h>
 #include <mpivars.h>
 
+#include <physicalmodels/navierstokes2d.h>
+#include <physicalmodels/navierstokes3d.h>
+
 /*! Applies the turbulent supersonic inflow boundary condition: The inflow consists
     of a mean supersonic inflow on which turbulent flow fluctuations are added. This 
     boundary condition is specific to the 3D Navier-Stokes system (#NavierStokes3D).
@@ -38,9 +41,8 @@ int BCTurbulentSupersonicInflowU(
 
   if (ndims == 3) {
 
-    /* create a fake physics object */
-    double gamma;
-    gamma = boundary->gamma;
+    NavierStokes3D *physics = (NavierStokes3D*) (*(boundary->physics));
+    double gamma = physics->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
 
     if (boundary->on_this_proc) {
@@ -94,41 +96,6 @@ int BCTurbulentSupersonicInflowU(
       }
     }
 
-  }
-  return(0);
-}
-
-/*! Applies the turbulent supersonic inflow boundary condition to the delta-solution: 
-    In reality, this function just sets the ghost values of the delta-solution to zero,
-    because these functions were written for the shock-turbulence interaction problem 
-    and implicit time-integration was not used. Hence this function was never used!
-*/
-int BCTurbulentSupersonicInflowDU(
-                                  void    *b,       /*!< Boundary object of type #DomainBoundary */
-                                  void    *m,       /*!< MPI object of type #MPIVariables */
-                                  int     ndims,    /*!< Number of spatial dimensions */
-                                  int     nvars,    /*!< Number of variables/DoFs per grid point */
-                                  int     *size,    /*!< Integer array with the number of grid points in each spatial dimension */
-                                  int     ghosts,   /*!< Number of ghost points */
-                                  double  *phi,     /*!< The solution array on which to apply the boundary condition -
-                                                         Note that this is a delta-solution \f$\Delta {\bf U}\f$.*/
-                                  double  *phi_ref, /*!< Reference solution */
-                                  double  waqt      /*!< Current solution time */
-                                 )
-{
-  DomainBoundary *boundary = (DomainBoundary*) b;
-  int             v;
-
-  if (boundary->on_this_proc) {
-    int bounds[ndims], indexb[ndims];
-    _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
-    _ArraySetValue_(indexb,ndims,0); 
-    int done = 0;
-    while (!done) {
-      int p; _ArrayIndex1DWO_(ndims,size  ,indexb,boundary->is,ghosts,p);
-      for (v=0; v<nvars; v++) phi[nvars*p+v] = 0.0;
-      _ArrayIncrementIndex_(ndims,bounds,indexb,done);
-    }
   }
   return(0);
 }

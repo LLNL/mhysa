@@ -84,7 +84,7 @@ int ComputeRHSOperators(
   /* copy the current solution to u0 */
   _ArrayCopy1D_(solver->u,u0,size); 
   /* apply boundary conditions to the solution u0 */
-  IERR solver->ApplyBoundaryConditions(solver,mpi,u0,NULL,0,t);CHECKERR(ierr);
+  IERR solver->ApplyBoundaryConditions(solver,mpi,u0,NULL,t);CHECKERR(ierr);
   IERR solver->ApplyIBConditions(solver,mpi,u0,t);CHECKERR(ierr);
   IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u0); CHECKERR(ierr);
 
@@ -117,7 +117,7 @@ int ComputeRHSOperators(
       /* add a perturbation */
       u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
-      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);CHECKERR(ierr);
       IERR solver->ApplyIBConditions(solver,mpi,u,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the FFunction of u */
@@ -177,7 +177,7 @@ int ComputeRHSOperators(
       /* add a perturbation */
       u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
-      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);CHECKERR(ierr);
       IERR solver->ApplyIBConditions(solver,mpi,u,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the FFunction of u */
@@ -234,7 +234,7 @@ int ComputeRHSOperators(
       /* add a perturbation */
       u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
-      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);CHECKERR(ierr);
       IERR solver->ApplyIBConditions(solver,mpi,u,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the FFunction of u */
@@ -283,7 +283,7 @@ int ComputeRHSOperators(
       /* add a perturbation */
       u[nvars*p+v] += epsilon;
       /* apply boundary conditions to the perturbed solution u */
-      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,0,t);CHECKERR(ierr);
+      IERR solver->ApplyBoundaryConditions(solver,mpi,u,NULL,t);CHECKERR(ierr);
       IERR solver->ApplyIBConditions(solver,mpi,u,t);CHECKERR(ierr);
       IERR MPIExchangeBoundariesnD(ndims,nvars,dim,ghosts,mpi,u); CHECKERR(ierr);
       /* compute the SFunction of u */
