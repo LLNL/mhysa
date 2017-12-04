@@ -64,8 +64,8 @@ int BCSlipWallU(
         _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
         _ArrayIndex1D_(ndims,size,indexi,ghosts,p2);
         
-        double rho_s[ns], rho_t, uvel, E, E_v[nv], P;
-        _Euler1DGetFlowVar_((phi+nvars*p2),rho_s,rho_t,uvel,E,E_v,P,physics);
+        double rho_s[ns], rho_t, uvel, E, E_v[nv], P, T;
+        _Euler1DGetFlowVar_((phi+nvars*p2),rho_s,rho_t,uvel,E,E_v,P,T,physics);
 
         double rho_s_g[ns], rho_t_g, uvel_g, E_g, E_v_g[nv], P_g;
         for (i = 0; i < ns; i++) rho_s_g[i] = rho_s[i];

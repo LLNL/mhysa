@@ -66,17 +66,17 @@ int Euler1DUpwindRusanov(
       _Euler1DRoeAverage_(uavg,(u+nvars*pL),(u+nvars*pR),param);
       for (k = 0; k < nvars; k++) udiff[k] = 0.5 * (uR[nvars*p+k] - uL[nvars*p+k]);
 
-      double rho_s[ns], rho_t, uvel, E, E_v[nv], P, c;
+      double rho_s[ns], rho_t, uvel, E, E_v[nv], P, T, c;
 
-      _Euler1DGetFlowVar_((u+nvars*pL),rho_s,rho_t,uvel,E,E_v,P,param);
+      _Euler1DGetFlowVar_((u+nvars*pL),rho_s,rho_t,uvel,E,E_v,P,T,param);
       _Euler1DSpeedOfSound_(c,(param->gamma),P,rho_t);
       double alphaL = c + absolute(uvel);
 
-      _Euler1DGetFlowVar_((u+nvars*pR),rho_s,rho_t,uvel,E,E_v,P,param);
+      _Euler1DGetFlowVar_((u+nvars*pR),rho_s,rho_t,uvel,E,E_v,P,T,param);
       _Euler1DSpeedOfSound_(c,(param->gamma),P,rho_t);
       double alphaR = c + absolute(uvel);
 
-      _Euler1DGetFlowVar_(uavg,rho_s,rho_t,uvel,E,E_v,P,param);
+      _Euler1DGetFlowVar_(uavg,rho_s,rho_t,uvel,E,E_v,P,T,param);
       _Euler1DSpeedOfSound_(c,(param->gamma),P,rho_t);
       double alphaavg = c + absolute(uvel);
 

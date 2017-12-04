@@ -40,9 +40,9 @@ double Euler1DComputeCFL(
   while (!done) {
 
     int p; _ArrayIndex1D_(ndims,dim,index,ghosts,p);
-    double rho_s[ns], rho_t, v, E, E_v[nv], P, c, dxinv, local_cfl;
+    double rho_s[ns], rho_t, v, E, E_v[nv], P, T, c, dxinv, local_cfl;
 
-    _Euler1DGetFlowVar_((u+nvars*p),rho_s,rho_t,v,E,E_v,P,param);
+    _Euler1DGetFlowVar_((u+nvars*p),rho_s,rho_t,v,E,E_v,P,T,param);
     _GetCoordinate_(0,index[0],dim,ghosts,solver->dxinv,dxinv); /* 1/dx */
     c = sqrt(param->gamma*P/rho_t); /* speed of sound */
 

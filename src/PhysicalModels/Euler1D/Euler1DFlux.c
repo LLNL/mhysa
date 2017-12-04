@@ -39,8 +39,8 @@ int Euler1DFlux(
   int done = 0; _ArraySetValue_(index,ndims,0);
   while (!done) {
     int p; _ArrayIndex1DWO_(ndims,dim,index,offset,ghosts,p);
-    double rho_s[ns], rho_t, v, E, E_v[nv], P;
-    _Euler1DGetFlowVar_((u+nvars*p),rho_s,rho_t,v,E,E_v,P,param);
+    double rho_s[ns], rho_t, v, E, E_v[nv], P, T;
+    _Euler1DGetFlowVar_((u+nvars*p),rho_s,rho_t,v,E,E_v,P,T,param);
     _Euler1DSetFlux_((f+nvars*p),rho_s,rho_t,v,E,E_v,P,param);
     _ArrayIncrementIndex_(ndims,bounds,index,done);
   }

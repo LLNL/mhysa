@@ -47,7 +47,7 @@
 /*! dimension corresponding to the \a x spatial dimension */
 #define _XDIR_ 0
 
-/*! \def _Euler1DGetFlowVar_
+/*! \def _Euler1DTotalDensity_
   Compute the total density from an array with species densities
 */
 #define _Euler1DTotalDensity_(rho_t,rho_s,ns) \
@@ -60,33 +60,53 @@
   }
 
 /*! \def _Euler1DSpeedOfSound_
-  Compute speed of sound
+  Compute speed of sound from density and pressure
 */
 #define _Euler1DSpeedOfSound_(c,gamma,P,rho) \
   { \
     c = sqrt(gamma*P/rho);\
   }
 
+/*! \def _Euler1DComputePressure_
+  Compute pressure from density, energy, and velocity
+*/
+#define _Euler1DComputePressure_(P,rho_s,rho_t,v,E,E_vib,gamma) \
+  { \
+    P = rho_t * (E-0.5*v*v) * (gamma-1.0); \
+  }
+
+/*! \def _Euler1DComputeTemperature_
+  Compute temperature from density, velocity, pressure, and energy
+*/
+#define _Euler1DComputeTemperature_(T,rho_s,rho_t,v,P,E,E_vib,gamma) \
+  { \
+    T = P/rho_t; \
+  }
+
+
 /*! \def _Euler1DGetFlowVar_
-  Compute the flow variables (density, pressure, velocity)
+  Compute the flow variables (density, pressure, velocity, temperature)
   from the conserved solution vector.
 */
-#define _Euler1DGetFlowVar_(u,rho_s,rho_t,v,E,E_vib,P,ctxt) \
+#define _Euler1DGetFlowVar_(u,rho_s,rho_t,v,E,E_vib,P,T,ctxt) \
   { \
     int mcounter;\
     double gamma = ctxt->gamma; \
     int ns = ctxt->n_species; \
     int nv = ctxt->n_vibeng; \
+    \
     for (mcounter = 0; mcounter < ns; mcounter++) { \
       rho_s[mcounter] = u[mcounter]; \
     } \
     _Euler1DTotalDensity_(rho_t,rho_s,ns); \
     v = u[ns] / rho_t; \
     E = u[ns+1] / rho_t; \
-    P = rho_t * (E - 0.5*v*v) * (gamma-1.0); \
     for (mcounter = 0; mcounter < nv; mcounter++) { \
       E_vib[mcounter] = u[ns+2+mcounter]/rho_s[mcounter]; \
     } \
+    \
+    _Euler1DComputePressure_(P,rho_s,rho_t,v,E,E_vib,gamma); \
+    _Euler1DComputeTemperature_(T,rho_s,rho_t,v,P,E,E_vib,gamma); \
   }
 
 /*! \def _Euler1DSetFlowVar_
@@ -128,6 +148,24 @@
     } \
   }
 
+/*! \def _Euler1DSetSource_
+  Set the source vector
+*/
+#define _Euler1DSetSource_(s,rhodot_s,Evdot,ctxt) \
+  { \
+    int mcounter; \
+    int ns = ctxt->n_species; \
+    int nv = ctxt->n_vibeng; \
+    for (mcounter = 0; mcounter < ns; mcounter++) { \
+      s[mcounter] = rhodot_s[mcounter]; \
+    } \
+    s[ns] = 0; \
+    s[ns+1] = 0; \
+    for (mcounter = 0; mcounter < nv; mcounter++) { \
+      s[ns+2+mcounter] = Evdot[mcounter]; \
+    } \
+  }
+
 /*! \def _Euler1DRoeAverage_
     Compute the Roe average of two conserved solution
     vectors.
@@ -139,8 +177,8 @@
     int    ns = ctxt->n_species; \
     int    nv = ctxt->n_vibeng; \
     \
-    double rhoL[ns],rhoL_t,vL,EL,EL_vib[nv],PL,HL,cLsq; \
-    _Euler1DGetFlowVar_(uL,rhoL,rhoL_t,vL,EL,EL_vib,PL,ctxt); \
+    double rhoL[ns],rhoL_t,vL,EL,EL_vib[nv],PL,TL,HL,cLsq; \
+    _Euler1DGetFlowVar_(uL,rhoL,rhoL_t,vL,EL,EL_vib,PL,TL,ctxt); \
     cLsq = gamma * PL/rhoL_t; \
     HL = 0.5*vL*vL + cLsq / (gamma-1.0); \
     double tL[ns], tL_t; \
@@ -149,8 +187,8 @@
     } \
     tL_t = sqrt(rhoL_t); \
     \
-    double rhoR[ns],rhoR_t,vR,ER,ER_vib[nv],PR,HR,cRsq; \
-    _Euler1DGetFlowVar_(uR,rhoR,rhoR_t,vR,ER,ER_vib,PR,ctxt); \
+    double rhoR[ns],rhoR_t,vR,ER,ER_vib[nv],PR,TR,HR,cRsq; \
+    _Euler1DGetFlowVar_(uR,rhoR,rhoR_t,vR,ER,ER_vib,PR,TR,ctxt); \
     cRsq = gamma * PR/rhoR_t; \
     HR = 0.5*vR*vR + cRsq / (gamma-1.0); \
     double tR[ns], tR_t; \
