@@ -156,7 +156,7 @@ Implementation: see petscinterface.h and SolvePETSc().
   is approximated using a directional derivative). Use the flag <B>-jfnk_epsilon \<value\></B> to specify the parameter \f$\epsilon\f$
   for the directional derivative computation (default: \f$10^{-6}\f$). See PetscJacobianFunctionIMEX_JFNK(), PetscJacobianFunction_JFNK().
 + A preconditioner can only be used for physical models that define the Jacobian (#HyPar::JFunction) 
-  (for example, LinearADRJacobian(), Euler1DJacobian(), NavierStokes2DJacobian(), NavierStokes3DJacobian(), etc).
+  (for example, LinearADRJacobian(), Euler1DJacobian(), NavierStokes3DJacobian(), etc).
   The flag <B>-with_pc</B> should be specified to use a preconditioner.
 
 <B>IMEX Time Integration</B>: For implicit-explicit (IMEX) time integration, the semi-discrete ODE can be written as follows:

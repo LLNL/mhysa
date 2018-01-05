@@ -232,7 +232,7 @@ tol                | double       | #WENOParameters::tol          | 1e-16
 
 Requirement: \b mandatory/optional (depends on the physical model)
 
-Read by: The initialization function of the various physics modules (eg. Euler1DInitialize(), NavierStokes2DInitialize(), etc)
+Read by: The initialization function of the various physics modules (eg. Euler1DInitialize(), NavierStokes3DInitialize(), etc)
 
 Description: This file contains inputs specific to a physics model. Depending on the physical model being used, it may or may not
              be mandatory. The exact parameters to specify depend on the physics.
@@ -246,7 +246,7 @@ Format: ASCII text
             <keyword>   <value>
         end
 
-See the documentation for the initialization function of the various phyical models for a list of keywords (for example, Euler1DInitialize(), NavierStokes2DInitialize()).
+See the documentation for the initialization function of the various phyical models for a list of keywords (for example, Euler1DInitialize(), NavierStokes3DInitialize()).
 
 \section petscrc .petscrc
 

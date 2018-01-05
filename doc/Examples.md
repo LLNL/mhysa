@@ -1,31 +1,11 @@
 Examples
 ========
 
-\subpage basic_examples :
-Some basic examples that are simulated using MHYSA. They 
-all use explicit time integration, and \b do \b not require MHYSA to be compiled
-with PETSc. Most of them can be run on one or a small number of processors.
-
-\subpage petsc_examples : 
-Some examples that use implicit or semi-implicit (IMEX) time
-integration methods implemented in PETSc. To run them, MHYSA needs to be compiled \b with \b PETSc.
-
-\subpage ib_examples : Examples that use the immersed boundary method to simulate various geometries.
-
-\page basic_examples Basic Examples
-
-The following are some basic examples that are simulated using MHYSA. They 
-all use explicit time integration, and \b do \b not require MHYSA to be compiled
-with PETSc.
-
-\subpage sod_shock_tube_component_rec \n
-\subpage sod_shock_tube_2species_component_rec \n
-
-\page petsc_examples PETSc Examples
-
-The following are some examples that use explicit, implicit or semi-implicit (IMEX) time
-integration methods implemented in PETSc (https://www.mcs.anl.gov/petsc/). To run them, 
-MHYSA needs to be compiled \b with \b PETSc. Familiarity with using PETSc is assumed.
+The subpages of this page contains several examples. Some of them use 
+explicit, implicit or semi-implicit (IMEX) time integration methods 
+implemented in PETSc (https://www.mcs.anl.gov/petsc/). To run them, 
+MHYSA needs to be compiled \b with \b PETSc. Familiarity with using PETSc 
+is assumed.
 
 \b Note: 
 + In general, any example or simulation can use PETSc time-integrators (assuming
@@ -41,34 +21,31 @@ command line, for example,
     
     /path/to/mhysa/bin/mhysa -use-petscts -ts_type rk -ts_rk_type 4 ...
 
+\subpage single_species_examples :
+Some examples of single species flows.
 
+\subpage multispecies_examples : 
+Some examples of multispecies flows.
 
-Implicit time integration:
---------------------------
+\page single_species_examples Single Species Examples
 
-Implicit-Explicit (IMEX) time integration:
-------------------------------------------
+The following are some examples of single species flows, where the 
+governing equations are the single-species Euler/Navier-Stokes equations.
 
+\subpage sod_shock_tube_component_rec \n
 
-\page ib_examples Immersed Boundaries Examples
+\page multispecies_examples Multispecies Examples
 
-The following are some examples are use the immersed boundary methodology to solve the PDE in the presence of
-various geometries. To use the immersed boundary implementation in HyPar, an STL (https://en.wikipedia.org/wiki/STL_%28file_format%29) 
-representation of the immersed body is necessary. Note:
-+ The immersed boundary method is \b only implemented for 3-dimensional simulations (#HyPar::ndims = 3).
-+ It can be used with only those physical models that define an immersed boundary implementation (#HyPar::IBFunction()), for
-  example, the 3D Navier-Stokes equations (NavierStokes3DImmersedBoundary()).
+The following are some examples of multispecies flows.
 
-3D Navier-Stokes Equations:
----------------------------
-
+\subpage sod_shock_tube_2species_component_rec \n
 
 \page sod_shock_tube_component_rec 1D Euler Equations (Single Species) - Sod Shock Tube (Component-Wise Reconstruction)
 
 Description: 
 -------------------
 
-Location: \b mhysa/Examples/1D_Euler/SodShockTube_ComponentWiseRec
+Location: \b mhysa/Examples/SingleSpecies/1D_SodShockTube_ComponentWiseRec
           (This directory contains all the input files needed
           to run this case.)
 
@@ -95,17 +72,17 @@ Numerical Method:
 Input files required:
 --------------------
 \b solver.inp:
-\include 1D_Euler/SodShockTube_ComponentWiseRec/solver.inp
+\include SingleSpecies/1D_SodShockTube_ComponentWiseRec/solver.inp
 
 \b boundary.inp
-\include 1D_Euler/SodShockTube_ComponentWiseRec/boundary.inp
+\include SingleSpecies/1D_SodShockTube_ComponentWiseRec/boundary.inp
 
 \b physics.inp
-\include 1D_Euler/SodShockTube_ComponentWiseRec/physics.inp
+\include SingleSpecies/1D_SodShockTube_ComponentWiseRec/physics.inp
 
 To generate \b initial.inp, compile and run the 
 following code in the run directory:
-\include 1D_Euler/SodShockTube_ComponentWiseRec/aux/init.c
+\include SingleSpecies/1D_SodShockTube_ComponentWiseRec/aux/init.c
 
 Output:
 -------
@@ -125,14 +102,14 @@ to the primitive variables (density, velocity, and pressure).
 @image html Solution_1DSodShockTube_ComponentRec.png
 
 Expected screen output:
-\include 1D_Euler/SodShockTube_ComponentWiseRec/output.log
+\include SingleSpecies/1D_SodShockTube_ComponentWiseRec/output.log
 
 \page sod_shock_tube_2species_component_rec 1D Euler Equations (Two Species) - Sod Shock Tube (Component-Wise Reconstruction)
 
 Description: 
 -------------------
 
-Location: \b mhysa/Examples/1D_Euler/SodShockTube_2Species_ComponentWiseRec
+Location: \b mhysa/Examples/MultiSpecies/1D_SodShockTube_2Species_ComponentWiseRec
           (This directory contains all the input files needed
           to run this case.)
 
@@ -165,17 +142,17 @@ Numerical Method:
 Input files required:
 --------------------
 \b solver.inp:
-\include 1D_Euler/SodShockTube_2Species_ComponentWiseRec/solver.inp
+\include MultiSpecies/1D_SodShockTube_2Species_ComponentWiseRec/solver.inp
 
 \b boundary.inp
-\include 1D_Euler/SodShockTube_2Species_ComponentWiseRec/boundary.inp
+\include MultiSpecies/1D_SodShockTube_2Species_ComponentWiseRec/boundary.inp
 
 \b physics.inp
-\include 1D_Euler/SodShockTube_2Species_ComponentWiseRec/physics.inp
+\include MultiSpecies/1D_SodShockTube_2Species_ComponentWiseRec/physics.inp
 
 To generate \b initial.inp, compile and run the 
 following code in the run directory:
-\include 1D_Euler/SodShockTube_2Species_ComponentWiseRec/aux/init.c
+\include MultiSpecies/1D_SodShockTube_2Species_ComponentWiseRec/aux/init.c
 
 Output:
 -------
@@ -195,4 +172,4 @@ to the primitive variables (density, velocity, and pressure).
 @image html Solution_1DSodShockTube_2Species_ComponentRec.png
 
 Expected screen output:
-\include 1D_Euler/SodShockTube_2Species_ComponentWiseRec/output.log
+\include MultiSpecies/1D_SodShockTube_2Species_ComponentWiseRec/output.log
