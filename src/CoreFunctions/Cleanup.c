@@ -17,7 +17,6 @@
 
 /* include header files for each physical model */
 #include <physicalmodels/euler1d.h>
-#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 /*! Cleans up and frees the memory after the completion of the simulation. */
@@ -49,8 +48,6 @@ int Cleanup(
   /* Clean up any allocations in physical model */
   if (!strcmp(solver->model,_EULER_1D_)) {
     IERR Euler1DCleanup(solver->physics); CHECKERR(ierr);
-  } else if (!strcmp(solver->model,_NAVIER_STOKES_2D_)) {
-    IERR NavierStokes2DCleanup(solver->physics); CHECKERR(ierr);
   } else if (!strcmp(solver->model,_NAVIER_STOKES_3D_)) {
     IERR NavierStokes3DCleanup(solver->physics); CHECKERR(ierr);
   }

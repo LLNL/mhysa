@@ -8,13 +8,12 @@
 #include <arrayfunctions.h>
 #include <boundaryconditions.h>
 
-#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 /*! Applies the supersonic (steady) inflow boundary condition: All the flow variables
     (density, pressure, velocity) are specified at the physical boundary ghost points,
-    since it is supersonic inflow. This boundary condition is specific to two and three
-    dimensional Euler/Navier-Stokes systems (#NavierStokes2D, #NavierStokes3D).
+    since it is supersonic inflow. This boundary condition is specific to the 3D 
+    Navier-Stokes systems (#NavierStokes3D).
     \n\n
     Note: the Dirichlet boundary condition (#_DIRICHLET_) could be used as well for
     supersonic inflow; however the specified Dirichlet state should be in terms of the 
@@ -34,39 +33,7 @@ int BCSupersonicInflowU(
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
 
-  if (ndims == 2) {
-
-    NavierStokes2D* physics = (NavierStokes2D*) (*(boundary->physics));
-    double gamma = physics->gamma;
-    double inv_gamma_m1 = 1.0/(gamma-1.0);
-
-    if (boundary->on_this_proc) {
-      int bounds[ndims], indexb[ndims];
-      _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
-      _ArraySetValue_(indexb,ndims,0);
-      int done = 0;
-      while (!done) {
-        int p1; _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
-        
-        /* set the ghost point values */
-        double rho_gpt, uvel_gpt, vvel_gpt, energy_gpt, pressure_gpt;
-        rho_gpt      = boundary->FlowDensity;
-        pressure_gpt = boundary->FlowPressure;
-        uvel_gpt     = boundary->FlowVelocity[0];
-        vvel_gpt     = boundary->FlowVelocity[1];
-        energy_gpt   = inv_gamma_m1*pressure_gpt
-                       + 0.5 * rho_gpt * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt);
-
-        phi[nvars*p1+0] = rho_gpt;
-        phi[nvars*p1+1] = rho_gpt * uvel_gpt;
-        phi[nvars*p1+2] = rho_gpt * vvel_gpt;
-        phi[nvars*p1+3] = energy_gpt;
-
-        _ArrayIncrementIndex_(ndims,bounds,indexb,done);
-      }
-    }
-
-  } else if (ndims == 3) {
+  if (ndims == 3) {
 
     NavierStokes3D* physics = (NavierStokes3D*) (*(boundary->physics));
     double gamma = physics->gamma;
@@ -102,5 +69,6 @@ int BCSupersonicInflowU(
     }
 
   }
+
   return(0);
 }

@@ -11,7 +11,6 @@
 #include <boundaryconditions.h>
 #include <mpivars.h>
 
-#include <physicalmodels/navierstokes2d.h>
 #include <physicalmodels/navierstokes3d.h>
 
 /*! Applies the turbulent supersonic inflow boundary condition: The inflow consists

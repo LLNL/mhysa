@@ -24,7 +24,6 @@ mhysa_LDADD = \
   ImmersedBoundaries/libImmersedBoundaries.a \
   BoundaryConditions/libBoundaryConditions.a \
   PhysicalModels/Euler1D/libEuler1D.a \
-  PhysicalModels/NavierStokes2D/libNavierStokes2D.a \
   PhysicalModels/NavierStokes3D/libNavierStokes3D.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   FirstDerivative/libFirstDerivative.a \
