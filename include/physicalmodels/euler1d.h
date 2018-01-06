@@ -83,7 +83,6 @@
     T = P/rho_t; \
   }
 
-
 /*! \def _Euler1DGetFlowVar_
   Compute the flow variables (density, pressure, velocity, temperature)
   from the conserved solution vector.

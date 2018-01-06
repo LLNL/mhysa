@@ -34,6 +34,7 @@ int BCTurbulentSupersonicInflowU(
   DomainBoundary *boundary = (DomainBoundary*) b;
 
   int dim   = boundary->dim;
+  int k;
 
   double *inflow_data = boundary->UnsteadyDirichletData;
   int    *inflow_size = boundary->UnsteadyDirichletSize;
@@ -43,6 +44,8 @@ int BCTurbulentSupersonicInflowU(
     NavierStokes3D *physics = (NavierStokes3D*) (*(boundary->physics));
     double gamma = physics->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
+    int ns = physics->n_species;
+    int nv = physics->n_vibeng;
 
     if (boundary->on_this_proc) {
       /* the following bit is hardcoded for the inflow data
@@ -60,8 +63,10 @@ int BCTurbulentSupersonicInflowU(
         int p1; _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
         
         /* set the ghost point values - mean flow */
-        double rho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, energy_gpt, pressure_gpt;
-        rho_gpt      = boundary->FlowDensity;
+        double  rho_s_gpt[ns], rho_t_gpt, uvel_gpt, vvel_gpt, wvel_gpt, 
+                E_gpt, E_v_gpt[nv], pressure_gpt;
+        for (k = 0; k < ns; k++) rho_s_gpt[k] = boundary->FlowDensity[k];
+        _NavierStokes3DTotalDensity_(rho_t_gpt, rho_s_gpt, ns);
         pressure_gpt = boundary->FlowPressure;
         uvel_gpt     = boundary->FlowVelocity[0];
         vvel_gpt     = boundary->FlowVelocity[1];
@@ -72,9 +77,9 @@ int BCTurbulentSupersonicInflowU(
         int index1[ndims]; _ArrayCopy1D_(indexb,index1,ndims);
         index1[dim] = it;
         int q; _ArrayIndex1D_(ndims,inflow_size,index1,0,q);
-        duvel = inflow_data[q*nvars+1];
-        dvvel = inflow_data[q*nvars+2];
-        dwvel = inflow_data[q*nvars+3];
+        duvel = inflow_data[q*nvars+ns];
+        dvvel = inflow_data[q*nvars+ns+1];
+        dwvel = inflow_data[q*nvars+ns+2];
 
         /* add the turbulent fluctuations to the velocity field */
         uvel_gpt      += duvel;
@@ -82,14 +87,13 @@ int BCTurbulentSupersonicInflowU(
         wvel_gpt      += dwvel;
 
         /* set the ghost point values */
-        energy_gpt   = inv_gamma_m1*pressure_gpt
-                       + 0.5 * rho_gpt 
-                       * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt + wvel_gpt*wvel_gpt);
-        phi[nvars*p1+0] = rho_gpt;
-        phi[nvars*p1+1] = rho_gpt * uvel_gpt;
-        phi[nvars*p1+2] = rho_gpt * vvel_gpt;
-        phi[nvars*p1+3] = rho_gpt * wvel_gpt;
-        phi[nvars*p1+4] = energy_gpt;
+        E_gpt   = inv_gamma_m1*pressure_gpt/rho_t_gpt
+                  + 0.5 * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt + wvel_gpt*wvel_gpt);
+        for (k = 0; k < nv; k++) E_v_gpt[k] = 0.0;
+
+        _NavierStokes3DSetFlowVar_( (phi+nvars*p1), rho_s_gpt, rho_t_gpt, 
+                                    uvel_gpt, vvel_gpt, wvel_gpt,
+                                    E_gpt, E_v_gpt, pressure_gpt, physics );
 
         _ArrayIncrementIndex_(ndims,bounds,indexb,done);
       }

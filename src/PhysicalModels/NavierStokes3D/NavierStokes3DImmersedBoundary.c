@@ -27,14 +27,19 @@ int NavierStokes3DImmersedBoundary(
   ImmersedBoundary  *IB       = (ImmersedBoundary*) solver->ib;
   IBNode            *boundary = IB->boundary;
   NavierStokes3D    *param    = (NavierStokes3D*) solver->physics;
-  static double     v[_MODEL_NVARS_];
-  int               n, j, k, nb = IB->n_boundary_nodes;
+
+  int nvars = solver->nvars;
+  int ns    = param->n_species;
+  int nv    = param->n_vibeng;
+
+  double  v[nvars];
+  int     n, j, k, nb = IB->n_boundary_nodes;
 
   if (!solver->flag_ib) return(0);
 
   /* Ideally, this shouldn't be here - But this function is called everywhere
      (through ApplyIBConditions()) *before* MPIExchangeBoundariesnD is called! */
-  MPIExchangeBoundariesnD(_MODEL_NDIMS_,_MODEL_NVARS_,solver->dim_local,solver->ghosts,mpi,u);
+  MPIExchangeBoundariesnD(_MODEL_NDIMS_,nvars,solver->dim_local,solver->ghosts,mpi,u);
 
   double inv_gamma_m1 = 1.0 / (param->gamma - 1.0);
 
@@ -45,29 +50,28 @@ int NavierStokes3DImmersedBoundary(
     int     *nodes = &(boundary[n].interp_nodes[0]);
     double  factor = boundary[n].surface_distance / boundary[n].interp_node_distance;
 
-    _ArraySetValue_(v,_MODEL_NVARS_,0.0);
+    _ArraySetValue_(v,nvars,0.0);
     for (j=0; j<_IB_NNODES_; j++) {
-      for (k=0; k<_MODEL_NVARS_; k++) {
-        v[k] += ( alpha[j] * u[_MODEL_NVARS_*nodes[j]+k] );
+      for (k=0; k<nvars; k++) {
+        v[k] += ( alpha[j] * u[nvars*nodes[j]+k] );
       }
     }
 
-    double rho, uvel, vvel, wvel, energy, pressure;
-    _NavierStokes3DGetFlowVar_(v,rho,uvel,vvel,wvel,energy,pressure,param);
+    double rho_s[ns], rho_t, uvel, vvel, wvel, E, E_v[nv], pressure, T;
+    _NavierStokes3DGetFlowVar_(v,rho_s,rho_t,uvel,vvel,wvel,E,E_v,pressure,T,param);
 
-    double rho_ib, uvel_ib, vvel_ib, wvel_ib, energy_ib, pressure_ib;
-    rho_ib = rho;
+    double rho_s_ib[ns], rho_t_ib, uvel_ib, vvel_ib, wvel_ib, E_ib, E_v_ib[nv], pressure_ib;
+    for (k = 0; k < ns; k++)  rho_s_ib[k] = rho_s[k];
+    _NavierStokes3DTotalDensity_(rho_t_ib,rho_s_ib,ns)
     pressure_ib = pressure;
     uvel_ib = -uvel * factor;
     vvel_ib = -vvel * factor;
     wvel_ib = -wvel * factor;
-    energy_ib = inv_gamma_m1*pressure_ib + 0.5*rho_ib*(uvel_ib*uvel_ib+vvel_ib*vvel_ib+wvel_ib*wvel_ib);
-
-    u[_MODEL_NVARS_*node_index+0] = rho_ib;
-    u[_MODEL_NVARS_*node_index+1] = rho_ib * uvel_ib;
-    u[_MODEL_NVARS_*node_index+2] = rho_ib * vvel_ib;
-    u[_MODEL_NVARS_*node_index+3] = rho_ib * wvel_ib;
-    u[_MODEL_NVARS_*node_index+4] = energy_ib;
+    E_ib = inv_gamma_m1*pressure_ib/rho_t_ib + 0.5*(uvel_ib*uvel_ib+vvel_ib*vvel_ib+wvel_ib*wvel_ib);
+    for (k = 0; k < nv; k++)  E_v_ib[k] = E_v[k];
+    _NavierStokes3DSetFlowVar_( (u+nvars*node_index),rho_s_ib,rho_t_ib,
+                                uvel_ib,vvel_ib,wvel_ib,
+                                E_ib,E_v_ib,pressure_ib,param );
   }
   return(0);
 }

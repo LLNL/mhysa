@@ -142,6 +142,7 @@ int Euler1DInitialize(
   solver->GetLeftEigenvectors   = Euler1DLeftEigenvectors;
   solver->GetRightEigenvectors  = Euler1DRightEigenvectors;
 */
-   
+
+  solver->nspecies = physics->n_species;
   return(0);
 }

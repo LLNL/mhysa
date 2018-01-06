@@ -75,9 +75,9 @@ typedef struct domain_boundaries {
   char    UnsteadyDirichletFilename[_MAX_STRING_SIZE_]; 
 
   /* variables specific to Navier-Stokes/Euler equations BCs */
-  double FlowDensity,                             /*!< Boundary flow density (specific to Euler/Navier-Stokes) */
-         *FlowVelocity,                           /*!< Boundary flow velocity (specific to Euler/Navier-Stokes) */
-         FlowPressure;                            /*!< Boundary flow pressure (specific to Euler/Navier-Stokes) */
+  double *FlowDensity,      /*!< Boundary flow densities of each species (specific to Euler/Navier-Stokes) */
+         *FlowVelocity,     /*!< Boundary flow velocity (specific to Euler/Navier-Stokes) */
+         FlowPressure;      /*!< Boundary flow pressure (specific to Euler/Navier-Stokes) */
 
   /* Physics object that allows physics-specific BC implementations */
   void **physics;

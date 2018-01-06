@@ -25,6 +25,9 @@ typedef struct main_parameters {
   /*! Number of variables or DoFs at a grid point (input - \b solver.inp ) */
   int     nvars;
 
+  /*! Number of species (not an input; it is set by the physics module */
+  int     nspecies;
+
   /*! Global dimensions: array of size #HyPar::ndims containing the global grid size in each spatial/coordinate dimension  (input - \b solver.inp )*/
   int     *dim_global;
   

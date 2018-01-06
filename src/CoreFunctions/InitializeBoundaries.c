@@ -54,6 +54,7 @@ int InitializeBoundaries(
     boundary = (DomainBoundary*) calloc (solver->nBoundaryZones,sizeof(DomainBoundary));
     for (n = 0; n < solver->nBoundaryZones; n++) {
       boundary[n].DirichletValue = boundary[n].SpongeValue 
+                                 = boundary[n].FlowDensity
                                  = boundary[n].FlowVelocity 
                                  = boundary[n].UnsteadyDirichletData
                                  = NULL;
@@ -93,16 +94,15 @@ int InitializeBoundaries(
       if (    (!strcmp(boundary[n].bctype,_SLIP_WALL_)) 
           ||  (!strcmp(boundary[n].bctype,_NOSLIP_WALL_)) ) {
         boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-                                     /* deallocated in BCCleanup.c */
         /* read the wall velocity */
         for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
       }
 
       if (!strcmp(boundary[n].bctype,_SUBSONIC_INFLOW_)) {
         boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-                                     /* deallocated in BCCleanup.c */
+        boundary[n].FlowDensity  = (double*) calloc (solver->nspecies,sizeof(double));
         /* read in the inflow density and velocity */
-        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->nspecies; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowDensity[v]);
         for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
       }
 
@@ -113,27 +113,27 @@ int InitializeBoundaries(
 
       if (!strcmp(boundary[n].bctype,_SUBSONIC_AMBIVALENT_)) {
         boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-                                     /* deallocated in BCCleanup.c */
+        boundary[n].FlowDensity  = (double*) calloc (solver->nspecies,sizeof(double));
         /* read in the inflow density, velocity, and pressure */
-        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->nspecies; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowDensity[v]);
         for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
         ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
       }
 
       if (!strcmp(boundary[n].bctype,_SUPERSONIC_INFLOW_)) {
         boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-                                     /* deallocated in BCCleanup.c */
+        boundary[n].FlowDensity  = (double*) calloc (solver->nspecies,sizeof(double));
         /* read in the inflow density, velocity and pressure */
-        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->nspecies; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowDensity[v]);
         for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
         ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
       }
 
       if (!strcmp(boundary[n].bctype,_TURBULENT_SUPERSONIC_INFLOW_)) {
         boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-                                     /* deallocated in BCCleanup.c */
+        boundary[n].FlowDensity  = (double*) calloc (solver->nspecies,sizeof(double));
         /* read in the inflow density, velocity and pressure */
-        ferr = fscanf(in,"%lf",&boundary[n].FlowDensity);
+        for (v = 0; v < solver->nspecies; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowDensity[v]);
         for (v = 0; v < solver->ndims; v++) ferr = fscanf(in,"%lf",&boundary[n].FlowVelocity[v]);
         ferr = fscanf(in,"%lf",&boundary[n].FlowPressure);
         ferr = fscanf(in,"%s" , boundary[n].UnsteadyDirichletFilename);
@@ -214,7 +214,8 @@ int InitializeBoundaries(
 
     if (!strcmp(boundary[n].bctype,_SUBSONIC_INFLOW_)) {
       if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-      IERR MPIBroadcast_double(&boundary[n].FlowDensity,1            ,0,&mpi->world); CHECKERR(ierr);
+      if (mpi->rank) boundary[n].FlowDensity  = (double*) calloc (solver->nspecies,sizeof(double));
+      IERR MPIBroadcast_double(boundary[n].FlowDensity,solver->nspecies,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(boundary[n].FlowVelocity,solver->ndims,0,&mpi->world); CHECKERR(ierr);
     }
 
@@ -224,21 +225,24 @@ int InitializeBoundaries(
 
     if (!strcmp(boundary[n].bctype,_SUBSONIC_AMBIVALENT_)) {
       if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-      IERR MPIBroadcast_double(&boundary[n].FlowDensity,1            ,0,&mpi->world); CHECKERR(ierr);
+      if (mpi->rank) boundary[n].FlowDensity = (double*) calloc (solver->nspecies,sizeof(double));
+      IERR MPIBroadcast_double(boundary[n].FlowDensity,solver->nspecies,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(boundary[n].FlowVelocity,solver->ndims,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(&boundary[n].FlowPressure,1,0,&mpi->world); CHECKERR(ierr);
     }
 
     if (!strcmp(boundary[n].bctype,_SUPERSONIC_INFLOW_)) {
       if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-      IERR MPIBroadcast_double(&boundary[n].FlowDensity ,1            ,0,&mpi->world); CHECKERR(ierr);
+      if (mpi->rank) boundary[n].FlowDensity = (double*) calloc (solver->nspecies,sizeof(double));
+      IERR MPIBroadcast_double(boundary[n].FlowDensity ,solver->nspecies,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(boundary[n].FlowVelocity ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(&boundary[n].FlowPressure,1            ,0,&mpi->world); CHECKERR(ierr);
     }
 
     if (!strcmp(boundary[n].bctype,_TURBULENT_SUPERSONIC_INFLOW_)) {
       if (mpi->rank) boundary[n].FlowVelocity = (double*) calloc (solver->ndims,sizeof(double));
-      IERR MPIBroadcast_double(&boundary[n].FlowDensity ,1            ,0,&mpi->world); CHECKERR(ierr);
+      if (mpi->rank) boundary[n].FlowDensity = (double*) calloc (solver->nspecies,sizeof(double));
+      IERR MPIBroadcast_double(boundary[n].FlowDensity ,solver->nspecies,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(boundary[n].FlowVelocity ,solver->ndims,0,&mpi->world); CHECKERR(ierr);
       IERR MPIBroadcast_double(&boundary[n].FlowPressure,1            ,0,&mpi->world); CHECKERR(ierr);
       /* allocate arrays and read in unsteady boundary data */

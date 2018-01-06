@@ -1,3 +1,5 @@
+#if 0
+
 /*! @file NavierStokes3DEigen.c
     @author Debojyoti Ghosh
     @brief Contains the functions to compute left and right eigenvectors for the 3D Navier Stokes equations.
@@ -48,3 +50,5 @@ int NavierStokes3DRightEigenvectors(
   _NavierStokes3DRightEigenvectors_(u,R,param,dir);
   return(0);
 }
+
+#endif

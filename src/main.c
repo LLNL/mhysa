@@ -164,18 +164,6 @@ int main(int argc,char **argv)
     printf("Error: InitialSolution() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
   }
-  /* Initialize domain boundaries */
-  ierr = InitializeBoundaries(&solver,&mpi);
-  if (ierr) {
-    printf("Error: InitializeBoundaries() returned with status %d on process %d.\n",ierr,mpi.rank);
-    return(ierr);
-  }
-  /* Initialize immersed boundaries */
-  ierr = InitializeImmersedBoundaries(&solver,&mpi);
-  if (ierr) {
-    printf("Error: InitializeImmersedBoundaries() returned with status %d on process %d.\n",ierr,mpi.rank);
-    return(ierr);
-  }
   /* Initialize solvers */
   ierr = InitializeSolvers(&solver,&mpi);
   if (ierr) {
@@ -186,6 +174,18 @@ int main(int argc,char **argv)
   ierr = InitializePhysics(&solver,&mpi);
   if (ierr) {
     printf("Error: InitializePhysics() returned with status %d on process %d.\n",ierr,mpi.rank);
+    return(ierr);
+  }
+  /* Initialize domain boundaries */
+  ierr = InitializeBoundaries(&solver,&mpi);
+  if (ierr) {
+    printf("Error: InitializeBoundaries() returned with status %d on process %d.\n",ierr,mpi.rank);
+    return(ierr);
+  }
+  /* Initialize immersed boundaries */
+  ierr = InitializeImmersedBoundaries(&solver,&mpi);
+  if (ierr) {
+    printf("Error: InitializeImmersedBoundaries() returned with status %d on process %d.\n",ierr,mpi.rank);
     return(ierr);
   }
   /* Initializations complete */

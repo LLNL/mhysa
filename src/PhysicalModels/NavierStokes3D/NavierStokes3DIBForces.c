@@ -190,16 +190,20 @@ int NavierStokes3DIBForces(
   NavierStokes3D    *physics = (NavierStokes3D*) solver->physics;
   ImmersedBoundary  *IB      = (ImmersedBoundary*) solver->ib;
 
+  int nvars = solver->nvars;
+  int ns = physics->n_species;
+  int nv = physics->n_vibeng;
+
   if (!solver->flag_ib) return(0);
 
-  int           nfacets_local = IB->nfacets_local, n;
-  FacetMap      *fmap = IB->fmap;
-  static double v[_MODEL_NVARS_];
-  double        *surface_pressure,
-                *shear_force_x,
-                *shear_force_y,
-                *shear_force_z,
-                *shear_force_magn;
+  int       nfacets_local = IB->nfacets_local, n;
+  FacetMap  *fmap = IB->fmap;
+  double    v[nvars];
+  double    *surface_pressure,
+            *shear_force_x,
+            *shear_force_y,
+            *shear_force_z,
+            *shear_force_magn;
 
   if (nfacets_local > 0) {
 
@@ -226,25 +230,25 @@ int NavierStokes3DIBForces(
 
     alpha = &(fmap[n].interp_coeffs[0]);
     nodes = &(fmap[n].interp_nodes[0]);
-    _ArraySetValue_(v,_MODEL_NVARS_,0.0);
+    _ArraySetValue_(v,nvars,0.0);
     for (j=0; j<_IB_NNODES_; j++) {
-      for (k=0; k<_MODEL_NVARS_; k++) {
-        v[k] += ( alpha[j] * solver->u[_MODEL_NVARS_*nodes[j]+k] );
+      for (k=0; k<nvars; k++) {
+        v[k] += ( alpha[j] * solver->u[nvars*nodes[j]+k] );
       }
     }
-    double rho_c, uvel_c, vvel_c, wvel_c, energy_c, pressure_c;
-    _NavierStokes3DGetFlowVar_(v,rho_c,uvel_c,vvel_c,wvel_c,energy_c,pressure_c,physics);
+    double rho_s_c[ns], rho_t_c, uvel_c, vvel_c, wvel_c, E_c, E_v_c[nv], pressure_c, T_c;
+    _NavierStokes3DGetFlowVar_(v,rho_s_c,rho_t_c,uvel_c,vvel_c,wvel_c,E_c,E_v_c,pressure_c,T_c,physics);
 
     alpha = &(fmap[n].interp_coeffs_ns[0]);
     nodes = &(fmap[n].interp_nodes_ns[0]);
-    _ArraySetValue_(v,_MODEL_NVARS_,0.0);
+    _ArraySetValue_(v,nvars,0.0);
     for (j=0; j<_IB_NNODES_; j++) {
-      for (k=0; k<_MODEL_NVARS_; k++) {
-        v[k] += ( alpha[j] * solver->u[_MODEL_NVARS_*nodes[j]+k] );
+      for (k=0; k<nvars; k++) {
+        v[k] += ( alpha[j] * solver->u[nvars*nodes[j]+k] );
       }
     }
-    double rho_ns, uvel_ns, vvel_ns, wvel_ns, energy_ns, pressure_ns;
-    _NavierStokes3DGetFlowVar_(v,rho_ns,uvel_ns,vvel_ns,wvel_ns,energy_ns,pressure_ns,physics);
+    double rho_s_ns[ns], rho_t_ns, uvel_ns, vvel_ns, wvel_ns, E_ns, E_v_ns[nv], pressure_ns, T_ns;
+    _NavierStokes3DGetFlowVar_(v,rho_s_ns,rho_t_ns,uvel_ns,vvel_ns,wvel_ns,E_ns,E_v_ns,pressure_ns,T_ns,physics);
 
     surface_pressure[n] = pressure_c;
 
@@ -266,7 +270,7 @@ int NavierStokes3DIBForces(
       double ny = fmap[n].facet->ny;
       double nz = fmap[n].facet->nz;
       
-      double T      = physics->gamma*pressure_c/rho_c;
+      double T      = physics->gamma*pressure_c/rho_t_c;
       double mu     = raiseto(T, 0.76);
       double inv_Re = 1.0/physics->Re;
 

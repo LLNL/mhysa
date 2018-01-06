@@ -22,12 +22,12 @@ int Euler1DFlux(
   HyPar       *solver = (HyPar*)   s;
   Euler1D     *param  = (Euler1D*) solver->physics;
 
-  int         *dim    = solver->dim_local;
-  int         ghosts  = solver->ghosts;
-  int         ndims   = solver->ndims;
-  int         nvars   = solver->nvars;
-  int         ns      = param->n_species;
-  int         nv      = param->n_vibeng;
+  int *dim    = solver->dim_local;
+  int ghosts  = solver->ghosts;
+  int ndims   = solver->ndims;
+  int nvars   = solver->nvars;
+  int ns      = param->n_species;
+  int nv      = param->n_vibeng;
 
   static int  index[_MODEL_NDIMS_], bounds[_MODEL_NDIMS_], offset[_MODEL_NDIMS_];
 

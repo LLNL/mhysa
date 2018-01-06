@@ -32,37 +32,41 @@ int BCSupersonicInflowU(
                        )
 {
   DomainBoundary *boundary = (DomainBoundary*) b;
+  int k;
 
   if (ndims == 3) {
 
     NavierStokes3D* physics = (NavierStokes3D*) (*(boundary->physics));
     double gamma = physics->gamma;
     double inv_gamma_m1 = 1.0/(gamma-1.0);
+    int ns = physics->n_species;
+    int nv = physics->n_vibeng;
 
     if (boundary->on_this_proc) {
+
       int bounds[ndims], indexb[ndims];
       _ArraySubtract1D_(bounds,boundary->ie,boundary->is,ndims);
       _ArraySetValue_(indexb,ndims,0);
+
       int done = 0;
       while (!done) {
         int p1; _ArrayIndex1DWO_(ndims,size,indexb,boundary->is,ghosts,p1);
         
         /* set the ghost point values */
-        double rho_gpt, uvel_gpt, vvel_gpt, wvel_gpt, energy_gpt, pressure_gpt;
-        rho_gpt      = boundary->FlowDensity;
+        double rho_s_gpt[ns], rho_t_gpt, uvel_gpt, vvel_gpt, wvel_gpt, E_gpt, E_v_gpt[nv], pressure_gpt;
+        for (k = 0; k < ns; k++) rho_s_gpt[k] = boundary->FlowDensity[k];
+        _NavierStokes3DTotalDensity_(rho_t_gpt, rho_s_gpt, ns);
         pressure_gpt = boundary->FlowPressure;
         uvel_gpt     = boundary->FlowVelocity[0];
         vvel_gpt     = boundary->FlowVelocity[1];
         wvel_gpt     = boundary->FlowVelocity[2];
-        energy_gpt   = inv_gamma_m1*pressure_gpt
-                       + 0.5 * rho_gpt 
-                       * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt + wvel_gpt*wvel_gpt);
+        E_gpt        = inv_gamma_m1*pressure_gpt/rho_t_gpt
+                       + 0.5 * (uvel_gpt*uvel_gpt + vvel_gpt*vvel_gpt + wvel_gpt*wvel_gpt);
+        for (k = 0; k < nv; k++) E_v_gpt[k] = 0.0;
 
-        phi[nvars*p1+0] = rho_gpt;
-        phi[nvars*p1+1] = rho_gpt * uvel_gpt;
-        phi[nvars*p1+2] = rho_gpt * vvel_gpt;
-        phi[nvars*p1+3] = rho_gpt * wvel_gpt;
-        phi[nvars*p1+4] = energy_gpt;
+        _NavierStokes3DSetFlowVar_( (phi+nvars*p1), rho_s_gpt, rho_t_gpt,
+                                    uvel_gpt, vvel_gpt, wvel_gpt,
+                                    E_gpt, E_v_gpt, pressure_gpt, physics );
 
         _ArrayIncrementIndex_(ndims,bounds,indexb,done);
       }
