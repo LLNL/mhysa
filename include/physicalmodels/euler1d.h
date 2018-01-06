@@ -6,7 +6,7 @@
 
   \f{equation}{
     \frac {\partial} {\partial t} \left[\begin{array}{c} \rho_0 \\ \vdots \\ \rho_{\left(n_s-1\right)} \\ \rho u \\ \rho E \\ \rho_0 E^v_0 \\ \vdots \\ \rho_{n_v} E^v_{n_v} \end{array}\right]
-  + \frac {\partial} {\partial x} \left[\begin{array}{c} \rho_0 u \\ \vdots \\ \rho_{\left(n_s-1\right)} u \\ \rho u^2 + p \\ \left(\rho E + p\right) u \\ \rho_0 E^v_0 u \\ \vdots \\ \rho_{n_v} E^v_{n_v} \end{array}\right]
+  + \frac {\partial} {\partial x} \left[\begin{array}{c} \rho_0 u \\ \vdots \\ \rho_{\left(n_s-1\right)} u \\ \rho u^2 + p \\ \left(\rho E + p\right) u \\ \rho_0 E^v_0 u \\ \vdots \\ \rho_{n_v} E^v_{n_v} u \end{array}\right]
   = \left[\begin{array}{c} 0 \\ \vdots \\ 0 \\ 0 \\ 0 \\ 0 \\ \vdots \\ 0 \end{array}\right]
   \f}
   where

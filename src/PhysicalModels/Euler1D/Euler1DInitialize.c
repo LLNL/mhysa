@@ -47,7 +47,7 @@ int    Euler1DPreStep           (double*,void*,void*,double);
     nspecies           | int          | #Euler1D::n_species           | 1
     nvibeng            | int          | #Euler1D::n_vibeng            | 0
     gamma              | double       | #Euler1D::gamma               | 1.4
-    upwinding          | char[]       | #Euler1D::upw_choice          | "roe" (#_ROE_)
+    upwinding          | char[]       | #Euler1D::upw_choice          | "rusanov" (#_RUSANOV_)
 
     \b Note: "physics.inp" is \b optional; if absent, default values will be used.
 */
