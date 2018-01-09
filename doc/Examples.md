@@ -42,7 +42,7 @@ The following are some examples of multispecies flows.
 \subpage sod_shock_tube_2species_component_rec \n
 \subpage density_sine_wave_advection_2species \n
 
-\page sod_shock_tube_component_rec 1D Euler Equations (Single Species) - Sod Shock Tube (Component-Wise Reconstruction)
+\page sod_shock_tube_component_rec 1D Euler Equations - Sod Shock Tube (Component-Wise Reconstruction)
 
 Description: 
 -------------------
