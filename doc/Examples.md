@@ -33,6 +33,7 @@ The following are some examples of single species flows, where the
 governing equations are the single-species Euler/Navier-Stokes equations.
 
 \subpage sod_shock_tube_component_rec \n
+\subpage riemann_case4_component_rec \n
 \subpage density_sine_wave_advection \n
 
 \page multispecies_examples Multispecies Examples
@@ -358,4 +359,62 @@ The following animation shows the advection of the density wave:
 
 Expected screen output:
 \include MultiSpecies/3D_DensitySineWaveAdvection_2Species/output.log
+
+\page riemann_case4_component_rec 2D Euler Equations - Riemann Problem Case 4
+
+Location: \b mhysa/Examples/SingleSpecies/2D_RiemannProblem_Case4_ComponentWiseRec
+          (This directory contains all the input files needed
+          to run this case.)
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: \f$-0.5 \le x,y < 0.5\f$, "extrapolate" (#_EXTRAPOLATE_) boundaries along \f$x,y\f$;
+        \f$0 \le z < \delta\f$, "periodic" (#_PERIODIC_) boundaries along \f$z\f$, where \f$\delta\f$ is an arbitrarily small number (this is how a 3D code is used to solve a 2D problem).
+
+Initial solution: A 2D Riemann problem corresponding to "Case 4" in the reference below.
+
+Other relevant parameters:
+  + \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+
+Reference:
+  + P. Lax and X.-D. Liu, Solution of two-dimensional Riemann problems of 
+    gas dynamics by positive schemes, SIAM J Sci Comp 19 (1998), 319–340.
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): Component-wise 5th order WENO (Interp1PrimFifthOrderWENO())
+ + Time integration: SSP-RK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+--------------------
+\b solver.inp:
+\include SingleSpecies/2D_RiemannProblem_Case4_ComponentWiseRec/solver.inp
+
+\b boundary.inp
+\include SingleSpecies/2D_RiemannProblem_Case4_ComponentWiseRec/boundary.inp
+
+\b physics.inp
+\include SingleSpecies/2D_RiemannProblem_Case4_ComponentWiseRec/physics.inp
+
+To generate \b initial.inp, compile and run the 
+following code in the run directory:
+\include SingleSpecies/2D_RiemannProblem_Case4_ComponentWiseRec/aux/init.c
+
+Output:
+-------
+After running the code, there should be 11 solution output
+files \b op_00000.dat, \b op_00001.dat, ..., \b op_00010.dat; 
+the first one is the initial solution, and the others are the 
+solutions at subsequent times, with the last one being the final 
+solution.
+These files are in the Tecplot 3D format (#HyPar::op_file_format is
+set to \a tecplot3d in \b solver.inp).
+
+Final solution at t=0.25: The following figure shows the density and
+is obtained by plotting \a op_00010.dat. Note that the output is in
+terms of the conserved variables, so they have to converted
+to the primitive variables (density, velocity, and pressure).
+@image html Solution_2DRiemannCase4_ComponentRec.png
+
+Expected screen output:
+\include SingleSpecies/2D_RiemannProblem_Case4_ComponentWiseRec/output.log
 
