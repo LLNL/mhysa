@@ -275,7 +275,7 @@ typedef struct navierstokes3d_parameters {
   int     n_vibeng;     /*!< Number of vibrational energies */
 
   int     nvars;        /*!< Number of components of solution variables
-                             (= #NavierStoked3D::n_species+#NavierStoked3D::n_vibeng+4), 
+                             (= #NavierStokes3D::n_species+#NavierStokes3D::n_vibeng+4), 
                              not an user input; it is set to #HyPar::nvars in 
                              NavierStokes3DInitialize().*/
 

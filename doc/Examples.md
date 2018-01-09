@@ -32,8 +32,8 @@ Some examples of multispecies flows.
 The following are some examples of single species flows, where the 
 governing equations are the single-species Euler/Navier-Stokes equations.
 
-\subpage 1d_sod_shock_tube_component_rec \n
-\subpage 3d_density_sine_wave_advection \n
+\subpage sod_shock_tube_component_rec \n
+\subpage density_sine_wave_advection \n
 
 \page multispecies_examples Multispecies Examples
 
@@ -42,7 +42,7 @@ The following are some examples of multispecies flows.
 \subpage sod_shock_tube_2species_component_rec \n
 \subpage 3d_density_sine_wave_advection_2species \n
 
-\page 1d_sod_shock_tube_component_rec 1D Euler Equations (Single Species) - Sod Shock Tube (Component-Wise Reconstruction)
+\page sod_shock_tube_component_rec 1D Euler Equations (Single Species) - Sod Shock Tube (Component-Wise Reconstruction)
 
 Description: 
 -------------------
@@ -176,7 +176,7 @@ to the primitive variables (density, velocity, and pressure).
 Expected screen output:
 \include MultiSpecies/1D_SodShockTube_2Species_ComponentWiseRec/output.log
 
-\page 3d_density_sine_wave_advection 3D Navier-Stokes Equations - Density Sine Wave Advection
+\page density_sine_wave_advection 3D Navier-Stokes Equations - Density Sine Wave Advection
 
 Location: \b mhysa/Examples/SingleSpecies/3D_DensitySineWaveAdvection
           (This directory contains all the input files needed
@@ -188,9 +188,9 @@ Domain: \f$0 \le x,y,z < 1\f$, "periodic" (#_PERIODIC_) boundaries
         everywhere.
 
 Initial solution: 
-  \f$ \rho = \rho_\infty + \tilde{\rho} sin(x) cos(y) \f$,
+  \f$ \rho = \rho_\infty + \tilde{\rho} sin(2\pi x) sin(2\pi y)sin(2\pi z) \f$,
   \f$ p = p_\infty, u = u_\infty, v = v_\infty, w = w_\infty \f$, where
-  \f$\rho_\infty = u_\infty = v_\infty = w_\infty = 1, p_\infty = 1/\gamma, \tilde{\rho} = 0.1$.
+  \f$\rho_\infty = u_\infty = v_\infty = w_\infty = 1, p_\infty = 1/\gamma, \tilde{\rho} = 0.1\f$.
 
 
 Other relevant parameters:
