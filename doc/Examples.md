@@ -40,7 +40,7 @@ governing equations are the single-species Euler/Navier-Stokes equations.
 The following are some examples of multispecies flows.
 
 \subpage sod_shock_tube_2species_component_rec \n
-\subpage 3d_density_sine_wave_advection_2species \n
+\subpage density_sine_wave_advection_2species \n
 
 \page sod_shock_tube_component_rec 1D Euler Equations (Single Species) - Sod Shock Tube (Component-Wise Reconstruction)
 
@@ -188,7 +188,7 @@ Domain: \f$0 \le x,y,z < 1\f$, "periodic" (#_PERIODIC_) boundaries
         everywhere.
 
 Initial solution: 
-  \f$ \rho = \rho_\infty + \tilde{\rho} sin(2\pi x) sin(2\pi y)sin(2\pi z) \f$,
+  \f$ \rho = \rho_\infty + \tilde{\rho} \sin(2\pi x) \sin(2\pi y)\sin(2\pi z) \f$,
   \f$ p = p_\infty, u = u_\infty, v = v_\infty, w = w_\infty \f$, where
   \f$\rho_\infty = u_\infty = v_\infty = w_\infty = 1, p_\infty = 1/\gamma, \tilde{\rho} = 0.1\f$.
 
@@ -265,7 +265,7 @@ The following animation shows the advection of the density wave:
 Expected screen output:
 \include SingleSpecies/3D_DensitySineWaveAdvection/output.log
 
-\page 3d_density_sine_wave_advection_2species 3D Navier-Stokes Equations - Density Sine Wave Advection
+\page density_sine_wave_advection_2species 3D Navier-Stokes Equations (Two Species) - Density Sine Wave Advection
 
 Location: \b mhysa/Examples/MultiSpecies/3D_DensitySineWaveAdvection_2Species
           (This directory contains all the input files needed
@@ -281,9 +281,9 @@ Domain: \f$0 \le x,y,z < 1\f$, "periodic" (#_PERIODIC_) boundaries
         everywhere.
 
 Initial solution: 
-  \f$ \rho_1 = m_1 \rho, \rho_2 = m_2 \rho\f$, where \f$ \rho = \rho_\infty + \tilde{\rho} sin(x) cos(y) \f$, and
-  \f$ p = p_\infty, u = u_\infty, v = v_\infty, w = w_\infty \f$, where
-  \f$\rho_\infty = u_\infty = v_\infty = w_\infty = 1, p_\infty = 1/\gamma, \tilde{\rho} = 0.1$.
+  \f$ \rho_1 = m_1 \rho, \rho_2 = m_2 \rho \f$, where \f$ \rho = \rho_\infty + \tilde{\rho} \sin(2\pi x) \sin(2\pi y) \sin(2\pi z) \f$, 
+  and \f$ p = p_\infty, u = u_\infty, v = v_\infty, w = w_\infty \f$, where
+  \f$\rho_\infty = u_\infty = v_\infty = w_\infty = 1, p_\infty = 1/\gamma, \tilde{\rho} = 0.1\f$.
 
 where \f$m_1 = 0.3\f$, \f$m_2 = 0.7\f$ are the mass fractions of each species.
 
