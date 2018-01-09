@@ -1,0 +1,51 @@
+3D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+Inviscid Advection of a Density Wave: 
+
+This test case is inviscid, and therefore, does not test the
+viscous terms implementation.
+
+Domain: 
+
+  0 <= x,y,z <= 1.0
+  "periodic" boundary conditions
+
+Initial/Exact Solution:
+
+  Freestream conditions -
+  
+    rho_inf = 1.0,        drho = 0.1
+    p_inf   = 1.0/gamma
+    u_inf   = 1.0
+    v_inf   = 1.0
+    w_inf   = 1.0
+
+    rho1 = mf1 * rho
+    rho2 = mf2 * rho
+    where rho(x,y,z) = rho_inf + drho * sin(x) * cos(y)
+    p(x,y,z) = p_inf
+    u(x,y,z) = u_inf
+    v(x,y,z) = v_inf
+    w(x,y,z) = v_inf
+
+  where mf1 and mf2 are the mass fractions
+  of each species, mf1 + mf2 = 1.
+
+This example considers a two-species setup, with the species 
+decoupled from each other. The initial solution specifies the
+initial mass fraction of each species. The overall solution
+should be the same as the single-species density wave advection.
+(Dummy problem to test the multispecies code implementation)
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physical parameters (advection speed)
++ lusolver.inp  -   Parameters for the tridiagonal solver
+                    required for a compact scheme
+
+The code aux/exact.c is an example to generate the initial
+solution file (initial.inp) and exact solution file (exact.inp)
+in the correct format required by the solver. 
+
+Compile and run this code to generate these files.
