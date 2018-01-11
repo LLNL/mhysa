@@ -3,6 +3,11 @@
 #include <math.h>
 #include <string.h>
 
+double power(double x,double a)
+{
+  return(exp(a*log(x)));
+}
+
 int main()
 {
   
@@ -55,18 +60,14 @@ int main()
 	printf("Grid:\t\t\t%d x %d x %d.\n", NI, NJ, NK);
 
 	int i,j,k;
-	double dx = 1.0 / ((double)NI);
-	double dy = 1.0 / ((double)NJ);
-	double dz = 1.0 / ((double)NK);
+	double dx = 10.0 / ((double)NI);
+	double dy = 10.0 / ((double)NJ);
+	double dz = (dx < dy ? dx : dy);
 
-  tf = (double)n_iter * dt;
-  printf("Final time: %lf\n",tf);
-
-  double u_inf = 1.0;
-  double v_inf = 1.0;
-  double w_inf = 1.0;
-  double rho_inf = 1.0, drho = 0.1;
-  double p_inf = 1.0/GAMMA;
+  double u_inf = 0.5;
+  double v_inf = 0.0;
+  double b = u_inf;
+  double x0 = 5.0, y0 = 5.0;
 
 	double *x, *y, *z, *U;
   FILE *out;
@@ -79,17 +80,35 @@ int main()
 	for (i = 0; i < NI; i++){
   	for (j = 0; j < NJ; j++){
   	  for (k = 0; k < NK; k++){
+
   	  	x[i] = i*dx;
 	    	y[j] = j*dy;
 	    	z[k] = k*dz;
+
+      }
+	  }
+	}
+
+	for (i = 0; i < NI; i++){
+  	for (j = 0; j < NJ; j++){
+    	for (k = 0; k < NK; k++){
+
+	    	x[i] = i*dx;
+	    	y[j] = j*dy;
+	    	z[k] = k*dz;
+
         int p = i + NI*j + NI*NJ*k;
 
+        double rsq = (x[i]-x0)*(x[i]-x0) + (y[j]-y0)*(y[j]-y0);
         double rho, u, v, w, P;
-        rho = rho_inf + drho * sin(2*pi*x[i]) * sin(2*pi*y[j]) * sin(2*pi*z[k]);
-        P   = p_inf;
-        u   = u_inf;
-        v   = v_inf;
-        w   = w_inf;
+        double du, dv;
+        rho = power(1.0 - ((GAMMA-1.0)*b*b)/(8.0*GAMMA*pi*pi) * exp(1.0-rsq), 1.0/(GAMMA-1.0));
+        P   = power(rho,GAMMA);
+        du  = - b/(2.0*pi) * exp(0.5*(1.0-rsq)) * (y[j]-y0);
+        dv  =   b/(2.0*pi) * exp(0.5*(1.0-rsq)) * (x[i]-x0);
+        u   = u_inf + du;
+        v   = v_inf + dv;
+        w   = 0.0;
 
         U[5*p+0] = rho;
         U[5*p+1] = rho*u;
@@ -99,7 +118,6 @@ int main()
       }
 	  }
 	}
-
   if (!strcmp(ip_file_type,"ascii")) {
     printf("Writing ASCII initial solution file initial.inp\n");
   	out = fopen("initial.inp","w");
@@ -168,20 +186,35 @@ int main()
 
   }
 
+  tf = (double)n_iter * dt; double tff = tf;
+  while (tf > 20) tf -= 20; // Time period
+
+  x0 = 5.0+tf*u_inf, y0 = 5.0;
+  if (x0 > 10) x0 -= 10; //periodic domain
+  printf("Final time: %lf, Vortex center: %lf, %lf\n",tff,x0,y0);
+
 	for (i = 0; i < NI; i++){
   	for (j = 0; j < NJ; j++){
   	  for (k = 0; k < NK; k++){
-  	  	x[i] = i*dx;
-	    	y[j] = j*dy;
-	    	z[k] = k*dz;
-        int p = i + NK*j + NI*NJ*k;
 
+        int p = i + NI*j + NI*NJ*k;
+
+        double rx, ry;
+        rx = (x[i] - x0);
+        ry = (y[j] - y0);
+        if (rx < -5)      { rx += 10; }
+        else if (rx > 5)  { rx -= 10; }
+
+        double rsq = rx*rx + ry*ry;
         double rho, u, v, w, P;
-        rho = rho_inf + drho * sin(2*pi*x[i]-2*pi*u_inf*tf) * sin(2*pi*y[j]-2*pi*v_inf*tf) * sin(2*pi*z[k]-2*pi*w_inf*tf);
-        P   = p_inf;
-        u   = u_inf;
-        v   = v_inf;
-        w   = w_inf;
+        double du, dv;
+        rho = power(1.0 - ((GAMMA-1.0)*b*b)/(8.0*GAMMA*pi*pi) * exp(1.0-rsq), 1.0/(GAMMA-1.0));
+        P   = power(rho,GAMMA);
+        du  = - b/(2.0*pi) * exp(0.5*(1.0-rsq)) * ry;
+        dv  =   b/(2.0*pi) * exp(0.5*(1.0-rsq)) * rx;
+        u   = u_inf + du;
+        v   = v_inf + dv;
+        w   = 0.0;
 
         U[5*p+0] = rho;
         U[5*p+1] = rho*u;

@@ -36,6 +36,7 @@ governing equations are the single-species Euler/Navier-Stokes equations.
 \subpage sod_shock_tube_component_rec \n
 \n
 \subpage riemann_case4_component_rec \n
+\subpage vortex_convection \n
 \n
 \subpage density_sine_wave_advection \n
 
@@ -270,6 +271,9 @@ Location: \b mhysa/Examples/SingleSpecies/3D_DensitySineWaveAdvection
           to run this case.)
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+                     By default, #NavierStokes3D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 3D Euler equations 
+                     are solved.)
 
 Domain: \f$0 \le x,y,z < 1\f$, "periodic" (#_PERIODIC_) boundaries 
         everywhere.
@@ -362,6 +366,9 @@ non-reacting species. In essence, it is identical to the single-species
 density wave advection, but tests the multispecies code implementation.
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+                     By default, #NavierStokes3D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 3D Euler equations 
+                     are solved.)
 
 Domain: \f$0 \le x,y,z < 1\f$, "periodic" (#_PERIODIC_) boundaries 
         everywhere.
@@ -452,6 +459,9 @@ Location: \b mhysa/Examples/SingleSpecies/2D_RiemannProblem_Case4_ComponentWiseR
           to run this case.)
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+                     By default, #NavierStokes3D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 3D Euler equations 
+                     are solved.)
 
 Domain: \f$-0.5 \le x,y < 0.5\f$, "extrapolate" (#_EXTRAPOLATE_) boundaries along \f$x,y\f$;
         \f$0 \le z < \delta\f$, "periodic" (#_PERIODIC_) boundaries along \f$z\f$, where \f$\delta\f$ is an arbitrarily small number (this is how a 3D code is used to solve a 2D problem).
@@ -502,4 +512,118 @@ to the primitive variables (density, velocity, and pressure).
 
 Expected screen output:
 \include SingleSpecies/2D_RiemannProblem_Case4_ComponentWiseRec/output.log
+
+\page vortex_convection 2D Euler Equations - Isentropic Vortex Convection
+
+Location: \b hypar/Examples/SingleSpecies/2D_IsentropicVortexConvection
+          (This directory contains all the input files needed
+          to run this case.)
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+                     By default, #NavierStokes3D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 3D Euler equations 
+                     are solved.)
+
+Reference: C.-W. Shu, "Essentially Non-oscillatory and Weighted Essentially 
+           Non-oscillatory Schemes for Hyperbolic Conservation Laws", 
+           ICASE Report 97-65, 1997
+
+Domain: \f$0 \le x,y \le 10\f$, \a "periodic" (#_PERIODIC_)
+        boundary conditions; 
+        \f$0 \le z < \delta\f$, "periodic" (#_PERIODIC_) boundaries along \f$z\f$, where \f$\delta\f$ is an arbitrarily small number (this is how a 3D code is used to solve a 2D problem).
+
+Initial solution: The freestream flow is given by
+\f{equation}{
+  \rho_\infty = 1,\ u_\infty = 0.1,\ v_\infty = 0,\ p_\infty = 1
+\f}
+and a vortex is introduced, specified as
+\f{align}{
+\rho &= \left[ 1 - \frac{\left(\gamma-1\right)b^2}{8\gamma\pi^2} e^{1-r^2} \right]^{\frac{1}{\gamma-1}},\ p = \rho^\gamma, \\
+u &= u_\infty - \frac{b}{2\pi} e^{\frac{1}{2}\left(1-r^2\right)} \left(y-y_c\right),\ v = v_\infty + \frac{b}{2\pi} e^{\frac{1}{2}\left(1-r^2\right)} \left(x-x_c\right),
+\f}
+where \f$b=0.5\f$ is the vortex strength and \f$r = \left[(x-x_c)^2 + (y-y_c)^2 \right]^{1/2}\f$ is the distance from the vortex center \f$\left(x_c,y_c\right) = \left(5,5\right)\f$.
+
+Other relevant parameters:
+  + \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+
+Numerical method:
+ + Spatial discretization (hyperbolic): 5th order CRWENO (Interp1PrimFifthOrderCRWENO())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+\b solver.inp
+\include SingleSpecies/2D_IsentropicVortexConvection/solver.inp
+
+\b boundary.inp
+\include SingleSpecies/2D_IsentropicVortexConvection/boundary.inp
+
+\b physics.inp
+\include SingleSpecies/2D_IsentropicVortexConvection/physics.inp
+
+\b weno.inp (optional)
+\include SingleSpecies/2D_IsentropicVortexConvection/weno.inp
+
+\b lusolver.inp (optional)
+\include SingleSpecies/2D_IsentropicVortexConvection/lusolver.inp
+
+To generate \b initial.inp (initial solution) and \b exact.inp
+(exact solution), compile and run the following code in the run 
+directory.
+\include SingleSpecies/2D_IsentropicVortexConvection/aux/exact.c
+
+Output:
+-------
+Note that \b iproc is set to 
+
+      4 4 1
+
+in \b solver.inp (i.e., 4 processors along \a x, 4 processors 
+along \a y, 1 processor along \a z). Thus, this example should be run
+with 16 MPI ranks (or change \b iproc).
+
+After running the code, there should be 11 output
+files \b op_00000.dat, \b op_00001.dat, ... \b op_00010.dat; 
+the first one is the solution at \f$t=0\f$ and the final one
+is the solution at \f$t=20\f$. Since #HyPar::op_overwrite is
+set to \a no in \b solver.inp, separate files are written
+for solutions at each output time. 
+  
+#HyPar::op_file_format is set to \a tecplot2d in \b solver.inp, and
+thus, all the files are in a format that Tecplot (http://www.tecplot.com/)
+or other visualization software supporting the Tecplot format 
+(e.g. VisIt - https://wci.llnl.gov/simulation/computer-codes/visit/)
+can read. In these files, the first two lines are the Tecplot headers, 
+after which the data is written out as: the first two columns are grid indices, 
+the next two columns are x and y coordinates, and the remaining columns are the 
+solution components.  #HyPar::op_file_format can be set to \a text to get the solution
+files in plain text format (which can be read in and visualized in
+MATLAB for example).
+
+The following animation (showing the density) shows the convection of the vortex:
+@image html Solution_2DNavStokVortex.gif
+
+Since the exact solution is available at the final time, the numerical 
+errors are calculated and reported on screen (see below) as well as \b errors.dat:
+\include SingleSpecies/2D_IsentropicVortexConvection/errors.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global), 
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up),
+and total wall time.
+
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include SingleSpecies/2D_IsentropicVortexConvection/conservation.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global),
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError) of each component.
+
+Expected screen output:
+\include SingleSpecies/2D_IsentropicVortexConvection/output.log
 
