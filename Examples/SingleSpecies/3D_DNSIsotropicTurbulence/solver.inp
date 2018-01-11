@@ -1,0 +1,23 @@
+begin
+  ndims               3
+  nvars               5
+  size                64 64 64
+  iproc               4 4 4
+  ghost               3
+  n_iter              200
+  restart_iter        0
+  time_scheme         rk
+  time_scheme_type    44
+  hyp_space_scheme    weno5
+  hyp_interp_type     components
+  par_space_type      nonconservative-2stage
+  par_space_scheme    4
+  dt                  0.025
+  screen_op_iter      10
+  file_op_iter        20
+  ip_file_type        binary
+  input_mode          serial
+  op_file_format      binary
+  op_overwrite        no
+  model               navierstokes3d
+end

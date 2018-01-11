@@ -1,0 +1,41 @@
+3D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
+
+Isotropic Turbulence Decay (Direct Numerical Simulation)
+
+Domain:
+
+  0 <= x,y,z < 2pi
+  "periodic" boundary conditions
+
+The initial solution is specified in the Fourier space (with an energy
+distribution similar to that of turbulent flow), and then transformed 
+to the physical space through an inverse transform.
+
+The following input files are required:
++ solver.inp    -   General solver parameters
++ boundary.inp  -   Boundary conditions
++ physics.inp   -   Physics-related parameters
++ initial.inp   -   Initial solution
+
+** See mhysa/README for other (optional) input files
+
+** In solver.inp, if the field "input_mode" is set to "parallel", 
+the code would need the initial solution in a file called 
+"initial_par.inp". This file contains the initial solution split into
+the MPI subdomains. "initial_par.inp" can be generated from "initial.inp" 
+by compiling and running "mhysa/Extras/ParallelInput.c" after specifying 
+the number of processors ("iproc") in "solver.inp".
+
+Notes:-
+The code aux/init.c is an example to generate the initial solution
+file in the correct format required by the solver.  
+
+The code aux/fourier.c can be used to calculate the initial and
+final spectrum of the solution. 
+
+** Both these codes need the fftw3 library (http://www.fftw.org). 
+To compile:
+gcc -I/path/to/fftw3.h -L/path/to/libfftw3.a -lfftw3 fourier.c
+
+The code aux/kineticenergy.c can be used to calculate the time 
+evolution of the kinetic energy.
