@@ -730,8 +730,7 @@ following data layout: the first three columns are grid indices, the next three
 columns are x, y, and z coordinates, and the remaining columns are the solution
 components (\f$\rho, \rho u, \rho v, \rho w, e\f$).
 
-The following figure shows the density iso-surface colored by the internal energy
-(plotted in ParaView after converting the binary solution to a Tecplot file):
+The following figure shows the density iso-surfaces:
 @image html Solution_3DNavStok_IsoTurb.png
 
 Expected screen output:
