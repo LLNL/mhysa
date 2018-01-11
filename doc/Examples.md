@@ -32,8 +32,11 @@ Some examples of multispecies flows.
 The following are some examples of single species flows, where the 
 governing equations are the single-species Euler/Navier-Stokes equations.
 
+\subpage density_wave_advection_1d \n
 \subpage sod_shock_tube_component_rec \n
+\n
 \subpage riemann_case4_component_rec \n
+\n
 \subpage density_sine_wave_advection \n
 
 \page multispecies_examples Multispecies Examples
@@ -42,6 +45,89 @@ The following are some examples of multispecies flows.
 
 \subpage sod_shock_tube_2species_component_rec \n
 \subpage density_sine_wave_advection_2species \n
+
+\page density_wave_advection_1d 1D Euler Equations - Density Wave Advection
+Description: 
+-------------------
+
+Location: \b mhysa/Examples/SingleSpecies/1D_DensitySineWaveAdvection
+          (This directory contains all the input files needed
+          to run this case.)
+
+Governing equations: 1D Euler equations (euler1d.h)
+
+References: 
+  + G.A. Sod, "A survey of several finite difference methods 
+    for systems of nonlinear hyperbolic conservation laws," 
+    J. Comput. Phys., 27, 1 (1978).
+  + C. B. Laney, "Computational Gasdynamics", Cambridge 
+    University Press, 1998.
+
+Domain: \f$0 \le x < 1\f$, "periodic" (#_PERIODIC_) boundaries
+
+Initial Solution:
+  \f$ \rho = \rho_\infty + \tilde{\rho} \sin(2\pi x)\f$,
+  \f$ p = p_\infty, u = u_\infty\f$, where
+  \f$\rho_\infty = u_\infty = 1, p_\infty = 1/\gamma, \tilde{\rho} = 0.1\f$.
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order compact upwind (Interp1PrimFifthOrderCompactUpwind())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+--------------------
+\b solver.inp:
+\include SingleSpecies/1D_DensitySineWaveAdvection/solver.inp
+
+\b boundary.inp
+\include SingleSpecies/1D_DensitySineWaveAdvection/boundary.inp
+
+\b physics.inp
+\include SingleSpecies/1D_DensitySineWaveAdvection/physics.inp
+
+\b lusolver.inp (optional)
+\include SingleSpecies/3D_DensitySineWaveAdvection/lusolver.inp
+
+To generate \b initial.inp (initial solution) and \b exact.inp (exact solution), 
+compile and run the following code in the run directory:
+\include SingleSpecies/1D_DensitySineWaveAdvection/aux/exact.c
+
+Output:
+-------
+After running the code, there should be 21 solution output
+files \b op_00000.dat, ..., \b op_00020.dat; the first one is
+the initial solution, and the latter is the final solution.
+All these files are ASCII text (#HyPar::op_file_format is
+set to \a text in \b solver.inp).
+In these files, the first column is grid index, the second 
+column is x-coordinate, and the remaining columns are the 
+solution components.
+
+The following animation shows the advection of the density wave:
+@image html Solution_1DDensityWaveAdvection.gif
+
+Expected screen output:
+\include SingleSpecies/1D_DensitySineWaveAdvection/output.log
+
+Since the exact solution is available at the final time, the numerical 
+errors are calculated and reported on screen (see below) as well as in
+the file \b errors.dat:
+\include SingleSpecies/1D_DensitySineWaveAdvection/errors.dat
+The numbers are: number of grid points (#HyPar::dim_global), 
+number of processors (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+L1, L2, and L-infinity errors (#HyPar::error),
+solver wall time (seconds) (i.e., not accounting for initialization,
+and cleaning up), and total wall time.
+
+Since #HyPar::ConservationCheck is set to \a yes in \b solver.inp,
+the code checks for conservation error and prints it to screen, as well
+as the file \b conservation.dat:
+\include SingleSpecies/1D_DensitySineWaveAdvection/conservation.dat
+The numbers are: number of grid points in each dimension (#HyPar::dim_global),
+number of processors in each dimension (#MPIVariables::iproc),
+time step size (#HyPar::dt),
+and conservation error (#HyPar::ConservationError) of each component.
 
 \page sod_shock_tube_component_rec 1D Euler Equations - Sod Shock Tube (Component-Wise Reconstruction)
 
@@ -192,7 +278,6 @@ Initial solution:
   \f$ \rho = \rho_\infty + \tilde{\rho} \sin(2\pi x) \sin(2\pi y)\sin(2\pi z) \f$,
   \f$ p = p_\infty, u = u_\infty, v = v_\infty, w = w_\infty \f$, where
   \f$\rho_\infty = u_\infty = v_\infty = w_\infty = 1, p_\infty = 1/\gamma, \tilde{\rho} = 0.1\f$.
-
 
 Other relevant parameters:
   + \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)

@@ -10,8 +10,8 @@ begin
   hyp_space_scheme  cupw5
   hyp_interp_type   components 
   dt                0.005
-  screen_op_iter    1
-  file_op_iter      9999
+  screen_op_iter    5
+  file_op_iter      10
   op_file_format    text
   op_overwrite      no
   model             euler1d
