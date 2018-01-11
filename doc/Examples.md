@@ -739,7 +739,7 @@ Expected screen output:
 
 \page shock_cylinder_interaction 2D Inviscid Shock-Cylinder Interaction (Component-Wise Reconstruction)
 
-Location: \b hypar/Examples/3D/NavierStokes3D/2D_Shock_Cylinder_Interaction
+Location: \b hypar/Examples/SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h - by default
                      #NavierStokes3D::Re is set to \b -1 which makes the
@@ -776,35 +776,35 @@ Numerical Method:
 Input files required:
 ---------------------
 
-These files are all located in: \b hypar/Examples/3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/
+These files are all located in: \b mhysa/Examples/SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec/
 
 \b solver.inp
-\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/solver.inp
+\include SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec/solver.inp
 
 \b boundary.inp
-\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/boundary.inp
+\include SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec/boundary.inp
 
 \b physics.inp
-\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/physics.inp
+\include SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec/physics.inp
 
 \b cylinder.stl : the filename "cylinder.stl" \b must match
 the input for \a immersed_body in \a solver.inp.\n
-Located at \b hypar/Examples/STLGeometries/cylinder.stl
+Located at \b mhysa/Examples/STLGeometries/cylinder.stl
 
 To generate \b initial.inp (initial solution), compile 
 and run the following code in the run directory.
-\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/aux/init.c
+\include SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec/aux/init.c
 
 Output:
 -------
 
 Note that \b iproc is set to 
 
-      2 2 1
+      4 4 1
 
-in \b solver.inp (i.e., 2 processors along \a x, 2
+in \b solver.inp (i.e., 4 processors along \a x, 4
 processors along \a y, and 1 processor along \a z). Thus, 
-this example should be run with 4 MPI ranks (or change \b iproc).
+this example should be run with 16 MPI ranks (or change \b iproc).
 
 After running the code, there should be 81 solution files \b op_00000.bin 
 (initial solution), 
@@ -817,9 +817,9 @@ thus, all the files are written out in the binary format, see
 WriteBinary(). The binary file contains the conserved variables
 \f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
 are available to convert the binary output file:
-+ \b hypar/Extras/BinaryToTecplot.c - convert binary output file to 
++ \b mhysa/Extras/BinaryToTecplot.c - convert binary output file to 
   Tecplot file.
-+ \b hypar/Extras/BinaryToText.c - convert binary output file to
++ \b mhysa/Extras/BinaryToText.c - convert binary output file to
   an ASCII text file (to visualize in, for example, MATLAB).
 
 The file \b Extras/ExtractSlice.c can be used to extract a slice perpendicular to any dimension
@@ -842,8 +842,5 @@ and the following is the numerical Schlieren image (contour plot of \f$\|\nabla\
 @image html Solution_3DNavStokShockCyl_Schlieren2.png
 
 Expected screen output:
-\include 3D/NavierStokes3D/2D_Shock_Cylinder_Interaction/output.log
-
-  
-\page ns3d_sphere_steady_incompressible_viscous Steady, incompressible, viscous flow around a sphere
+\include SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec/output.log
 
