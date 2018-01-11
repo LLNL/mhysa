@@ -75,6 +75,10 @@ int InitializePhysics(
 
   }
 
+  if (solver->Upwind == NULL) {
+    return(1);
+  }
+
   /* some checks */
   if ( ( (solver->GetLeftEigenvectors == NULL) || (solver->GetRightEigenvectors == NULL) )
       && (!strcmp(solver->interp_type,_CHARACTERISTIC_)) && (solver->nvars > 1) ) {
