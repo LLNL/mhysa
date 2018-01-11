@@ -56,13 +56,6 @@ Location: \b mhysa/Examples/SingleSpecies/1D_DensitySineWaveAdvection
 
 Governing equations: 1D Euler equations (euler1d.h)
 
-References: 
-  + G.A. Sod, "A survey of several finite difference methods 
-    for systems of nonlinear hyperbolic conservation laws," 
-    J. Comput. Phys., 27, 1 (1978).
-  + C. B. Laney, "Computational Gasdynamics", Cambridge 
-    University Press, 1998.
-
 Domain: \f$0 \le x < 1\f$, "periodic" (#_PERIODIC_) boundaries
 
 Initial Solution:
@@ -106,9 +99,6 @@ solution components.
 The following animation shows the advection of the density wave:
 @image html Solution_1DDensityWaveAdvection.gif
 
-Expected screen output:
-\include SingleSpecies/1D_DensitySineWaveAdvection/output.log
-
 Since the exact solution is available at the final time, the numerical 
 errors are calculated and reported on screen (see below) as well as in
 the file \b errors.dat:
@@ -128,6 +118,9 @@ The numbers are: number of grid points in each dimension (#HyPar::dim_global),
 number of processors in each dimension (#MPIVariables::iproc),
 time step size (#HyPar::dt),
 and conservation error (#HyPar::ConservationError) of each component.
+
+Expected screen output:
+\include SingleSpecies/1D_DensitySineWaveAdvection/output.log
 
 \page sod_shock_tube_component_rec 1D Euler Equations - Sod Shock Tube (Component-Wise Reconstruction)
 
