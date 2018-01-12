@@ -32,15 +32,22 @@ Some examples of multispecies flows.
 The following are some examples of single species flows, where the 
 governing equations are the single-species Euler/Navier-Stokes equations.
 
+Basic examples
+--------------
+
 \subpage density_wave_advection_1d \n
 \subpage sod_shock_tube_component_rec \n
 \n
 \subpage riemann_case4_component_rec \n
 \subpage vortex_convection \n
-\subpage shock_cylinder \n
 \n
 \subpage density_sine_wave_advection \n
 \subpage isotropic_turbulence \n
+
+Examples with immersed boundaries
+---------------------------------
+
+\subpage shock_cylinder \n
 
 \page multispecies_examples Multispecies Examples
 
@@ -737,9 +744,9 @@ The following figure shows the density iso-surfaces:
 Expected screen output:
 \include SingleSpecies/3D_DNSIsotropicTurbulence/output.log
 
-\page shock_cylinder_interaction 2D Inviscid Shock-Cylinder Interaction (Component-Wise Reconstruction)
+\page shock_cylinder 2D Inviscid Shock-Cylinder Interaction (Component-Wise Reconstruction)
 
-Location: \b hypar/Examples/SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec
+Location: \b mhysa/Examples/SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h - by default
                      #NavierStokes3D::Re is set to \b -1 which makes the
@@ -752,12 +759,12 @@ Domain: \f$-2.5 \le x \le 7.5\f$, \f$-5 \le y \le 5\f$
          \b must \b be smaller than the cylinder length).
 
 Geometry: A cylinder of radius 1.0 centered at (0,0)
-          (\b hypar/Examples/STLGeometries/cylinder.stl)
+          (\b mhysa/Examples/STLGeometries/cylinder.stl)
 
 Boundary conditions:
   + xmin: Subsonic inflow #_SUBSONIC_INFLOW_ (with post-shock flow conditions)
   + xmax: Supersonic inflow #_SUPERSONIC_OUTFLOW_ (with pre-shock flow conditions)
-  + ymin and ymax: Slip walls $_SLIP_WALL_
+  + ymin and ymax: Slip walls #_SLIP_WALL_
   + zmin and zmax: Periodic #_PERIODIC_ (to simulate a 2D flow in the x-y plane)
 
 Reference:
