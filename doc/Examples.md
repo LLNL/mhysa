@@ -848,6 +848,9 @@ and the following is the numerical Schlieren image (contour plot of \f$\|\nabla\
 @image html Solution_3DNavStokShockCyl_Schlieren.png
 @image html Solution_3DNavStokShockCyl_Schlieren2.png
 
+Here's an animation:
+@image html Solution_3DNavStokShockCyl_Density.gif
+
 Expected screen output:
 \include SingleSpecies/2D_ShockCylinderInteraction_ComponentWiseRec/output.log
 
