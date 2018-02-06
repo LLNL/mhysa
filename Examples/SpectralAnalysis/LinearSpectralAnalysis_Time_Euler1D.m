@@ -6,30 +6,39 @@
 clear all;
 close all;
 
+% system-specific MPI run commands and arguments
+% set these according to the system you are using
+% if running in serial, set serial_flag to 1
+serial_flag = 1;
+mpiexec = 'mpiexec';
+% mpiexec = 'srun';
+mpi_args = ' '; % no additional arguments
+% mpi_args = '-p pdebug';
+
 % remove all useless files
 system('rm -rf *.dat *.inp *.log EXACT FOURIER');
 
-% Ask for path to HyPar source directory
-hypar_path = input('Enter path to HyPar source: ','s');
+% Ask for path to Mhysa source directory
+mhysa_path = input('Enter path to Mhysa source: ','s');
 
 % Compile the code to generate the exact solution
-cmd = ['gcc ',hypar_path, ...
-    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/exact.c -lm ', ...
+cmd = ['gcc ',mhysa_path, ...
+    '/Examples/SingleSpecies/1D_DensitySumOfSineWaves/aux/exact.c -lm ', ...
     '-o EXACT'];
 system(cmd);
 % Compile the code to do a Fourier transform of the solution
 fft_include =' '; % specify path to FFTW3 include, if not in default path
 fft_lib = ' -lfftw3'; % specify path to FFTW3 lib, if not in default path
-cmd = ['gcc ',hypar_path, ...
-    '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/fourier.c -lm ', ...
+cmd = ['gcc ',mhysa_path, ...
+    '/Examples/SingleSpecies/1D_DensitySumOfSineWaves/aux/fourier.c -lm ', ...
     fft_include,' ',fft_lib,' -o FOURIER'];
 system(cmd);
 
-% find the HyPar binary
-hypar = [hypar_path,'/bin/HyPar'];
+% find the Mhysa binary
+mhysa = [mhysa_path,'/bin/mhysa'];
 
-% add the Matlab scripts directory in HyPar to path
-path(path,strcat(hypar_path,'/Examples/Matlab/'));
+% add the Matlab scripts directory in Mhysa to path
+path(path,strcat(mhysa_path,'/Examples/Matlab/'));
 
 % Get the default
 [~,~,~,~,~,~,~,~,~,~,~,par_type,par_scheme,~, ...
@@ -41,12 +50,12 @@ path(path,strcat(hypar_path,'/Examples/Matlab/'));
 % set problem specific input parameters
 ndims = 1;
 nvars = 3;
-iproc = 4;
+iproc = 1;
 ghost = 3;
 
 % set grid size;
-N = 256;
-max_wavenumber = 128;
+N = 512;
+max_wavenumber = 256;
 
 % specify spatial discretization scheme
 hyp_scheme = 'crweno5';
@@ -60,8 +69,7 @@ t_final = 0.5;
 % set physical model and related parameters
 model = 'euler1d';
 gamma = 1.4;
-grav  = 0.0;
-upw   = 'roe';
+upw   = 'rusanov';
 
 % time integration methods to test
 ts = [ ...
@@ -84,18 +92,9 @@ style_ex = ['-bo'; '-bs'; '-b^'; '-bd'; '-bp'; '-bh'; '-bx'];
 % if 'arkimex' time-integrator is used, the following options
 % can be chosen from:-
 
-% use split hyperbolic flux form (acoustic and entropy modes)?
-hyp_flux_split = 'yes';
-% treat acoustic waves implicitly, and entropy waves explicitly
-% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_implicit';
-% treat acoustic and entropy waves implicitly
-hyp_flux_flag  = '-hyperbolic_f_implicit -hyperbolic_df_implicit';
-% treat acoustic and entropy waves explicitly
-% hyp_flux_flag  = '-hyperbolic_f_explicit -hyperbolic_df_explicit';
-
 % or no splitting?
-% hyp_flux_split = 'no';
-% hyp_flux_flag = '-hyperbolic_implicit'; % implicit treatment
+hyp_flux_split = 'no';
+hyp_flux_flag = '-hyperbolic_implicit'; % implicit treatment
 % hyp_flux_flag = '-hyperbolic_explicit'; % explicit treatment
 %------------------------------------------------------------------------%
 
@@ -194,23 +193,28 @@ for j = schemes
         fid = fopen('max_wavenumber.inp','w');
         fprintf(fid,'%d\n',max_wavenumber);
         fclose(fid);
-        % Write out the input files for HyPar
+        % Write out the input files for Mhysa
         WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,strtrim(ts(j,:)), ...
             strtrim(tstype(j,:)),hyp_scheme,hyp_flux_split,hyp_int_type, ...
             par_type,par_scheme, dt(r),cons_check,screen_op_iter, ...
             file_op_iter,op_format,ip_type,input_mode,output_mode, ...
             n_io,op_overwrite,model);
         WriteBoundaryInp(nb,bctype,bcdim,face,limits);
-        WritePhysicsInp_Euler1D(gamma,grav,upw);
+        WritePhysicsInp_Euler1D(gamma,upw,1,0);
         WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
         WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
         % Generate the initial and exact solutions
         system(exact_exec);
-        % Run HyPar
-        hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ', ...
-                      hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
-                      ' >run.log 2>&1 '];
-        system(hypar_exec);
+        % Run Mhysa
+        if (serial_flag == 1)
+            mhysa_exec = [mhysa,' ',petsc_flags,petscdt,petscft,petscms, ...
+                          ' > run.log 2>&1 '];
+        else
+            mhysa_exec = [mpiexec,' -n ',num2str(nproc),' ',mpi_args,' ', ...
+                          mhysa,' ',petsc_flags,petscdt,petscft,petscms, ...
+                          ' > run.log 2>&1 '];
+        end
+        system(mhysa_exec);
         % create sym links for fourier analysis code
         system('ln -sf op_00000.dat op_exact.dat');
         system('ln -sf op_00001.dat op.dat');
