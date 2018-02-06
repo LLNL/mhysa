@@ -142,7 +142,7 @@ int NavierStokes3DInitialize(
 
   /* if file output is disabled in HyPar, respect that */
   if (!strcmp(solver->op_file_format,"none")) {
-    if (!strcmp(physics->ib_write_surface_data,"yes")) {
+    if (!strcmp(physics->ib_write_surface_data,"yes") && solver->flag_ib) {
       if (!mpi->rank) {
         printf("Warning from NavierStokes3DInitialize(): solver->op_file_format is set to \"none\", thus ");
         printf("setting physics->ib_write_surface_data to \"no\" (no solution files will be written).\n");
