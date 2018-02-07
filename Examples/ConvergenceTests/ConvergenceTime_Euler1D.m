@@ -4,14 +4,23 @@
 clear all;
 close all;
 
+% system-specific MPI run commands and arguments
+% set these according to the system you are using
+% if running in serial, set serial_flag to 1
+serial_flag = 1;
+mpiexec = 'mpiexec';
+% mpiexec = 'srun';
+mpi_args = ' '; % no additional arguments
+% mpi_args = '-p pdebug';
+
 % remove all useless files
 system('rm -rf *.dat *.inp *.log EXACT');
 
 fprintf('Time convergence test on a smooth solution ');
 fprintf('to the 1D Euler equations.\n');
 
-% Ask for path to HyPar source directory
-mhysa_path = input('Enter path to HyPar source: ','s');
+% Ask for path to Mhysa source directory
+mhysa_path = input('Enter path to Mhysa source: ','s');
 
 % Add to MATLAB path
 path(path,strcat(mhysa_path,'/Examples/Matlab/'));
@@ -21,7 +30,7 @@ cmd = ['gcc ',mhysa_path, ...
        '/Examples/SingleSpecies/1D_DensitySineWaveAdvection/aux/exact.c -lm ', ...
        '-o EXACT'];
 system(cmd);
-% find the HyPar binary
+% find the Mhysa binary
 mhysa = [mhysa_path,'/bin/mhysa'];
 
 % Get the default
@@ -46,7 +55,7 @@ hyp_scheme = 'weno5';
 
 % for spatial convergence, use very small time step
 dt_ex = [0.0001 0.0002 0.0005 0.001 0.002];
-dt_im = [0.0001 0.0002 0.0005 0.001 0.002 0.005 0.01];
+dt_im = [0.0001 0.0002 0.0005 0.001 0.002 0.005];
 t_final = 0.5;
 
 % maximum expected error
@@ -114,12 +123,12 @@ legend_str = char(zeros(size(schemes,1),(2+size(ts,2)+size(tstype,2))));
 
 % plotting styles
 style = [ ...
-          '-ko'; ...
-          '-ks'; ...
-          '-kd'; ...
-          '-kp'; ...
-          '-kv'; ...
-          '-k^'; ...
+          '-ro'; ...
+          '-rs'; ...
+          '-rd'; ...
+          '-bp'; ...
+          '-bv'; ...
+          '-b^'; ...
         ];
 
 count = 1;
@@ -185,7 +194,7 @@ for j = schemes
             petscft = [' -ts_final_time ',num2str(t_final,'%f'),' '];
             petscms = [' -ts_max_steps ',num2str(100*niter,'%d'),' '];
         end
-        % Write out the input files for HyPar
+        % Write out the input files for Mhysa
         WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,strtrim(ts(j,:)), ...
             strtrim(tstype(j,:)),hyp_scheme,hyp_flux_split,hyp_int_type, ...
             par_type,par_scheme, dt(r),cons_check,screen_op_iter, ...
@@ -198,9 +207,14 @@ for j = schemes
         % Generate the initial and exact solution
         system(exact_exec);
         % Run MHYSA
-        mhysa_exec = [mhysa,' ',petsc_flags,petscdt,petscft,petscms, ...
-                      ' > run.log 2>&1' ...
-                      ];
+        if (serial_flag == 1)
+            mhysa_exec = [mhysa,' ',petsc_flags,petscdt,petscft,petscms, ...
+                          ' > run.log 2>&1 '];
+        else
+            mhysa_exec = [mpiexec,' -n ',num2str(nproc),' ',mpi_args,' ', ...
+                          mhysa,' ',petsc_flags,petscdt,petscft,petscms, ...
+                          ' > run.log 2>&1 '];
+        end
         system(mhysa_exec);
         % Read in the errors
         [Errors(r,:),Walltimes(r,:)] = ReadErrorDat(ndims);

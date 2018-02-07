@@ -4,13 +4,22 @@
 clear all;
 close all;
 
+% system-specific MPI run commands and arguments
+% set these according to the system you are using
+% if running in serial, set serial_flag to 1
+serial_flag = 1;
+mpiexec = 'mpiexec';
+% mpiexec = 'srun';
+mpi_args = ' '; % no additional arguments
+% mpi_args = '-p pdebug';
+
 % remove all useless files
 system('rm -rf *.dat *.inp *.log EXACT');
 
 fprintf('Spatial convergence test on a smooth solution ');
 fprintf('to the 1D Euler equations.\n');
 
-% Ask for path to HyPar source directory
+% Ask for path to Mhysa source directory
 mhysa_path = input('Enter path to MHYSA source: ','s');
 
 % Add to MATLAB path
@@ -21,7 +30,7 @@ cmd = ['gcc ',mhysa_path, ...
        '/Examples/SingleSpecies/1D_DensitySineWaveAdvection/aux/exact.c -lm ', ...
        '-o EXACT'];
 system(cmd);
-% find the HyPar binary
+% find the Mhysa binary
 mhysa = [mhysa_path,'/bin/mhysa'];
 
 % Get the default
@@ -40,10 +49,8 @@ ghost = 3;
 
 % specify spatial discretization scheme
 hyp_scheme = [ ...
-                'muscl3 ';
                 'weno5  ';
                 'crweno5';
-                'hcweno5'
              ];
 schemes = 1:size(hyp_scheme,1);
 
@@ -109,8 +116,14 @@ for i = 1:max(size(iproc))
     nproc = nproc * iproc(i);
 end
 exact_exec = './EXACT > exact.log 2>&1';
-mhysa_exec = [mhysa, ' ',petsc_flags,' > run.log 2>&1'];
-
+if (serial_flag == 1)
+    mhysa_exec = [mhysa,' ',petsc_flags, ...
+                  ' > run.log 2>&1 '];
+else
+    mhysa_exec = [mpiexec,' -n ',num2str(nproc),' ',mpi_args,' ', ...
+                  mhysa,' ',petsc_flags, ...
+                  ' > run.log 2>&1 '];
+end
 clean_exec = 'rm -rf *.inp *.dat *.log';
 
 % open figure window
@@ -123,11 +136,8 @@ legend_str = char(zeros(size(schemes,2),size(hyp_scheme,2)));
 
 % plotting styles
 style = [ ...
-            '-ko';
-            '-ks';
-            '-k^';
-            '-kd';
-            '-kv';
+            '-ro';
+            '-bs';
         ];
 if (size(style,1) < size(schemes,2))
     fprintf('Error: not enough plotting styles specified.\n');
@@ -158,7 +168,7 @@ for j=schemes
         dx(r) = 1.0 / N;
         fprintf('\t%s  %2d:  N=%-5d   dx=%1.16e\n',hyp_scheme(j,:), ...
                 r,N,dx(r));
-        % Write out the input files for HyPar
+        % Write out the input files for Mhysa
         WriteSolverInp(ndims,nvars,N,iproc,ghost,niter,ts,tstype, ...
             hyp_scheme(j,:),hyp_flux_split,hyp_int_type,par_type,par_scheme, ...
             dt,cons_check,screen_op_iter,file_op_iter,op_format,ip_type, ...
