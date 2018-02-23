@@ -1,4 +1,4 @@
-function WritePhysicsInp_NavierStokes2D(gamma,upw,Pr,Re,Minf,nspecies,nvibeng)
+function WritePhysicsInp_NavierStokes3D(gamma,upw,Pr,Re,Minf,nspecies,nvibeng)
 %WRITEPHYSICSINP Writes the physics.inp file for HyPar 
 %                for the 2D Navier-Stokes model
 
