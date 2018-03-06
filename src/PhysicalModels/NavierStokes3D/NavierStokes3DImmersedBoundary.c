@@ -64,10 +64,11 @@ int NavierStokes3DImmersedBoundary(
     for (k = 0; k < ns; k++)  rho_s_ib[k] = rho_s[k];
     _NavierStokes3DTotalDensity_(rho_t_ib,rho_s_ib,ns)
     pressure_ib = pressure;
-    uvel_ib = -uvel * factor;
-    vvel_ib = -vvel * factor;
-    wvel_ib = -wvel * factor;
+    uvel_ib = -uvel;// * factor;
+    vvel_ib = -vvel;// * factor;
+    wvel_ib = -wvel;// * factor;
     E_ib = inv_gamma_m1*pressure_ib/rho_t_ib + 0.5*(uvel_ib*uvel_ib+vvel_ib*vvel_ib+wvel_ib*wvel_ib);
+
     for (k = 0; k < nv; k++)  E_v_ib[k] = E_v[k];
     _NavierStokes3DSetFlowVar_( (u+nvars*node_index),rho_s_ib,rho_t_ib,
                                 uvel_ib,vvel_ib,wvel_ib,
