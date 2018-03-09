@@ -8,6 +8,7 @@
 #include <string.h>
 #include <basic.h>
 #include <arrayfunctions.h>
+#include <mathfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
 #include <timeintegration.h>
