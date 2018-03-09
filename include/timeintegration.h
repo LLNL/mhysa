@@ -27,18 +27,22 @@ typedef struct time_integration_variables {
   int     iter;         
   /*! Total number of iterations */
   int     n_iter;       
+  /*! Final simulation time */
+  double  t_final;
   /*! Restart iteration number (0 for a non-restart simulation) */
   int     restart_iter; 
+  /*! Restart simulation time (0 for a non-restart simulation) */
+  double  restart_time; 
   /*! Current solution time */
   double  waqt;         
   /*! Time step size */
   double  dt;           
+  /*! CFL (for CFL-based time steps) */
+  double  cfl;           
   /*! Norm of the change in the solution at a time step */
   double  norm;         
   /*! Maximum CFL at a time step */
   double  max_cfl;      
-  /*! Maximum diffusion number at a time step */
-  double  max_diff;     
 
   /*! Solver object of type #HyPar */
   void    *solver;      
