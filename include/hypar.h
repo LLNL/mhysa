@@ -43,14 +43,23 @@ typedef struct main_parameters {
   /*! Number of ghost points at the boundary - it's the same along all dimensions (input - \b solver.inp ) */
   int     ghosts;
 
-  /*! Number of time steps (input - \b solver.inp ) */
+  /*! Maximum number of time steps (input - \b solver.inp ) */
   int     n_iter;
+
+  /*! Maximum simulation time (input - \b solver.inp ) */
+  double  t_final;
 
   /*! If restart run, time step iteration at which to restart. 0 -> not a restart run (input - \b solver.inp ) */
   int     restart_iter;
 
+  /*! If restart run, simulation time at which to restart. 0 -> not a restart run (input - \b solver.inp ) */
+  double  restart_time;
+
   /*! time step size (input - \b solver.inp ) */
   double  dt;
+
+  /*! desired CFL to run simulation at (input - \b solver.inp ) */
+  double  cfl;
 
   /*!  choice of time integration class (eg RK) (input - \b solver.inp ) */
   char    time_scheme         [_MAX_STRING_SIZE_];
