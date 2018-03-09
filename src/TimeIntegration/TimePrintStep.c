@@ -23,9 +23,9 @@ int TimePrintStep(void *ts /*!< Object of type #TimeIntegration */)
 
   if ((!mpi->rank) && ((TS->iter+1)%solver->screen_op_iter == 0)) {
     printf("Iteration: %7d  "       ,TS->iter+1  );
+    printf("dt: %1.3E  "            ,TS->dt      );
     printf("Time: %1.3E  "          ,TS->waqt    );
     printf("Max CFL: %1.3E  "       ,TS->max_cfl );
-    printf("Max Diff. No.: %1.3E  " ,TS->max_diff);
     printf("Norm: %1.4E  "          ,TS->norm    );
     /* calculate and print conservation error */
     if (!strcmp(solver->ConservationCheck,"yes")) {

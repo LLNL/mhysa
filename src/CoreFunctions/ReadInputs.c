@@ -102,9 +102,12 @@ int ReadInputs(
   solver->dim_local       = NULL;
   mpi->iproc              = NULL;
   mpi->N_IORanks          = 1;
-  solver->dt              = 0.0;
-  solver->n_iter          = 0;
+  solver->dt              = -1;
+  solver->cfl             = -1;
+  solver->n_iter          = -1;
+  solver->t_final         = -1;
   solver->restart_iter    = 0;
+  solver->restart_time    = 0;
   solver->screen_op_iter  = 1;
   solver->file_op_iter    = 1000;
   solver->write_residual  = 0;
@@ -166,7 +169,9 @@ int ReadInputs(
             }
   			  } else if (!strcmp(word, "ghost"              ))	ferr = fscanf(in,"%d",&solver->ghosts             );
 	    	  else if   (!strcmp(word, "n_iter"             ))  ferr = fscanf(in,"%d",&solver->n_iter             );
+	    	  else if   (!strcmp(word, "t_final"            ))  ferr = fscanf(in,"%lf",&solver->t_final           );
 	    	  else if   (!strcmp(word, "restart_iter"       ))  ferr = fscanf(in,"%d",&solver->restart_iter       );
+	    	  else if   (!strcmp(word, "restart_time"       ))  ferr = fscanf(in,"%lf",&solver->restart_time      );
    			  else if   (!strcmp(word, "time_scheme"        ))  ferr = fscanf(in,"%s",solver->time_scheme         );
    		  	else if   (!strcmp(word, "time_scheme_type"   ))  ferr = fscanf(in,"%s",solver->time_scheme_type    );
    		  	else if   (!strcmp(word, "hyp_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_hyp  );
@@ -175,6 +180,7 @@ int ReadInputs(
    		  	else if   (!strcmp(word, "par_space_type"     ))  ferr = fscanf(in,"%s",solver->spatial_type_par    );
    		  	else if   (!strcmp(word, "par_space_scheme"   ))  ferr = fscanf(in,"%s",solver->spatial_scheme_par  );
    		  	else if   (!strcmp(word, "dt"                 ))  ferr = fscanf(in,"%lf",&solver->dt                );
+   		  	else if   (!strcmp(word, "cfl"                ))  ferr = fscanf(in,"%lf",&solver->cfl               );
    		  	else if   (!strcmp(word, "conservation_check" ))  ferr = fscanf(in,"%s",solver->ConservationCheck   );
    		  	else if   (!strcmp(word, "screen_op_iter"     ))  ferr = fscanf(in,"%d",&solver->screen_op_iter     );
    		  	else if   (!strcmp(word, "file_op_iter"       ))  ferr = fscanf(in,"%d",&solver->file_op_iter       );
@@ -226,8 +232,13 @@ int ReadInputs(
       printf("\n");
 #endif
 	    printf("\tNo. of ghosts pts                          : %d\n"     ,solver->ghosts              );
-	    printf("\tNo. of iter.                               : %d\n"     ,solver->n_iter              );
+
+	    if (solver->n_iter >= 0)  printf("\tNo. of iter.                               : %d\n",solver->n_iter);
+	    if (solver->t_final>= 0)  printf("\tNo. of iter.                               : %f\n",solver->t_final);
+
+	    printf("\tFinal simulation time                      : %f\n"     ,solver->t_final             );
 	    printf("\tRestart iteration                          : %d\n"     ,solver->restart_iter        );
+	    printf("\tRestart simulation time                    : %f\n"     ,solver->restart_time        );
 #ifdef with_petsc
       if (solver->use_petscTS)
         printf("\tTime integration scheme                    : PETSc \n"                            );
@@ -250,7 +261,11 @@ int ReadInputs(
       printf("\tInterpolation type for hyperbolic term     : %s\n"     ,solver->interp_type         );
       printf("\tSpatial discretization type   (parabolic ) : %s\n"     ,solver->spatial_type_par    );
       printf("\tSpatial discretization scheme (parabolic ) : %s\n"     ,solver->spatial_scheme_par  );
-    	printf("\tTime Step                                  : %E\n"     ,solver->dt                  );
+
+    	if (solver->dt  >= 0) printf("\tTime Step                                  : %E\n",solver->dt );
+      if (solver->cfl >= 0) printf("\tCFL                                        : %E\n",solver->cfl);
+
+    	printf("\tCFL                                        : %E\n"     ,solver->cfl                 );
     	printf("\tCheck for conservation                     : %s\n"     ,solver->ConservationCheck   );
       printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter      );
       printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter        );
@@ -265,7 +280,7 @@ int ReadInputs(
       printf("\tOverwrite solution file                    : %s\n"     ,solver->op_overwrite        );
       printf("\tPhysical model                             : %s\n"     ,solver->model               );
       if (solver->flag_ib) {
-        printf("\tImmersed Body                              : %s\n"     ,solver->ib_filename         );
+        printf("\tImmersed Body                              : %s\n"     ,solver->ib_filename       );
       }
     }
     /* checks - restart only supported for binary output files */
@@ -309,7 +324,10 @@ int ReadInputs(
   IERR MPIBroadcast_character(solver->model               ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character(solver->ib_filename         ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
 
-  IERR MPIBroadcast_double(&solver->dt,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double(&solver->dt          ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double(&solver->cfl         ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double(&solver->t_final     ,1,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double(&solver->restart_time,1,0,&mpi->world); CHECKERR(ierr);
 #endif
 
   return(0);

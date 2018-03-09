@@ -28,19 +28,26 @@ int TimePreStep(void *ts /*!< Object of type #TimeIntegration */ )
   IERR MPIExchangeBoundariesnD(solver->ndims,solver->nvars,solver->dim_local,
                                  solver->ghosts,mpi,solver->u);               CHECKERR(ierr);
 
-  if ((TS->iter+1)%solver->screen_op_iter == 0) {
-    int size = 1,d;
-    for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d] + 2*solver->ghosts);
-    _ArrayCopy1D_(solver->u,TS->u,size*solver->nvars);
+  int size = 1,d;
+  for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d] + 2*solver->ghosts);
+  _ArrayCopy1D_(solver->u,TS->u,size*solver->nvars);
 
-    /* compute max CFL and diffusion number over the domain */
-    double local_max_cfl  = -1.0;
-    double local_max_diff = -1.0;
-    if (solver->ComputeCFL       ) local_max_cfl  = solver->ComputeCFL        (solver,mpi,TS->dt,TS->waqt);
-    if (solver->ComputeDiffNumber) local_max_diff = solver->ComputeDiffNumber (solver,mpi,TS->dt,TS->waqt);
-    IERR MPIMax_double(&TS->max_cfl ,&local_max_cfl ,1,&mpi->world); CHECKERR(ierr);
-    IERR MPIMax_double(&TS->max_diff,&local_max_diff,1,&mpi->world); CHECKERR(ierr);
+  /* compute max stable dt over the domain */
+  double local_max_cfl = -1.0, global_max_cfl = -1.0;
+  if (solver->ComputeCFL) local_max_cfl = solver->ComputeCFL(solver,mpi,1.0,TS->waqt);
+  IERR MPIMax_double(&global_max_cfl,&local_max_cfl,1,&mpi->world); CHECKERR(ierr);
+  double stable_dt = 1.0/global_max_cfl;
+
+  /* if CFL-based time stepping, then compute dt based on CFL */
+  if (TS->cfl >= 0) {
+    TS->dt = TS->cfl * stable_dt;
   }
+  /* if final step, adjust dt to match final simulation time */
+  if ((TS->t_final >= 0) && ((TS->waqt+TS->dt) > TS->t_final)) {
+    TS->dt = TS->t_final - TS->waqt;
+  }
+  /* compute CFL of current step */
+  TS->max_cfl = TS->dt / stable_dt;
 
   /* set the step boundary flux integral value to zero */
   _ArraySetValue_(solver->StepBoundaryIntegral,2*solver->ndims*solver->nvars,0.0);

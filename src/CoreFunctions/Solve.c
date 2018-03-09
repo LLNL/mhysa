@@ -38,10 +38,21 @@ int Solve(
   /* Define and initialize the time-integration object */
   TimeIntegration TS;
   if (!mpi->rank) printf("Setting up time integration.\n");
-  IERR TimeInitialize(solver,mpi,&TS); CHECKERR(ierr);
+  int error = TimeInitialize(solver,mpi,&TS);
+  if (error) return(error);
 
-  if (!mpi->rank) printf("Solving in time (from %d to %d iterations)\n",TS.restart_iter,TS.n_iter);
-  for (TS.iter = TS.restart_iter; TS.iter < TS.n_iter; TS.iter++) {
+  if (!mpi->rank) printf("Solving in time...\n");
+  while(1) {
+
+    /* check for exit conditions */
+    if ((TS.t_final >= 0) && (TS.waqt >= TS.t_final)) {
+      if (!mpi->rank) printf("Final simulation time reached. Exiting time integration.\n");
+      break;
+    }
+    if ((TS.n_iter >=0) && (TS.iter >= TS.n_iter)) {
+      if (!mpi->rank) printf("Maximum number of iterations reached. Exiting time integration.\n");
+      break;
+    }
 
     /* Write initial solution to file if this is the first iteration */
     if (!TS.iter) { 
@@ -53,6 +64,7 @@ int Solve(
 
     /* Call pre-step function */
     IERR TimePreStep  (&TS); CHECKERR(ierr);
+
 #ifdef compute_rhs_operators
     /* compute and write (to file) matrix operators representing the right-hand side */
     if (((TS.iter+1)%solver->file_op_iter == 0) || (!TS.iter)) 
@@ -78,6 +90,7 @@ int Solve(
       tic = 0; 
     }
 
+    TS.iter++;
   }
 
   /* write a final solution file, if last iteration did not write one */

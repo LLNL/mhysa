@@ -37,12 +37,38 @@ int TimeInitialize(
   TS->solver        = solver;
   TS->mpi           = mpi;
   TS->n_iter        = solver->n_iter;
+  TS->t_final       = solver->t_final;
   TS->restart_iter  = solver->restart_iter;
+  TS->restart_time  = solver->restart_time;
   TS->dt            = solver->dt;
-  TS->waqt          = (double) TS->restart_iter * TS->dt;
+  TS->cfl           = solver->cfl;
   TS->max_cfl       = 0.0;
   TS->norm          = 0.0;
   TS->TimeIntegrate = solver->TimeIntegrate;
+
+  TS->iter = TS->restart_iter;
+
+  if ((TS->n_iter < 0) && (TS->t_final < 0)) {
+    fprintf(stderr, "ERROR in TimeInitialize(): both n_iter and t_final cannot be negative.\n");
+    return(1);
+  }
+  if ((TS->dt < 0) && (TS->cfl < 0)) {
+    fprintf(stderr, "ERROR in TimeInitialize(): both dt and cfl cannot be negative.\n");
+    return(1);
+  }
+  if ((TS->dt >= 0) && (TS->cfl >= 0)) {
+    fprintf(stderr, "WARNING in TimeInitialize(): both dt and cfl have been specified. The simulation will continue with fixed CFL now.\n");
+  }
+  if ((TS->cfl >= 0) && (!solver->ComputeCFL)) {
+    fprintf(stderr,"ERROR in TimeInitialize(): cfl specified but solver->ComputeCFL is NULL.\n");
+    return(1);
+  }
+
+  if (TS->restart_time == 0) {
+    TS->waqt = max(TS->restart_time, (double) TS->restart_iter * TS->dt);
+  } else {
+    TS->waqt = TS->restart_time;
+  }
 
   int size = solver->nvars;
   for (d=0; d<solver->ndims; d++) size *= (solver->dim_local[d] + 2*solver->ghosts);

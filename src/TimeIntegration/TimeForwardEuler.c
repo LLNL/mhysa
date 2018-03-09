@@ -14,13 +14,13 @@
   \f{equation}{
     \frac{d{\bf u}}{dt} = {\bf F} \left({\bf u}\right)
   \f}
-  by one time step of size #HyPar::dt using the forward Euler method
+  by one time step of size #TimeIntegration::dt using the forward Euler method
   given by
   \f{equation}{
     {\bf u}^{n+1} = {\bf u}^n + \Delta t {\bf F}\left( {\bf u}^n \right)
   \f}
   where the superscript represents the time level, \f$\Delta t\f$ is the
-  time step size #HyPar::dt, and \f${\bf F}\left({\bf u}\right)\f$ is 
+  time step size #TimeIntegration::dt, and \f${\bf F}\left({\bf u}\right)\f$ is 
   computed by #TimeIntegration::RHSFunction.
 */
 int TimeForwardEuler(
@@ -41,8 +41,8 @@ int TimeForwardEuler(
 
   /* Evaluate right-hand side and update solution */
   IERR TS->RHSFunction(TS->rhs,solver->u,solver,mpi,TS->waqt);   CHECKERR(ierr);
-  _ArrayAXPY_(TS->rhs,solver->dt,solver->u,size*solver->nvars);
-  _ArrayScaleCopy1D_(solver->StageBoundaryIntegral,solver->dt,
+  _ArrayAXPY_(TS->rhs,TS->dt,solver->u,size*solver->nvars);
+  _ArrayScaleCopy1D_(solver->StageBoundaryIntegral,TS->dt,
                      solver->StepBoundaryIntegral,2*solver->ndims*solver->nvars);
 
   if (solver->PostStage) 
