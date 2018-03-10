@@ -6,6 +6,7 @@ numerical analysis.
 
 \subpage convergence_space_euler1d_single_species \n
 \subpage convergence_time_euler1d_single_species \n
+\subpage convergence_time_navstok2d_single_species \n
 \n
 \subpage spectral_resolution_euler1d_single_species \n
 
@@ -56,6 +57,31 @@ following:
 The following MATLAB script (mhysa/Examples/ConvergenceTests/ConvergenceTime_Euler1D.m)
 was used to generate the above plot:
 \include ConvergenceTests/ConvergenceTime_Euler1D.m
+
+\page convergence_time_navstok2d_single_species Convergence (Time) - 2D Euler (Single Species)
+
+The time convergence of Mhysa is tested for several explicit and implicit
+time integration schemes. The explicit schemes are:
+ + RK2 (TimeRK(), #_RK_22_)
+ + SSPRK3 (TimeRK(), #_RK_SSP3_)
+ + RK4 (TimeRK(), #_RK_44_)
+
+The implicit schemes are the 2nd, 3rd, and 4th order ARKIMEX schemes in PETSc 
+(see TSARKIMEX in PETSc documentation). Although they are IMEX schemes, they 
+are used in the fully-implicit mode. \b Note: Mhysa must be compiled with PETSc
+to use these time integrators.
+
+\htmlonly <style>div.image img[src="TimeConvergence_NS2D.png"]{width:800px;}</style> \endhtmlonly 
+@image html TimeConvergence_NS2D.png
+
+The 2D isentropic vortex convection problem is used since it is a smooth solution. The 
+figure above shows a plot of the time step size (dt) vs. the L2 norm of the error.
+The time integrators converge at their theoretical orders of convergence. 
+
+The following MATLAB script 
+(mhysa/Examples/ConvergenceTests/ConvergenceTime_NavierStokes2D_VortexConvection.m)
+was used to generate the above plot:
+\include ConvergenceTests/ConvergenceTime_NavierStokes2D_VortexConvection.m
 
 \page spectral_resolution_euler1d_single_species Spectral Resolution - 1D Euler (Single Species)
 
