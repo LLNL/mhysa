@@ -14,14 +14,15 @@
   Print information to screen (also calls any physics-specific 
   printing function, if defined).
 */
-int TimePrintStep(void *ts /*!< Object of type #TimeIntegration */)
+int TimePrintStep(void *ts, /*!< Object of type #TimeIntegration */
+                  int flag  /*!< Flag to force printing info */ )
 {
   TimeIntegration *TS     = (TimeIntegration*) ts;
   HyPar           *solver = (HyPar*)           TS->solver;
   MPIVariables    *mpi    = (MPIVariables*)    TS->mpi;
   int             v;
 
-  if ((!mpi->rank) && ((TS->iter+1)%solver->screen_op_iter == 0)) {
+  if ((!mpi->rank) && (((TS->iter+1)%solver->screen_op_iter == 0) || flag)) {
     printf("Iteration: %7d  "       ,TS->iter+1  );
     printf("dt: %1.3E  "            ,TS->dt      );
     printf("Time: %1.3E  "          ,TS->waqt    );

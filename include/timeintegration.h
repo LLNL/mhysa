@@ -260,7 +260,7 @@ int TimeStep            (void*);
 /*! Function called at the end of a time step */
 int TimePostStep        (void*);
 /*! Print time integration related information */
-int TimePrintStep       (void*);
+int TimePrintStep       (void*,int);
 /*! Compute/estimate error in solution */
 int TimeError           (void*,void*,double*);
 /*! Function to get auxiliary solutions if available (for example, in GLM-GEE methods) */

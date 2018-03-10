@@ -46,11 +46,13 @@ int Solve(
 
     /* check for exit conditions */
     if ((TS.t_final >= 0) && (TS.waqt >= TS.t_final)) {
-      if (!mpi->rank) printf("Final simulation time reached. Exiting time integration.\n");
+      if (!mpi->rank) printf("Final simulation time (%lf) reached. Exiting time integration.\n",
+                             TS.t_final);
       break;
     }
     if ((TS.n_iter >=0) && (TS.iter >= TS.n_iter)) {
-      if (!mpi->rank) printf("Maximum number of iterations reached. Exiting time integration.\n");
+      if (!mpi->rank) printf("Maximum number of iterations (%d) reached. Exiting time integration.\n",
+                             TS.n_iter);
       break;
     }
 
@@ -65,6 +67,12 @@ int Solve(
     /* Call pre-step function */
     IERR TimePreStep  (&TS); CHECKERR(ierr);
 
+    /* Check if this is final step */
+    int flag_final_step = 0;
+    if ((TS.waqt + TS.dt >= TS.t_final) || (TS.iter == (TS.n_iter-1))) {
+      flag_final_step = 1;
+    }
+
 #ifdef compute_rhs_operators
     /* compute and write (to file) matrix operators representing the right-hand side */
     if (((TS.iter+1)%solver->file_op_iter == 0) || (!TS.iter)) 
@@ -78,7 +86,7 @@ int Solve(
     IERR TimePostStep (&TS); CHECKERR(ierr);
 
     /* Print information to screen */
-    IERR TimePrintStep(&TS); CHECKERR(ierr);
+    IERR TimePrintStep(&TS, flag_final_step); CHECKERR(ierr);
     tic++;
 
     /* Write intermediate solution to file */

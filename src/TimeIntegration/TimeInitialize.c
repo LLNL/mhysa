@@ -49,12 +49,12 @@ int TimeInitialize(
 
   TS->iter = TS->restart_iter;
 
-  if ((TS->n_iter < 0) && (TS->t_final < 0)) {
-    fprintf(stderr, "ERROR in TimeInitialize(): both n_iter and t_final cannot be negative.\n");
+  if ((TS->n_iter == -1) && (TS->t_final == -1)) {
+    fprintf(stderr, "ERROR in TimeInitialize(): both n_iter and t_final cannot be unspecified.\n");
     return(1);
   }
-  if ((TS->dt < 0) && (TS->cfl < 0)) {
-    fprintf(stderr, "ERROR in TimeInitialize(): both dt and cfl cannot be negative.\n");
+  if ((TS->dt == -1) && (TS->cfl == -1)) {
+    fprintf(stderr, "ERROR in TimeInitialize(): both dt and cfl cannot be unspecified.\n");
     return(1);
   }
   if ((TS->dt >= 0) && (TS->cfl >= 0)) {
