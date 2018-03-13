@@ -3,7 +3,6 @@
     @author Debojyoti Ghosh
 */
 
-#include <basic.h>
 #include <arrayfunctions.h>
 #include <mpivars.h>
 #include <hypar.h>
@@ -21,6 +20,8 @@ int TimePreStep(void *ts /*!< Object of type #TimeIntegration */ )
   HyPar           *solver  = (HyPar*)           TS->solver;
   MPIVariables    *mpi     = (MPIVariables*)    TS->mpi;
   _DECLARE_IERR_;
+
+  gettimeofday(&TS->iter_start_time,NULL);
 
   /* apply boundary conditions and exchange data over MPI interfaces */
   IERR solver->ApplyBoundaryConditions(solver,mpi,solver->u,NULL,TS->waqt);   CHECKERR(ierr);

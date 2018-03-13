@@ -3,6 +3,7 @@
     @brief Contains structures and function declarations for time integration
 */
 
+#include <sys/time.h>
 #include <basic.h>
 
 /* definitions */
@@ -70,6 +71,14 @@ typedef struct time_integration_variables {
   int (*TimeIntegrate) (void*);
   /*! Pointer to the function that computes the right-hand-side */
   int (*RHSFunction)   (double*,double*,void*,void*,double);
+
+  /*! iteration start time */
+  struct timeval iter_start_time;
+  /*! iteration end time */
+  struct timeval iter_end_time;
+  /*! iteration wallclock time (in seconds) */
+  double iter_wctime;
+
 } TimeIntegration;
 
 /* Explicit Runge-Kutta Methods */

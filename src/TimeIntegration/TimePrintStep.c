@@ -23,11 +23,12 @@ int TimePrintStep(void *ts, /*!< Object of type #TimeIntegration */
   int             v;
 
   if ((!mpi->rank) && (((TS->iter+1)%solver->screen_op_iter == 0) || flag)) {
-    printf("Iteration: %7d  "   ,TS->iter+1  );
-    printf("dt: %1.3E  "        ,TS->dt      );
-    printf("Time: %1.3E  "      ,TS->waqt    );
-    printf("CFL: %1.3E  "       ,TS->max_cfl );
-    printf("Norm: %1.4E  "      ,TS->norm    );
+    printf("Iteration: %7d  "   ,TS->iter+1     );
+    printf("dt: %1.3E  "        ,TS->dt         );
+    printf("Time: %1.3E  "      ,TS->waqt       );
+    printf("CFL: %1.3E  "       ,TS->max_cfl    );
+    printf("Norm: %1.4E  "      ,TS->norm       );
+    printf("wctime: %1.1E (s)  ",TS->iter_wctime);
     /* calculate and print conservation error */
     if (!strcmp(solver->ConservationCheck,"yes")) {
       double error = 0;

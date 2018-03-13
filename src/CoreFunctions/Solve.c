@@ -69,7 +69,7 @@ int Solve(
 
     /* Check if this is final step */
     int flag_final_step = 0;
-    if ((TS.waqt + TS.dt >= TS.t_final) || (TS.iter == (TS.n_iter-1))) {
+    if (((TS.t_final >= 0) && (TS.waqt + TS.dt >= TS.t_final)) || (TS.iter == (TS.n_iter-1))) {
       flag_final_step = 1;
     }
 

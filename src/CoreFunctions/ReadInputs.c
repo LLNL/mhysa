@@ -234,9 +234,8 @@ int ReadInputs(
 	    printf("\tNo. of ghosts pts                          : %d\n"     ,solver->ghosts              );
 
 	    if (solver->n_iter >= 0)  printf("\tNo. of iter.                               : %d\n",solver->n_iter);
-	    if (solver->t_final>= 0)  printf("\tNo. of iter.                               : %f\n",solver->t_final);
+	    if (solver->t_final>= 0)  printf("\tFinal time                                 : %f\n",solver->t_final);
 
-	    printf("\tFinal simulation time                      : %f\n"     ,solver->t_final             );
 	    printf("\tRestart iteration                          : %d\n"     ,solver->restart_iter        );
 	    printf("\tRestart simulation time                    : %f\n"     ,solver->restart_time        );
 #ifdef with_petsc
@@ -265,7 +264,6 @@ int ReadInputs(
     	if (solver->dt  >= 0) printf("\tTime Step                                  : %E\n",solver->dt );
       if (solver->cfl >= 0) printf("\tCFL                                        : %E\n",solver->cfl);
 
-    	printf("\tCFL                                        : %E\n"     ,solver->cfl                 );
     	printf("\tCheck for conservation                     : %s\n"     ,solver->ConservationCheck   );
       printf("\tScreen output iterations                   : %d\n"     ,solver->screen_op_iter      );
       printf("\tFile output iterations                     : %d\n"     ,solver->file_op_iter        );
