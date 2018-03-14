@@ -1214,7 +1214,10 @@ Expected screen output:
 
 Location: \b mhysa/Examples/SingleSpecies/3D_VHiFire_Mach2
 
-Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h - by default
+                     #NavierStokes3D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 3D Euler
+                     equations are solved.)
 
 Domain: The domain consists of a fine uniform grid around the body defined by [-0.5,1.5] X [0,0.15] X [-0.15,0.15],
         and a stretched grid beyond this zone.
