@@ -1225,10 +1225,10 @@ Domain: The domain consists of a fine uniform grid around the body defined by [-
 Geometry: The VHIFIRE geometry (rescaled to be of unit length) with the nose tip at (0,0)
           (\b mhysa/Examples/STLGeometries/vhifire.stl)
 
-The following image shows the sphere:
+The following image shows the VHiFire geometry:
 @image html Surface3D_vhifire.png
 
-The following images shows the grid and the sphere:
+The following images shows the grid around the body:
 @image html Domain3D_vhifire1.png
 @image html Domain3D_vhifire2.png
 
@@ -1292,15 +1292,26 @@ are available to convert the binary output file:
 + \b mhysa/Extras/BinaryToText.c - convert binary output file to
   an ASCII text file (to visualize in, for example, MATLAB).
 
-The following figure shows the pressure:
+The following figure shows the pressure and the velocity vectors:
 @image html Solution_3DNavStokVhifire_Mach2_Pressure.png
-The following figure shows the density and velocity vectors:
-@image html Solution_3DNavStokVhifire_Mach2_Density.png
+The following figure shows the pressure and the velocity vectors for a magnified view in the region around the body:
+@image html Solution_3DNavStokVhifire_Mach2_Pressure_Zoom.png
+The following figure shows the Mach number:
+@image html Solution_3DNavStokVhifire_Mach2_Mach.png
+The following figure shows the temperature:
+@image html Solution_3DNavStokVhifire_Mach2_Temperature.png
 
 In addition to the main solution, the code also writes out a file with the aerodynamic
 forces on the immersed body. This file is called \a surface.dat (if #HyPar::op_overwrite
 is "yes") or \a surface_nnnnn.dat (if #HyPar::op_overwrite is "no", "nnnnn" is a numerical
 index) (in this example, the file \b surface.dat is written out). This is an ASCII file in 
 the Tecplot format, where the immersed body and the forces on it are represented using the 
-"FETRIANGLE" type. The following image shows the surface pressure on the sphere (front-view):
+"FETRIANGLE" type. The following image shows the surface pressure on the body (front-view):
 @image html IBSurface_3DNavStokVHifire_Mach2.png
+
+The following plot shows the surface pressure on the body and the streamlines. The streamlines 
+are colored by the value of the Mach number.
+@image html IBSurface_3DNavStokVHifire_Mach2_wStreamlines.png
+
+Expected screen output:
+\include SingleSpecies/3D_VHiFire_Mach2/output.log
