@@ -51,6 +51,7 @@ Examples with immersed boundaries
 \subpage cylinder_steady_incompressible_viscous \n
 \subpage cylinder_unsteady_incompressible_viscous \n
 \subpage sphere_steady_incompressible_viscous \n
+\subpage vhifire_mach2_inviscid \n
 
 \page multispecies_examples Multispecies Examples
 
@@ -1208,3 +1209,98 @@ the Tecplot format, where the immersed body and the forces on it are represented
 
 Expected screen output:
 \include SingleSpecies/3D_Sphere/output.log
+
+\page vhifire_mach2_inviscid 3D supersonic flow around the VHIFIRE geometry
+
+Location: \b mhysa/Examples/SingleSpecies/3D_VHiFire_Mach2
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h - by default
+                     #NavierStokes3D::Re is set to \b -1 which makes the
+                     code skip the parabolic terms, i.e., the 3D Euler
+                     equations are solved.)
+
+Domain: The domain consists of a fine uniform grid around the body defined by [-0.5,1.5] X [0,0.15] X [-0.15,0.15],
+        and a stretched grid beyond this zone.
+
+Geometry: The VHIFIRE geometry (rescaled to be of unit length) with the nose tip at (0,0)
+          (\b mhysa/Examples/STLGeometries/vhifire.stl)
+
+The following image shows the sphere:
+@image html Surface3D_vhifire.png
+
+The following images shows the grid and the sphere:
+@image html Domain3D_vhifire1.png
+@image html Domain3D_vhifire2.png
+
+Boundary conditions:
+  + xmin: Supersonic inflow #_SUPERSONIC_INFLOW_ with \f$\rho = 1, p = 1/\gamma, u = 2.0, v = w = 0\f$
+  + xmax: Extrapolate (supersonic outflow) #_EXTRAPOLATE_
+  + ymin and ymax: Slip-wall #_SLIP_WALL_
+  + zmin and zmax: Slip-wall #_SLIP_WALL_
+
+Initial solution: \f$\rho=1, u=0, v=w=0, p=1/\gamma\f$ everywhere in the domain.
+
+Other parameters:
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 3rd order MUSCL (Interp1PrimThirdOrderMUSCL())
+ + Time integration: SSP RK3 (TimeRK(), #_RK_SSP3_)
+
+Input files required:
+---------------------
+
+These files are all located in: \b mhysa/Examples/SingleSpecies/3D_VHiFire_Mach2/
+
+\b solver.inp
+\include SingleSpecies/3D_VHiFire_Mach2/solver.inp
+
+\b boundary.inp
+\include SingleSpecies/3D_VHiFire_Mach2/boundary.inp
+
+\b physics.inp : 
+\include SingleSpecies/3D_VHiFire_Mach2/physics.inp
+
+\b vhifire.stl : the filename "vhifire.stl" \b must match
+the input for \a immersed_body in \a solver.inp.\n
+Located at \b mhysa/Examples/STLGeometries/vhifire.stl
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include SingleSpecies/3D_VHiFire_Mach2/aux/init.c
+
+Output:
+-------
+
+Note that \b iproc is set to 
+
+      4 2 3
+
+in \b solver.inp (i.e., 4 processors along \a x, 2
+processors along \a y, and 3 processor along \a z). Thus, 
+this example should be run with 24 MPI ranks (or change \b iproc).
+
+After running the code, there should be one output file
+\b op.bin, since #HyPar::op_overwrite is set to \a yes in \b solver.inp.
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b mhysa/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file.
++ \b mhysa/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+The following figure shows the pressure:
+@image html Solution_3DNavStokVhifire_Mach2_Pressure.png
+The following figure shows the density and velocity vectors:
+@image html Solution_3DNavStokVhifire_Mach2_Density.png
+
+In addition to the main solution, the code also writes out a file with the aerodynamic
+forces on the immersed body. This file is called \a surface.dat (if #HyPar::op_overwrite
+is "yes") or \a surface_nnnnn.dat (if #HyPar::op_overwrite is "no", "nnnnn" is a numerical
+index) (in this example, the file \b surface.dat is written out). This is an ASCII file in 
+the Tecplot format, where the immersed body and the forces on it are represented using the 
+"FETRIANGLE" type. The following image shows the surface pressure on the sphere (front-view):
+@image html IBSurface_3DNavStokVHifire_Mach2.png
