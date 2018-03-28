@@ -26,7 +26,7 @@ int IBReadBodySTL(
                  )
 {
   MPIVariables  *mpi = (MPIVariables*) m;
-  int n;
+  int n, ierr;
   *stat = 0;
 
   if ((*body) != NULL) {
@@ -52,11 +52,11 @@ int IBReadBodySTL(
       int   nfacets = 0;
 	    char  word[_MAX_STRING_SIZE_];
       /* Count number of facets in STL file */
-      fscanf(in,"%s",word);
+      ierr = fscanf(in,"%s",word);
       if (!strcmp(word, "solid")) {
         nfacets = 0;
         while (strcmp(word, "endsolid")) {
-          fscanf(in,"%s",word);
+          ierr = fscanf(in,"%s",word);
           if (!strcmp(word, "facet")) nfacets++;
         }
       }
@@ -69,65 +69,65 @@ int IBReadBodySTL(
 
         /* Read in STL data */
         in = fopen(filename,"r");
-        fscanf(in,"%s",word);
+        ierr = fscanf(in,"%s",word);
         n = 0;
         while (strcmp(word, "endsolid")) {
           double t1, t2, t3;
-          fscanf(in,"%s",word);
+          ierr = fscanf(in,"%s",word);
           if (!strcmp(word, "facet")) {
-            fscanf(in,"%s",word);
+            ierr = fscanf(in,"%s",word);
             if (strcmp(word, "normal")) {
               fprintf(stderr,"Error in IBReadBodySTL(): Illegal keyword read in %s.\n",filename);
             } else {
-              fscanf(in,"%lf",&t1);
-              fscanf(in,"%lf",&t2);
-              fscanf(in,"%lf",&t3);
+              ierr = fscanf(in,"%lf",&t1);
+              ierr = fscanf(in,"%lf",&t2);
+              ierr = fscanf(in,"%lf",&t3);
               (*body)->surface[n].nx = t1; 
               (*body)->surface[n].ny = t2; 
               (*body)->surface[n].nz = t3;
             }
-            fscanf(in,"%s",word);
+            ierr = fscanf(in,"%s",word);
             if (strcmp(word, "outer")) {
               fprintf(stderr,"Error in IBReadBodySTL(): Illegal keyword read in %s.\n",filename);
               *stat = 1;
             } else {
-              fscanf(in,"%s",word);
+              ierr = fscanf(in,"%s",word);
               if (strcmp(word, "loop")) {
                 fprintf(stderr,"Error in IBReadBodySTL(): Illegal keyword read in %s.\n",filename);
                 *stat = 1;
               } else {
-                fscanf(in,"%s",word);
+                ierr = fscanf(in,"%s",word);
                 if (strcmp(word, "vertex")) {
                   fprintf(stderr,"Error in IBReadBodySTL(): Illegal keyword read in %s.\n",filename);
                   *stat = 1;
                 } else {
-                  fscanf(in,"%lf",&t1);
-                  fscanf(in,"%lf",&t2);
-                  fscanf(in,"%lf",&t3);
+                  ierr = fscanf(in,"%lf",&t1);
+                  ierr = fscanf(in,"%lf",&t2);
+                  ierr = fscanf(in,"%lf",&t3);
                   (*body)->surface[n].x1 = t1; 
                   (*body)->surface[n].y1 = t2; 
                   (*body)->surface[n].z1 = t3;
                 }
-                fscanf(in,"%s",word);
+                ierr = fscanf(in,"%s",word);
                 if (strcmp(word, "vertex")) {
                   fprintf(stderr,"Error in IBReadBodySTL(): Illegal keyword read in %s.\n",filename);
                   *stat = 1;
                 } else {
-                  fscanf(in,"%lf",&t1);
-                  fscanf(in,"%lf",&t2);
-                  fscanf(in,"%lf",&t3);
+                  ierr = fscanf(in,"%lf",&t1);
+                  ierr = fscanf(in,"%lf",&t2);
+                  ierr = fscanf(in,"%lf",&t3);
                   (*body)->surface[n].x2 = t1; 
                   (*body)->surface[n].y2 = t2; 
                   (*body)->surface[n].z2 = t3;
                 }
-                fscanf(in,"%s",word);
+                ierr = fscanf(in,"%s",word);
                 if (strcmp(word, "vertex")) {
                   fprintf(stderr,"Error in IBReadBodySTL(): Illegal keyword read in %s.\n",filename);
                   *stat = 1;
                 } else {
-                  fscanf(in,"%lf",&t1);
-                  fscanf(in,"%lf",&t2);
-                  fscanf(in,"%lf",&t3);
+                  ierr = fscanf(in,"%lf",&t1);
+                  ierr = fscanf(in,"%lf",&t2);
+                  ierr = fscanf(in,"%lf",&t3);
                   (*body)->surface[n].x3 = t1; 
                   (*body)->surface[n].y3 = t2; 
                   (*body)->surface[n].z3 = t3;
