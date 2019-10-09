@@ -37,13 +37,8 @@
 
   Download
   --------
-  The code is available at: https://bitbucket.org/deboghosh/mhysa
 
-  If you have access, it can be cloned using git as follows:
-  + git clone git@bitbucket.org:deboghosh/mhysa.git
-
-  Bitbucket also allows downloading the package as a tarball, see 
-  https://bitbucket.org/deboghosh/mhysa/downloads.
+  Please contact the author to obtain a copy.
 
   Documentation
   -------------
