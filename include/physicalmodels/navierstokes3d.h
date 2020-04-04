@@ -63,6 +63,12 @@
 /*! dimension corresponding to the \a z spatial dimension */
 #define _ZDIR_ 2
 
+/* immersed boundary wall types */
+/*! adiabatic immersed body wall */
+#define _IB_ADIABATIC_ "adiabatic"
+/*! isothermal immersed body wall */
+#define _IB_ISOTHERMAL_ "isothermal"
+
 /*! \def _NavierStokes3DTotalDensity_
   Compute the total density from an array with species densities
 */
@@ -290,6 +296,11 @@ typedef struct navierstokes3d_parameters {
 
   char ib_write_surface_data[_MAX_STRING_SIZE_]; /*!< Flag to indicate whether to analyze and write surface data for
                                                       immersed body, if present. Applicable only if #HyPar::flag_ib is 1 */
+
+  /*! Type of immersed boundary wall: isothermal or adiabatic */
+  char ib_wall_type[_MAX_STRING_SIZE_];
+  /*! Immersed body wall temperature, if isothermal */
+  double T_ib_wall;
 
 } NavierStokes3D;
 

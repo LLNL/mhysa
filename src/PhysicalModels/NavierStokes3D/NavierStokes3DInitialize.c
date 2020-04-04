@@ -2,6 +2,7 @@
     @author Debojyoti Ghosh
     @brief Initialization of the physics-related variables and function pointers for the 3D Navier-Stokes system
 */
+#include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,8 +23,10 @@ int    NavierStokes3DSource            (double*,double*,void*,void*,double);
 
 int    NavierStokes3DUpwindRusanov     (double*,double*,double*,double*,double*,double*,int,void*,double);
 
+int    NavierStokes3DIBAdiabatic  (void*,void*,double*,double);
+int    NavierStokes3DIBIsothermal (void*,void*,double*,double);
+
 int    NavierStokes3DPreStep           (double*,void*,void*,double);
-int    NavierStokes3DImmersedBoundary  (void*,void*,double*,double);
 int    NavierStokes3DIBForces          (void*,void*);
 
 /*! Initialize the 3D Navier-Stokes (#NavierStokes3D) module:
@@ -51,6 +54,16 @@ int    NavierStokes3DIBForces          (void*,void*);
     Re                 | double               | #NavierStokes3D::Re                                                     | -1  
     Minf               | double               | #NavierStokes3D::Minf                                                   | 1.0 
     upwinding          | char[]               | #NavierStokes3D::upw_choice                                             | "rusanov" (#_RUSANOV_)
+    ib_wall_type       | char[]               | #NavierStokes3D::ib_wall_type                                           | "adiabatic" (#_IB_ADIABATIC_)
+
+    + if "ib_wall_type" (#NavierStokes3D::ib_wall_type) is specified as "isothermal", 
+      it should be followed by the wall temperature (##NavierStokes3D::T_ib_wall), i.e,
+
+        begin
+            ...
+            ib_wall_type  isothermal 1.0
+            ...
+        end
 
     \b Note: "physics.inp" is \b optional; if absent, default values will be used.
 */
@@ -78,6 +91,7 @@ int NavierStokes3DInitialize(
   physics->Minf       = 1.0;
   physics->C1         = 1.458e-6;
   physics->C2         = 110.4;
+  physics->T_ib_wall = -DBL_MAX;
   strcpy(physics->upw_choice,_RUSANOV_);
   strcpy(physics->ib_write_surface_data,"yes");
 
@@ -109,6 +123,23 @@ int NavierStokes3DInitialize(
             ferr = fscanf(in,"%lf",&physics->Minf);     if (ferr != 1) return(1);
           } else if (!strcmp(word,"ib_surface_data")) {
             ferr = fscanf(in,"%s",physics->ib_write_surface_data); if (ferr != 1) return(1);
+          } else if (!strcmp(word,"ib_wall_type")) {
+            ferr = fscanf(in,"%s",physics->ib_wall_type); 
+            if (ferr != 1) {
+              fprintf(stderr, "Read error while reading physics.inp in NavierStokes3DInitialize().\n");
+              return 1;
+            }
+            if (!strcmp(physics->ib_wall_type,_IB_ISOTHERMAL_)) {
+              ferr = fscanf(in,"%lf",&physics->T_ib_wall); 
+              if (ferr != 1) {
+                fprintf(stderr, "Read error while reading physics.inp in NavierStokes3DInitialize().\n");
+                return 1;
+              }
+            }
+            if (!solver->flag_ib) {
+              printf("Warning: in NavierStokes3DInitialize().\n");
+              printf("Warning: no immersed body present; specification of ib_wall_type unnecessary.\n");
+            }
           } else if (strcmp(word,"end")) {
             char useless[_MAX_STRING_SIZE_];
             ferr = fscanf(in,"%s",useless); if (ferr != 1) return(ferr);
@@ -128,10 +159,12 @@ int NavierStokes3DInitialize(
   IERR MPIBroadcast_integer   (&physics->n_vibeng             ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character (physics->upw_choice            ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_character (physics->ib_write_surface_data ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_character (physics->ib_wall_type          ,_MAX_STRING_SIZE_,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->gamma                ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->Pr                   ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->Re                   ,1                ,0,&mpi->world); CHECKERR(ierr);
   IERR MPIBroadcast_double    (&physics->Minf                 ,1                ,0,&mpi->world); CHECKERR(ierr);
+  IERR MPIBroadcast_double    (&physics->T_ib_wall            ,1                ,0,&mpi->world); CHECKERR(ierr);
 
   if (solver->nvars != (physics->n_species + physics->n_vibeng + 4)) {
     fprintf(  stderr,"Error in NavierStokes3DInitialize(): nvars has to be %d.\n",
@@ -174,7 +207,15 @@ int NavierStokes3DInitialize(
 */
 
   if (solver->flag_ib) {
-    solver->IBFunction          = NavierStokes3DImmersedBoundary;
+    if (!strcmp(physics->ib_wall_type,_IB_ADIABATIC_)) {
+      solver->IBFunction = NavierStokes3DIBAdiabatic;
+    } else if (!strcmp(physics->ib_wall_type,_IB_ISOTHERMAL_)) {
+      solver->IBFunction = NavierStokes3DIBIsothermal;
+    } else {
+      fprintf(stderr, "Error in NavierStokes3DInitialize()\n");
+      fprintf(stderr, "  invalid value for IB wall type (%s).\n",
+              physics->ib_wall_type );
+    }
     if (!strcmp(physics->ib_write_surface_data,"yes")) {
       solver->PhysicsOutput     = NavierStokes3DIBForces;
     }

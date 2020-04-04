@@ -21,10 +21,10 @@ mhysa_LDADD = \
   CoreFunctions/libCoreFunctions.a \
   TimeIntegration/libTimeIntegration.a \
   PETScFunctions/libPETScFunctions.a \
-  ImmersedBoundaries/libImmersedBoundaries.a \
   BoundaryConditions/libBoundaryConditions.a \
   PhysicalModels/Euler1D/libEuler1D.a \
   PhysicalModels/NavierStokes3D/libNavierStokes3D.a \
+  ImmersedBoundaries/libImmersedBoundaries.a \
   InterpolationFunctions/libInterpolationFunctions.a \
   FirstDerivative/libFirstDerivative.a \
   SecondDerivative/libSecondDerivative.a \

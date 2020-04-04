@@ -3,6 +3,9 @@
     @author Debojyoti Ghosh
 */
 
+#ifndef _IB_H_
+#define _IB_H_
+
 /*! Immersed boundaries are implemented only for 3-dimensional simulations. */
 #define _IB_NDIMS_ 3
 /*! Number of grid points surrounding a random point in space, i.e., number of
@@ -174,3 +177,10 @@ int IBIdentifyBoundary  (void*,void*,int*,int,double*);
 int IBIdentifyMode      (double*,int*,void*);
 int IBNearestFacetNormal(void*,void*,double*,double,int*,int);
 int IBInterpCoeffs      (void*,void*,double*,int*,int,double*);
+
+int IBAssembleGlobalFacetData(void*,void*,const double* const, double** const,int);
+
+int IBComputeNormalGradient(void*,void*,const double* const, int, double** const);
+int IBComputeFacetVar(void*,void*,const double* const, int, double** const);
+
+#endif
