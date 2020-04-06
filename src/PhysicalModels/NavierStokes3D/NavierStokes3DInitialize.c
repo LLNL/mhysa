@@ -94,6 +94,7 @@ int NavierStokes3DInitialize(
   physics->T_ib_wall = -DBL_MAX;
   strcpy(physics->upw_choice,_RUSANOV_);
   strcpy(physics->ib_write_surface_data,"yes");
+  strcpy(physics->ib_wall_type,"adiabatic");
 
   /* reading physical model specific inputs */
   if (!mpi->rank) {
