@@ -1,12 +1,6 @@
 3D NAVIER-STOKES EQUATIONS FOR COMPRESSIBLE FLOWS
 
-Steady, viscous, incompressible flow around a sphere
-
-Reference:
-  + Taneda, S., “Experimental Investigation of Wake behind a Sphere at Low 
-    Reynolds Numbers,” Journal of the Physical Society of Japan, Vol. 11, 1956.
-  + Johnson, T.A. and Patel, V.C., “Flow Past a Sphere up to a Reynolds Number 
-    of 300,” Journal of Fluid Mechanics, Vol. 378, 1999.
+Steady, viscous, incompressible flow around an isothermal sphere
 
 Domain:
 
@@ -25,6 +19,8 @@ Boundary Conditions:
 + xmax: Subsonic outflow
 + ymin and ymax: Subsonic "ambivalent"
 + zmin and zmax: Subsonic "ambivalent"
++ The sphere surface is specified as isothermal with wall 
+  temperature as 1.
 
 Initial solution:
     rho = 1.0
