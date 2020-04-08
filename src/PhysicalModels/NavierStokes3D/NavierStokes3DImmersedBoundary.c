@@ -3,6 +3,7 @@
     @author Debojyoti Ghosh
 */
 
+#include <basic.h>
 #include <arrayfunctions.h>
 #include <immersedboundaries.h>
 #include <physicalmodels/navierstokes3d.h>
@@ -138,6 +139,7 @@ int NavierStokes3DIBIsothermal( void    *s, /*!< Solver object of type #HyPar */
     double rho_s_ib[ns], rho_t_ib, uvel_ib, vvel_ib, wvel_ib, E_ib, E_v_ib[nv], pressure_ib, T_ib;
     pressure_ib = pressure;
     T_ib = (1.0+factor)*param->T_ib_wall - factor * T;
+    if (T_ib < _MACHINE_ZERO_) T_ib = param->T_ib_wall;
     rho_t_ib = pressure_ib / T_ib;
     for (k = 0; k < ns; k++) rho_s_ib[k] = mfrac[k] * rho_t_ib;
     uvel_ib = -uvel * factor;
