@@ -18,9 +18,12 @@ int    NavierStokes3DRoeAverage        (double*,double*,double*,void*);
 int    NavierStokes3DParabolicFunction (double*,double*,void*,void*,double);
 int    NavierStokes3DSource            (double*,double*,void*,void*,double);
 
-//int    NavierStokes3DLeftEigenvectors  (double*,double*,void*,int);
-//int    NavierStokes3DRightEigenvectors (double*,double*,void*,int);
+int    NavierStokes3DLeftEigenvectors  (double*,double*,void*,int);
+int    NavierStokes3DRightEigenvectors (double*,double*,void*,int);
 
+int    NavierStokes3DUpwindRoe         (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes3DUpwindRF          (double*,double*,double*,double*,double*,double*,int,void*,double);
+int    NavierStokes3DUpwindLLF         (double*,double*,double*,double*,double*,double*,int,void*,double);
 int    NavierStokes3DUpwindRusanov     (double*,double*,double*,double*,double*,double*,int,void*,double);
 
 int    NavierStokes3DIBAdiabatic  (void*,void*,double*,double);
@@ -200,15 +203,15 @@ int NavierStokes3DInitialize(
   }
 
   /* initializing physical model-specific functions */
-  solver->PreStep               = NavierStokes3DPreStep;
-  solver->ComputeCFL            = NavierStokes3DComputeCFL;
-  solver->FFunction             = NavierStokes3DFlux;
-  solver->SFunction             = NavierStokes3DSource;
-  solver->AveragingFunction     = NavierStokes3DRoeAverage;
-/*  
-  solver->GetLeftEigenvectors   = NavierStokes3DLeftEigenvectors;
-  solver->GetRightEigenvectors  = NavierStokes3DRightEigenvectors;
-*/
+  solver->PreStep    = NavierStokes3DPreStep;
+  solver->ComputeCFL = NavierStokes3DComputeCFL;
+  solver->FFunction  = NavierStokes3DFlux;
+  solver->SFunction  = NavierStokes3DSource;
+  solver->AveragingFunction = NavierStokes3DRoeAverage;
+  if ((physics->n_species == 1) || (physics->n_vibeng == 1)) {
+    solver->GetLeftEigenvectors   = NavierStokes3DLeftEigenvectors;
+    solver->GetRightEigenvectors  = NavierStokes3DRightEigenvectors;
+  }
 
   if (solver->flag_ib) {
     if (!strcmp(physics->ib_wall_type,_IB_ADIABATIC_)) {
@@ -225,12 +228,46 @@ int NavierStokes3DInitialize(
     }
   }
 
-  if (!strcmp(physics->upw_choice,_RUSANOV_)) solver->Upwind = NavierStokes3DUpwindRusanov;
-  else {
+  if      (!strcmp(physics->upw_choice,_ROE_)) {
+    if ((physics->n_species > 1) || (physics->n_vibeng > 1)) {
+      if (!mpi->rank) {
+        fprintf(stderr,"Error in NavierStokes3DInitialize():\n");
+        fprintf(stderr,"  %s is implemented for single-species only.\n",
+                physics->upw_choice);
+        fprintf(stderr,"  Please use %s for multispecies.\n",_RUSANOV_);
+      }
+      return 1;
+    }
+    solver->Upwind = NavierStokes3DUpwindRoe;
+  } else if (!strcmp(physics->upw_choice,_RF_CHAR_)) {
+    if ((physics->n_species > 1) || (physics->n_vibeng > 1)) {
+      if (!mpi->rank) {
+        fprintf(stderr,"Error in NavierStokes3DInitialize():\n");
+        fprintf(stderr,"  %s is implemented for single-species only.\n",
+                physics->upw_choice);
+        fprintf(stderr,"  Please use %s for multispecies.\n",_RUSANOV_);
+      }
+      return 1;
+    }
+    solver->Upwind = NavierStokes3DUpwindRF;
+  } else if (!strcmp(physics->upw_choice,_LLF_CHAR_)) {
+    if ((physics->n_species > 1) || (physics->n_vibeng > 1)) {
+      if (!mpi->rank) {
+        fprintf(stderr,"Error in NavierStokes3DInitialize():\n");
+        fprintf(stderr,"  %s is implemented for single-species only.\n",
+                physics->upw_choice);
+        fprintf(stderr,"  Please use %s for multispecies.\n",_RUSANOV_);
+      }
+      return 1;
+    }
+    solver->Upwind = NavierStokes3DUpwindLLF;
+  } else if (!strcmp(physics->upw_choice,_RUSANOV_)) {
+    solver->Upwind = NavierStokes3DUpwindRusanov;
+  } else {
     if (!mpi->rank) {
       fprintf(stderr,"Error in NavierStokes3DInitialize(): %s is not a valid upwinding scheme. ",
               physics->upw_choice);
-      fprintf(stderr,"Choices are %s.\n",_RUSANOV_);
+      fprintf(stderr,"Choices are %s, %s, %s, and %s.\n",_ROE_,_RF_CHAR_,_LLF_CHAR_,_RUSANOV_);
     }
     return(1);
   }

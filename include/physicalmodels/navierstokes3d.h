@@ -49,6 +49,12 @@
 #define _MODEL_NDIMS_ 3
 
 /* choices for upwinding schemes */
+/*! Roe's upwinding scheme */
+#define _ROE_       "roe"
+/*! Characteristic-based Roe-Fixed upwinding scheme */
+#define _RF_CHAR_   "rf-char"
+/*! Characteristic-based LLF upwinding scheme */
+#define _LLF_CHAR_  "llf-char"
 /*! Rusanov's upwinding scheme */
 #define _RUSANOV_   "rusanov"
 
@@ -264,6 +270,249 @@
     E   = 1/(gamma-1.0)*(P/rho_t) + 0.5*(vx*vx+vy*vy+vz*vz); \
     \
     _NavierStokes3DSetFlowVar_(uavg,rho_s,rho_t,vx,vy,vz,E,E_vib,P,ctxt); \
+  }
+
+/*! \def _NavierStokes3DEigenvalues_
+  Compute the eigenvalues, given a solution vector in terms of the conserved variables. The eigenvalues are returned
+  as a matrix D whose diagonal values are the eigenvalues. Admittedly, this is inefficient. The matrix D is stored in
+  a row-major format.
+
+  The eigenvalues are \f$ {\bf v}\cdot\hat{\bf n}, {\bf v}\cdot\hat{\bf n}, {\bf v}\cdot\hat{\bf n}, {\bf v}\cdot\hat{\bf n} \pm c\f$
+  where \f${\bf v} = u\hat{\bf i} + v\hat{\bf j} + w\hat{\bf k}\f$ is the velocity vector, \f$\hat{\bf n} = \hat{\bf i}, \hat{\bf j}, \hat{\bf k}\f$
+  is the unit vector along the spatial dimension, and \f$c\f$ is the speed of sound.
+  \b Note that the order of the eigenvalues (and therefore, the order of the eigenvectors in #_NavierStokes3DLeftEigenvectors_ and 
+  #_NavierStokes3DRightEigenvectors_ has been chosen to avoid left eigen-matrices with zero on the diagonals.
+
+  \b Note: this is valid only for a single-species case.
+*/
+#define _NavierStokes3DEigenvalues_(u,D,ctxt,dir) \
+  { \
+    double gamma  = ctxt->gamma; \
+    int    ns = ctxt->n_species; \
+    int    nv = ctxt->n_vibeng; \
+    double rho_s[ns],rho,vx,vy,vz,e,E_vib[nv],P,T,c; \
+    _NavierStokes3DGetFlowVar_(u,rho_s,rho,vx,vy,vz,e,E_vib,P,T,ctxt); \
+    c = sqrt(gamma*P/rho); \
+    if (dir == _XDIR_) { \
+      D[0*ctxt->nvars+0] = vx;     D[0*ctxt->nvars+1] = 0;    D[0*ctxt->nvars+2] = 0;      D[0*ctxt->nvars+3] = 0;    D[0*ctxt->nvars+4] = 0; \
+      D[1*ctxt->nvars+0] = 0;      D[1*ctxt->nvars+1] = vx-c; D[1*ctxt->nvars+2] = 0;      D[1*ctxt->nvars+3] = 0;    D[1*ctxt->nvars+4] = 0; \
+      D[2*ctxt->nvars+0] = 0;      D[2*ctxt->nvars+1] = 0;    D[2*ctxt->nvars+2] = vx;     D[2*ctxt->nvars+3] = 0;    D[2*ctxt->nvars+4] = 0; \
+      D[3*ctxt->nvars+0] = 0;      D[3*ctxt->nvars+1] = 0;    D[3*ctxt->nvars+2] = 0;      D[3*ctxt->nvars+3] = vx;   D[3*ctxt->nvars+4] = 0; \
+      D[4*ctxt->nvars+0] = 0;      D[4*ctxt->nvars+1] = 0;    D[4*ctxt->nvars+2] = 0;      D[4*ctxt->nvars+3] = 0;    D[4*ctxt->nvars+4] = vx+c;\
+    } else if (dir == _YDIR_) { \
+      D[0*ctxt->nvars+0] = vy;     D[0*ctxt->nvars+1] = 0;    D[0*ctxt->nvars+2] = 0;      D[0*ctxt->nvars+3] = 0;    D[0*ctxt->nvars+4] = 0; \
+      D[1*ctxt->nvars+0] = 0;      D[1*ctxt->nvars+1] = vy;   D[1*ctxt->nvars+2] = 0;      D[1*ctxt->nvars+3] = 0;    D[1*ctxt->nvars+4] = 0; \
+      D[2*ctxt->nvars+0] = 0;      D[2*ctxt->nvars+1] = 0;    D[2*ctxt->nvars+2] = vy-c;   D[2*ctxt->nvars+3] = 0;    D[2*ctxt->nvars+4] = 0; \
+      D[3*ctxt->nvars+0] = 0;      D[3*ctxt->nvars+1] = 0;    D[3*ctxt->nvars+2] = 0;      D[3*ctxt->nvars+3] = vy;   D[3*ctxt->nvars+4] = 0; \
+      D[4*ctxt->nvars+0] = 0;      D[4*ctxt->nvars+1] = 0;    D[4*ctxt->nvars+2] = 0;      D[4*ctxt->nvars+3] = 0;    D[4*ctxt->nvars+4] = vy+c;\
+    } else if (dir == _ZDIR_) { \
+      D[0*ctxt->nvars+0] = vz;     D[0*ctxt->nvars+1] = 0;    D[0*ctxt->nvars+2] = 0;      D[0*ctxt->nvars+3] = 0;    D[0*ctxt->nvars+4] = 0; \
+      D[1*ctxt->nvars+0] = 0;      D[1*ctxt->nvars+1] = vz;   D[1*ctxt->nvars+2] = 0;      D[1*ctxt->nvars+3] = 0;    D[1*ctxt->nvars+4] = 0; \
+      D[2*ctxt->nvars+0] = 0;      D[2*ctxt->nvars+1] = 0;    D[2*ctxt->nvars+2] = vz;     D[2*ctxt->nvars+3] = 0;    D[2*ctxt->nvars+4] = 0; \
+      D[3*ctxt->nvars+0] = 0;      D[3*ctxt->nvars+1] = 0;    D[3*ctxt->nvars+2] = 0;      D[3*ctxt->nvars+3] = vz-c; D[3*ctxt->nvars+4] = 0; \
+      D[4*ctxt->nvars+0] = 0;      D[4*ctxt->nvars+1] = 0;    D[4*ctxt->nvars+2] = 0;      D[4*ctxt->nvars+3] = 0;    D[4*ctxt->nvars+4] = vz+c;\
+    } \
+  }
+
+/*! \def _NavierStokes3DLeftEigenvectors_
+  Compute the left eigenvectors, given a solution vector in terms of the conserved variables. The eigenvectors are
+  returned as a matrix L whose rows correspond to each eigenvector. The matrix L is stored in the row-major format.
+  \n\n
+  Reference:
+  + Rohde, "Eigenvalues and eigenvectors of the Euler equations in general geometries", AIAA Paper 2001-2609,
+    http://dx.doi.org/10.2514/6.2001-2609
+
+  \b Note: this is valid only for a single-species case.
+*/
+#define _NavierStokes3DLeftEigenvectors_(u,L,ctxt,dir) \
+  { \
+    double ga = ctxt->gamma, ga_minus_one=ga-1.0; \
+    int    ns = ctxt->n_species; \
+    int    nv = ctxt->n_vibeng; \
+    double rho_s[ns],rho,vx,vy,vz,e,E_vib[nv],P,T,a,ek; \
+    _NavierStokes3DGetFlowVar_(u,rho_s,rho,vx,vy,vz,e,E_vib,P,T,ctxt); \
+  	ek = 0.5 * (vx*vx + vy*vy + vz*vz); \
+	  a = sqrt(ga * P / rho); \
+    if (dir == _XDIR_) { \
+    	L[1*ctxt->nvars+0] = (ga_minus_one*ek + a*vx) / (2*a*a); \
+  		L[1*ctxt->nvars+1] = ((-ga_minus_one)*vx-a) / (2*a*a); \
+  		L[1*ctxt->nvars+2] = ((-ga_minus_one)*vy) / (2*a*a); \
+  		L[1*ctxt->nvars+3] = ((-ga_minus_one)*vz) / (2*a*a); \
+  		L[1*ctxt->nvars+4] = ga_minus_one / (2*a*a); \
+  		L[0*ctxt->nvars+0] = (a*a - ga_minus_one*ek) / (a*a); \
+  		L[0*ctxt->nvars+1] = (ga_minus_one*vx) / (a*a); \
+  		L[0*ctxt->nvars+2] = (ga_minus_one*vy) / (a*a); \
+  		L[0*ctxt->nvars+3] = (ga_minus_one*vz) / (a*a); \
+  		L[0*ctxt->nvars+4] = (-ga_minus_one) / (a*a); \
+  		L[4*ctxt->nvars+0] = (ga_minus_one*ek - a*vx) / (2*a*a); \
+  		L[4*ctxt->nvars+1] = ((-ga_minus_one)*vx+a) / (2*a*a); \
+  		L[4*ctxt->nvars+2] = ((-ga_minus_one)*vy) / (2*a*a); \
+  		L[4*ctxt->nvars+3] = ((-ga_minus_one)*vz) / (2*a*a); \
+  		L[4*ctxt->nvars+4] = ga_minus_one / (2*a*a); \
+  		L[2*ctxt->nvars+0] = vy; \
+  		L[2*ctxt->nvars+1] = 0.0; \
+  		L[2*ctxt->nvars+2] = -1.0; \
+  		L[2*ctxt->nvars+3] = 0.0; \
+  		L[2*ctxt->nvars+4] = 0.0; \
+  		L[3*ctxt->nvars+0] = -vz; \
+  		L[3*ctxt->nvars+1] = 0.0; \
+  		L[3*ctxt->nvars+2] = 0.0; \
+  		L[3*ctxt->nvars+3] = 1.0; \
+  		L[3*ctxt->nvars+4] = 0.0; \
+    } else if (dir == _YDIR_) {  \
+  		L[2*ctxt->nvars+0] = (ga_minus_one*ek+a*vy) / (2*a*a); \
+  		L[2*ctxt->nvars+1] = ((1.0-ga)*vx) / (2*a*a); \
+  		L[2*ctxt->nvars+2] = ((1.0-ga)*vy-a) / (2*a*a); \
+  		L[2*ctxt->nvars+3] = ((1.0-ga)*vz) / (2*a*a); \
+  		L[2*ctxt->nvars+4] = ga_minus_one / (2*a*a); \
+  		L[0*ctxt->nvars+0] = (a*a-ga_minus_one*ek) / (a*a); \
+  		L[0*ctxt->nvars+1] = ga_minus_one*vx / (a*a); \
+  		L[0*ctxt->nvars+2] = ga_minus_one*vy / (a*a); \
+  		L[0*ctxt->nvars+3] = ga_minus_one*vz / (a*a); \
+  		L[0*ctxt->nvars+4] = (1.0 - ga) / (a*a); \
+  		L[4*ctxt->nvars+0] = (ga_minus_one*ek-a*vy) / (2*a*a); \
+  		L[4*ctxt->nvars+1] = ((1.0-ga)*vx) / (2*a*a); \
+  		L[4*ctxt->nvars+2] = ((1.0-ga)*vy+a) / (2*a*a); \
+  		L[4*ctxt->nvars+3] = ((1.0-ga)*vz) / (2*a*a); \
+  		L[4*ctxt->nvars+4] = ga_minus_one / (2*a*a); \
+  		L[1*ctxt->nvars+0] = -vx; \
+  		L[1*ctxt->nvars+1] = 1.0; \
+  		L[1*ctxt->nvars+2] = 0.0; \
+  		L[1*ctxt->nvars+3] = 0.0; \
+  		L[1*ctxt->nvars+4] = 0; \
+  		L[3*ctxt->nvars+0] = vz; \
+  		L[3*ctxt->nvars+1] = 0.0; \
+  		L[3*ctxt->nvars+2] = 0.0; \
+  		L[3*ctxt->nvars+3] = -1.0; \
+  		L[3*ctxt->nvars+4] = 0; \
+    } else if (dir == _ZDIR_) {  \
+      L[3*ctxt->nvars+0] = (ga_minus_one*ek+a*vz) / (2*a*a); \
+  		L[3*ctxt->nvars+1] = ((1.0-ga)*vx) / (2*a*a); \
+  		L[3*ctxt->nvars+2] = ((1.0-ga)*vy) / (2*a*a); \
+  		L[3*ctxt->nvars+3] = ((1.0-ga)*vz-a) / (2*a*a); \
+  		L[3*ctxt->nvars+4] = ga_minus_one / (2*a*a); \
+  		L[0*ctxt->nvars+0] = (a*a-ga_minus_one*ek) / (a*a); \
+  		L[0*ctxt->nvars+1] = ga_minus_one*vx / (a*a); \
+  		L[0*ctxt->nvars+2] = ga_minus_one*vy / (a*a); \
+  		L[0*ctxt->nvars+3] = ga_minus_one*vz / (a*a); \
+  		L[0*ctxt->nvars+4] = (1.0-ga) / (a*a); \
+  		L[4*ctxt->nvars+0] = (ga_minus_one*ek-a*vz) / (2*a*a); \
+  		L[4*ctxt->nvars+1] = ((1.0-ga)*vx) / (2*a*a); \
+  		L[4*ctxt->nvars+2] = ((1.0-ga)*vy) / (2*a*a); \
+  		L[4*ctxt->nvars+3] = ((1.0-ga)*vz+a) / (2*a*a); \
+  		L[4*ctxt->nvars+4] = ga_minus_one / (2*a*a); \
+  		L[1*ctxt->nvars+0] = vx; \
+  		L[1*ctxt->nvars+1] = -1.0; \
+  		L[1*ctxt->nvars+2] = 0.0; \
+  		L[1*ctxt->nvars+3] = 0.0; \
+  		L[1*ctxt->nvars+4] = 0; \
+  		L[2*ctxt->nvars+0] = -vy; \
+  		L[2*ctxt->nvars+1] = 0.0; \
+  		L[2*ctxt->nvars+2] = 1.0; \
+  		L[2*ctxt->nvars+3] = 0.0; \
+  		L[2*ctxt->nvars+4] = 0; \
+    } \
+  }
+
+/*! \def _NavierStokes3DRightEigenvectors_
+  Compute the right eigenvectors, given a solution vector in terms of the conserved variables. The eigenvectors are
+  returned as a matrix R whose columns correspond to each eigenvector. The matrix R is stored in the row-major format.
+  \n\n
+  Reference:
+  + Rohde, "Eigenvalues and eigenvectors of the Euler equations in general geometries", AIAA Paper 2001-2609,
+    http://dx.doi.org/10.2514/6.2001-2609
+
+  \b Note: this is valid only for a single-species case.
+*/
+#define _NavierStokes3DRightEigenvectors_(u,R,ctxt,dir) \
+  { \
+    double ga = ctxt->gamma, ga_minus_one=ga-1.0; \
+    int    ns = ctxt->n_species; \
+    int    nv = ctxt->n_vibeng; \
+    double rho_s[ns],rho,vx,vy,vz,e,E_vib[nv],P,T,a,ek,h0; \
+    _NavierStokes3DGetFlowVar_(u,rho_s,rho,vx,vy,vz,e,E_vib,P,T,ctxt); \
+  	ek   = 0.5 * (vx*vx + vy*vy + vz*vz); \
+	  a    = sqrt(ga * P / rho); \
+    h0   = a*a / ga_minus_one + ek; \
+	  if (dir == _XDIR_) { \
+	  	R[0*ctxt->nvars+1] = 1.0; \
+		  R[1*ctxt->nvars+1] = vx-a; \
+  		R[2*ctxt->nvars+1] = vy; \
+	  	R[3*ctxt->nvars+1] = vz; \
+		  R[4*ctxt->nvars+1] = h0 - a*vx; \
+  		R[0*ctxt->nvars+0] = 1.0; \
+	  	R[1*ctxt->nvars+0] = vx; \
+		  R[2*ctxt->nvars+0] = vy; \
+  		R[3*ctxt->nvars+0] = vz; \
+	  	R[4*ctxt->nvars+0] = ek; \
+		  R[0*ctxt->nvars+4] = 1.0; \
+  		R[1*ctxt->nvars+4] = vx+a; \
+	  	R[2*ctxt->nvars+4] = vy; \
+		  R[3*ctxt->nvars+4] = vz; \
+  		R[4*ctxt->nvars+4] = h0 + a*vx; \
+	  	R[0*ctxt->nvars+2] = 0.0; \
+		  R[1*ctxt->nvars+2] = 0.0; \
+  		R[2*ctxt->nvars+2] = -1.0; \
+	  	R[3*ctxt->nvars+2] = 0.0; \
+		  R[4*ctxt->nvars+2] = -vy; \
+  		R[0*ctxt->nvars+3] = 0.0; \
+	  	R[1*ctxt->nvars+3] = 0.0; \
+		  R[2*ctxt->nvars+3] = 0.0; \
+  		R[3*ctxt->nvars+3] = 1.0; \
+	  	R[4*ctxt->nvars+3] = vz; \
+	  } else if (dir == _YDIR_) { \
+	  	R[0*ctxt->nvars+2] = 1.0; \
+  		R[1*ctxt->nvars+2] = vx; \
+	  	R[2*ctxt->nvars+2] = vy-a; \
+		  R[3*ctxt->nvars+2] = vz; \
+  		R[4*ctxt->nvars+2] = h0 - a*vy; \
+	  	R[0*ctxt->nvars+0] = 1.0; \
+  		R[1*ctxt->nvars+0] = vx; \
+	  	R[2*ctxt->nvars+0] = vy; \
+		  R[3*ctxt->nvars+0] = vz; \
+  		R[4*ctxt->nvars+0] = ek; \
+	  	R[0*ctxt->nvars+4] = 1.0; \
+		  R[1*ctxt->nvars+4] = vx; \
+  		R[2*ctxt->nvars+4] = vy+a; \
+	  	R[3*ctxt->nvars+4] = vz; \
+		  R[4*ctxt->nvars+4] = h0 + a*vy; \
+  		R[0*ctxt->nvars+1] = 0.0; \
+	  	R[1*ctxt->nvars+1] = 1.0; \
+		  R[2*ctxt->nvars+1] = 0.0; \
+  		R[3*ctxt->nvars+1] = 0.0; \
+	  	R[4*ctxt->nvars+1] = vx; \
+  		R[0*ctxt->nvars+3] = 0.0; \
+	  	R[1*ctxt->nvars+3] = 0.0; \
+		  R[2*ctxt->nvars+3] = 0.0; \
+  		R[3*ctxt->nvars+3] = -1.0; \
+	  	R[4*ctxt->nvars+3] = -vz; \
+    } else if (dir == _ZDIR_) {  \
+	  	R[0*ctxt->nvars+3] = 1.0; \
+	  	R[1*ctxt->nvars+3] = vx; \
+	  	R[2*ctxt->nvars+3] = vy; \
+	  	R[3*ctxt->nvars+3] = vz-a; \
+	  	R[4*ctxt->nvars+3] = h0-a*vz; \
+	  	R[0*ctxt->nvars+0] = 1.0; \
+	  	R[1*ctxt->nvars+0] = vx; \
+	  	R[2*ctxt->nvars+0] = vy; \
+	  	R[3*ctxt->nvars+0] = vz; \
+	  	R[4*ctxt->nvars+0] = ek; \
+	  	R[0*ctxt->nvars+4] = 1.0; \
+	  	R[1*ctxt->nvars+4] = vx; \
+	  	R[2*ctxt->nvars+4] = vy; \
+	  	R[3*ctxt->nvars+4] = vz+a; \
+	  	R[4*ctxt->nvars+4] = h0+a*vz; \
+	  	R[0*ctxt->nvars+1] = 0.0; \
+	  	R[1*ctxt->nvars+1] = -1.0; \
+	  	R[2*ctxt->nvars+1] = 0.0; \
+	  	R[3*ctxt->nvars+1] = 0.0; \
+	  	R[4*ctxt->nvars+1] = -vx; \
+	  	R[0*ctxt->nvars+2] = 0.0; \
+	  	R[1*ctxt->nvars+2] = 0.0; \
+	  	R[2*ctxt->nvars+2] = 1.0; \
+	  	R[3*ctxt->nvars+2] = 0.0; \
+	  	R[4*ctxt->nvars+2] = vy; \
+    } \
   }
 
 /*! \def NavierStokes3D
