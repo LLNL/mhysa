@@ -191,9 +191,6 @@ int NavierStokes3DInitialize(
   /* Scaling Re by M_inf */
   physics->Re /= physics->Minf;
 
-  /* T is actually gamma*T in this code */
-  physics->T_ib_wall *= physics->gamma;
-
   /* check that solver has the correct choice of diffusion formulation, if viscous flow */
   if (strcmp(solver->spatial_type_par,_NC_2STAGE_) && (physics->Re > 0)) {
     if (!mpi->rank) {
