@@ -138,7 +138,7 @@ int NavierStokes3DIBIsothermal( void    *s, /*!< Solver object of type #HyPar */
     double rho_s_ib[ns], rho_t_ib, uvel_ib, vvel_ib, wvel_ib, E_ib, E_v_ib[nv], pressure_ib, T_ib;
     pressure_ib = pressure;
     T_ib = (1.0+factor)*param->T_ib_wall - factor * T;
-    rho_t_ib = param->gamma * pressure_ib / T_ib;
+    rho_t_ib = pressure_ib / T_ib;
     for (k = 0; k < ns; k++) rho_s_ib[k] = mfrac[k] * rho_t_ib;
     uvel_ib = -uvel * factor;
     vvel_ib = -vvel * factor;
