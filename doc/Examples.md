@@ -1111,7 +1111,7 @@ Expected screen output:
 
 \page sphere_steady_incompressible_viscous_adiabatic 3D Steady, incompressible, viscous flow around a sphere (adiabatic surface)
 
-Location: \b mhysa/Examples/SingleSpecies/3D_Sphere/AdiabaticSurface
+Location: \b mhysa/Examples/SingleSpecies/3D_Sphere/ViscIncomp_Adiabatic
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
 
@@ -1161,17 +1161,17 @@ Numerical Method:
 Input files required:
 ---------------------
 
-These files are all located in: \b mhysa/Examples/SingleSpecies/3D_Sphere/AdiabaticSurface/
+These files are all located in: \b mhysa/Examples/SingleSpecies/3D_Sphere/ViscIncomp_Adiabatic/
 
 \b solver.inp
-\include SingleSpecies/3D_Sphere/AdiabaticSurface/solver.inp
+\include SingleSpecies/3D_Sphere/ViscIncomp_Adiabatic/solver.inp
 
 \b boundary.inp
-\include SingleSpecies/3D_Sphere/AdiabaticSurface/boundary.inp
+\include SingleSpecies/3D_Sphere/ViscIncomp_Adiabatic/boundary.inp
 
 \b physics.inp : The following file specifies a Reynolds number
 of 100. To try other Reynolds numbers, change it here.
-\include SingleSpecies/3D_Sphere/AdiabaticSurface/physics.inp
+\include SingleSpecies/3D_Sphere/ViscIncomp_Adiabatic/physics.inp
 
 \b sphere.stl : the filename "sphere.stl" \b must match
 the input for \a immersed_body in \a solver.inp.\n
@@ -1179,7 +1179,7 @@ Located at \b mhysa/Examples/STLGeometries/sphere.stl
 
 To generate \b initial.inp (initial solution), compile 
 and run the following code in the run directory.
-\include SingleSpecies/3D_Sphere/AdiabaticSurface/aux/init.c
+\include SingleSpecies/3D_Sphere/ViscIncomp_Adiabatic/aux/init.c
 
 Output:
 -------
@@ -1204,7 +1204,7 @@ are available to convert the binary output file:
 + \b mhysa/Extras/BinaryToText.c - convert binary output file to
   an ASCII text file (to visualize in, for example, MATLAB).
 
-The following figure shows the flow (pressure and velocity vectors) at \f$Re_D=100\f$:
+The following figure shows the flow (pressure and streamlines) at \f$Re_D=100\f$:
 @image html Solution_3DNavStokSphereAdiabatic_ReD100.png
 
 In addition to the main solution, the code also writes out a file with the flow quantities
@@ -1218,11 +1218,11 @@ on the sphere (front-view):
 @image html IBSurface_3DNavStokSphere_T.png
 
 Expected screen output:
-\include SingleSpecies/3D_Sphere/AdiabaticSurface/output.log
+\include SingleSpecies/3D_Sphere/ViscIncomp_Adiabatic/output.log
 
 \page sphere_steady_incompressible_viscous_isothermal 3D Steady, incompressible, viscous flow around a sphere (isothermal surface)
 
-Location: \b mhysa/Examples/SingleSpecies/3D_Sphere/IsothermalSurface
+Location: \b mhysa/Examples/SingleSpecies/3D_Sphere/ViscIncomp_Isothermal
 
 Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
 
@@ -1266,17 +1266,17 @@ Numerical Method:
 Input files required:
 ---------------------
 
-These files are all located in: \b mhysa/Examples/SingleSpecies/3D_Sphere/IsothermalSurface/
+These files are all located in: \b mhysa/Examples/SingleSpecies/3D_Sphere/ViscIncomp_Isothermal/
 
 \b solver.inp
-\include SingleSpecies/3D_Sphere/IsothermalSurface/solver.inp
+\include SingleSpecies/3D_Sphere/ViscIncomp_Isothermal/solver.inp
 
 \b boundary.inp
-\include SingleSpecies/3D_Sphere/IsothermalSurface/boundary.inp
+\include SingleSpecies/3D_Sphere/ViscIncomp_Isothermal/boundary.inp
 
 \b physics.inp : The following file specifies a Reynolds number
 of 100. To try other Reynolds numbers, change it here.
-\include SingleSpecies/3D_Sphere/IsothermalSurface/physics.inp
+\include SingleSpecies/3D_Sphere/ViscIncomp_Isothermal/physics.inp
 
 \b sphere.stl : the filename "sphere.stl" \b must match
 the input for \a immersed_body in \a solver.inp.\n
@@ -1284,7 +1284,7 @@ Located at \b mhysa/Examples/STLGeometries/sphere.stl
 
 To generate \b initial.inp (initial solution), compile 
 and run the following code in the run directory.
-\include SingleSpecies/3D_Sphere/IsothermalSurface/aux/init.c
+\include SingleSpecies/3D_Sphere/ViscIncomp_Isothermal/aux/init.c
 
 Output:
 -------
@@ -1309,8 +1309,10 @@ are available to convert the binary output file:
 + \b mhysa/Extras/BinaryToText.c - convert binary output file to
   an ASCII text file (to visualize in, for example, MATLAB).
 
-The following figure shows the flow (pressure and velocity vectors) at \f$Re_D=100\f$:
+The following figure shows the flow (pressure and streamlines) at \f$Re_D=100\f$:
 @image html Solution_3DNavStokSphereIsothermal_ReD100.png
+The following figure shows the temperature on and around the sphere:
+@image html Solution_3DNavStokSphereIsothermal_T_ReD100.png
 
 In addition to the main solution, the code also writes out a file with the flow quantities
 on the immersed body. This file is called \a surface.dat (if #HyPar::op_overwrite
@@ -1323,4 +1325,4 @@ on the sphere (front-view):
 @image html IBSurface_3DNavStokSphereIsothermal_T.png
 
 Expected screen output:
-\include SingleSpecies/3D_Sphere/IsothermalSurface/output.log
+\include SingleSpecies/3D_Sphere/ViscIncomp_Isothermal/output.log

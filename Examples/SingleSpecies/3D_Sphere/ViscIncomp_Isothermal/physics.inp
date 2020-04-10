@@ -1,8 +1,8 @@
 begin
   gamma           1.4
-  upwinding       rusanov
+  upwinding       roe
   Pr              0.72
   Minf            0.1
   Re              100
-  ib_wall_type    isothermal 1.0
+  ib_wall_type    isothermal 0.7142857142857143
 end
