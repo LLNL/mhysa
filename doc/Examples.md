@@ -52,6 +52,7 @@ Examples with immersed boundaries
 \subpage cylinder_unsteady_incompressible_viscous \n
 \subpage sphere_steady_incompressible_viscous_adiabatic \n
 \subpage sphere_steady_incompressible_viscous_isothermal \n
+\subpage sphere_unsteady_compressible_viscous_isothermal
 
 \page multispecies_examples Multispecies Examples
 
@@ -1245,7 +1246,7 @@ Boundary conditions:
   + ymin and ymax: Subsonic "ambivalent" #_SUBSONIC_AMBIVALENT_
   + zmin and zmax: Subsonic "ambivalent" #_SUBSONIC_AMBIVALENT_
   + The immersed body wall is specified as isothermal (#_IB_ISOTHERMAL_)
-    with wall temperature \f$T_{\rm wall}=1\f$.
+    with wall temperature \f$T_{\rm wall}=1/\gamma\f$.
 
 Initial solution: \f$\rho=1, u=0.1, v=w=0, p=1/\gamma\f$ everywhere in the domain.
 
@@ -1326,3 +1327,109 @@ on the sphere (front-view):
 
 Expected screen output:
 \include SingleSpecies/3D_Sphere/ViscIncomp_Isothermal/output.log
+
+\page sphere_unsteady_compressible_viscous_isothermal 3D Unsteady, compressible, viscous flow around a sphere (isothermal surface)
+
+Location: \b mhysa/Examples/SingleSpecies/3D_Sphere/ViscComp_Isothermal
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: The domain consists of a fine uniform grid around the sphere defined by [-2,6] X [-2,2] X [-2,2],
+        and a stretched grid beyond this zone.
+
+Geometry: A sphere of radius 0.5 centered at (0,0)
+          (\b mhysa/Examples/STLGeometries/sphere.stl)
+
+The following image shows the sphere:
+@image html Surface3D_Sphere.png
+
+The following images shows the grid and the sphere:
+@image html Domain3D_Sphere1.png
+@image html Domain3D_Sphere2.png
+
+Boundary conditions:
+  + xmin: Subsonic inflow #_SUBSONIC_INFLOW_
+  + xmax: Subsonic outflow #_SUBSONIC_OUTFLOW_
+  + ymin and ymax: Subsonic "ambivalent" #_SUBSONIC_AMBIVALENT_
+  + zmin and zmax: Subsonic "ambivalent" #_SUBSONIC_AMBIVALENT_
+  + The immersed body wall is specified as isothermal (#_IB_ISOTHERMAL_)
+    with wall temperature \f$T_{\rm wall}=1/\gamma\f$.
+
+Initial solution: \f$\rho=1, u=0.8, v=w=0, p=1/\gamma\f$ everywhere in the domain.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+  + Freestream Mach number \f$M_{\infty} = 0.8\f$ (#NavierStokes3D::Minf)
+  + Prandlt number \f$Pr = 0.72\f$ (#NavierStokes3D::Pr)
+  + Reynolds number \f$Re = \frac {\rho u L } {\mu} = 1,000,000\f$ (#NavierStokes3D::Re) 
+    (\b Note: since the diameter of the sphere is 1.0, the diameter-based Reynolds number 
+    is the same as the specified Reynolds number \f$Re_D = Re = 1,000,000\f$).
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENOChar())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (NavierStokes3DParabolicFunction())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+These files are all located in: \b mhysa/Examples/SingleSpecies/3D_Sphere/ViscComp_Isothermal/
+
+\b solver.inp
+\include SingleSpecies/3D_Sphere/ViscComp_Isothermal/solver.inp
+
+\b boundary.inp
+\include SingleSpecies/3D_Sphere/ViscComp_Isothermal/boundary.inp
+
+\b physics.inp : The following file specifies a Reynolds number
+of 1,000,000. To try other Reynolds numbers, change it here.
+\include SingleSpecies/3D_Sphere/ViscComp_Isothermal/physics.inp
+
+\b sphere.stl : the filename "sphere.stl" \b must match
+the input for \a immersed_body in \a solver.inp.\n
+Located at \b mhysa/Examples/STLGeometries/sphere.stl
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include SingleSpecies/3D_Sphere/ViscComp_Isothermal/aux/init.c
+
+Output:
+-------
+
+Note that \b iproc is set to 
+
+      8 4 4
+
+in \b solver.inp (i.e., 8 processors along \a x, 4
+processors along \a y, and 4 processor along \a z). Thus, 
+this example should be run with 128 MPI ranks (or change \b iproc).
+
+After running the code, there should be 101 output file
+\b op_nnnnn.bin, since #HyPar::op_overwrite is set to \a no in \b solver.inp.
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b mhysa/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file.
++ \b mhysa/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+In addition to the main solution, the code also writes out a file with the flow quantities
+on the immersed body. This file is called \a surface.dat (if #HyPar::op_overwrite
+is "yes") or \a surface_nnnnn.dat (if #HyPar::op_overwrite is "no", "nnnnn" is a numerical
+index) (in this example, the file \b surface_nnnnn.dat is written out). These are ASCII files in 
+the Tecplot format, where the immersed body and the forces on it are represented using the 
+"FETRIANGLE" type. 
+
+The following flow visualizations were generated using these files:
++ Pressure and velocity streamlines around and on the sphere:
+@image html Solution_3DNavStokSphereIsothermal_ReD1mil_P.gif
++ Temperature around and on the sphere:
+@image html Solution_3DNavStokSphereIsothermal_ReD1mil_T.gif
+
+
+Expected screen output:
+\include SingleSpecies/3D_Sphere/ViscComp_Isothermal/output.log

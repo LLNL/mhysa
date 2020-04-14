@@ -1,0 +1,526 @@
+MHYSA - Parallel (MPI) version with 128 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 3
+	No. of variables                           : 5
+	Domain size                                : 200 96 96 
+	Processes along each dimension             : 8 4 4 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 25000
+	Restart iteration                          : 0
+	Restart simulation time                    : 0.000000
+	Time integration scheme                    : rk (44)
+	Spatial discretization scheme (hyperbolic) : weno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-2stage
+	Spatial discretization scheme (parabolic ) : 4
+	Time Step                                  : 1.000000E-02
+	Check for conservation                     : no
+	Screen output iterations                   : 100
+	File output iterations                     : 250
+	Initial solution file type                 : binary
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : binary
+	Overwrite solution file                    : no
+	Physical model                             : navierstokes3d
+	Immersed Body                              : sphere.stl
+Partitioning domain.
+Allocating data arrays.
+Reading array from binary file initial.inp (Serial mode).
+Volume integral of the initial solution:
+ 0:  4.6753965134569866E+04
+ 1:  3.7403172107655490E+04
+ 2:  0.0000000000000000E+00
+ 3:  0.0000000000000000E+00
+ 4:  9.8450492297650984E+04
+Initializing solvers.
+Warning: File weno.inp not found. Using default parameters for WENO5/CRWENO5/HCWENO5 scheme.
+Initializing physics. Model = "navierstokes3d"
+Reading physical model inputs from file "physics.inp".
+Reading boundary conditions from "boundary.inp".
+  Boundary                subsonic-inflow:  Along dimension  0 and face +1
+  Boundary               subsonic-outflow:  Along dimension  0 and face -1
+  Boundary            subsonic-ambivalent:  Along dimension  1 and face +1
+  Boundary            subsonic-ambivalent:  Along dimension  1 and face -1
+  Boundary            subsonic-ambivalent:  Along dimension  2 and face +1
+  Boundary            subsonic-ambivalent:  Along dimension  2 and face -1
+6 boundary condition(s) read.
+Immersed body read from sphere.stl:
+    Number of facets: 12320
+    Bounding box: [-0.5,0.5] X [-0.5,0.5] X [-0.5,0.5]
+    Number of grid points inside immersed body: 3619 ( 0.2%).
+    Number of immersed boundary points        : 1988 ( 0.1%).
+    Immersed body simulation mode             : 3d.
+Writing solution file iblank_00000.bin.
+Setting up time integration.
+Solving in time...
+Writing immersed body surface data file surface00000.dat.
+Writing solution file op_00000.bin.
+Iteration:     100  dt: 1.000E-02  Time: 1.000E+00  CFL: 7.358E-01  Norm: 2.0428E-03  wctime: 1.2E+00 (s)  
+Iteration:     200  dt: 1.000E-02  Time: 2.000E+00  CFL: 7.508E-01  Norm: 1.8375E-03  wctime: 1.2E+00 (s)  
+Writing immersed body surface data file surface00001.dat.
+Writing solution file op_00001.bin.
+Iteration:     300  dt: 1.000E-02  Time: 3.000E+00  CFL: 7.546E-01  Norm: 1.4945E-03  wctime: 1.2E+00 (s)  
+Iteration:     400  dt: 1.000E-02  Time: 4.000E+00  CFL: 7.681E-01  Norm: 7.7383E-04  wctime: 1.2E+00 (s)  
+Iteration:     500  dt: 1.000E-02  Time: 5.000E+00  CFL: 7.754E-01  Norm: 3.7144E-04  wctime: 1.1E+00 (s)  
+Writing immersed body surface data file surface00002.dat.
+Writing solution file op_00002.bin.
+Iteration:     600  dt: 1.000E-02  Time: 6.000E+00  CFL: 7.786E-01  Norm: 2.6815E-04  wctime: 1.1E+00 (s)  
+Iteration:     700  dt: 1.000E-02  Time: 7.000E+00  CFL: 7.758E-01  Norm: 2.3865E-04  wctime: 1.0E+00 (s)  
+Writing immersed body surface data file surface00003.dat.
+Writing solution file op_00003.bin.
+Iteration:     800  dt: 1.000E-02  Time: 8.000E+00  CFL: 7.661E-01  Norm: 2.3520E-04  wctime: 8.8E-01 (s)  
+Iteration:     900  dt: 1.000E-02  Time: 9.000E+00  CFL: 7.583E-01  Norm: 2.4976E-04  wctime: 8.2E-01 (s)  
+Iteration:    1000  dt: 1.000E-02  Time: 1.000E+01  CFL: 7.348E-01  Norm: 2.2365E-04  wctime: 7.7E-01 (s)  
+Writing immersed body surface data file surface00004.dat.
+Writing solution file op_00004.bin.
+Iteration:    1100  dt: 1.000E-02  Time: 1.100E+01  CFL: 7.320E-01  Norm: 1.8684E-04  wctime: 7.3E-01 (s)  
+Iteration:    1200  dt: 1.000E-02  Time: 1.200E+01  CFL: 7.356E-01  Norm: 1.7767E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00005.dat.
+Writing solution file op_00005.bin.
+Iteration:    1300  dt: 1.000E-02  Time: 1.300E+01  CFL: 7.318E-01  Norm: 2.0157E-04  wctime: 7.2E-01 (s)  
+Iteration:    1400  dt: 1.000E-02  Time: 1.400E+01  CFL: 7.303E-01  Norm: 2.4629E-04  wctime: 7.2E-01 (s)  
+Iteration:    1500  dt: 1.000E-02  Time: 1.500E+01  CFL: 7.312E-01  Norm: 2.8584E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00006.dat.
+Writing solution file op_00006.bin.
+Iteration:    1600  dt: 1.000E-02  Time: 1.600E+01  CFL: 7.269E-01  Norm: 3.2066E-04  wctime: 7.3E-01 (s)  
+Iteration:    1700  dt: 1.000E-02  Time: 1.700E+01  CFL: 7.221E-01  Norm: 3.6709E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00007.dat.
+Writing solution file op_00007.bin.
+Iteration:    1800  dt: 1.000E-02  Time: 1.800E+01  CFL: 7.235E-01  Norm: 4.3094E-04  wctime: 7.2E-01 (s)  
+Iteration:    1900  dt: 1.000E-02  Time: 1.900E+01  CFL: 7.271E-01  Norm: 4.9119E-04  wctime: 7.2E-01 (s)  
+Iteration:    2000  dt: 1.000E-02  Time: 2.000E+01  CFL: 7.282E-01  Norm: 5.4692E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00008.dat.
+Writing solution file op_00008.bin.
+Iteration:    2100  dt: 1.000E-02  Time: 2.100E+01  CFL: 7.285E-01  Norm: 6.0892E-04  wctime: 7.2E-01 (s)  
+Iteration:    2200  dt: 1.000E-02  Time: 2.200E+01  CFL: 7.243E-01  Norm: 6.8449E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00009.dat.
+Writing solution file op_00009.bin.
+Iteration:    2300  dt: 1.000E-02  Time: 2.300E+01  CFL: 7.237E-01  Norm: 7.7271E-04  wctime: 7.2E-01 (s)  
+Iteration:    2400  dt: 1.000E-02  Time: 2.400E+01  CFL: 7.225E-01  Norm: 8.4041E-04  wctime: 7.2E-01 (s)  
+Iteration:    2500  dt: 1.000E-02  Time: 2.500E+01  CFL: 7.194E-01  Norm: 9.1529E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00010.dat.
+Writing solution file op_00010.bin.
+Iteration:    2600  dt: 1.000E-02  Time: 2.600E+01  CFL: 7.168E-01  Norm: 9.3454E-04  wctime: 7.2E-01 (s)  
+Iteration:    2700  dt: 1.000E-02  Time: 2.700E+01  CFL: 7.191E-01  Norm: 9.6429E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00011.dat.
+Writing solution file op_00011.bin.
+Iteration:    2800  dt: 1.000E-02  Time: 2.800E+01  CFL: 7.232E-01  Norm: 1.0462E-03  wctime: 7.3E-01 (s)  
+Iteration:    2900  dt: 1.000E-02  Time: 2.900E+01  CFL: 7.276E-01  Norm: 1.0648E-03  wctime: 7.3E-01 (s)  
+Iteration:    3000  dt: 1.000E-02  Time: 3.000E+01  CFL: 7.275E-01  Norm: 1.0727E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00012.dat.
+Writing solution file op_00012.bin.
+Iteration:    3100  dt: 1.000E-02  Time: 3.100E+01  CFL: 7.282E-01  Norm: 1.0988E-03  wctime: 7.3E-01 (s)  
+Iteration:    3200  dt: 1.000E-02  Time: 3.200E+01  CFL: 7.326E-01  Norm: 1.1249E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00013.dat.
+Writing solution file op_00013.bin.
+Iteration:    3300  dt: 1.000E-02  Time: 3.300E+01  CFL: 7.355E-01  Norm: 1.1203E-03  wctime: 7.9E-01 (s)  
+Iteration:    3400  dt: 1.000E-02  Time: 3.400E+01  CFL: 7.361E-01  Norm: 1.1133E-03  wctime: 7.3E-01 (s)  
+Iteration:    3500  dt: 1.000E-02  Time: 3.500E+01  CFL: 7.313E-01  Norm: 1.0579E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00014.dat.
+Writing solution file op_00014.bin.
+Iteration:    3600  dt: 1.000E-02  Time: 3.600E+01  CFL: 7.280E-01  Norm: 1.0890E-03  wctime: 7.3E-01 (s)  
+Iteration:    3700  dt: 1.000E-02  Time: 3.700E+01  CFL: 7.257E-01  Norm: 1.1073E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00015.dat.
+Writing solution file op_00015.bin.
+Iteration:    3800  dt: 1.000E-02  Time: 3.800E+01  CFL: 7.237E-01  Norm: 1.0306E-03  wctime: 7.6E-01 (s)  
+Iteration:    3900  dt: 1.000E-02  Time: 3.900E+01  CFL: 7.246E-01  Norm: 1.0202E-03  wctime: 7.2E-01 (s)  
+Iteration:    4000  dt: 1.000E-02  Time: 4.000E+01  CFL: 7.264E-01  Norm: 1.0504E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00016.dat.
+Writing solution file op_00016.bin.
+Iteration:    4100  dt: 1.000E-02  Time: 4.100E+01  CFL: 7.249E-01  Norm: 9.6839E-04  wctime: 7.5E-01 (s)  
+Iteration:    4200  dt: 1.000E-02  Time: 4.200E+01  CFL: 7.208E-01  Norm: 8.4178E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00017.dat.
+Writing solution file op_00017.bin.
+Iteration:    4300  dt: 1.000E-02  Time: 4.300E+01  CFL: 7.191E-01  Norm: 7.8865E-04  wctime: 7.5E-01 (s)  
+Iteration:    4400  dt: 1.000E-02  Time: 4.400E+01  CFL: 7.175E-01  Norm: 7.6242E-04  wctime: 7.3E-01 (s)  
+Iteration:    4500  dt: 1.000E-02  Time: 4.500E+01  CFL: 7.156E-01  Norm: 8.1230E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00018.dat.
+Writing solution file op_00018.bin.
+Iteration:    4600  dt: 1.000E-02  Time: 4.600E+01  CFL: 7.176E-01  Norm: 8.6321E-04  wctime: 7.2E-01 (s)  
+Iteration:    4700  dt: 1.000E-02  Time: 4.700E+01  CFL: 7.190E-01  Norm: 9.2701E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00019.dat.
+Writing solution file op_00019.bin.
+Iteration:    4800  dt: 1.000E-02  Time: 4.800E+01  CFL: 7.192E-01  Norm: 9.4018E-04  wctime: 7.3E-01 (s)  
+Iteration:    4900  dt: 1.000E-02  Time: 4.900E+01  CFL: 7.204E-01  Norm: 9.5284E-04  wctime: 7.2E-01 (s)  
+Iteration:    5000  dt: 1.000E-02  Time: 5.000E+01  CFL: 7.216E-01  Norm: 1.0007E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00020.dat.
+Writing solution file op_00020.bin.
+Iteration:    5100  dt: 1.000E-02  Time: 5.100E+01  CFL: 7.229E-01  Norm: 1.0366E-03  wctime: 7.2E-01 (s)  
+Iteration:    5200  dt: 1.000E-02  Time: 5.200E+01  CFL: 7.208E-01  Norm: 1.0536E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00021.dat.
+Writing solution file op_00021.bin.
+Iteration:    5300  dt: 1.000E-02  Time: 5.300E+01  CFL: 7.202E-01  Norm: 1.0507E-03  wctime: 7.3E-01 (s)  
+Iteration:    5400  dt: 1.000E-02  Time: 5.400E+01  CFL: 7.206E-01  Norm: 1.0128E-03  wctime: 7.3E-01 (s)  
+Iteration:    5500  dt: 1.000E-02  Time: 5.500E+01  CFL: 7.175E-01  Norm: 9.3152E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00022.dat.
+Writing solution file op_00022.bin.
+Iteration:    5600  dt: 1.000E-02  Time: 5.600E+01  CFL: 7.167E-01  Norm: 8.8347E-04  wctime: 7.2E-01 (s)  
+Iteration:    5700  dt: 1.000E-02  Time: 5.700E+01  CFL: 7.160E-01  Norm: 8.4730E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00023.dat.
+Writing solution file op_00023.bin.
+Iteration:    5800  dt: 1.000E-02  Time: 5.800E+01  CFL: 7.152E-01  Norm: 7.9205E-04  wctime: 7.3E-01 (s)  
+Iteration:    5900  dt: 1.000E-02  Time: 5.900E+01  CFL: 7.166E-01  Norm: 7.2903E-04  wctime: 7.3E-01 (s)  
+Iteration:    6000  dt: 1.000E-02  Time: 6.000E+01  CFL: 7.189E-01  Norm: 7.3136E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00024.dat.
+Writing solution file op_00024.bin.
+Iteration:    6100  dt: 1.000E-02  Time: 6.100E+01  CFL: 7.196E-01  Norm: 7.7082E-04  wctime: 7.3E-01 (s)  
+Iteration:    6200  dt: 1.000E-02  Time: 6.200E+01  CFL: 7.183E-01  Norm: 8.3089E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00025.dat.
+Writing solution file op_00025.bin.
+Iteration:    6300  dt: 1.000E-02  Time: 6.300E+01  CFL: 7.170E-01  Norm: 9.0544E-04  wctime: 7.2E-01 (s)  
+Iteration:    6400  dt: 1.000E-02  Time: 6.400E+01  CFL: 7.169E-01  Norm: 9.7620E-04  wctime: 7.3E-01 (s)  
+Iteration:    6500  dt: 1.000E-02  Time: 6.500E+01  CFL: 7.173E-01  Norm: 1.0333E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00026.dat.
+Writing solution file op_00026.bin.
+Iteration:    6600  dt: 1.000E-02  Time: 6.600E+01  CFL: 7.201E-01  Norm: 1.0954E-03  wctime: 7.3E-01 (s)  
+Iteration:    6700  dt: 1.000E-02  Time: 6.700E+01  CFL: 7.212E-01  Norm: 1.1555E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00027.dat.
+Writing solution file op_00027.bin.
+Iteration:    6800  dt: 1.000E-02  Time: 6.800E+01  CFL: 7.230E-01  Norm: 1.1343E-03  wctime: 7.2E-01 (s)  
+Iteration:    6900  dt: 1.000E-02  Time: 6.900E+01  CFL: 7.204E-01  Norm: 1.0330E-03  wctime: 7.2E-01 (s)  
+Iteration:    7000  dt: 1.000E-02  Time: 7.000E+01  CFL: 7.189E-01  Norm: 9.6227E-04  wctime: 7.4E-01 (s)  
+Writing immersed body surface data file surface00028.dat.
+Writing solution file op_00028.bin.
+Iteration:    7100  dt: 1.000E-02  Time: 7.100E+01  CFL: 7.168E-01  Norm: 9.2753E-04  wctime: 7.3E-01 (s)  
+Iteration:    7200  dt: 1.000E-02  Time: 7.200E+01  CFL: 7.161E-01  Norm: 8.9843E-04  wctime: 7.4E-01 (s)  
+Writing immersed body surface data file surface00029.dat.
+Writing solution file op_00029.bin.
+Iteration:    7300  dt: 1.000E-02  Time: 7.300E+01  CFL: 7.169E-01  Norm: 8.6758E-04  wctime: 7.2E-01 (s)  
+Iteration:    7400  dt: 1.000E-02  Time: 7.400E+01  CFL: 7.175E-01  Norm: 8.7575E-04  wctime: 7.2E-01 (s)  
+Iteration:    7500  dt: 1.000E-02  Time: 7.500E+01  CFL: 7.167E-01  Norm: 8.7885E-04  wctime: 7.6E-01 (s)  
+Writing immersed body surface data file surface00030.dat.
+Writing solution file op_00030.bin.
+Iteration:    7600  dt: 1.000E-02  Time: 7.600E+01  CFL: 7.168E-01  Norm: 8.8340E-04  wctime: 7.2E-01 (s)  
+Iteration:    7700  dt: 1.000E-02  Time: 7.700E+01  CFL: 7.169E-01  Norm: 9.3974E-04  wctime: 7.5E-01 (s)  
+Writing immersed body surface data file surface00031.dat.
+Writing solution file op_00031.bin.
+Iteration:    7800  dt: 1.000E-02  Time: 7.800E+01  CFL: 7.163E-01  Norm: 9.4565E-04  wctime: 7.2E-01 (s)  
+Iteration:    7900  dt: 1.000E-02  Time: 7.900E+01  CFL: 7.171E-01  Norm: 9.1209E-04  wctime: 7.2E-01 (s)  
+Iteration:    8000  dt: 1.000E-02  Time: 8.000E+01  CFL: 7.186E-01  Norm: 9.0395E-04  wctime: 7.4E-01 (s)  
+Writing immersed body surface data file surface00032.dat.
+Writing solution file op_00032.bin.
+Iteration:    8100  dt: 1.000E-02  Time: 8.100E+01  CFL: 7.187E-01  Norm: 8.7694E-04  wctime: 7.3E-01 (s)  
+Iteration:    8200  dt: 1.000E-02  Time: 8.200E+01  CFL: 7.185E-01  Norm: 8.8730E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00033.dat.
+Writing solution file op_00033.bin.
+Iteration:    8300  dt: 1.000E-02  Time: 8.300E+01  CFL: 7.192E-01  Norm: 9.0910E-04  wctime: 7.3E-01 (s)  
+Iteration:    8400  dt: 1.000E-02  Time: 8.400E+01  CFL: 7.200E-01  Norm: 9.0880E-04  wctime: 7.3E-01 (s)  
+Iteration:    8500  dt: 1.000E-02  Time: 8.500E+01  CFL: 7.196E-01  Norm: 8.9052E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00034.dat.
+Writing solution file op_00034.bin.
+Iteration:    8600  dt: 1.000E-02  Time: 8.600E+01  CFL: 7.174E-01  Norm: 8.8821E-04  wctime: 7.2E-01 (s)  
+Iteration:    8700  dt: 1.000E-02  Time: 8.700E+01  CFL: 7.158E-01  Norm: 9.4599E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00035.dat.
+Writing solution file op_00035.bin.
+Iteration:    8800  dt: 1.000E-02  Time: 8.800E+01  CFL: 7.161E-01  Norm: 1.0126E-03  wctime: 7.2E-01 (s)  
+Iteration:    8900  dt: 1.000E-02  Time: 8.900E+01  CFL: 7.168E-01  Norm: 1.0295E-03  wctime: 7.3E-01 (s)  
+Iteration:    9000  dt: 1.000E-02  Time: 9.000E+01  CFL: 7.205E-01  Norm: 9.9059E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00036.dat.
+Writing solution file op_00036.bin.
+Iteration:    9100  dt: 1.000E-02  Time: 9.100E+01  CFL: 7.209E-01  Norm: 9.8056E-04  wctime: 7.2E-01 (s)  
+Iteration:    9200  dt: 1.000E-02  Time: 9.200E+01  CFL: 7.194E-01  Norm: 1.0316E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00037.dat.
+Writing solution file op_00037.bin.
+Iteration:    9300  dt: 1.000E-02  Time: 9.300E+01  CFL: 7.182E-01  Norm: 1.0691E-03  wctime: 7.3E-01 (s)  
+Iteration:    9400  dt: 1.000E-02  Time: 9.400E+01  CFL: 7.176E-01  Norm: 1.0508E-03  wctime: 7.3E-01 (s)  
+Iteration:    9500  dt: 1.000E-02  Time: 9.500E+01  CFL: 7.187E-01  Norm: 9.8171E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00038.dat.
+Writing solution file op_00038.bin.
+Iteration:    9600  dt: 1.000E-02  Time: 9.600E+01  CFL: 7.187E-01  Norm: 9.5412E-04  wctime: 7.2E-01 (s)  
+Iteration:    9700  dt: 1.000E-02  Time: 9.700E+01  CFL: 7.189E-01  Norm: 9.5319E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00039.dat.
+Writing solution file op_00039.bin.
+Iteration:    9800  dt: 1.000E-02  Time: 9.800E+01  CFL: 7.194E-01  Norm: 8.9810E-04  wctime: 7.2E-01 (s)  
+Iteration:    9900  dt: 1.000E-02  Time: 9.900E+01  CFL: 7.179E-01  Norm: 8.1479E-04  wctime: 7.4E-01 (s)  
+Iteration:   10000  dt: 1.000E-02  Time: 1.000E+02  CFL: 7.159E-01  Norm: 8.0776E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00040.dat.
+Writing solution file op_00040.bin.
+Iteration:   10100  dt: 1.000E-02  Time: 1.010E+02  CFL: 7.162E-01  Norm: 8.6183E-04  wctime: 7.5E-01 (s)  
+Iteration:   10200  dt: 1.000E-02  Time: 1.020E+02  CFL: 7.167E-01  Norm: 9.1327E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00041.dat.
+Writing solution file op_00041.bin.
+Iteration:   10300  dt: 1.000E-02  Time: 1.030E+02  CFL: 7.166E-01  Norm: 9.2891E-04  wctime: 7.3E-01 (s)  
+Iteration:   10400  dt: 1.000E-02  Time: 1.040E+02  CFL: 7.161E-01  Norm: 9.3845E-04  wctime: 7.5E-01 (s)  
+Iteration:   10500  dt: 1.000E-02  Time: 1.050E+02  CFL: 7.158E-01  Norm: 9.7610E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00042.dat.
+Writing solution file op_00042.bin.
+Iteration:   10600  dt: 1.000E-02  Time: 1.060E+02  CFL: 7.148E-01  Norm: 1.0003E-03  wctime: 7.6E-01 (s)  
+Iteration:   10700  dt: 1.000E-02  Time: 1.070E+02  CFL: 7.138E-01  Norm: 9.7239E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00043.dat.
+Writing solution file op_00043.bin.
+Iteration:   10800  dt: 1.000E-02  Time: 1.080E+02  CFL: 7.134E-01  Norm: 9.2451E-04  wctime: 7.3E-01 (s)  
+Iteration:   10900  dt: 1.000E-02  Time: 1.090E+02  CFL: 7.136E-01  Norm: 9.1533E-04  wctime: 7.4E-01 (s)  
+Iteration:   11000  dt: 1.000E-02  Time: 1.100E+02  CFL: 7.132E-01  Norm: 8.8734E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00044.dat.
+Writing solution file op_00044.bin.
+Iteration:   11100  dt: 1.000E-02  Time: 1.110E+02  CFL: 7.133E-01  Norm: 8.3933E-04  wctime: 7.2E-01 (s)  
+Iteration:   11200  dt: 1.000E-02  Time: 1.120E+02  CFL: 7.145E-01  Norm: 7.0643E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00045.dat.
+Writing solution file op_00045.bin.
+Iteration:   11300  dt: 1.000E-02  Time: 1.130E+02  CFL: 7.159E-01  Norm: 6.4543E-04  wctime: 7.3E-01 (s)  
+Iteration:   11400  dt: 1.000E-02  Time: 1.140E+02  CFL: 7.152E-01  Norm: 6.0253E-04  wctime: 7.2E-01 (s)  
+Iteration:   11500  dt: 1.000E-02  Time: 1.150E+02  CFL: 7.136E-01  Norm: 6.3190E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00046.dat.
+Writing solution file op_00046.bin.
+Iteration:   11600  dt: 1.000E-02  Time: 1.160E+02  CFL: 7.133E-01  Norm: 6.7607E-04  wctime: 7.3E-01 (s)  
+Iteration:   11700  dt: 1.000E-02  Time: 1.170E+02  CFL: 7.117E-01  Norm: 7.0574E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00047.dat.
+Writing solution file op_00047.bin.
+Iteration:   11800  dt: 1.000E-02  Time: 1.180E+02  CFL: 7.108E-01  Norm: 6.9226E-04  wctime: 7.3E-01 (s)  
+Iteration:   11900  dt: 1.000E-02  Time: 1.190E+02  CFL: 7.120E-01  Norm: 7.0158E-04  wctime: 7.3E-01 (s)  
+Iteration:   12000  dt: 1.000E-02  Time: 1.200E+02  CFL: 7.108E-01  Norm: 7.5318E-04  wctime: 7.8E-01 (s)  
+Writing immersed body surface data file surface00048.dat.
+Writing solution file op_00048.bin.
+Iteration:   12100  dt: 1.000E-02  Time: 1.210E+02  CFL: 7.101E-01  Norm: 8.1838E-04  wctime: 7.2E-01 (s)  
+Iteration:   12200  dt: 1.000E-02  Time: 1.220E+02  CFL: 7.106E-01  Norm: 8.5364E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00049.dat.
+Writing solution file op_00049.bin.
+Iteration:   12300  dt: 1.000E-02  Time: 1.230E+02  CFL: 7.122E-01  Norm: 9.2010E-04  wctime: 7.3E-01 (s)  
+Iteration:   12400  dt: 1.000E-02  Time: 1.240E+02  CFL: 7.145E-01  Norm: 9.9606E-04  wctime: 7.3E-01 (s)  
+Iteration:   12500  dt: 1.000E-02  Time: 1.250E+02  CFL: 7.161E-01  Norm: 1.0740E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00050.dat.
+Writing solution file op_00050.bin.
+Iteration:   12600  dt: 1.000E-02  Time: 1.260E+02  CFL: 7.166E-01  Norm: 1.1198E-03  wctime: 7.3E-01 (s)  
+Iteration:   12700  dt: 1.000E-02  Time: 1.270E+02  CFL: 7.163E-01  Norm: 1.1385E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00051.dat.
+Writing solution file op_00051.bin.
+Iteration:   12800  dt: 1.000E-02  Time: 1.280E+02  CFL: 7.169E-01  Norm: 1.1009E-03  wctime: 7.5E-01 (s)  
+Iteration:   12900  dt: 1.000E-02  Time: 1.290E+02  CFL: 7.192E-01  Norm: 1.0713E-03  wctime: 7.3E-01 (s)  
+Iteration:   13000  dt: 1.000E-02  Time: 1.300E+02  CFL: 7.206E-01  Norm: 9.9641E-04  wctime: 7.5E-01 (s)  
+Writing immersed body surface data file surface00052.dat.
+Writing solution file op_00052.bin.
+Iteration:   13100  dt: 1.000E-02  Time: 1.310E+02  CFL: 7.205E-01  Norm: 9.3230E-04  wctime: 7.2E-01 (s)  
+Iteration:   13200  dt: 1.000E-02  Time: 1.320E+02  CFL: 7.219E-01  Norm: 8.4450E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00053.dat.
+Writing solution file op_00053.bin.
+Iteration:   13300  dt: 1.000E-02  Time: 1.330E+02  CFL: 7.208E-01  Norm: 8.2306E-04  wctime: 7.3E-01 (s)  
+Iteration:   13400  dt: 1.000E-02  Time: 1.340E+02  CFL: 7.179E-01  Norm: 8.1583E-04  wctime: 7.2E-01 (s)  
+Iteration:   13500  dt: 1.000E-02  Time: 1.350E+02  CFL: 7.162E-01  Norm: 8.1639E-04  wctime: 7.6E-01 (s)  
+Writing immersed body surface data file surface00054.dat.
+Writing solution file op_00054.bin.
+Iteration:   13600  dt: 1.000E-02  Time: 1.360E+02  CFL: 7.153E-01  Norm: 8.0112E-04  wctime: 7.2E-01 (s)  
+Iteration:   13700  dt: 1.000E-02  Time: 1.370E+02  CFL: 7.134E-01  Norm: 7.7338E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00055.dat.
+Writing solution file op_00055.bin.
+Iteration:   13800  dt: 1.000E-02  Time: 1.380E+02  CFL: 7.132E-01  Norm: 7.3973E-04  wctime: 7.3E-01 (s)  
+Iteration:   13900  dt: 1.000E-02  Time: 1.390E+02  CFL: 7.120E-01  Norm: 7.4531E-04  wctime: 7.2E-01 (s)  
+Iteration:   14000  dt: 1.000E-02  Time: 1.400E+02  CFL: 7.118E-01  Norm: 8.2337E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00056.dat.
+Writing solution file op_00056.bin.
+Iteration:   14100  dt: 1.000E-02  Time: 1.410E+02  CFL: 7.133E-01  Norm: 8.3865E-04  wctime: 7.3E-01 (s)  
+Iteration:   14200  dt: 1.000E-02  Time: 1.420E+02  CFL: 7.132E-01  Norm: 8.2415E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00057.dat.
+Writing solution file op_00057.bin.
+Iteration:   14300  dt: 1.000E-02  Time: 1.430E+02  CFL: 7.133E-01  Norm: 8.1007E-04  wctime: 7.3E-01 (s)  
+Iteration:   14400  dt: 1.000E-02  Time: 1.440E+02  CFL: 7.128E-01  Norm: 7.8132E-04  wctime: 7.2E-01 (s)  
+Iteration:   14500  dt: 1.000E-02  Time: 1.450E+02  CFL: 7.124E-01  Norm: 7.7004E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00058.dat.
+Writing solution file op_00058.bin.
+Iteration:   14600  dt: 1.000E-02  Time: 1.460E+02  CFL: 7.114E-01  Norm: 7.6445E-04  wctime: 7.3E-01 (s)  
+Iteration:   14700  dt: 1.000E-02  Time: 1.470E+02  CFL: 7.105E-01  Norm: 7.9452E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00059.dat.
+Writing solution file op_00059.bin.
+Iteration:   14800  dt: 1.000E-02  Time: 1.480E+02  CFL: 7.115E-01  Norm: 8.5309E-04  wctime: 7.2E-01 (s)  
+Iteration:   14900  dt: 1.000E-02  Time: 1.490E+02  CFL: 7.122E-01  Norm: 9.2663E-04  wctime: 7.5E-01 (s)  
+Iteration:   15000  dt: 1.000E-02  Time: 1.500E+02  CFL: 7.136E-01  Norm: 9.6645E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00060.dat.
+Writing solution file op_00060.bin.
+Iteration:   15100  dt: 1.000E-02  Time: 1.510E+02  CFL: 7.161E-01  Norm: 9.7784E-04  wctime: 7.2E-01 (s)  
+Iteration:   15200  dt: 1.000E-02  Time: 1.520E+02  CFL: 7.182E-01  Norm: 1.0067E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00061.dat.
+Writing solution file op_00061.bin.
+Iteration:   15300  dt: 1.000E-02  Time: 1.530E+02  CFL: 7.197E-01  Norm: 1.0292E-03  wctime: 7.2E-01 (s)  
+Iteration:   15400  dt: 1.000E-02  Time: 1.540E+02  CFL: 7.201E-01  Norm: 1.0432E-03  wctime: 7.3E-01 (s)  
+Iteration:   15500  dt: 1.000E-02  Time: 1.550E+02  CFL: 7.196E-01  Norm: 1.0296E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00062.dat.
+Writing solution file op_00062.bin.
+Iteration:   15600  dt: 1.000E-02  Time: 1.560E+02  CFL: 7.178E-01  Norm: 1.0302E-03  wctime: 7.2E-01 (s)  
+Iteration:   15700  dt: 1.000E-02  Time: 1.570E+02  CFL: 7.170E-01  Norm: 1.0151E-03  wctime: 7.4E-01 (s)  
+Writing immersed body surface data file surface00063.dat.
+Writing solution file op_00063.bin.
+Iteration:   15800  dt: 1.000E-02  Time: 1.580E+02  CFL: 7.165E-01  Norm: 9.9613E-04  wctime: 7.2E-01 (s)  
+Iteration:   15900  dt: 1.000E-02  Time: 1.590E+02  CFL: 7.158E-01  Norm: 1.0260E-03  wctime: 7.5E-01 (s)  
+Iteration:   16000  dt: 1.000E-02  Time: 1.600E+02  CFL: 7.163E-01  Norm: 1.0514E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00064.dat.
+Writing solution file op_00064.bin.
+Iteration:   16100  dt: 1.000E-02  Time: 1.610E+02  CFL: 7.164E-01  Norm: 1.0842E-03  wctime: 7.3E-01 (s)  
+Iteration:   16200  dt: 1.000E-02  Time: 1.620E+02  CFL: 7.166E-01  Norm: 1.0730E-03  wctime: 7.4E-01 (s)  
+Writing immersed body surface data file surface00065.dat.
+Writing solution file op_00065.bin.
+Iteration:   16300  dt: 1.000E-02  Time: 1.630E+02  CFL: 7.154E-01  Norm: 9.8832E-04  wctime: 7.3E-01 (s)  
+Iteration:   16400  dt: 1.000E-02  Time: 1.640E+02  CFL: 7.161E-01  Norm: 8.6918E-04  wctime: 7.4E-01 (s)  
+Iteration:   16500  dt: 1.000E-02  Time: 1.650E+02  CFL: 7.156E-01  Norm: 7.7879E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00066.dat.
+Writing solution file op_00066.bin.
+Iteration:   16600  dt: 1.000E-02  Time: 1.660E+02  CFL: 7.162E-01  Norm: 7.4649E-04  wctime: 7.3E-01 (s)  
+Iteration:   16700  dt: 1.000E-02  Time: 1.670E+02  CFL: 7.182E-01  Norm: 7.5307E-04  wctime: 7.4E-01 (s)  
+Writing immersed body surface data file surface00067.dat.
+Writing solution file op_00067.bin.
+Iteration:   16800  dt: 1.000E-02  Time: 1.680E+02  CFL: 7.172E-01  Norm: 7.5881E-04  wctime: 7.3E-01 (s)  
+Iteration:   16900  dt: 1.000E-02  Time: 1.690E+02  CFL: 7.156E-01  Norm: 7.7828E-04  wctime: 7.2E-01 (s)  
+Iteration:   17000  dt: 1.000E-02  Time: 1.700E+02  CFL: 7.169E-01  Norm: 7.8127E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00068.dat.
+Writing solution file op_00068.bin.
+Iteration:   17100  dt: 1.000E-02  Time: 1.710E+02  CFL: 7.157E-01  Norm: 8.3363E-04  wctime: 7.3E-01 (s)  
+Iteration:   17200  dt: 1.000E-02  Time: 1.720E+02  CFL: 7.121E-01  Norm: 8.9325E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00069.dat.
+Writing solution file op_00069.bin.
+Iteration:   17300  dt: 1.000E-02  Time: 1.730E+02  CFL: 7.110E-01  Norm: 9.3020E-04  wctime: 7.2E-01 (s)  
+Iteration:   17400  dt: 1.000E-02  Time: 1.740E+02  CFL: 7.129E-01  Norm: 9.6031E-04  wctime: 7.2E-01 (s)  
+Iteration:   17500  dt: 1.000E-02  Time: 1.750E+02  CFL: 7.143E-01  Norm: 9.9019E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00070.dat.
+Writing solution file op_00070.bin.
+Iteration:   17600  dt: 1.000E-02  Time: 1.760E+02  CFL: 7.166E-01  Norm: 1.0114E-03  wctime: 7.3E-01 (s)  
+Iteration:   17700  dt: 1.000E-02  Time: 1.770E+02  CFL: 7.202E-01  Norm: 1.0532E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00071.dat.
+Writing solution file op_00071.bin.
+Iteration:   17800  dt: 1.000E-02  Time: 1.780E+02  CFL: 7.218E-01  Norm: 1.1425E-03  wctime: 7.5E-01 (s)  
+Iteration:   17900  dt: 1.000E-02  Time: 1.790E+02  CFL: 7.225E-01  Norm: 1.1424E-03  wctime: 7.3E-01 (s)  
+Iteration:   18000  dt: 1.000E-02  Time: 1.800E+02  CFL: 7.214E-01  Norm: 1.0382E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00072.dat.
+Writing solution file op_00072.bin.
+Iteration:   18100  dt: 1.000E-02  Time: 1.810E+02  CFL: 7.205E-01  Norm: 9.8743E-04  wctime: 7.6E-01 (s)  
+Iteration:   18200  dt: 1.000E-02  Time: 1.820E+02  CFL: 7.197E-01  Norm: 9.7007E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00073.dat.
+Writing solution file op_00073.bin.
+Iteration:   18300  dt: 1.000E-02  Time: 1.830E+02  CFL: 7.184E-01  Norm: 9.1869E-04  wctime: 7.9E-01 (s)  
+Iteration:   18400  dt: 1.000E-02  Time: 1.840E+02  CFL: 7.173E-01  Norm: 8.5691E-04  wctime: 7.2E-01 (s)  
+Iteration:   18500  dt: 1.000E-02  Time: 1.850E+02  CFL: 7.162E-01  Norm: 8.5486E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00074.dat.
+Writing solution file op_00074.bin.
+Iteration:   18600  dt: 1.000E-02  Time: 1.860E+02  CFL: 7.172E-01  Norm: 8.2752E-04  wctime: 7.3E-01 (s)  
+Iteration:   18700  dt: 1.000E-02  Time: 1.870E+02  CFL: 7.153E-01  Norm: 8.2420E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00075.dat.
+Writing solution file op_00075.bin.
+Iteration:   18800  dt: 1.000E-02  Time: 1.880E+02  CFL: 7.135E-01  Norm: 8.1773E-04  wctime: 7.3E-01 (s)  
+Iteration:   18900  dt: 1.000E-02  Time: 1.890E+02  CFL: 7.114E-01  Norm: 7.8632E-04  wctime: 7.3E-01 (s)  
+Iteration:   19000  dt: 1.000E-02  Time: 1.900E+02  CFL: 7.110E-01  Norm: 7.6369E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00076.dat.
+Writing solution file op_00076.bin.
+Iteration:   19100  dt: 1.000E-02  Time: 1.910E+02  CFL: 7.144E-01  Norm: 7.5854E-04  wctime: 7.4E-01 (s)  
+Iteration:   19200  dt: 1.000E-02  Time: 1.920E+02  CFL: 7.149E-01  Norm: 7.6586E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00077.dat.
+Writing solution file op_00077.bin.
+Iteration:   19300  dt: 1.000E-02  Time: 1.930E+02  CFL: 7.141E-01  Norm: 7.9320E-04  wctime: 7.5E-01 (s)  
+Iteration:   19400  dt: 1.000E-02  Time: 1.940E+02  CFL: 7.159E-01  Norm: 8.6180E-04  wctime: 7.2E-01 (s)  
+Iteration:   19500  dt: 1.000E-02  Time: 1.950E+02  CFL: 7.179E-01  Norm: 9.0975E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00078.dat.
+Writing solution file op_00078.bin.
+Iteration:   19600  dt: 1.000E-02  Time: 1.960E+02  CFL: 7.182E-01  Norm: 9.6117E-04  wctime: 7.3E-01 (s)  
+Iteration:   19700  dt: 1.000E-02  Time: 1.970E+02  CFL: 7.180E-01  Norm: 9.9142E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00079.dat.
+Writing solution file op_00079.bin.
+Iteration:   19800  dt: 1.000E-02  Time: 1.980E+02  CFL: 7.174E-01  Norm: 1.0728E-03  wctime: 7.2E-01 (s)  
+Iteration:   19900  dt: 1.000E-02  Time: 1.990E+02  CFL: 7.160E-01  Norm: 1.1009E-03  wctime: 7.3E-01 (s)  
+Iteration:   20000  dt: 1.000E-02  Time: 2.000E+02  CFL: 7.178E-01  Norm: 1.1171E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00080.dat.
+Writing solution file op_00080.bin.
+Iteration:   20100  dt: 1.000E-02  Time: 2.010E+02  CFL: 7.208E-01  Norm: 1.1289E-03  wctime: 7.2E-01 (s)  
+Iteration:   20200  dt: 1.000E-02  Time: 2.020E+02  CFL: 7.214E-01  Norm: 1.1343E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00081.dat.
+Writing solution file op_00081.bin.
+Iteration:   20300  dt: 1.000E-02  Time: 2.030E+02  CFL: 7.223E-01  Norm: 1.1268E-03  wctime: 7.3E-01 (s)  
+Iteration:   20400  dt: 1.000E-02  Time: 2.040E+02  CFL: 7.223E-01  Norm: 1.1044E-03  wctime: 7.2E-01 (s)  
+Iteration:   20500  dt: 1.000E-02  Time: 2.050E+02  CFL: 7.210E-01  Norm: 1.0168E-03  wctime: 7.5E-01 (s)  
+Writing immersed body surface data file surface00082.dat.
+Writing solution file op_00082.bin.
+Iteration:   20600  dt: 1.000E-02  Time: 2.060E+02  CFL: 7.206E-01  Norm: 9.9917E-04  wctime: 7.2E-01 (s)  
+Iteration:   20700  dt: 1.000E-02  Time: 2.070E+02  CFL: 7.199E-01  Norm: 9.8336E-04  wctime: 7.5E-01 (s)  
+Writing immersed body surface data file surface00083.dat.
+Writing solution file op_00083.bin.
+Iteration:   20800  dt: 1.000E-02  Time: 2.080E+02  CFL: 7.228E-01  Norm: 9.6653E-04  wctime: 7.3E-01 (s)  
+Iteration:   20900  dt: 1.000E-02  Time: 2.090E+02  CFL: 7.226E-01  Norm: 9.7073E-04  wctime: 7.3E-01 (s)  
+Iteration:   21000  dt: 1.000E-02  Time: 2.100E+02  CFL: 7.218E-01  Norm: 9.5592E-04  wctime: 7.5E-01 (s)  
+Writing immersed body surface data file surface00084.dat.
+Writing solution file op_00084.bin.
+Iteration:   21100  dt: 1.000E-02  Time: 2.110E+02  CFL: 7.187E-01  Norm: 9.1763E-04  wctime: 7.3E-01 (s)  
+Iteration:   21200  dt: 1.000E-02  Time: 2.120E+02  CFL: 7.170E-01  Norm: 9.5761E-04  wctime: 7.5E-01 (s)  
+Writing immersed body surface data file surface00085.dat.
+Writing solution file op_00085.bin.
+Iteration:   21300  dt: 1.000E-02  Time: 2.130E+02  CFL: 7.169E-01  Norm: 1.0263E-03  wctime: 7.3E-01 (s)  
+Iteration:   21400  dt: 1.000E-02  Time: 2.140E+02  CFL: 7.188E-01  Norm: 1.0417E-03  wctime: 7.2E-01 (s)  
+Iteration:   21500  dt: 1.000E-02  Time: 2.150E+02  CFL: 7.215E-01  Norm: 1.0563E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00086.dat.
+Writing solution file op_00086.bin.
+Iteration:   21600  dt: 1.000E-02  Time: 2.160E+02  CFL: 7.224E-01  Norm: 1.1032E-03  wctime: 7.3E-01 (s)  
+Iteration:   21700  dt: 1.000E-02  Time: 2.170E+02  CFL: 7.231E-01  Norm: 1.1119E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00087.dat.
+Writing solution file op_00087.bin.
+Iteration:   21800  dt: 1.000E-02  Time: 2.180E+02  CFL: 7.243E-01  Norm: 1.0734E-03  wctime: 7.3E-01 (s)  
+Iteration:   21900  dt: 1.000E-02  Time: 2.190E+02  CFL: 7.236E-01  Norm: 1.0738E-03  wctime: 7.3E-01 (s)  
+Iteration:   22000  dt: 1.000E-02  Time: 2.200E+02  CFL: 7.229E-01  Norm: 1.0343E-03  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00088.dat.
+Writing solution file op_00088.bin.
+Iteration:   22100  dt: 1.000E-02  Time: 2.210E+02  CFL: 7.225E-01  Norm: 9.4317E-04  wctime: 7.3E-01 (s)  
+Iteration:   22200  dt: 1.000E-02  Time: 2.220E+02  CFL: 7.213E-01  Norm: 9.0655E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00089.dat.
+Writing solution file op_00089.bin.
+Iteration:   22300  dt: 1.000E-02  Time: 2.230E+02  CFL: 7.201E-01  Norm: 8.3133E-04  wctime: 7.2E-01 (s)  
+Iteration:   22400  dt: 1.000E-02  Time: 2.240E+02  CFL: 7.195E-01  Norm: 7.8810E-04  wctime: 7.3E-01 (s)  
+Iteration:   22500  dt: 1.000E-02  Time: 2.250E+02  CFL: 7.183E-01  Norm: 7.3237E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00090.dat.
+Writing solution file op_00090.bin.
+Iteration:   22600  dt: 1.000E-02  Time: 2.260E+02  CFL: 7.170E-01  Norm: 7.5958E-04  wctime: 7.3E-01 (s)  
+Iteration:   22700  dt: 1.000E-02  Time: 2.270E+02  CFL: 7.168E-01  Norm: 7.7352E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00091.dat.
+Writing solution file op_00091.bin.
+Iteration:   22800  dt: 1.000E-02  Time: 2.280E+02  CFL: 7.157E-01  Norm: 7.9672E-04  wctime: 7.2E-01 (s)  
+Iteration:   22900  dt: 1.000E-02  Time: 2.290E+02  CFL: 7.150E-01  Norm: 7.6404E-04  wctime: 7.3E-01 (s)  
+Iteration:   23000  dt: 1.000E-02  Time: 2.300E+02  CFL: 7.147E-01  Norm: 7.8100E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00092.dat.
+Writing solution file op_00092.bin.
+Iteration:   23100  dt: 1.000E-02  Time: 2.310E+02  CFL: 7.147E-01  Norm: 8.2251E-04  wctime: 7.5E-01 (s)  
+Iteration:   23200  dt: 1.000E-02  Time: 2.320E+02  CFL: 7.143E-01  Norm: 8.4098E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00093.dat.
+Writing solution file op_00093.bin.
+Iteration:   23300  dt: 1.000E-02  Time: 2.330E+02  CFL: 7.134E-01  Norm: 8.2357E-04  wctime: 7.3E-01 (s)  
+Iteration:   23400  dt: 1.000E-02  Time: 2.340E+02  CFL: 7.140E-01  Norm: 7.7512E-04  wctime: 7.6E-01 (s)  
+Iteration:   23500  dt: 1.000E-02  Time: 2.350E+02  CFL: 7.148E-01  Norm: 7.1546E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00094.dat.
+Writing solution file op_00094.bin.
+Iteration:   23600  dt: 1.000E-02  Time: 2.360E+02  CFL: 7.160E-01  Norm: 7.2971E-04  wctime: 7.7E-01 (s)  
+Iteration:   23700  dt: 1.000E-02  Time: 2.370E+02  CFL: 7.180E-01  Norm: 8.3774E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00095.dat.
+Writing solution file op_00095.bin.
+Iteration:   23800  dt: 1.000E-02  Time: 2.380E+02  CFL: 7.171E-01  Norm: 9.1351E-04  wctime: 7.3E-01 (s)  
+Iteration:   23900  dt: 1.000E-02  Time: 2.390E+02  CFL: 7.166E-01  Norm: 9.7253E-04  wctime: 7.3E-01 (s)  
+Iteration:   24000  dt: 1.000E-02  Time: 2.400E+02  CFL: 7.174E-01  Norm: 1.0059E-03  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00096.dat.
+Writing solution file op_00096.bin.
+Iteration:   24100  dt: 1.000E-02  Time: 2.410E+02  CFL: 7.181E-01  Norm: 9.4600E-04  wctime: 7.3E-01 (s)  
+Iteration:   24200  dt: 1.000E-02  Time: 2.420E+02  CFL: 7.181E-01  Norm: 9.0604E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00097.dat.
+Writing solution file op_00097.bin.
+Iteration:   24300  dt: 1.000E-02  Time: 2.430E+02  CFL: 7.170E-01  Norm: 9.1151E-04  wctime: 7.2E-01 (s)  
+Iteration:   24400  dt: 1.000E-02  Time: 2.440E+02  CFL: 7.165E-01  Norm: 8.7401E-04  wctime: 7.3E-01 (s)  
+Iteration:   24500  dt: 1.000E-02  Time: 2.450E+02  CFL: 7.168E-01  Norm: 8.5892E-04  wctime: 7.2E-01 (s)  
+Writing immersed body surface data file surface00098.dat.
+Writing solution file op_00098.bin.
+Iteration:   24600  dt: 1.000E-02  Time: 2.460E+02  CFL: 7.154E-01  Norm: 8.0678E-04  wctime: 7.3E-01 (s)  
+Iteration:   24700  dt: 1.000E-02  Time: 2.470E+02  CFL: 7.159E-01  Norm: 8.1382E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00099.dat.
+Writing solution file op_00099.bin.
+Iteration:   24800  dt: 1.000E-02  Time: 2.480E+02  CFL: 7.154E-01  Norm: 8.5172E-04  wctime: 7.3E-01 (s)  
+Iteration:   24900  dt: 1.000E-02  Time: 2.490E+02  CFL: 7.138E-01  Norm: 9.0069E-04  wctime: 7.3E-01 (s)  
+Iteration:   25000  dt: 1.000E-02  Time: 2.500E+02  CFL: 7.146E-01  Norm: 9.1358E-04  wctime: 7.3E-01 (s)  
+Writing immersed body surface data file surface00100.dat.
+Writing solution file op_00100.bin.
+Maximum number of iterations (25000) reached. Exiting time integration.
+Completed time integration (Final time: 250.000000).
+Computed errors:
+  L1         Error           : 0.0000000000000000E+00
+  L2         Error           : 0.0000000000000000E+00
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+	0.0000000000000000E+00
+Solver runtime (in seconds): 1.8443361078000002E+04
+Total  runtime (in seconds): 1.8444423147000001E+04
+Deallocating arrays.
+Finished.

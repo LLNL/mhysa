@@ -20,7 +20,7 @@ Boundary Conditions:
 + ymin and ymax: Subsonic "ambivalent"
 + zmin and zmax: Subsonic "ambivalent"
 + The sphere surface is specified as isothermal with wall 
-  temperature as 1.
+  temperature as 1/gamma.
 
 Initial solution:
     rho = 1.0
