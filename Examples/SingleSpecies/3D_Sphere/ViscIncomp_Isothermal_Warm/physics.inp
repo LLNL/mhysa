@@ -1,0 +1,8 @@
+begin
+  gamma           1.4
+  upwinding       roe
+  Pr              0.72
+  Minf            0.1
+  Re              100
+  ib_wall_type    isothermal 1.4285714286
+end
