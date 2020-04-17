@@ -32,7 +32,7 @@ Initial solution:
 
 Other parameters:
   gamma = 1.4
-  freestream Mach number = 0.1
+  freestream Mach number = 0.8
   Prandtl number = 0.72
   Reynolds number = 1000000 ( = sphere-diameter-based Reynolds number)
 
