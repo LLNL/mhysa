@@ -50,11 +50,14 @@ Examples with immersed boundaries
 \subpage shock_cylinder \n
 \subpage cylinder_steady_incompressible_viscous \n
 \subpage cylinder_unsteady_incompressible_viscous \n
+
 \subpage sphere_steady_incompressible_viscous_adiabatic \n
 \subpage sphere_steady_incompressible_viscous_isothermal \n
 \subpage sphere_steady_incompressible_viscous_isothermal_warm \n
 \subpage sphere_unsteady_compressible_viscous_adiabatic \n
-\subpage sphere_unsteady_compressible_viscous_isothermal 
+\subpage sphere_unsteady_compressible_viscous_isothermal \n
+\subpage sphere_unsteady_supersonic_inviscid_adiabatic \n
+\subpage sphere_unsteady_supersonic_inviscid_isothermal
 
 \page multispecies_examples Multispecies Examples
 
@@ -1643,3 +1646,205 @@ The following flow visualizations were generated using these files:
 
 Expected screen output:
 \include SingleSpecies/3D_Sphere/ViscComp_Isothermal/output.log
+
+\page sphere_unsteady_supersonic_inviscid_adiabatic 3D Unsteady, supersonic, inviscid flow around a sphere (adiabatic surface) - Mach 1.2
+
+Location: \b mhysa/Examples/SingleSpecies/3D_Sphere/InviscSupersonic_Adiabatic/Mach1.2
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: The domain consists of a fine uniform grid around the sphere defined by [-2,6] X [-2,2] X [-2,2],
+        and a stretched grid beyond this zone.
+
+Geometry: A sphere of radius 0.5 centered at (0,0)
+          (\b mhysa/Examples/STLGeometries/sphere.stl)
+
+The following image shows the sphere:
+@image html Surface3D_Sphere.png
+
+The following images shows the grid and the sphere:
+@image html Domain3D_Sphere1.png
+@image html Domain3D_Sphere2.png
+
+Boundary conditions:
+  + xmin: Supersonic inflow #_SUPERSONIC_INFLOW_
+  + xmax: Supersonic outflow #_SUPERSONIC_OUTFLOW_
+  + ymin and ymax: Supersonic outflow #_SUPERSONIC_OUTFLOW_
+  + zmin and zmax: Supersonic outflow #_SUPERSONIC_OUTFLOW_
+  + The immersed body wall is specified as adiabatic (#_IB_ADIABATIC_) (default option).
+
+Initial solution: \f$\rho=1, u=1.2, v=w=0, p=1/\gamma\f$ everywhere in the domain.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+  + Freestream Mach number \f$M_{\infty} = 1.2\f$ (#NavierStokes3D::Minf)
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENOChar())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (NavierStokes3DParabolicFunction())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+These files are all located in: \b mhysa/Examples/SingleSpecies/3D_Sphere/InviscSupersonic_Adiabatic/Mach1.2/
+
+\b solver.inp
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Adiabatic/Mach1.2/solver.inp
+
+\b boundary.inp
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Adiabatic/Mach1.2/boundary.inp
+
+\b physics.inp
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Adiabatic/Mach1.2/physics.inp
+
+\b sphere.stl : the filename "sphere.stl" \b must match
+the input for \a immersed_body in \a solver.inp.\n
+Located at \b mhysa/Examples/STLGeometries/sphere.stl
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Adiabatic/Mach1.2/aux/init.c
+
+Output:
+-------
+
+Note that \b iproc is set to 
+
+      8 4 4
+
+in \b solver.inp (i.e., 8 processors along \a x, 4
+processors along \a y, and 4 processor along \a z). Thus, 
+this example should be run with 128 MPI ranks (or change \b iproc).
+
+After running the code, there should be 101 output file
+\b op_nnnnn.bin, since #HyPar::op_overwrite is set to \a no in \b solver.inp.
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b mhysa/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file.
++ \b mhysa/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+In addition to the main solution, the code also writes out a file with the flow quantities
+on the immersed body. This file is called \a surface.dat (if #HyPar::op_overwrite
+is "yes") or \a surface_nnnnn.dat (if #HyPar::op_overwrite is "no", "nnnnn" is a numerical
+index) (in this example, the file \b surface_nnnnn.dat is written out). These are ASCII files in 
+the Tecplot format, where the immersed body and the forces on it are represented using the 
+"FETRIANGLE" type. 
+
+The following flow visualizations were generated using these files:
++ Mach number around the sphere:
+@image html Solution_3DNavStokSphereAdiabatic_SupersonicMach1.2_Inviscid_Mach.gif
++ Pressure and velocity vectors around and on the sphere:
+@image html Solution_3DNavStokSphereAdiabatic_SupersonicMach1.2_Inviscid_P_V.gif
+
+Expected screen output:
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Adiabatic/Mach1.2/output.log
+
+\page sphere_unsteady_supersonic_inviscid_isothermal 3D Unsteady, supersonic, inviscid flow around a sphere (isothermal surface) - Mach 1.2
+
+Location: \b mhysa/Examples/SingleSpecies/3D_Sphere/InviscSupersonic_Isothermal/Mach1.2
+
+Governing equations: 3D Navier-Stokes Equations (navierstokes3d.h)
+
+Domain: The domain consists of a fine uniform grid around the sphere defined by [-2,6] X [-2,2] X [-2,2],
+        and a stretched grid beyond this zone.
+
+Geometry: A sphere of radius 0.5 centered at (0,0)
+          (\b mhysa/Examples/STLGeometries/sphere.stl)
+
+The following image shows the sphere:
+@image html Surface3D_Sphere.png
+
+The following images shows the grid and the sphere:
+@image html Domain3D_Sphere1.png
+@image html Domain3D_Sphere2.png
+
+Boundary conditions:
+  + xmin: Supersonic inflow #_SUPERSONIC_INFLOW_
+  + xmax: Supersonic outflow #_SUPERSONIC_OUTFLOW_
+  + ymin and ymax: Supersonic outflow #_SUPERSONIC_OUTFLOW_
+  + zmin and zmax: Supersonic outflow #_SUPERSONIC_OUTFLOW_
+  + The immersed body wall is specified as isothermal (#_IB_ISOTHERMAL_);
+    the wall temperature is specified as \f$T_{\rm wall} = 1/\gamma\f$
+    (same as freestream temperature).
+
+Initial solution: \f$\rho=1, u=1.2, v=w=0, p=1/\gamma\f$ everywhere in the domain.
+
+Other parameters (all dimensional quantities are in SI units):
+  + Specific heat ratio \f$\gamma = 1.4\f$ (#NavierStokes3D::gamma)
+  + Freestream Mach number \f$M_{\infty} = 1.2\f$ (#NavierStokes3D::Minf)
+
+Numerical Method:
+ + Spatial discretization (hyperbolic): 5th order WENO (Interp1PrimFifthOrderWENOChar())
+ + Spatial discretization (parabolic) : 4th order (FirstDerivativeFourthOrderCentral()) 
+                                        non-conservative 2-stage (NavierStokes3DParabolicFunction())
+ + Time integration: RK4 (TimeRK(), #_RK_44_)
+
+Input files required:
+---------------------
+
+These files are all located in: \b mhysa/Examples/SingleSpecies/3D_Sphere/InviscSupersonic_Isothermal/Mach1.2/
+
+\b solver.inp
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Isothermal/Mach1.2/solver.inp
+
+\b boundary.inp
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Isothermal/Mach1.2/boundary.inp
+
+\b physics.inp
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Isothermal/Mach1.2/physics.inp
+
+\b sphere.stl : the filename "sphere.stl" \b must match
+the input for \a immersed_body in \a solver.inp.\n
+Located at \b mhysa/Examples/STLGeometries/sphere.stl
+
+To generate \b initial.inp (initial solution), compile 
+and run the following code in the run directory.
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Isothermal/Mach1.2/aux/init.c
+
+Output:
+-------
+
+Note that \b iproc is set to 
+
+      8 4 4
+
+in \b solver.inp (i.e., 8 processors along \a x, 4
+processors along \a y, and 4 processor along \a z). Thus, 
+this example should be run with 128 MPI ranks (or change \b iproc).
+
+After running the code, there should be 101 output file
+\b op_nnnnn.bin, since #HyPar::op_overwrite is set to \a no in \b solver.inp.
+#HyPar::op_file_format is set to \a binary in \b solver.inp, and
+thus, all the files are written out in the binary format, see 
+WriteBinary(). The binary file contains the conserved variables
+\f$\left(\rho, \rho u, \rho v, e\right)\f$. The following two codes
+are available to convert the binary output file:
++ \b mhysa/Extras/BinaryToTecplot.c - convert binary output file to 
+  Tecplot file.
++ \b mhysa/Extras/BinaryToText.c - convert binary output file to
+  an ASCII text file (to visualize in, for example, MATLAB).
+
+In addition to the main solution, the code also writes out a file with the flow quantities
+on the immersed body. This file is called \a surface.dat (if #HyPar::op_overwrite
+is "yes") or \a surface_nnnnn.dat (if #HyPar::op_overwrite is "no", "nnnnn" is a numerical
+index) (in this example, the file \b surface_nnnnn.dat is written out). These are ASCII files in 
+the Tecplot format, where the immersed body and the forces on it are represented using the 
+"FETRIANGLE" type. 
+
+The following flow visualizations were generated using these files:
++ Mach number around the sphere:
+@image html Solution_3DNavStokSphereIsothermal_SupersonicMach1.2_Inviscid_Mach.gif
++ Pressure and velocity vectors around and on the sphere:
+@image html Solution_3DNavStokSphereIsothermal_SupersonicMach1.2_Inviscid_P_V.gif
++ Temperature around and on the sphere:
+@image html Solution_3DNavStokSphereIsothermal_SupersonicMach1.2_Inviscid_T.gif
+
+Expected screen output:
+\include SingleSpecies/3D_Sphere/InviscSupersonic_Isothermal/Mach1.2/output.log
